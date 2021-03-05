@@ -4,7 +4,7 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
-import com.azure.core.util.ExpandableStringEnum;
+import com.azure.android.core.util.ExpandableStringEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Collection;
 

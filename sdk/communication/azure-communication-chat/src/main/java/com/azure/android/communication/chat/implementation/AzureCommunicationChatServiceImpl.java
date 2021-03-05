@@ -4,13 +4,12 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.core.http.HttpPipeline;
-import com.azure.core.http.HttpPipelineBuilder;
-import com.azure.core.http.policy.CookiePolicy;
-import com.azure.core.http.policy.RetryPolicy;
-import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.util.serializer.JacksonAdapter;
-import com.azure.core.util.serializer.SerializerAdapter;
+import com.azure.android.core.http.HttpPipeline;
+import com.azure.android.core.http.HttpPipelineBuilder;
+import com.azure.android.core.http.policy.CookiePolicy;
+import com.azure.android.core.http.policy.RetryPolicy;
+import com.azure.android.core.http.policy.UserAgentPolicy;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 
 /** Initializes a new instance of the AzureCommunicationChatService type. */
 public final class AzureCommunicationChatServiceImpl {
@@ -51,15 +50,15 @@ public final class AzureCommunicationChatServiceImpl {
     }
 
     /** The serializer to serialize an object into a string. */
-    private final SerializerAdapter serializerAdapter;
+    private final JacksonSerder jacksonSerder;
 
     /**
      * Gets The serializer to serialize an object into a string.
      *
-     * @return the serializerAdapter value.
+     * @return the jacksonSerder value.
      */
-    public SerializerAdapter getSerializerAdapter() {
-        return this.serializerAdapter;
+    public JacksonSerder getJacksonSerder() {
+        return this.jacksonSerder;
     }
 
     /** The ChatThreadsImpl object to access its operations. */
@@ -94,9 +93,9 @@ public final class AzureCommunicationChatServiceImpl {
     AzureCommunicationChatServiceImpl(String endpoint) {
         this(
                 new HttpPipelineBuilder()
-                        .policies(new UserAgentPolicy(), new RetryPolicy(), new CookiePolicy())
+                        .policies(new UserAgentPolicy(), RetryPolicy.withExponentialBackoff(), new CookiePolicy())
                         .build(),
-                JacksonAdapter.createDefaultSerializerAdapter(),
+                JacksonSerder.createDefault(),
                 endpoint);
     }
 
@@ -107,19 +106,19 @@ public final class AzureCommunicationChatServiceImpl {
      * @param endpoint The endpoint of the Azure Communication resource.
      */
     AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, String endpoint) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
+        this(httpPipeline, JacksonSerder.createDefault(), endpoint);
     }
 
     /**
      * Initializes an instance of AzureCommunicationChatService client.
      *
      * @param httpPipeline The HTTP pipeline to send requests through.
-     * @param serializerAdapter The serializer to serialize an object into a string.
+     * @param jacksonSerder The serializer to serialize an object into a string.
      * @param endpoint The endpoint of the Azure Communication resource.
      */
-    AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint) {
+    AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, JacksonSerder jacksonSerder, String endpoint) {
         this.httpPipeline = httpPipeline;
-        this.serializerAdapter = serializerAdapter;
+        this.jacksonSerder = jacksonSerder;
         this.endpoint = endpoint;
         this.apiVersion = "2021-01-27-preview4";
         this.chatThreadClient = new ChatThreadImpl(this);

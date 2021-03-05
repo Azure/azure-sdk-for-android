@@ -4,7 +4,7 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
-import com.azure.core.annotation.Immutable;
+import com.azure.android.core.rest.annotation.Immutable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 

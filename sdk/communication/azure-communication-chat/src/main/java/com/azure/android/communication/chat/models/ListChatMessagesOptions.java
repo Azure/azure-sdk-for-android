@@ -4,7 +4,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.core.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Fluent;
+
 import java.time.OffsetDateTime;
 
 /**

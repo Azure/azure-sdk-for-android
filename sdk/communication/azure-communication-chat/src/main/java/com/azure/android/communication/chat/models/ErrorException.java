@@ -4,8 +4,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.core.exception.HttpResponseException;
-import com.azure.core.http.HttpResponse;
+import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.exception.HttpResponseException;
 
 /** Exception thrown for an invalid response with Error information. */
 public final class ErrorException extends HttpResponseException {

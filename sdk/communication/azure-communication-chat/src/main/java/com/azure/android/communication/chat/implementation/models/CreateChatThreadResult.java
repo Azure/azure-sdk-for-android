@@ -5,7 +5,7 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.communication.chat.models.CreateChatThreadErrors;
-import com.azure.core.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** Result of the create chat thread operation. */

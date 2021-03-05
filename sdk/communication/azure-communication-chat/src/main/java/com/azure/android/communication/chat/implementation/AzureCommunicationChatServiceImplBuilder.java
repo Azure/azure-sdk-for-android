@@ -4,20 +4,18 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.core.annotation.ServiceClientBuilder;
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.HttpPipeline;
-import com.azure.core.http.HttpPipelineBuilder;
-import com.azure.core.http.policy.CookiePolicy;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.http.policy.HttpLoggingPolicy;
-import com.azure.core.http.policy.HttpPipelinePolicy;
-import com.azure.core.http.policy.HttpPolicyProviders;
-import com.azure.core.http.policy.RetryPolicy;
-import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.util.Configuration;
-import com.azure.core.util.serializer.JacksonAdapter;
-import com.azure.core.util.serializer.SerializerAdapter;
+import com.azure.android.core.rest.annotation.ServiceClientBuilder;
+import com.azure.android.core.http.HttpClient;
+import com.azure.android.core.http.HttpPipeline;
+import com.azure.android.core.http.HttpPipelineBuilder;
+import com.azure.android.core.http.policy.CookiePolicy;
+import com.azure.android.core.http.policy.HttpLogOptions;
+import com.azure.android.core.http.policy.HttpLoggingPolicy;
+import com.azure.android.core.http.HttpPipelinePolicy;
+import com.azure.android.core.http.policy.RetryPolicy;
+import com.azure.android.core.http.policy.UserAgentPolicy;
+import com.azure.android.core.serde.jackson.JacksonSerder;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,18 +70,18 @@ public final class AzureCommunicationChatServiceImplBuilder {
     /*
      * The serializer to serialize an object into a string
      */
-    private SerializerAdapter serializerAdapter;
+    private JacksonSerder jacksonSerder;
 
-    /**
-     * Sets The serializer to serialize an object into a string.
-     *
-     * @param serializerAdapter the serializerAdapter value.
-     * @return the AzureCommunicationChatServiceImplBuilder.
-     */
-    public AzureCommunicationChatServiceImplBuilder serializerAdapter(SerializerAdapter serializerAdapter) {
-        this.serializerAdapter = serializerAdapter;
-        return this;
-    }
+//    /**
+//     * Sets The serializer to serialize an object into a string.
+//     *
+//     * @param serializerAdapter the serializerAdapter value.
+//     * @return the AzureCommunicationChatServiceImplBuilder.
+//     */
+//    public AzureCommunicationChatServiceImplBuilder serializerAdapter(JacksonSerder serializerAdapter) {
+//        this.serializerAdapter = serializerAdapter;
+//        return this;
+//    }
 
     /*
      * The HTTP client used to send the request.
@@ -101,22 +99,22 @@ public final class AzureCommunicationChatServiceImplBuilder {
         return this;
     }
 
-    /*
-     * The configuration store that is used during construction of the service
-     * client.
-     */
-    private Configuration configuration;
-
-    /**
-     * Sets The configuration store that is used during construction of the service client.
-     *
-     * @param configuration the configuration value.
-     * @return the AzureCommunicationChatServiceImplBuilder.
-     */
-    public AzureCommunicationChatServiceImplBuilder configuration(Configuration configuration) {
-        this.configuration = configuration;
-        return this;
-    }
+//    /*
+//     * The configuration store that is used during construction of the service
+//     * client.
+//     */
+//    private Configuration configuration;
+//
+//    /**
+//     * Sets The configuration store that is used during construction of the service client.
+//     *
+//     * @param configuration the configuration value.
+//     * @return the AzureCommunicationChatServiceImplBuilder.
+//     */
+//    public AzureCommunicationChatServiceImplBuilder configuration(Configuration configuration) {
+//        this.configuration = configuration;
+//        return this;
+//    }
 
     /*
      * The logging configuration for HTTP requests and responses.
@@ -176,17 +174,17 @@ public final class AzureCommunicationChatServiceImplBuilder {
         if (pipeline == null) {
             this.pipeline = createHttpPipeline();
         }
-        if (serializerAdapter == null) {
-            this.serializerAdapter = JacksonAdapter.createDefaultSerializerAdapter();
+        if (jacksonSerder == null) {
+            this.jacksonSerder = JacksonSerder.createDefault();
         }
         AzureCommunicationChatServiceImpl client =
-                new AzureCommunicationChatServiceImpl(pipeline, serializerAdapter, endpoint);
+                new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint);
         return client;
     }
 
     private HttpPipeline createHttpPipeline() {
-        Configuration buildConfiguration =
-                (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
+//        Configuration buildConfiguration =
+//                (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
         if (httpLogOptions == null) {
             httpLogOptions = new HttpLogOptions();
         }
@@ -194,12 +192,12 @@ public final class AzureCommunicationChatServiceImplBuilder {
         String clientName = properties.getOrDefault(SDK_NAME, "UnknownName");
         String clientVersion = properties.getOrDefault(SDK_VERSION, "UnknownVersion");
         policies.add(
-                new UserAgentPolicy(httpLogOptions.getApplicationId(), clientName, clientVersion, buildConfiguration));
-        HttpPolicyProviders.addBeforeRetryPolicies(policies);
-        policies.add(retryPolicy == null ? new RetryPolicy() : retryPolicy);
+                new UserAgentPolicy(null, clientName, clientVersion));
+//        HttpPolicyProviders.addBeforeRetryPolicies(policies);
+        policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.addAll(this.pipelinePolicies);
-        HttpPolicyProviders.addAfterRetryPolicies(policies);
+//        HttpPolicyProviders.addAfterRetryPolicies(policies);
         policies.add(new HttpLoggingPolicy(httpLogOptions));
         HttpPipeline httpPipeline =
                 new HttpPipelineBuilder()

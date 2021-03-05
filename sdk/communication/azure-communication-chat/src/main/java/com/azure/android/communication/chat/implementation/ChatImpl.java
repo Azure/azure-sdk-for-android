@@ -10,30 +10,30 @@ import com.azure.android.communication.chat.implementation.models.CreateChatThre
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
-import com.azure.core.annotation.BodyParam;
-import com.azure.core.annotation.Delete;
-import com.azure.core.annotation.ExpectedResponses;
-import com.azure.core.annotation.Get;
-import com.azure.core.annotation.HeaderParam;
-import com.azure.core.annotation.Host;
-import com.azure.core.annotation.HostParam;
-import com.azure.core.annotation.PathParam;
-import com.azure.core.annotation.Post;
-import com.azure.core.annotation.QueryParam;
-import com.azure.core.annotation.ReturnType;
-import com.azure.core.annotation.ServiceInterface;
-import com.azure.core.annotation.ServiceMethod;
-import com.azure.core.annotation.UnexpectedResponseExceptionType;
-import com.azure.core.http.rest.PagedFlux;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.PagedResponse;
-import com.azure.core.http.rest.PagedResponseBase;
-import com.azure.core.http.rest.Response;
-import com.azure.core.http.rest.RestProxy;
-import com.azure.core.util.Context;
-import com.azure.core.util.FluxUtil;
+import com.azure.android.core.rest.annotation.BodyParam;
+import com.azure.android.core.rest.annotation.Delete;
+import com.azure.android.core.rest.annotation.ExpectedResponses;
+import com.azure.android.core.rest.annotation.Get;
+import com.azure.android.core.rest.annotation.HeaderParam;
+import com.azure.android.core.rest.annotation.Host;
+import com.azure.android.core.rest.annotation.HostParam;
+import com.azure.android.core.rest.annotation.PathParam;
+import com.azure.android.core.rest.annotation.Post;
+import com.azure.android.core.rest.annotation.QueryParam;
+import com.azure.android.core.rest.annotation.ReturnType;
+import com.azure.android.core.rest.annotation.ServiceInterface;
+import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
+import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
+import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.rest.PagedResponseBase;
+import com.azure.android.core.rest.Response;
+import com.azure.android.core.rest.RestProxy;
+import com.azure.android.core.util.Context;
+import com.azure.android.core.rest.Callback;
 import java.time.OffsetDateTime;
-import reactor.core.publisher.Mono;
+import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 /** An instance of this class provides access to all the operations defined in Chats. */
 public final class ChatImpl {
@@ -49,7 +49,7 @@ public final class ChatImpl {
      * @param client the instance of the service client containing this operation class.
      */
     ChatImpl(AzureCommunicationChatServiceImpl client) {
-        this.service = RestProxy.create(ChatsService.class, client.getHttpPipeline(), client.getSerializerAdapter());
+        this.service = RestProxy.create(ChatsService.class, client.getHttpPipeline(), client.getJacksonSerder());
         this.client = client;
     }
 
@@ -62,54 +62,69 @@ public final class ChatImpl {
     private interface ChatsService {
         @Post("/chat/threads")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
-        Mono<Response<CreateChatThreadResult>> createChatThread(
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
+        })
+        void createChatThread(
             @HostParam("endpoint") String endpoint,
             @HeaderParam("repeatability-Request-Id") String repeatabilityRequestId,
             @QueryParam("api-version") String apiVersion,
             @BodyParam("application/json") CreateChatThreadOptions createChatThreadRequest,
             @HeaderParam("Accept") String accept,
-            Context context);
+            Context context,
+            Callback<Response<CreateChatThreadResult>> callback);
 
         @Get("/chat/threads")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
-        Mono<Response<ChatThreadsInfoCollection>> listChatThreads(
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
+        })
+        void listChatThreads(
             @HostParam("endpoint") String endpoint,
             @QueryParam("maxPageSize") Integer maxPageSize,
             @QueryParam("startTime") OffsetDateTime startTime,
             @QueryParam("api-version") String apiVersion,
             @HeaderParam("Accept") String accept,
-            Context context);
+            Context context,
+            Callback<Response<ChatThreadsInfoCollection>> callback);
 
         @Get("/chat/threads/{chatThreadId}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
-        Mono<Response<ChatThread>> getChatThread(
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
+        })
+        void getChatThread(
             @HostParam("endpoint") String endpoint,
             @PathParam("chatThreadId") String chatThreadId,
             @QueryParam("api-version") String apiVersion,
             @HeaderParam("Accept") String accept,
-            Context context);
+            Context context,
+            Callback<Response<ChatThread>> callback);
 
         @Delete("/chat/threads/{chatThreadId}")
         @ExpectedResponses({204})
-        @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
-        Mono<Response<Void>> deleteChatThread(
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
+        })
+        void deleteChatThread(
             @HostParam("endpoint") String endpoint,
             @PathParam("chatThreadId") String chatThreadId,
             @QueryParam("api-version") String apiVersion,
             @HeaderParam("Accept") String accept,
-            Context context);
+            Context context,
+            Callback<Response<Void>> callback);
 
         @Get("{nextLink}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
-        Mono<Response<ChatThreadsInfoCollection>> listChatThreadsNext(
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)
+        })
+        void listChatThreadsNext(
             @PathParam(value = "nextLink", encoded = true) String nextLink,
             @HostParam("endpoint") String endpoint,
             @HeaderParam("Accept") String accept,
-            Context context);
+            Context context,
+            Callback<Response<ChatThreadsInfoCollection>> callback);
     }
 
     /**
@@ -127,97 +142,28 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
+    public void createChatThreadWithResponseAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId,
+        Callback<Response<CreateChatThreadResult>> callback) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context ->
-                service.createChatThread(
-                    this.client.getEndpoint(),
-                    repeatabilityRequestId,
-                    this.client.getApiVersion(),
-                    createChatThreadRequest,
-                    accept,
-                    context));
-    }
-
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the
-     *     client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate
-     *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
-     *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
-     *     request. It is recommended to use version 4 (random) UUIDs.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return result of the create chat thread operation.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
-        final String accept = "application/json";
-        return service.createChatThread(
+        service.createChatThread(
             this.client.getEndpoint(),
             repeatabilityRequestId,
             this.client.getApiVersion(),
             createChatThreadRequest,
             accept,
-            context);
-    }
+            Context.NONE,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    callback.onSuccess(response);
+                }
 
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the
-     *     client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate
-     *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
-     *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
-     *     request. It is recommended to use version 4 (random) UUIDs.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return result of the create chat thread operation.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<CreateChatThreadResult> createChatThreadAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
-        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId)
-            .flatMap(
-                (Response<CreateChatThreadResult> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
-    }
-
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return result of the create chat thread operation.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<CreateChatThreadResult> createChatThreadAsync(CreateChatThreadOptions createChatThreadRequest) {
-        final String repeatabilityRequestId = null;
-        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId)
-            .flatMap(
-                (Response<CreateChatThreadResult> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -236,17 +182,121 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<CreateChatThreadResult> createChatThreadAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
-        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context)
-            .flatMap(
-                (Response<CreateChatThreadResult> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
+    public void createChatThreadWithResponseAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context,
+        Callback<Response<CreateChatThreadResult>> callback) {
+        final String accept = "application/json";
+        service.createChatThread(
+            this.client.getEndpoint(),
+            repeatabilityRequestId,
+            this.client.getApiVersion(),
+            createChatThreadRequest,
+            accept,
+            context,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    callback.onSuccess(response);
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
+    }
+
+    /**
+     * Creates a chat thread.
+     *
+     * @param createChatThreadRequest Request payload for creating a chat thread.
+     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the
+     *     client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate
+     *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
+     *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
+     *     request. It is recommended to use version 4 (random) UUIDs.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return result of the create chat thread operation.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void createChatThreadAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId,
+        Callback<CreateChatThreadResult> callback) {
+        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    callback.onSuccess(response.getValue());
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
+    }
+
+    /**
+     * Creates a chat thread.
+     *
+     * @param createChatThreadRequest Request payload for creating a chat thread.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return result of the create chat thread operation.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void createChatThreadAsync(CreateChatThreadOptions createChatThreadRequest,
+                                      Callback<CreateChatThreadResult> callback) {
+        final String repeatabilityRequestId = null;
+        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    callback.onSuccess(response.getValue());
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
+    }
+
+    /**
+     * Creates a chat thread.
+     *
+     * @param createChatThreadRequest Request payload for creating a chat thread.
+     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the
+     *     client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate
+     *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
+     *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
+     *     request. It is recommended to use version 4 (random) UUIDs.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return result of the create chat thread operation.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void createChatThreadAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context,
+        Callback<CreateChatThreadResult> callback) {
+
+        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    callback.onSuccess(response.getValue());
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -266,7 +316,27 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(
         CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
-        return createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final CreateChatThreadResult success[] = new CreateChatThreadResult[1];
+        final Throwable failure[] = new Throwable[1];
+        createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId, new Callback<CreateChatThreadResult>() {
+            @Override
+            public void onSuccess(CreateChatThreadResult response) {
+                success[0] = response;
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                failure[0] = error;
+                latch.countDown();
+            }
+        });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success[0];
     }
 
     /**
@@ -281,7 +351,27 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(CreateChatThreadOptions createChatThreadRequest) {
         final String repeatabilityRequestId = null;
-        return createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final CreateChatThreadResult success[] = new CreateChatThreadResult[1];
+        final Throwable failure[] = new Throwable[1];
+        createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId, new Callback<CreateChatThreadResult>() {
+            @Override
+            public void onSuccess(CreateChatThreadResult response) {
+                success[0] = response;
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                failure[0] = error;
+                latch.countDown();
+            }
+        });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success[0];
     }
 
     /**
@@ -302,7 +392,27 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CreateChatThreadResult> createChatThreadWithResponse(
         CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
-        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final ArrayList<Response<CreateChatThreadResult>> success = new ArrayList<>(1);
+        final Throwable failure[] = new Throwable[1];
+        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context,
+            new Callback<Response<CreateChatThreadResult>>() {
+                @Override
+                public void onSuccess(Response<CreateChatThreadResult> response) {
+                    success.add(response);
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    failure[0] = error;
+                    latch.countDown();
+                }
+            });
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success.get(0);
     }
 
     /**
@@ -317,27 +427,34 @@ public final class ChatImpl {
      * @return the list of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ChatThreadInfo>> listChatThreadsSinglePageAsync(
-        Integer maxPageSize, OffsetDateTime startTime) {
+    public void listChatThreadsSinglePageAsync(
+        Integer maxPageSize, OffsetDateTime startTime,
+        Callback<PagedResponse<ChatThreadInfo>> callback) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context ->
-                service.listChatThreads(
-                    this.client.getEndpoint(),
-                    maxPageSize,
-                    startTime,
-                    this.client.getApiVersion(),
-                    accept,
-                    context))
-            .map(
-                res ->
-                    new PagedResponseBase<>(
-                        res.getRequest(),
-                        res.getStatusCode(),
-                        res.getHeaders(),
-                        res.getValue().getValue(),
-                        res.getValue().getNextLink(),
+        service.listChatThreads(
+            this.client.getEndpoint(),
+            maxPageSize,
+            startTime,
+            this.client.getApiVersion(),
+            accept,
+            Context.NONE,
+            new Callback<Response<ChatThreadsInfoCollection>>() {
+                @Override
+                public void onSuccess(Response<ChatThreadsInfoCollection> response) {
+                    callback.onSuccess(new PagedResponseBase<>(
+                        response.getRequest(),
+                        response.getStatusCode(),
+                        response.getHeaders(),
+                        response.getValue().getValue(),
+                        response.getValue().getNextLink(),
                         null));
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -353,124 +470,133 @@ public final class ChatImpl {
      * @return the list of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ChatThreadInfo>> listChatThreadsSinglePageAsync(
-        Integer maxPageSize, OffsetDateTime startTime, Context context) {
+    public void listChatThreadsSinglePageAsync(
+        Integer maxPageSize, OffsetDateTime startTime, Context context,
+        Callback<PagedResponse<ChatThreadInfo>> callback) {
         final String accept = "application/json";
-        return service.listChatThreads(
-            this.client.getEndpoint(), maxPageSize, startTime, this.client.getApiVersion(), accept, context)
-            .map(
-                res ->
-                    new PagedResponseBase<>(
-                        res.getRequest(),
-                        res.getStatusCode(),
-                        res.getHeaders(),
-                        res.getValue().getValue(),
-                        res.getValue().getNextLink(),
+        service.listChatThreads(
+            this.client.getEndpoint(), maxPageSize, startTime, this.client.getApiVersion(), accept, context,
+            new Callback<Response<ChatThreadsInfoCollection>>() {
+                @Override
+                public void onSuccess(Response<ChatThreadsInfoCollection> response) {
+                    callback.onSuccess(new PagedResponseBase<>(
+                        response.getRequest(),
+                        response.getStatusCode(),
+                        response.getHeaders(),
+                        response.getValue().getValue(),
+                        response.getValue().getNextLink(),
                         null));
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
-     *     `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ChatThreadInfo> listChatThreadsAsync(Integer maxPageSize, OffsetDateTime startTime) {
-        return new PagedFlux<>(
-            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime),
-            nextLink -> listChatThreadsNextSinglePageAsync(nextLink));
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ChatThreadInfo> listChatThreadsAsync() {
-        final Integer maxPageSize = null;
-        final OffsetDateTime startTime = null;
-        return new PagedFlux<>(
-            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime),
-            nextLink -> listChatThreadsNextSinglePageAsync(nextLink));
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
-     *     `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<ChatThreadInfo> listChatThreadsAsync(
-        Integer maxPageSize, OffsetDateTime startTime, Context context) {
-        return new PagedFlux<>(
-            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime, context),
-            nextLink -> listChatThreadsNextSinglePageAsync(nextLink, context));
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
-     *     `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<ChatThreadInfo> listChatThreads(Integer maxPageSize, OffsetDateTime startTime) {
-        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime));
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<ChatThreadInfo> listChatThreads() {
-        final Integer maxPageSize = null;
-        final OffsetDateTime startTime = null;
-        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime));
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
-     *     `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<ChatThreadInfo> listChatThreads(
-        Integer maxPageSize, OffsetDateTime startTime, Context context) {
-        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime, context));
-    }
-
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @param maxPageSize The maximum number of chat threads returned per page.
+//     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
+//     *     `yyyy-MM-ddTHH:mm:ssZ`.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedFlux<ChatThreadInfo> listChatThreadsAsync(Integer maxPageSize, OffsetDateTime startTime) {
+//        return new PagedFlux<>(
+//            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime),
+//            nextLink -> listChatThreadsNextSinglePageAsync(nextLink));
+//    }
+//
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedFlux<ChatThreadInfo> listChatThreadsAsync() {
+//        final Integer maxPageSize = null;
+//        final OffsetDateTime startTime = null;
+//        return new PagedFlux<>(
+//            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime),
+//            nextLink -> listChatThreadsNextSinglePageAsync(nextLink));
+//    }
+//
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @param maxPageSize The maximum number of chat threads returned per page.
+//     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
+//     *     `yyyy-MM-ddTHH:mm:ssZ`.
+//     * @param context The context to associate with this operation.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedFlux<ChatThreadInfo> listChatThreadsAsync(
+//        Integer maxPageSize, OffsetDateTime startTime, Context context) {
+//        return new PagedFlux<>(
+//            () -> listChatThreadsSinglePageAsync(maxPageSize, startTime, context),
+//            nextLink -> listChatThreadsNextSinglePageAsync(nextLink, context));
+//    }
+//
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @param maxPageSize The maximum number of chat threads returned per page.
+//     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
+//     *     `yyyy-MM-ddTHH:mm:ssZ`.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedIterable<ChatThreadInfo> listChatThreads(Integer maxPageSize, OffsetDateTime startTime) {
+//        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime));
+//    }
+//
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedIterable<ChatThreadInfo> listChatThreads() {
+//        final Integer maxPageSize = null;
+//        final OffsetDateTime startTime = null;
+//        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime));
+//    }
+//
+//    /**
+//     * Gets the list of chat threads of a user.
+//     *
+//     * @param maxPageSize The maximum number of chat threads returned per page.
+//     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
+//     *     `yyyy-MM-ddTHH:mm:ssZ`.
+//     * @param context The context to associate with this operation.
+//     * @throws IllegalArgumentException thrown if parameters fail the validation.
+//     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+//     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+//     * @return the list of chat threads of a user.
+//     */
+//    @ServiceMethod(returns = ReturnType.COLLECTION)
+//    public PagedIterable<ChatThreadInfo> listChatThreads(
+//        Integer maxPageSize, OffsetDateTime startTime, Context context) {
+//        return new PagedIterable<>(listChatThreadsAsync(maxPageSize, startTime, context));
+//    }
+//
     /**
      * Gets a chat thread.
      *
@@ -481,12 +607,22 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<ChatThread>> getChatThreadWithResponseAsync(String chatThreadId) {
+    public void getChatThreadWithResponseAsync(String chatThreadId,
+                                               Callback<Response<ChatThread>> callback) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context ->
-                service.getChatThread(
-                    this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context));
+        service.getChatThread(
+            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, Context.NONE,
+            new Callback<Response<ChatThread>>() {
+                @Override
+                public void onSuccess(Response<ChatThread> response) {
+                    callback.onSuccess(response);
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -500,10 +636,22 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<ChatThread>> getChatThreadWithResponseAsync(String chatThreadId, Context context) {
+    public void getChatThreadWithResponseAsync(String chatThreadId, Context context,
+                                               Callback<Response<ChatThread>> callback) {
         final String accept = "application/json";
-        return service.getChatThread(
-            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context);
+        service.getChatThread(
+            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context,
+            new Callback<Response<ChatThread>>() {
+                @Override
+                public void onSuccess(Response<ChatThread> response) {
+                    callback.onSuccess(response);
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -516,16 +664,18 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<ChatThread> getChatThreadAsync(String chatThreadId) {
-        return getChatThreadWithResponseAsync(chatThreadId)
-            .flatMap(
-                (Response<ChatThread> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
+    public void getChatThreadAsync(String chatThreadId, Callback<ChatThread> callback) {
+        getChatThreadWithResponseAsync(chatThreadId, new Callback<Response<ChatThread>>() {
+            @Override
+            public void onSuccess(Response<ChatThread> response) {
+                callback.onSuccess(response.getValue());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                callback.onFailure(error);
+            }
+        });
     }
 
     /**
@@ -539,16 +689,18 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<ChatThread> getChatThreadAsync(String chatThreadId, Context context) {
-        return getChatThreadWithResponseAsync(chatThreadId, context)
-            .flatMap(
-                (Response<ChatThread> res) -> {
-                    if (res.getValue() != null) {
-                        return Mono.just(res.getValue());
-                    } else {
-                        return Mono.empty();
-                    }
-                });
+    public void getChatThreadAsync(String chatThreadId, Context context, Callback<ChatThread> callback) {
+        getChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<ChatThread>>() {
+            @Override
+            public void onSuccess(Response<ChatThread> response) {
+                callback.onSuccess(response.getValue());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                callback.onFailure(error);
+            }
+        });
     }
 
     /**
@@ -562,7 +714,27 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChatThread getChatThread(String chatThreadId) {
-        return getChatThreadAsync(chatThreadId).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final ChatThread success[] = new ChatThread[1];
+        final Throwable failure[] = new Throwable[1];
+        getChatThreadAsync(chatThreadId, new Callback<ChatThread>() {
+            @Override
+            public void onSuccess(ChatThread response) {
+                success[0] = response;
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                failure[0] = error;
+                latch.countDown();
+            }
+        });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success[0];
     }
 
     /**
@@ -577,7 +749,27 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChatThread> getChatThreadWithResponse(String chatThreadId, Context context) {
-        return getChatThreadWithResponseAsync(chatThreadId, context).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final ArrayList<Response<ChatThread>> success = new ArrayList<>(1);
+        final Throwable failure[] = new Throwable[1];
+        getChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<ChatThread>>() {
+            @Override
+            public void onSuccess(Response<ChatThread> response) {
+                success.add(response);
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                failure[0] = error;
+                latch.countDown();
+            }
+        });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success.get(0);
     }
 
     /**
@@ -590,12 +782,22 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId) {
+    public void deleteChatThreadWithResponseAsync(String chatThreadId,
+                                                  Callback<Response<Void>> callback) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context ->
-                service.deleteChatThread(
-                    this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context));
+        service.deleteChatThread(
+            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, Context.NONE,
+            new Callback<Response<Void>>() {
+                @Override
+                public void onSuccess(Response<Void> response) {
+                    callback.onSuccess(response);
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -609,10 +811,22 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId, Context context) {
+    public void deleteChatThreadWithResponseAsync(String chatThreadId, Context context,
+                                                  Callback<Response<Void>> callback) {
         final String accept = "application/json";
-        return service.deleteChatThread(
-            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context);
+        service.deleteChatThread(
+            this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context,
+            new Callback<Response<Void>>() {
+                @Override
+                public void onSuccess(Response<Void> response) {
+                    callback.onSuccess(response);
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -625,8 +839,18 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> deleteChatThreadAsync(String chatThreadId) {
-        return deleteChatThreadWithResponseAsync(chatThreadId).flatMap((Response<Void> res) -> Mono.empty());
+    public void deleteChatThreadAsync(String chatThreadId, Callback<Void> callback) {
+        deleteChatThreadWithResponseAsync(chatThreadId, new Callback<Response<Void>>() {
+            @Override
+            public void onSuccess(Response<Void> response) {
+                callback.onSuccess(response.getValue());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                callback.onFailure(error);
+            }
+        });
     }
 
     /**
@@ -640,8 +864,18 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> deleteChatThreadAsync(String chatThreadId, Context context) {
-        return deleteChatThreadWithResponseAsync(chatThreadId, context).flatMap((Response<Void> res) -> Mono.empty());
+    public void deleteChatThreadAsync(String chatThreadId, Context context, Callback<Void> callback) {
+        deleteChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<Void>>() {
+            @Override
+            public void onSuccess(Response<Void> response) {
+                callback.onSuccess(response.getValue());
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                callback.onFailure(error);
+            }
+        });
     }
 
     /**
@@ -654,7 +888,24 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void deleteChatThread(String chatThreadId) {
-        deleteChatThreadAsync(chatThreadId).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        Throwable failure[] = new Throwable[1];
+        deleteChatThreadAsync(chatThreadId, new Callback<Void>() {
+            @Override
+            public void onSuccess(Void response) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                failure[0] = error;
+                latch.countDown();
+            }
+        });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
     }
 
     /**
@@ -669,7 +920,28 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteChatThreadWithResponse(String chatThreadId, Context context) {
-        return deleteChatThreadWithResponseAsync(chatThreadId, context).block();
+        CountDownLatch latch = new CountDownLatch(1);
+        final ArrayList<Response<Void>> success = new ArrayList<>(1);
+        final Throwable failure[] = new Throwable[1];
+        deleteChatThreadWithResponseAsync(chatThreadId, context,
+            new Callback<Response<Void>>() {
+                @Override
+                public void onSuccess(Response<Void> response) {
+                    success.add(response);
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    failure[0] = error;
+                    latch.countDown();
+                }
+            });
+
+        if (failure[0] != null) {
+            throw new RuntimeException(failure[0]);
+        }
+        return success.get(0);
     }
 
     /**
@@ -682,19 +954,26 @@ public final class ChatImpl {
      * @return collection of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ChatThreadInfo>> listChatThreadsNextSinglePageAsync(String nextLink) {
+    public void listChatThreadsNextSinglePageAsync(String nextLink, Callback<PagedResponse<ChatThreadInfo>> callback) {
         final String accept = "application/json";
-        return FluxUtil.withContext(
-            context -> service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, context))
-            .map(
-                res ->
-                    new PagedResponseBase<>(
-                        res.getRequest(),
-                        res.getStatusCode(),
-                        res.getHeaders(),
-                        res.getValue().getValue(),
-                        res.getValue().getNextLink(),
+        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE,
+            new Callback<Response<ChatThreadsInfoCollection>>() {
+                @Override
+                public void onSuccess(Response<ChatThreadsInfoCollection> response) {
+                    callback.onSuccess(new PagedResponseBase<>(
+                        response.getRequest(),
+                        response.getStatusCode(),
+                        response.getHeaders(),
+                        response.getValue().getValue(),
+                        response.getValue().getNextLink(),
                         null));
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 
     /**
@@ -708,17 +987,26 @@ public final class ChatImpl {
      * @return collection of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<PagedResponse<ChatThreadInfo>> listChatThreadsNextSinglePageAsync(String nextLink, Context context) {
+    public void listChatThreadsNextSinglePageAsync(String nextLink, Context context,
+                                                   Callback<PagedResponse<ChatThreadInfo>> callback) {
         final String accept = "application/json";
-        return service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, context)
-            .map(
-                res ->
-                    new PagedResponseBase<>(
-                        res.getRequest(),
-                        res.getStatusCode(),
-                        res.getHeaders(),
-                        res.getValue().getValue(),
-                        res.getValue().getNextLink(),
+        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, context,
+            new Callback<Response<ChatThreadsInfoCollection>>() {
+                @Override
+                public void onSuccess(Response<ChatThreadsInfoCollection> response) {
+                    callback.onSuccess(new PagedResponseBase<>(
+                        response.getRequest(),
+                        response.getStatusCode(),
+                        response.getHeaders(),
+                        response.getValue().getValue(),
+                        response.getValue().getNextLink(),
                         null));
+                }
+
+                @Override
+                public void onFailure(Throwable error) {
+                    callback.onFailure(error);
+                }
+            });
     }
 }

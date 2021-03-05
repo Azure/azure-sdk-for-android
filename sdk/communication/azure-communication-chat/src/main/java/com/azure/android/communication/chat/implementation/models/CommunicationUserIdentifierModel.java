@@ -4,7 +4,7 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
-import com.azure.core.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** A user that got created with an Azure Communication Services resource. */

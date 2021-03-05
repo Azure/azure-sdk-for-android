@@ -4,8 +4,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.core.exception.HttpResponseException;
-import com.azure.core.http.HttpResponse;
+import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.exception.HttpResponseException;
 
 /** Exception thrown for an invalid response with CommunicationErrorResponse information. */
 public final class CommunicationErrorResponseException extends HttpResponseException {
@@ -62,23 +62,25 @@ public final class CommunicationErrorResponseException extends HttpResponseExcep
         super(response, cause);
     }
 
-    /**
-     * Initializes a new instance of the CommunicationErrorResponseException class.
-     *
-     * @param message the exception message or the response content if a message is not available.
-     * @param response the HTTP response.
-     * @param cause the inner exception.
-     * @param enableSuppression suppress the exception.
-     * @param writableStackTrace write to the stacktrace.
-     */
-    public CommunicationErrorResponseException(
-        String message,
-        HttpResponse response,
-        Throwable cause,
-        boolean enableSuppression,
-        boolean writableStackTrace) {
-        super(message, response, cause, enableSuppression, writableStackTrace);
-    }
+// anuchan: The Ctr with stack trace info is not available for android.
+//
+//    /**
+//     * Initializes a new instance of the CommunicationErrorResponseException class.
+//     *
+//     * @param message the exception message or the response content if a message is not available.
+//     * @param response the HTTP response.
+//     * @param cause the inner exception.
+//     * @param enableSuppression suppress the exception.
+//     * @param writableStackTrace write to the stacktrace.
+//     */
+//    public CommunicationErrorResponseException(
+//        String message,
+//        HttpResponse response,
+//        Throwable cause,
+//        boolean enableSuppression,
+//        boolean writableStackTrace) {
+//        super(message, response, cause, enableSuppression, writableStackTrace);
+//    }
 
     @Override
     public CommunicationErrorResponse getValue() {
