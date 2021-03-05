@@ -72,17 +72,6 @@ public final class AzureCommunicationChatServiceImplBuilder {
      */
     private JacksonSerder jacksonSerder;
 
-//    /**
-//     * Sets The serializer to serialize an object into a string.
-//     *
-//     * @param serializerAdapter the serializerAdapter value.
-//     * @return the AzureCommunicationChatServiceImplBuilder.
-//     */
-//    public AzureCommunicationChatServiceImplBuilder serializerAdapter(JacksonSerder serializerAdapter) {
-//        this.serializerAdapter = serializerAdapter;
-//        return this;
-//    }
-
     /*
      * The HTTP client used to send the request.
      */
@@ -98,23 +87,6 @@ public final class AzureCommunicationChatServiceImplBuilder {
         this.httpClient = httpClient;
         return this;
     }
-
-//    /*
-//     * The configuration store that is used during construction of the service
-//     * client.
-//     */
-//    private Configuration configuration;
-//
-//    /**
-//     * Sets The configuration store that is used during construction of the service client.
-//     *
-//     * @param configuration the configuration value.
-//     * @return the AzureCommunicationChatServiceImplBuilder.
-//     */
-//    public AzureCommunicationChatServiceImplBuilder configuration(Configuration configuration) {
-//        this.configuration = configuration;
-//        return this;
-//    }
 
     /*
      * The logging configuration for HTTP requests and responses.
@@ -183,21 +155,23 @@ public final class AzureCommunicationChatServiceImplBuilder {
     }
 
     private HttpPipeline createHttpPipeline() {
-//        Configuration buildConfiguration =
-//                (configuration == null) ? Configuration.getGlobalConfiguration() : configuration;
         if (httpLogOptions == null) {
             httpLogOptions = new HttpLogOptions();
         }
         List<HttpPipelinePolicy> policies = new ArrayList<>();
-        String clientName = properties.getOrDefault(SDK_NAME, "UnknownName");
-        String clientVersion = properties.getOrDefault(SDK_VERSION, "UnknownVersion");
+        String clientName = properties.get(SDK_NAME);
+        if (clientName == null) {
+            clientName = "UnknownName";
+        }
+        String clientVersion = properties.get(SDK_VERSION);
+        if (clientVersion == null) {
+            clientVersion = "UnknownVersion";
+        }
         policies.add(
                 new UserAgentPolicy(null, clientName, clientVersion));
-//        HttpPolicyProviders.addBeforeRetryPolicies(policies);
         policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.addAll(this.pipelinePolicies);
-//        HttpPolicyProviders.addAfterRetryPolicies(policies);
         policies.add(new HttpLoggingPolicy(httpLogOptions));
         HttpPipeline httpPipeline =
                 new HttpPipelineBuilder()
