@@ -54,5 +54,5 @@ message: >
   has been created you can trigger the pipeline using the following comment:
   
   ```
-  /azp run java - [service] - ci
+  /azp run android - [service] - ci
   ```

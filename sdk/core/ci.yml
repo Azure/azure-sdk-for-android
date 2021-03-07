@@ -1,0 +1,71 @@
+# NOTE: Please refer to https://aka.ms/azsdk/engsys/ci-yaml before editing this file.
+
+resources:
+  repositories:
+    - repository: azure-sdk-build-tools
+      type: git
+      name: internal/azure-sdk-build-tools
+    - repository: azure-sdk-tools
+      type: github
+      name: Azure/azure-sdk-tools
+      endpoint: azure
+
+trigger:
+  branches:
+    include:
+      - master
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:
+    include:
+      - sdk/core/
+      - eng/
+      - build.gradle
+      - gradle.properties
+      - settings.gradle
+
+pr:
+  branches:
+    include:
+      - master
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:
+    include:
+      - sdk/core/
+      - eng/
+      - build.gradle
+      - gradle.properties
+      - settings.gradle
+      
+stages:
+  - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
+    parameters:
+      ServiceDirectory: core
+      Artifacts:
+        - name: azure-core-credential
+          safeName: azurecorecredential
+          groupId: com.azure.android
+        - name: azure-core-http-httpurlconnection
+          safeName: azurecorehttphttpurlconnection
+          groupId: com.azure.android
+        - name: azure-core-http-okhttp
+          safeName: azurecorehttpokhttp
+          groupId: com.azure.android
+        - name: azure-core-jackson
+          safeName: azurecorejackson
+          groupId: com.azure.android
+        - name: azure-core-logging
+          safeName: azurecorelogging
+          groupId: com.azure.android
+        - name: azure-core-rest
+          safeName: azurecorerest
+          groupId: com.azure.android
+        - name: azure-core-test
+          safeName: azurecoretest
+          groupId: com.azure.android
+        - name: azure-core
+          safeName: azurecore
+          groupId: com.azure.android
