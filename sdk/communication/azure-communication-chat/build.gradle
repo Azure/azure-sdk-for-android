@@ -31,6 +31,7 @@ dependencies {
     api project(":sdk:core:azure-core-credential")
     api project(":sdk:core:azure-core-rest")
     api project(":sdk:core:azure-core-http")
+    api project(":sdk:communication:azure-communication-common")
     api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
 //      api("com.azure:azure-core:1.13.0")
 //      api("com.azure:azure-communication-common:1.0.0-beta.5")
