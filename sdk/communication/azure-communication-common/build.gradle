@@ -13,6 +13,7 @@ android {
 dependencies {
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    implementation project(path: ':sdk:core:azure-core')
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
 }
