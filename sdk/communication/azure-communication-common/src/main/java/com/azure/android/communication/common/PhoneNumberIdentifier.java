@@ -8,7 +8,7 @@ import com.azure.android.core.util.CoreUtil;
 /**
  * Communication identifier for Communication Services Phone Numbers
  */
-public class PhoneNumberIdentifier extends CommunicationIdentifier {
+public final class PhoneNumberIdentifier extends CommunicationIdentifier {
 
     private final String phoneNumber;
     private String rawId;

@@ -8,7 +8,7 @@ import com.azure.android.core.util.CoreUtil;
 /**
  * Catch-all for all other Communication identifiers for Communication Services
  */
-public class UnknownIdentifier extends CommunicationIdentifier {
+public final class UnknownIdentifier extends CommunicationIdentifier {
 
     private final String id;
 
