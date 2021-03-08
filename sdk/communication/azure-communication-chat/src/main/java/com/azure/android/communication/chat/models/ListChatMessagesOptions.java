@@ -6,7 +6,7 @@ package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
 
-import java.time.OffsetDateTime;
+import org.threeten.bp.OffsetDateTime;
 
 /**
  * Additional parameters for chat messages operation.

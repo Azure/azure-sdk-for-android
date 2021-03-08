@@ -6,7 +6,8 @@ package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.OffsetDateTime;
+
+import org.threeten.bp.OffsetDateTime;
 
 /** Summary information of a chat thread. */
 @Fluent

@@ -41,7 +41,9 @@ import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.RestProxy;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.rest.Callback;
-import java.time.OffsetDateTime;
+
+import org.threeten.bp.OffsetDateTime;
+
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
