@@ -45,6 +45,7 @@ import java.time.OffsetDateTime;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
+import java9.util.function.Function;
 
 /** An instance of this class provides access to all the operations defined in ChatThreads. */
 public final class ChatThreadImpl {
@@ -295,7 +296,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsSinglePageAsync(
         String chatThreadId, Integer maxPageSize, Integer skip) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatReadReceipts(
             this.client.getEndpoint(),
@@ -305,23 +314,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             Context.NONE,
-            new Callback<Response<ChatMessageReadReceiptsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessageReadReceiptsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -342,7 +335,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsSinglePageAsync(
         String chatThreadId, Integer maxPageSize, Integer skip, Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatReadReceipts(
             this.client.getEndpoint(),
@@ -352,23 +353,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             context,
-            new Callback<Response<ChatMessageReadReceiptsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessageReadReceiptsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -495,7 +480,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> sendChatReadReceiptWithResponseAsync(
         String chatThreadId, SendReadReceiptRequest sendReadReceiptRequest) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendChatReadReceipt(
             this.client.getEndpoint(),
@@ -504,17 +489,7 @@ public final class ChatThreadImpl {
             sendReadReceiptRequest,
             accept,
             Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -534,7 +509,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> sendChatReadReceiptWithResponseAsync(
         String chatThreadId, SendReadReceiptRequest sendReadReceiptRequest, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendChatReadReceipt(
             this.client.getEndpoint(),
@@ -543,17 +518,7 @@ public final class ChatThreadImpl {
             sendReadReceiptRequest,
             accept,
             context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -650,7 +615,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<SendChatMessageResult>> sendChatMessageWithResponseAsync(
         String chatThreadId, SendChatMessageOptions sendChatMessageRequest) {
         final String accept = "application/json";
-        CompletableFuture<Response<SendChatMessageResult>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<SendChatMessageResult> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendChatMessage(
             this.client.getEndpoint(),
@@ -659,17 +624,7 @@ public final class ChatThreadImpl {
             sendChatMessageRequest,
             accept,
             Context.NONE,
-            new Callback<Response<SendChatMessageResult>>() {
-                @Override
-                public void onSuccess(Response<SendChatMessageResult> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -689,7 +644,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<SendChatMessageResult>> sendChatMessageWithResponseAsync(
         String chatThreadId, SendChatMessageOptions sendChatMessageRequest, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<SendChatMessageResult>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<SendChatMessageResult> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendChatMessage(
             this.client.getEndpoint(),
@@ -698,17 +653,7 @@ public final class ChatThreadImpl {
             sendChatMessageRequest,
             accept,
             context,
-            new Callback<Response<SendChatMessageResult>>() {
-                @Override
-                public void onSuccess(Response<SendChatMessageResult> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -808,7 +753,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesSinglePageAsync(
         String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessage>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatMessages(
             this.client.getEndpoint(),
@@ -818,23 +771,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             Context.NONE,
-            new Callback<Response<ChatMessagesCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessagesCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -856,7 +793,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesSinglePageAsync(
         String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessage>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatMessages(
             this.client.getEndpoint(),
@@ -866,23 +811,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             context,
-            new Callback<Response<ChatMessagesCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessagesCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1013,7 +942,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<ChatMessage>> getChatMessageWithResponseAsync(String chatThreadId,
                                                                                     String chatMessageId) {
         final String accept = "application/json";
-        CompletableFuture<Response<ChatMessage>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<ChatMessage> completableFuture = new ResponseCompletableFuture<>();
 
         service.getChatMessage(
             this.client.getEndpoint(),
@@ -1022,17 +951,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             Context.NONE,
-            new Callback<Response<ChatMessage>>() {
-                @Override
-                public void onSuccess(Response<ChatMessage> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1052,21 +971,11 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<ChatMessage>> getChatMessageWithResponseAsync(
         String chatThreadId, String chatMessageId, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<ChatMessage>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<ChatMessage> completableFuture = new ResponseCompletableFuture<>();
 
         service.getChatMessage(
             this.client.getEndpoint(), chatThreadId, chatMessageId, this.client.getApiVersion(), accept, context,
-            new Callback<Response<ChatMessage>>() {
-                @Override
-                public void onSuccess(Response<ChatMessage> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1164,7 +1073,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> updateChatMessageWithResponseAsync(
         String chatThreadId, String chatMessageId, UpdateChatMessageOptions updateChatMessageRequest) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.updateChatMessage(
             this.client.getEndpoint(),
@@ -1174,17 +1083,7 @@ public final class ChatThreadImpl {
             updateChatMessageRequest,
             accept,
             Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1208,7 +1107,7 @@ public final class ChatThreadImpl {
         UpdateChatMessageOptions updateChatMessageRequest,
         Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.updateChatMessage(
             this.client.getEndpoint(),
@@ -1218,17 +1117,7 @@ public final class ChatThreadImpl {
             updateChatMessageRequest,
             accept,
             context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1337,7 +1226,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> deleteChatMessageWithResponseAsync(String chatThreadId,
                                                                                 String chatMessageId) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.deleteChatMessage(
             this.client.getEndpoint(),
@@ -1346,17 +1235,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1376,21 +1255,11 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> deleteChatMessageWithResponseAsync(
         String chatThreadId, String chatMessageId, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.deleteChatMessage(
             this.client.getEndpoint(), chatThreadId, chatMessageId, this.client.getApiVersion(), accept, context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1482,21 +1351,11 @@ public final class ChatThreadImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> sendTypingNotificationWithResponseAsync(String chatThreadId) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendTypingNotification(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1515,21 +1374,11 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> sendTypingNotificationWithResponseAsync(String chatThreadId,
                                                                                      Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.sendTypingNotification(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1620,7 +1469,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsSinglePageAsync(
         String chatThreadId, Integer maxPageSize, Integer skip) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatParticipants(
             this.client.getEndpoint(),
@@ -1630,23 +1487,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             Context.NONE,
-            new Callback<Response<ChatParticipantsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatParticipantsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1667,7 +1508,15 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsSinglePageAsync(
         String chatThreadId, Integer maxPageSize, Integer skip, Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatParticipants(
             this.client.getEndpoint(),
@@ -1677,23 +1526,7 @@ public final class ChatThreadImpl {
             this.client.getApiVersion(),
             accept,
             context,
-            new Callback<Response<ChatParticipantsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatParticipantsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1819,7 +1652,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> removeChatParticipantWithResponseAsync(
         String chatThreadId, CommunicationIdentifierModel participantCommunicationIdentifier) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.removeChatParticipant(
             this.client.getEndpoint(),
@@ -1828,17 +1661,7 @@ public final class ChatThreadImpl {
             participantCommunicationIdentifier,
             accept,
             Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1858,7 +1681,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> removeChatParticipantWithResponseAsync(
         String chatThreadId, CommunicationIdentifierModel participantCommunicationIdentifier, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.removeChatParticipant(
             this.client.getEndpoint(),
@@ -1867,17 +1690,7 @@ public final class ChatThreadImpl {
             participantCommunicationIdentifier,
             accept,
             context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -1976,7 +1789,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<AddChatParticipantsResult>> addChatParticipantsWithResponseAsync(
         String chatThreadId, AddChatParticipantsOptions addChatParticipantsRequest) {
         final String accept = "application/json";
-        CompletableFuture<Response<AddChatParticipantsResult>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<AddChatParticipantsResult> completableFuture = new ResponseCompletableFuture<>();
 
         service.addChatParticipants(
             this.client.getEndpoint(),
@@ -1985,17 +1798,7 @@ public final class ChatThreadImpl {
             addChatParticipantsRequest,
             accept,
             Context.NONE,
-            new Callback<Response<AddChatParticipantsResult>>() {
-                @Override
-                public void onSuccess(Response<AddChatParticipantsResult> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2015,7 +1818,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<AddChatParticipantsResult>> addChatParticipantsWithResponseAsync(
         String chatThreadId, AddChatParticipantsOptions addChatParticipantsRequest, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<AddChatParticipantsResult>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<AddChatParticipantsResult> completableFuture = new ResponseCompletableFuture<>();
 
         service.addChatParticipants(
             this.client.getEndpoint(),
@@ -2024,17 +1827,7 @@ public final class ChatThreadImpl {
             addChatParticipantsRequest,
             accept,
             context,
-            new Callback<Response<AddChatParticipantsResult>>() {
-                @Override
-                public void onSuccess(Response<AddChatParticipantsResult> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2133,7 +1926,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> updateChatThreadWithResponseAsync(
         String chatThreadId, UpdateChatThreadOptions updateChatThreadRequest) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.updateChatThread(
             this.client.getEndpoint(),
@@ -2142,17 +1935,7 @@ public final class ChatThreadImpl {
             updateChatThreadRequest,
             accept,
             Context.NONE,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2172,7 +1955,7 @@ public final class ChatThreadImpl {
     public CompletableFuture<Response<Void>> updateChatThreadWithResponseAsync(
         String chatThreadId, UpdateChatThreadOptions updateChatThreadRequest, Context context) {
         final String accept = "application/json";
-        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+        ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
 
         service.updateChatThread(
             this.client.getEndpoint(),
@@ -2181,17 +1964,7 @@ public final class ChatThreadImpl {
             updateChatThreadRequest,
             accept,
             context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    completableFuture.complete(response);
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2287,26 +2060,18 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsNextSinglePageAsync(
         String nextLink) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatReadReceiptsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE,
-            new Callback<Response<ChatMessageReadReceiptsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessageReadReceiptsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2325,26 +2090,18 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsNextSinglePageAsync(
         String nextLink, Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatReadReceiptsNext(nextLink, this.client.getEndpoint(), accept, context,
-            new Callback<Response<ChatMessageReadReceiptsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessageReadReceiptsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2361,26 +2118,18 @@ public final class ChatThreadImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessage>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatMessagesNext(nextLink, this.client.getEndpoint(), accept, Context.NONE,
-            new Callback<Response<ChatMessagesCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessagesCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2399,26 +2148,18 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesNextSinglePageAsync(String nextLink,
                                                                                              Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatMessage>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatMessagesNext(nextLink, this.client.getEndpoint(), accept, context,
-            new Callback<Response<ChatMessagesCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatMessagesCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2435,26 +2176,18 @@ public final class ChatThreadImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatParticipantsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE,
-            new Callback<Response<ChatParticipantsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatParticipantsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
     }
@@ -2473,27 +2206,53 @@ public final class ChatThreadImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsNextSinglePageAsync(
         String nextLink, Context context) {
         final String accept = "application/json";
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture = new CompletableFuture<>();
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture = new PagedResponseCompletableFuture<>(response -> {
+            return new PagedResponseBase<>(
+                response.getRequest(),
+                response.getStatusCode(),
+                response.getHeaders(),
+                response.getValue().getValue(),
+                response.getValue().getNextLink(),
+                null);
+        });
 
         service.listChatParticipantsNext(nextLink, this.client.getEndpoint(), accept, context,
-            new Callback<Response<ChatParticipantsCollection>>() {
-                @Override
-                public void onSuccess(Response<ChatParticipantsCollection> response) {
-                    completableFuture.complete(new PagedResponseBase<>(
-                        response.getRequest(),
-                        response.getStatusCode(),
-                        response.getHeaders(),
-                        response.getValue().getValue(),
-                        response.getValue().getNextLink(),
-                        null));
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    completableFuture.completeExceptionally(error);
-                }
-            });
+            completableFuture);
 
         return completableFuture;
+    }
+
+    private static class ResponseCompletableFuture<T>
+        extends CompletableFuture<Response<T>>
+        implements Callback<Response<T>> {
+        @Override
+        public void onSuccess(Response<T> response) {
+            this.complete(response);
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            this.completeExceptionally(error);
+        }
+    }
+
+    private static class PagedResponseCompletableFuture<P, T>
+        extends CompletableFuture<PagedResponse<T>>
+        implements Callback<Response<P>> {
+        private final Function<Response<P>, PagedResponse<T>> converter;
+
+        PagedResponseCompletableFuture(Function<Response<P>, PagedResponse<T>> converter) {
+            this.converter = converter;
+        }
+
+        @Override
+        public void onSuccess(Response<P> response) {
+            this.complete(this.converter.apply(response));
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            this.completeExceptionally(error);
+        }
     }
 }

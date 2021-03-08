@@ -166,4 +166,7 @@
   <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.communication.chat.models.ChatMessageContent.java"/>
   <!-- This is temporary suppression during development, must be removed -->
   <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.communication.chat.models.ChatMessageContent.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatImpl.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatThreadImpl.java"/>
 </suppressions>
