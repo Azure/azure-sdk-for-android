@@ -7,7 +7,7 @@ import org.threeten.bp.OffsetDateTime;
 /**
  * Represents an immutable communication access token with a token string and an expiration time.
  */
-public class CommunicationAccessToken {
+public final class CommunicationAccessToken {
     private final String token;
     private final OffsetDateTime expiresAt;
 

@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
-import com.azure.android.core.util.ExpandableStringEnum;
-
 import java.util.Objects;
 
 /**
  * The cloud that the identifier belongs to.
  */
-public final class CommunicationCloudEnvironment extends ExpandableStringEnum<CommunicationCloudEnvironment> {
+public final class CommunicationCloudEnvironment{
     private static final String PUBLIC_VALUE = "public";
     private static final String DOD_VALUE = "dod";
     private static final String GCCH_VALUE = "gcch";
