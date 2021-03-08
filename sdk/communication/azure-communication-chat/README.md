@@ -45,6 +45,25 @@ dependencies {
 }
 ```
 
+#### Set exclude packing options
+
+```gradle
+android {
+    ....
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.md")
+        exclude("META-INF/*.txt")
+        exclude("META-INF/*.kotlin_module")
+    }
+}
+```
+
 #### Add a dependency with Maven
 To import the library into your project using the [Maven](https://maven.apache.org/) build system, add it to the `dependencies` section of your app's `pom.xml` file, specifying its artifact ID and the version you wish to use:
 
@@ -148,8 +167,8 @@ List<ChatParticipant> participants = new ArrayList<>();
 // The display name for the thread participant.
 String displayName = "initial participant";
 participants.add(new ChatParticipant()
-        .setCommunicationIdentifier(new CommunicationIdentifierModel().setCommunicationUser(new CommunicationUserIdentifierModel().setId(id)))
-        .setDisplayName(displayName));
+    .setCommunicationId(new CommunicationUserIdentifier(id))
+    .setDisplayName(displayName));
 
 
 // The topic for the thread.
@@ -184,7 +203,7 @@ For more examples, please go to [Quickstart](https://docs.microsoft.com/azure/co
 When an error occurs, the client calls the callback's `onFailure` method. You can use the provided `Throwable` to act upon the failure.
 
 ```java
-client.createChatThread(thread, new Callback<CreateChatThreadResult>() {
+client.createChatThread(thread, repeatabilityRequestID, new Callback<CreateChatThreadResult>() {
     public void onFailure(Throwable throwable, okhttp3.Response response) {
         // Handle error.
     }
