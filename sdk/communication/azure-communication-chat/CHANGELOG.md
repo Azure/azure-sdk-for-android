@@ -1,14 +1,31 @@
 # Release History
 
 ## 1.0.0-beta.7 (Unreleased)
+### Added
+- Support real time notifications with new methods in ChatClient/ChatAsyncClient: 
+    - startRealtimeNotifications
+    - stopRealtimeNotifications
+    - on(chatEventId, listenerId, listener) 
+    - off(chatEventId, listenerId) 
+- Add a sample chat app under folder samples for testing and playing around chat functionality purpose.
+
+### Breaking Changes
+- Change remove participant API to /chat/threads/{chatThreadId}/participants/:remove
+- user id in following classes changed from type CommunicationUserIdentifier to type CommunicationIdentifierModel.
+- property initiator in ChatMessageContent renamed to initiatorCommunicationIdentifier.
+- property senderId in ChatMessage and ChatMessageReadReceipt renamed to senderCommunicationIdentifier.
+- property identifier in ChatParticipant renamed to communicationIdentifier.
+- property createdBy in ChatThread renamed to createdByCommunicationIdentifier.
+- repeatability-Request-ID in header renamed to repeatability-Request-Id.
 
 ## 1.0.0-beta.6 (2021-02-26)
 ### Breaking Changes
-- Change ChatParticipant id type from CommunicationUserIdentifier to String
-- Change ChatThread createdBy type from CommunicationUserIdentifier to String
-- Change ChatMessage senderId type from CommunicationUserIdentifier to String
-- Change ChatMessageContent initiator type from CommunicationUserIdentifier to String
-- Change ChangeMessageReadReceipt senderId type from CommunicationUserIdentifier to String
+- Change ChatParticipant id type from CommunicationUserIdentifier to String.
+- Change ChatThread createdBy type from CommunicationUserIdentifier to String.
+- Change ChatMessage senderId type from CommunicationUserIdentifier to String.
+- Change ChatMessageContent initiator type from CommunicationUserIdentifier to String.
+- Change ChangeMessageReadReceipt senderId type from CommunicationUserIdentifier to String.
+
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Added

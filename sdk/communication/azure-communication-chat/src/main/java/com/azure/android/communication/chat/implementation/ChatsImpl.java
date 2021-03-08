@@ -69,7 +69,7 @@ public final class ChatsImpl {
      */
     private interface ChatsService {
         @POST("/chat/threads")
-        Call<ResponseBody> createChatThread(@Header("repeatability-Request-ID") String repeatabilityRequestID, @Header("Accept") String accept, @Query("api-version") String apiVersion, @Body RequestBody createChatThreadRequest);
+        Call<ResponseBody> createChatThread(@Header("repeatability-Request-Id") String repeatabilityRequestId, @Header("Accept") String accept, @Query("api-version") String apiVersion, @Body RequestBody createChatThreadRequest);
 
         @GET("/chat/threads")
         Call<ResponseBody> listChatThreads(@Header("Accept") String accept, @Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
@@ -88,24 +88,24 @@ public final class ChatsImpl {
      * Creates a chat thread.
      *
      * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
+     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-Id is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID, final Callback<CreateChatThreadResult> callback) {
+    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestId, final Callback<CreateChatThreadResult> callback) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
-        if (repeatabilityRequestID == null)
-            repeatabilityRequestID = UUID.randomUUID().toString();
+        if (repeatabilityRequestId == null)
+            repeatabilityRequestId = UUID.randomUUID().toString();
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(createChatThreadRequest, client.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
             callback.onFailure(new RuntimeException(ioe), null);
             return;
         }
-        Call<ResponseBody> call = service.createChatThread(repeatabilityRequestID, accept, this.client.getApiVersion(), okHttp3RequestBody);
+        Call<ResponseBody> call = service.createChatThread(repeatabilityRequestId, accept, this.client.getApiVersion(), okHttp3RequestBody);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -147,31 +147,31 @@ public final class ChatsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<CreateChatThreadResult> callback) {
-        final String repeatabilityRequestID = UUID.randomUUID().toString();
-        createChatThread(createChatThreadRequest, repeatabilityRequestID, callback);
+        final String repeatabilityRequestId = null;
+        createChatThread(createChatThreadRequest, repeatabilityRequestId, callback);
     }
 
     /**
      * Creates a chat thread.
      *
      * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
+     * @param repeatabilityRequestId If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-Id and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-Id is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the create chat thread operation.
      */
-    public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID) {
+    public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestId) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
-        if (repeatabilityRequestID == null)
-            repeatabilityRequestID = UUID.randomUUID().toString();
+        if (repeatabilityRequestId == null)
+            repeatabilityRequestId = UUID.randomUUID().toString();
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(createChatThreadRequest, this.client.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
             throw new RuntimeException(ioe);
         }
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.createChatThread(repeatabilityRequestID, accept, this.client.getApiVersion(), okHttp3RequestBody));
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.createChatThread(repeatabilityRequestId, accept, this.client.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
             if (response.code() == 201) {
                 return new Response<>(response.raw().request(),
@@ -198,8 +198,8 @@ public final class ChatsImpl {
      * @return result of the create chat thread operation.
      */
     public CreateChatThreadResult createChatThread(CreateChatThreadRequest createChatThreadRequest) {
-        final String repeatabilityRequestID = UUID.randomUUID().toString();;
-        return createChatThreadWithRestResponse(createChatThreadRequest, repeatabilityRequestID).getValue();
+        final String repeatabilityRequestId = null;
+        return createChatThreadWithRestResponse(createChatThreadRequest, repeatabilityRequestId).getValue();
     }
 
     /**

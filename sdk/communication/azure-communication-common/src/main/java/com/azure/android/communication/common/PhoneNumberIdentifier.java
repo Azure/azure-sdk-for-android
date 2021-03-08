@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
-
-import com.azure.android.core.util.CoreUtil;
-
 /**
  * Communication identifier for Communication Services Phone Numbers
  */
@@ -21,7 +18,7 @@ public class PhoneNumberIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
     public PhoneNumberIdentifier(String phoneNumber) {
-        if (CoreUtil.isNullOrEmpty(phoneNumber)) {
+        if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("The initialization parameter [phoneNumber] cannot be null to empty.");
         }
         this.phoneNumber = phoneNumber;

@@ -13,6 +13,7 @@ import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.ChatParticipantsCollection;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
@@ -100,8 +101,8 @@ public final class ChatThreadsImpl {
         @GET("/chat/threads/{chatThreadId}/participants")
         Call<ResponseBody> listChatParticipants(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Query("maxPageSize") Integer maxPageSize, @Query("skip") Integer skip, @Query("api-version") String apiVersion);
 
-        @DELETE("/chat/threads/{chatThreadId}/participants/{chatParticipantId}")
-        Call<ResponseBody> removeChatParticipant(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Path("chatParticipantId") String chatParticipantId, @Query("api-version") String apiVersion);
+        @POST("/chat/threads/{chatThreadId}/participants/:remove")
+        Call<ResponseBody> removeChatParticipant(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody participantCommunicationIdentifier);
 
         @POST("/chat/threads/{chatThreadId}/participants/:add")
         Call<ResponseBody> addChatParticipants(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody addChatParticipantsRequest);
@@ -1305,15 +1306,22 @@ public final class ChatThreadsImpl {
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
-     * @param chatParticipantId Id of the thread participant to remove from the thread.
+     * @param participantCommunicationIdentifier Identifies a participant in Azure Communication services. A participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a union: Apart from rawId, at most one further property may be set.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void removeChatParticipant(String chatThreadId, String chatParticipantId, final Callback<Void> callback) {
+    public void removeChatParticipant(String chatThreadId, CommunicationIdentifierModel participantCommunicationIdentifier, final Callback<Void> callback) {
         final String accept = "application/json";
-        Call<ResponseBody> call = service.removeChatParticipant(accept, chatThreadId, chatParticipantId, this.client.getApiVersion());
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(participantCommunicationIdentifier, client.resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            callback.onFailure(new RuntimeException(ioe), null);
+            return;
+        }
+        Call<ResponseBody> call = service.removeChatParticipant(accept, chatThreadId, this.client.getApiVersion(), okHttp3RequestBody);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -1349,15 +1357,21 @@ public final class ChatThreadsImpl {
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
-     * @param chatParticipantId Id of the thread participant to remove from the thread.
+     * @param participantCommunicationIdentifier Identifies a participant in Azure Communication services. A participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a union: Apart from rawId, at most one further property may be set.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
-    public Response<Void> removeChatParticipantWithRestResponse(String chatThreadId, String chatParticipantId) {
+    public Response<Void> removeChatParticipantWithRestResponse(String chatThreadId, CommunicationIdentifierModel participantCommunicationIdentifier) {
         final String accept = "application/json";
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.removeChatParticipant(accept, chatThreadId, chatParticipantId, this.client.getApiVersion()));
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(participantCommunicationIdentifier, this.client.resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.removeChatParticipant(accept, chatThreadId, this.client.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
             if (response.code() == 204) {
                 return new Response<>(response.raw().request(),

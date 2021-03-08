@@ -1,6 +1,11 @@
 # Release History
 
 ## 1.0.0-beta.7 (Unreleased)
+### Breaking Changes
+- Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
+
+### New Features
+- Introduce new class `CommunicationAccessToken`.
 
 ## 1.0.0-beta.6 (2021-02-26)
 ### Breaking Changes

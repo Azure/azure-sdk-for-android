@@ -59,10 +59,13 @@ public final class ChatMessage {
     private OffsetDateTime createdOn;
 
     /*
-     * The id of the chat message sender.
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
      */
-    @JsonProperty(value = "senderId")
-    private String senderId;
+    @JsonProperty(value = "senderCommunicationIdentifier")
+    private CommunicationIdentifierModel senderCommunicationIdentifier;
 
     /*
      * The timestamp (if applicable) when the message was deleted. The
@@ -231,22 +234,29 @@ public final class ChatMessage {
     }
 
     /**
-     * Get the senderId property: The id of the chat message sender.
+     * Get the senderCommunicationIdentifier property: Identifies a participant
+     * in Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
      *
-     * @return the senderId value.
+     * @return the senderCommunicationIdentifier value.
      */
-    public String getSenderId() {
-        return this.senderId;
+    public CommunicationIdentifierModel getSenderCommunicationIdentifier() {
+        return this.senderCommunicationIdentifier;
     }
 
     /**
-     * Set the senderId property: The id of the chat message sender.
+     * Set the senderCommunicationIdentifier property: Identifies a participant
+     * in Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
      *
-     * @param senderId the senderId value to set.
+     * @param senderCommunicationIdentifier the senderCommunicationIdentifier
+     * value to set.
      * @return the ChatMessage object itself.
      */
-    public ChatMessage setSenderId(String senderId) {
-        this.senderId = senderId;
+    public ChatMessage setSenderCommunicationIdentifier(CommunicationIdentifierModel senderCommunicationIdentifier) {
+        this.senderCommunicationIdentifier = senderCommunicationIdentifier;
         return this;
     }
 
