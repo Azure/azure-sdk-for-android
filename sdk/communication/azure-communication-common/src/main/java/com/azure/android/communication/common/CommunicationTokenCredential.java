@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This class is used to cache/refresh the access token required by Azure Communication Services.
  */
-public class CommunicationTokenCredential {
+public final class CommunicationTokenCredential {
     private UserCredential userCredential;
 
     /**
@@ -44,7 +44,7 @@ public class CommunicationTokenCredential {
     public CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions) {
         this.userCredential = new AutoRefreshUserCredential(
             tokenRefreshOptions.getTokenRefresher(),
-            tokenRefreshOptions.getRefreshProactively(),
+            tokenRefreshOptions.isRefreshProactively(),
             tokenRefreshOptions.getToken());
     }
 

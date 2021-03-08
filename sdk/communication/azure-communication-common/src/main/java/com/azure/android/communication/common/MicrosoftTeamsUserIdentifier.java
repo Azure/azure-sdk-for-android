@@ -8,7 +8,7 @@ import java.util.Objects;
 /**
  * Communication identifier for Microsoft Teams User
  */
-public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
+public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
 
     private final String userId;
     private final boolean isAnonymous;
