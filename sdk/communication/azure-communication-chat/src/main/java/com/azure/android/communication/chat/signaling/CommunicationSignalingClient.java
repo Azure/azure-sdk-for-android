@@ -19,7 +19,8 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.azure.android.communication.chat.signaling.SignalingConfig.*;
+import static com.azure.android.communication.chat.BuildConfig.*;
+
 
 public class CommunicationSignalingClient implements SignalingClient {
     private ClientLogger logger;
@@ -66,22 +67,22 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
             null,
-            TEST_APPLICATION_ID,
+            TROUTER_APPLICATION_ID,
             PLATFORM,
             PLATFORM_UI_VERSION,
-            TEST_TEMPLATE_KEY,
+            TROUTER_TEMPLATE_KEY,
             null,
             ""
         );
         final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
-            DEFAULT_REGISTRATION_HOSTNAME_AND_BASE_PATH,
-            DEFAULT_MAX_REGISTRATION_TTLS
+            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
+            Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
         );
 
         try {
-            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider, new InMemoryConnectionDataCache(), DEFAULT_TROUTER_HOSTNAME);
+            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider, new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
             trouter.start();
         } catch (Throwable e) {

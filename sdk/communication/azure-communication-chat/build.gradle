@@ -8,12 +8,34 @@ android {
     defaultConfig {
         versionCode project.versionCode
         versionName project.version
+
+        def buildVariant = getBuildVariant()
+        def envPropertiesFile
+        if ((buildVariant == "Prod")) {
+            envPropertiesFile = "env-prod.properties"
+        } else if ((buildVariant == "Test")) {
+            envPropertiesFile = "env-test.properties"
+        } else {
+            envPropertiesFile = "env-prod.properties"
+        }
+
+        def envProperties = new Properties()
+        envProperties.load(new FileInputStream("$projectDir/" + envPropertiesFile))
+        println("buildVariant = $buildVariant")
+        for (String key : envProperties.keySet()) {
+            buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
+        }
     }
 }
 
+static def getBuildVariant() {
+    return "Prod"
+}
+
+
 dependencies {
     api "com.azure.android:azure-core:1.0.0-beta.3"
-    implementation 'com.microsoft.trouter:client-android:0.0.1'
+    implementation 'com.microsoft.trouter:client-android:0.0.1-beta.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"

@@ -217,7 +217,7 @@ allprojects {
         google()
         jcenter()
         maven {
-            url = "$rootDir/ext"
+            url 'https://trouterpublicpackages.z13.web.core.windows.net'
         }
     }
 
