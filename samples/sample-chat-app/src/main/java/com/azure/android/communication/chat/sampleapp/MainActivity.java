@@ -14,7 +14,6 @@ import com.azure.android.communication.chat.models.CommunicationUserIdentifierMo
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.sampleapp.R;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.ServiceClient;
