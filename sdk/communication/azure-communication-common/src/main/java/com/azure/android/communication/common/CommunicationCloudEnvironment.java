@@ -19,6 +19,7 @@ public final class CommunicationCloudEnvironment {
      * @param environmentValue name of hte cloud environment
      */
     public CommunicationCloudEnvironment(String environmentValue) {
+        Objects.requireNonNull(environmentValue);
         this.environmentValue = environmentValue;
     }
 
