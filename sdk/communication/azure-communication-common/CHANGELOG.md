@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.7 (Unreleased)
+## 1.0.0-beta.7 (2021-03-09)
 ### Breaking Changes
 - Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
 - Renamed 'getRefreshProactively' to 'isRefreshProactively' in 'CommunicationTokenRefreshOptions'
