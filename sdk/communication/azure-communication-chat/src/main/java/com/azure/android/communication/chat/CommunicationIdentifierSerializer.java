@@ -51,7 +51,7 @@ class CommunicationIdentifierSerializer {
             return new MicrosoftTeamsUserIdentifier(teamsUserIdentifierModel.getUserId(),
                 teamsUserIdentifierModel.isAnonymous())
                 .setRawId(rawId)
-                .setCloudEnvironment(new CommunicationCloudEnvironment(teamsUserIdentifierModel.getCloud().toString()));
+                .setCloudEnvironment(new CommunicationCloudEnvironment().fromString(teamsUserIdentifierModel.getCloud().toString()));
         }
 
         Objects.requireNonNull(rawId);
