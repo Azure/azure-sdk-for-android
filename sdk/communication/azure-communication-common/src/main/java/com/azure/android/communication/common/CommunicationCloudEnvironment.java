@@ -12,7 +12,7 @@ public final class CommunicationCloudEnvironment {
     private static final String DOD_VALUE = "dod";
     private static final String GCCH_VALUE = "gcch";
 
-    private static String environmentValue;
+    private String environmentValue;
 
     /**
      * Creates a CommunicationCloudEnvironment
