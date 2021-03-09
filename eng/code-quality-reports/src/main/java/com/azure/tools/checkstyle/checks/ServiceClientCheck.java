@@ -35,7 +35,7 @@ import java.util.Set;
  * <li>Return type of async and sync clients should be as per guidelines:
  * <ol>
  * <li>The return type for async collection should be of type that <code>extends PagedFlux</code></li>
- * <li>The return type for async single value should be of type that <code>extends Mono</code></li>
+ * <li>The return type for async single value should be of type that <code>extends CompletableFuture</code></li>
  * <li>The return type for sync collection should be of type that <code>extends PagedIterable</code></li>
  * <li>The return type for sync single value should be of type that <code>extends Response</code></li>
  * </ol>
@@ -52,8 +52,8 @@ public class ServiceClientCheck extends AbstractCheck {
     private static final String CONTEXT = "Context";
 
     private static final String RESPONSE_BRACKET = "Response<";
-    private static final String MONO_BRACKET = "Mono<";
-    private static final String MONO_RESPONSE_BRACKET = "Mono<Response<";
+    private static final String COMPLETABLE_FUTURE_BRACKET = "CompletableFuture<";
+    private static final String COMPLETABLE_FUTURE_RESPONSE_BRACKET = "CompletableFuture<Response<";
     private static final String PAGED_FLUX_BRACKET = "PagedFlux<";
     private static final String PAGED_ITERABLE_BRACKET = "PagedIterable<";
 
@@ -64,7 +64,7 @@ public class ServiceClientCheck extends AbstractCheck {
 
     private static final String JAVA_SPEC_LINK = "https://azure.github.io/azure-sdk/java_introduction.html";
     private static final String PAGED_FLUX = "PagedFlux";
-    private static final String MONO = "Mono";
+    private static final String COMPLETABLE_FUTURE = "CompletableFuture";
     private static final String RESPONSE = "Response";
     private static final String PAGED_ITERABLE = "PagedIterable";
 
@@ -328,9 +328,9 @@ public class ServiceClientCheck extends AbstractCheck {
         if (isAsync) {
             if (SINGLE_RETURN_TYPE.equals(returnsAnnotationMemberValue)) {
                 // If value of 'returns' is SINGLE, and then log error if the return type of the method is not start
-                // with {@code Mono<T>}
-                if (!returnType.startsWith(MONO_BRACKET)) {
-                    log(methodDefToken, String.format(RETURN_TYPE_ERROR, "Asynchronous", SINGLE_RETURN_TYPE, MONO));
+                // with {@code CompletableFuture<T>}
+                if (!returnType.startsWith(COMPLETABLE_FUTURE_BRACKET)) {
+                    log(methodDefToken, String.format(RETURN_TYPE_ERROR, "Asynchronous", SINGLE_RETURN_TYPE, COMPLETABLE_FUTURE));
                 }
             } else if (COLLECTION_RETURN_TYPE.equals(returnsAnnotationMemberValue)) {
                 // If value of 'returns' is COLLECTION, and then log error if the return type of the method is not
@@ -378,12 +378,12 @@ public class ServiceClientCheck extends AbstractCheck {
         final String returnType = getReturnType(typeToken, new StringBuilder()).toString();
 
         if (methodName.endsWith(WITH_RESPONSE)) {
-            if (!returnType.startsWith(RESPONSE_BRACKET) && !returnType.startsWith(MONO_RESPONSE_BRACKET)) {
+            if (!returnType.startsWith(RESPONSE_BRACKET) && !returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)) {
                 log(methodDefToken, String.format(RETURN_TYPE_WITH_RESPONSE_ERROR, returnType, "must not",
                     WITH_RESPONSE));
             }
         } else {
-            if (returnType.startsWith(RESPONSE_BRACKET) || returnType.startsWith(MONO_RESPONSE_BRACKET)) {
+            if (returnType.startsWith(RESPONSE_BRACKET) || returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)) {
                 log(methodDefToken, String.format(RETURN_TYPE_WITH_RESPONSE_ERROR, returnType, "must", WITH_RESPONSE));
             }
         }
@@ -414,8 +414,8 @@ public class ServiceClientCheck extends AbstractCheck {
             .isPresent();
 
         if (containsContextParameter) {
-            // MONO and PagedFlux return type implies Asynchronous method
-            if (returnType.startsWith(MONO_BRACKET) || returnType.startsWith(PAGED_FLUX_BRACKET)) {
+            // CompletableFuture and PagedFlux return type implies Asynchronous method
+            if (returnType.startsWith(COMPLETABLE_FUTURE_BRACKET) || returnType.startsWith(PAGED_FLUX_BRACKET)) {
                 log(methodDefToken, String.format(ASYNC_CONTEXT_ERROR, CONTEXT));
             }
         } else {
@@ -503,7 +503,7 @@ public class ServiceClientCheck extends AbstractCheck {
     }
 
     /**
-     * Get full name of return type. Such as Response, {@code Mono<Response>}.
+     * Get full name of return type. Such as Response, {@code CompletableFuture<Response>}.
      *
      * @param token a token could be a TYPE, TYPE_ARGUMENT, TYPE_ARGUMENTS token
      * @param sb a StringBuilder that used to collect method return type.
