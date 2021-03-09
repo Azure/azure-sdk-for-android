@@ -10,7 +10,7 @@ import java.util.concurrent.Callable;
  * This class is used to define how CommunicationTokenCredential should be refreshed
  * </p>
  */
-public class CommunicationTokenRefreshOptions {
+public final class CommunicationTokenRefreshOptions {
     private final Callable<String> tokenRefresher;
     private final boolean refreshProactively;
     private final String initialToken;
@@ -71,7 +71,7 @@ public class CommunicationTokenRefreshOptions {
     /**
      * @return whether or not to refresh token proactively
      */
-    public boolean getRefreshProactively() {
+    public boolean isRefreshProactively() {
         return refreshProactively;
     }
 
