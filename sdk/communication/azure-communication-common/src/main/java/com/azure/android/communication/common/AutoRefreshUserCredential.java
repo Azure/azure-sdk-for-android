@@ -3,8 +3,7 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
-import com.azure.android.core.util.logging.ClientLogger;
+import android.util.Log;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,11 +16,9 @@ class AutoRefreshUserCredential extends UserCredential {
     private static final int ON_DEMAND_REFRESH_BUFFER_SECS = 120;
     private static final int PROACTIVE_REFRESH_BUFFER_SECS = 600;
 
-    private final ClientLogger logger = ClientLogger.getDefault(AutoRefreshUserCredential.class);
-
     private Callable<String> tokenRefresher;
-    private Callable<AccessToken> accessTokenCallable;
-    private FutureTask<AccessToken> tokenFuture;
+    private Callable<CommunicationAccessToken> accessTokenCallable;
+    private FutureTask<CommunicationAccessToken> tokenFuture;
     private Timer timer;
     private TimerTask proactiveRefreshTask;
 
@@ -42,7 +39,7 @@ class AutoRefreshUserCredential extends UserCredential {
         this.timer = new Timer();
         this.accessTokenCallable = setupAccessTokenCallable(refreshProactively);
 
-        AccessToken initialAccessToken = null;
+        CommunicationAccessToken initialAccessToken = null;
 
         if (initialToken != null) {
             initialAccessToken = TokenParser.createAccessToken(initialToken);
@@ -55,7 +52,7 @@ class AutoRefreshUserCredential extends UserCredential {
     }
 
     @Override
-    public Future<AccessToken> getToken() {
+    public Future<CommunicationAccessToken> getToken() {
         if (shouldRefreshTokenOnDemand()) {
             this.updateTokenFuture();
         }
@@ -83,27 +80,27 @@ class AutoRefreshUserCredential extends UserCredential {
         super.dispose();
     }
 
-    private FutureTask<AccessToken> setupInitialTokenFuture(AccessToken initialAccessToken) {
-        FutureTask<AccessToken> initialTokenFuture = new FutureTask<>(() -> initialAccessToken);
+    private FutureTask<CommunicationAccessToken> setupInitialTokenFuture(CommunicationAccessToken initialAccessToken) {
+        FutureTask<CommunicationAccessToken> initialTokenFuture = new FutureTask<>(() -> initialAccessToken);
         initialTokenFuture.run();
         return initialTokenFuture;
     }
 
-    private Callable<AccessToken> setupAccessTokenCallable(boolean refreshProactively) {
+    private Callable<CommunicationAccessToken> setupAccessTokenCallable(boolean refreshProactively) {
         if (!refreshProactively) {
             return this::refreshAccessToken;
         }
 
         return () -> {
-            AccessToken accessToken = this.refreshAccessToken();
+            CommunicationAccessToken accessToken = this.refreshAccessToken();
             this.scheduleProactiveRefresh(accessToken);
             return accessToken;
         };
     }
 
-    private AccessToken refreshAccessToken() throws Exception {
+    private CommunicationAccessToken refreshAccessToken() throws Exception {
         String tokenStr = this.tokenRefresher.call();
-        AccessToken accessToken = TokenParser.createAccessToken(tokenStr);
+        CommunicationAccessToken accessToken = TokenParser.createAccessToken(tokenStr);
         return accessToken;
     }
 
@@ -113,7 +110,7 @@ class AutoRefreshUserCredential extends UserCredential {
             shouldRefreshTokenOnDemand = true;
         } else if (this.tokenFuture.isDone()) {
             try {
-                AccessToken accessToken = this.tokenFuture.get();
+                CommunicationAccessToken accessToken = this.tokenFuture.get();
                 long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - ON_DEMAND_REFRESH_BUFFER_SECS;
                 long currentEpochSecond = System.currentTimeMillis() / 1000;
                 shouldRefreshTokenOnDemand = currentEpochSecond >= refreshEpochSecond;
@@ -136,18 +133,18 @@ class AutoRefreshUserCredential extends UserCredential {
             return;
         }
 
-        FutureTask<AccessToken> futureTask = new FutureTask<>(this.accessTokenCallable);
+        FutureTask<CommunicationAccessToken> futureTask = new FutureTask<>(this.accessTokenCallable);
         this.tokenFuture = futureTask;
 
         ScheduledTask scheduledTask = new ScheduledTask(futureTask::run);
         try {
             this.timer.schedule(scheduledTask, 0);
         } catch (IllegalStateException e) {
-            logger.warning("AutoRefreshUserCredential has been disposed. Unable to schedule token refresh.", e);
+            Log.w("Communication", "AutoRefreshUserCredential has been disposed. Unable to schedule token refresh.");
         }
     }
 
-    private synchronized void scheduleProactiveRefresh(AccessToken accessToken) {
+    private synchronized void scheduleProactiveRefresh(CommunicationAccessToken accessToken) {
         if (this.isDisposed()) {
             return;
         }

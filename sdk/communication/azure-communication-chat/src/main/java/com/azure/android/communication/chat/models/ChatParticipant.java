@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,10 +15,22 @@ import org.threeten.bp.OffsetDateTime;
 @Fluent
 public final class ChatParticipant {
     /*
-     * The id of the chat participant.
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
      */
-    @JsonProperty(value = "id", required = true)
-    private CommunicationUserIdentifier id;
+    @JsonProperty(value = "communicationIdentifier", required = true)
+    private CommunicationIdentifierModel communicationIdentifier;
+
+    /*
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
+     */
+    @JsonProperty(value = "identifier")
+    private CommunicationIdentifierModel identifier;
 
     /*
      * Display name for the chat participant.
@@ -35,22 +46,54 @@ public final class ChatParticipant {
     private OffsetDateTime shareHistoryTime;
 
     /**
-     * Get the id property: The id of the chat participant.
+     * Get the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
      *
-     * @return the id value.
+     * @return the communicationIdentifier value.
      */
-    public CommunicationUserIdentifier getId() {
-        return this.id;
+    public CommunicationIdentifierModel getCommunicationIdentifier() {
+        return this.communicationIdentifier;
     }
 
     /**
-     * Set the id property: The id of the chat participant.
+     * Set the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
      *
-     * @param id the id value to set.
+     * @param communicationIdentifier the communicationIdentifier value to set.
      * @return the ChatParticipant object itself.
      */
-    public ChatParticipant setId(CommunicationUserIdentifier id) {
-        this.id = id;
+    public ChatParticipant setCommunicationIdentifier(CommunicationIdentifierModel communicationIdentifier) {
+        this.communicationIdentifier = communicationIdentifier;
+        return this;
+    }
+
+    /**
+     * Get the identifier property: Identifies a participant in Azure
+     * Communication services. A participant is, for example, a phone number or
+     * an Azure communication user. This model must be interpreted as a union:
+     * Apart from rawId, at most one further property may be set.
+     *
+     * @return the identifier value.
+     */
+    public CommunicationIdentifierModel getIdentifier() {
+        return this.identifier;
+    }
+
+    /**
+     * Set the identifier property: Identifies a participant in Azure
+     * Communication services. A participant is, for example, a phone number or
+     * an Azure communication user. This model must be interpreted as a union:
+     * Apart from rawId, at most one further property may be set.
+     *
+     * @param identifier the identifier value to set.
+     * @return the ChatParticipant object itself.
+     */
+    public ChatParticipant setIdentifier(CommunicationIdentifierModel identifier) {
+        this.identifier = identifier;
         return this;
     }
 

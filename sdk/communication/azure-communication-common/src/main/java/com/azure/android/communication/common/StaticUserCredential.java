@@ -3,29 +3,27 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
-
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 class StaticUserCredential extends UserCredential {
 
-    private Future<AccessToken> tokenFuture;
+    private Future<CommunicationAccessToken> tokenFuture;
 
     StaticUserCredential(String userToken) {
-        AccessToken accessToken = TokenParser.createAccessToken(userToken);
+        CommunicationAccessToken accessToken = TokenParser.createAccessToken(userToken);
         this.tokenFuture = new CompletedTokenFuture(accessToken);
     }
 
     @Override
-    public Future<AccessToken> getToken() {
+    public Future<CommunicationAccessToken> getToken() {
         return this.tokenFuture;
     }
 
-    private final class CompletedTokenFuture implements Future<AccessToken> {
-        private final AccessToken accessToken;
+    private final class CompletedTokenFuture implements Future<CommunicationAccessToken> {
+        private final CommunicationAccessToken accessToken;
 
-        CompletedTokenFuture(AccessToken accessToken) {
+        CompletedTokenFuture(CommunicationAccessToken accessToken) {
             this.accessToken = accessToken;
         }
 
@@ -45,12 +43,12 @@ class StaticUserCredential extends UserCredential {
         }
 
         @Override
-        public AccessToken get() {
+        public CommunicationAccessToken get() {
             return this.accessToken;
         }
 
         @Override
-        public AccessToken get(long timeout, TimeUnit unit) {
+        public CommunicationAccessToken get(long timeout, TimeUnit unit) {
             return accessToken;
         }
     }

@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * The cloud that the identifier belongs to.
  */
-public class CommunicationCloudEnvironment {
+public final class CommunicationCloudEnvironment{
     private static final String PUBLIC_VALUE = "public";
     private static final String DOD_VALUE = "dod";
     private static final String GCCH_VALUE = "gcch";
@@ -21,10 +21,6 @@ public class CommunicationCloudEnvironment {
     public CommunicationCloudEnvironment(String environmentValue) {
         Objects.requireNonNull(environmentValue);
         this.environmentValue = environmentValue;
-    }
-
-    static CommunicationCloudEnvironment fromModel(CommunicationCloudEnvironmentModel environmentModel) {
-        return new CommunicationCloudEnvironment(environmentModel.toString());
     }
 
     /**

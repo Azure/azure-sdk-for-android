@@ -3,15 +3,12 @@
 
 package com.azure.android.communication.common;
 
-
-import com.azure.android.core.util.CoreUtil;
-
 import java.util.Objects;
 
 /**
  * Communication identifier for Microsoft Teams User
  */
-public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
+public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
 
     private final String userId;
     private final boolean isAnonymous;
@@ -25,25 +22,10 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
      * @param isAnonymous set this to true if the user is anonymous,
      *                    for example when joining a meeting with a share link
-     * @param cloudEnvironment the cloud environment in which this identifier is created
-     * @throws IllegalArgumentException thrown if userId parameter fail the validation.
-     */
-    public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment cloudEnvironment) {
-        this(userId, isAnonymous);
-        Objects.requireNonNull(cloudEnvironment);
-        this.cloudEnvironment = cloudEnvironment;
-    }
-
-    /**
-     * Creates a MicrosoftTeamsUserIdentifier object
-     *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
-     * @param isAnonymous set this to true if the user is anonymous,
-     *                    for example when joining a meeting with a share link
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
     */
     public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous) {
-        if (CoreUtil.isNullOrEmpty(userId)) {
+        if (userId == null || userId.trim().isEmpty()) {
             throw new IllegalArgumentException("The initialization parameter [userId] cannot be null or empty.");
         }
         this.userId = userId;

@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
-
-import com.azure.android.core.util.CoreUtil;
-
 /**
  * Catch-all for all other Communication identifiers for Communication Services
  */
-public class UnknownIdentifier extends CommunicationIdentifier {
+public final class UnknownIdentifier extends CommunicationIdentifier {
 
     private final String id;
 
@@ -19,7 +16,7 @@ public class UnknownIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if id parameter fail the validation.
      */
     public UnknownIdentifier(String id) {
-        if (CoreUtil.isNullOrEmpty(id)) {
+        if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("The initialization parameter [id] cannot be null or empty.");
         }
         this.id = id;
