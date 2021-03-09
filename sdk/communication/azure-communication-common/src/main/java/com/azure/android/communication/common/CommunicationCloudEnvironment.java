@@ -12,10 +12,11 @@ public final class CommunicationCloudEnvironment {
     private static final String DOD_VALUE = "dod";
     private static final String GCCH_VALUE = "gcch";
 
-    private String environmentValue;
+    private final String environmentValue;
 
     /**
-     * Creates a CommunicationCloudEnvironment
+     * Create CommunicationCloudEnvironment with name string
+     * @param environmentValue name of hte cloud environment
      */
     public CommunicationCloudEnvironment(String environmentValue) {
         this.environmentValue = environmentValue;
