@@ -52,8 +52,10 @@ public class ServiceClientCheck extends AbstractCheck {
     private static final String CONTEXT = "Context";
 
     private static final String RESPONSE_BRACKET = "Response<";
+    private static final String PAGED_RESPONSE_BRACKET = "PagedResponse<";
     private static final String COMPLETABLE_FUTURE_BRACKET = "CompletableFuture<";
     private static final String COMPLETABLE_FUTURE_RESPONSE_BRACKET = "CompletableFuture<Response<";
+    private static final String COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET = "CompletableFuture<PagedResponse<";
     private static final String PAGED_FLUX_BRACKET = "PagedFlux<";
     private static final String PAGED_ITERABLE_BRACKET = "PagedIterable<";
 
@@ -344,8 +346,8 @@ public class ServiceClientCheck extends AbstractCheck {
             if (SINGLE_RETURN_TYPE.equals(returnsAnnotationMemberValue)) {
                 // If value of 'returns' is SINGLE, and then log error if the return type of the method is not start
                 // with {@code Response<T>} when the method name ends with 'WithResponse'.
-                if ((returnType.startsWith(RESPONSE_BRACKET) && !methodName.endsWith(WITH_RESPONSE))
-                    || (!returnType.startsWith(RESPONSE_BRACKET) && methodName.endsWith(WITH_RESPONSE))) {
+                if (((returnType.startsWith(RESPONSE_BRACKET) || returnType.startsWith(PAGED_RESPONSE_BRACKET)) && !methodName.endsWith(WITH_RESPONSE))
+                    || (!(returnType.startsWith(RESPONSE_BRACKET) || returnType.startsWith(PAGED_RESPONSE_BRACKET)) && methodName.endsWith(WITH_RESPONSE))) {
                     log(methodDefToken, String.format(RESPONSE_METHOD_NAME_ERROR, "Synchronous", SINGLE_RETURN_TYPE,
                         RESPONSE, WITH_RESPONSE, WITH_RESPONSE, RESPONSE));
                 }
@@ -378,12 +380,18 @@ public class ServiceClientCheck extends AbstractCheck {
         final String returnType = getReturnType(typeToken, new StringBuilder()).toString();
 
         if (methodName.endsWith(WITH_RESPONSE)) {
-            if (!returnType.startsWith(RESPONSE_BRACKET) && !returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)) {
+            if (!returnType.startsWith(RESPONSE_BRACKET)
+                && !returnType.startsWith(PAGED_RESPONSE_BRACKET)
+                && !returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)
+                && !returnType.startsWith(COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET)) {
                 log(methodDefToken, String.format(RETURN_TYPE_WITH_RESPONSE_ERROR, returnType, "must not",
                     WITH_RESPONSE));
             }
         } else {
-            if (returnType.startsWith(RESPONSE_BRACKET) || returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)) {
+            if (returnType.startsWith(RESPONSE_BRACKET)
+                || returnType.startsWith(PAGED_RESPONSE_BRACKET)
+                || returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)
+                || returnType.startsWith(COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET)) {
                 log(methodDefToken, String.format(RETURN_TYPE_WITH_RESPONSE_ERROR, returnType, "must", WITH_RESPONSE));
             }
         }
