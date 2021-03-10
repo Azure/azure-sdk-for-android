@@ -33,8 +33,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ChatAsyncClientTest extends ChatClientTestBase {
-    private ClientLogger logger = new ClientLogger(ChatAsyncClientTest.class);
+public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
+    private ClientLogger logger = new ClientLogger(ChatAsyncImplClientTest.class);
 
     private AzureCommunicationChatServiceImpl client;
     private CommunicationUserIdentifier firstThreadMember;

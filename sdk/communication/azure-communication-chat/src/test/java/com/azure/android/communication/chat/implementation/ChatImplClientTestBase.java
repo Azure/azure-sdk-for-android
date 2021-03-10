@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class ChatClientTestBase extends TestBase {
+public class ChatImplClientTestBase extends TestBase {
     protected static final TestMode TEST_MODE = initializeTestMode();
 
     protected static final String ENDPOINT;
@@ -131,7 +131,7 @@ public class ChatClientTestBase extends TestBase {
     }
 
     private static TestMode initializeTestMode() {
-        ClientLogger logger = new ClientLogger(ChatClientTestBase.class);
+        ClientLogger logger = new ClientLogger(ChatImplClientTestBase.class);
         String azureTestMode = getConfig("AZURE_TEST_MODE");
         if (azureTestMode != null) {
             System.out.println("azureTestMode: " + azureTestMode);
