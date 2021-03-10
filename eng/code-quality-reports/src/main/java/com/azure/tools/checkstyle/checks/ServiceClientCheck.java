@@ -78,9 +78,9 @@ public class ServiceClientCheck extends AbstractCheck {
         "''%s'' service client with ''%s'', should always use return type ''%s'' if method name ends with ''%s'' or "
             + "should always named method name ends with ''%s'' if the return type is ''%s''.";
     private static final String ASYNC_CONTEXT_ERROR =
-        "Asynchronous method with annotation @ServiceMethod must not has ''%s'' as a method parameter.";
+        "Asynchronous method with annotation @ServiceMethod that return Response or PagedResponse must have ''%s'' as a method parameter.";
     private static final String SYNC_CONTEXT_ERROR =
-        "Synchronous method with annotation @ServiceMethod must has ''%s'' as a method parameter.";
+        "Synchronous method with annotation @ServiceMethod must have ''%s'' as a method parameter.";
 
     private static final Set<String> COMMON_NAMING_PREFIX_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
         "upsert", "set", "create", "update", "replace", "delete", "add", "get", "list"
@@ -421,12 +421,12 @@ public class ServiceClientCheck extends AbstractCheck {
             })
             .isPresent();
 
-        if (containsContextParameter) {
-            // CompletableFuture and PagedFlux return type implies Asynchronous method
-            if (returnType.startsWith(COMPLETABLE_FUTURE_BRACKET) || returnType.startsWith(PAGED_FLUX_BRACKET)) {
+        if (!containsContextParameter) {
+            if (returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)
+                || returnType.startsWith(COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET)) {
                 log(methodDefToken, String.format(ASYNC_CONTEXT_ERROR, CONTEXT));
             }
-        } else {
+
             // Context should be passed in as an argument to all public methods annotated with @ServiceMethod that
             // return Response<T> in sync clients.
             if (returnType.startsWith(RESPONSE_BRACKET)) {
