@@ -24,7 +24,7 @@ public final class ChatMessageConverter {
             .setId(obj.getId())
             .setType(obj.getType())
             .setVersion(obj.getVersion())
-            .setContent(ChatMessageContentConverter.convert(obj.getContent()))
+            .setContent(ChatMessageContentConverter.convert(obj.getContent(), logger))
             .setCreatedOn(obj.getCreatedOn())
             .setDeletedOn(obj.getDeletedOn())
             .setEditedOn(obj.getEditedOn())
