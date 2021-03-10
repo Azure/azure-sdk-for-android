@@ -37,11 +37,6 @@ public final class ChatClientBuilder {
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
-//    private Configuration configuration;
-
-//    private static final String APP_CONFIG_PROPERTIES = "azure-communication-chat.properties";
-//    private static final String SDK_NAME = "name";
-//    private static final String SDK_VERSION = "version";
 
     /**
      * Set endpoint of the service
@@ -114,22 +109,6 @@ public final class ChatClientBuilder {
         return this;
     }
 
-//    /**
-//     * Sets the {@link ChatServiceVersion} that is used when making API requests.
-//     * <p>
-//     * If a service version is not provided, the service version that will be used will be the latest known service
-//     * version based on the version of the client library being used. If no service version is specified, updating
-//     * to a newer version of the client library will have the result of potentially moving to a newer service version.
-//     * <p>
-//     * Targeting a specific service version may also mean that the service will return an error for newer APIs.
-//     *
-//     * @param version {@link ChatServiceVersion} of the service to be used when making requests.
-//     * @return the updated ChatClientBuilder object
-//     */
-//    public ChatClientBuilder serviceVersion(ChatServiceVersion version) {
-//        return this;
-//    }
-
     /**
      * Sets the {@link HttpPipeline} to use for the service client.
      *
@@ -142,17 +121,6 @@ public final class ChatClientBuilder {
         this.httpPipeline = httpPipeline;
         return this;
     }
-
-//    /**
-//     * Sets the configuration object used to retrieve environment configuration values during building of the client.
-//     *
-//     * @param configuration Configuration store used to retrieve environment configurations.
-//     * @return the updated BlobServiceClientBuilder object
-//     */
-//    public ChatClientBuilder configuration(Configuration configuration) {
-//        this.configuration = configuration;
-//        return this;
-//    }
 
     /**
      * Create synchronous client applying CommunicationTokenCredential, UserAgentPolicy,
@@ -233,22 +201,9 @@ public final class ChatClientBuilder {
     }
 
     private void applyRequiredPolicies(List<HttpPipelinePolicy> policies) {
-        policies.add(getUserAgentPolicy());
+        policies.add(new UserAgentPolicy(null, "azure-communication-chat", "1.0.0-beta.8"));
         policies.add(RetryPolicy.withExponentialBackoff());
         policies.add(new CookiePolicy());
         policies.add(new HttpLoggingPolicy(this.logOptions));
-    }
-
-    /*
-     * Creates a {@link UserAgentPolicy} using the default chat service module name and version.
-     *
-     * @return The default {@link UserAgentPolicy} for the module.
-     */
-    private UserAgentPolicy getUserAgentPolicy() {
-//        Map<String, String> properties = CoreUtils.getProperties(APP_CONFIG_PROPERTIES);
-//        String clientName = properties.getOrDefault(SDK_NAME, "UnknownName");
-//        String clientVersion = properties.getOrDefault(SDK_VERSION, "UnknownVersion");
-//        return new UserAgentPolicy(logOptions.getApplicationId(), clientName, clientVersion, configuration);
-        return new UserAgentPolicy(null, "azure-communication-chat", "1.0.0-beta.8");
     }
 }

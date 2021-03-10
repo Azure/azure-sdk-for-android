@@ -4,9 +4,12 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
+import com.azure.android.communication.chat.models.ListChatThreadsOptions;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.SimpleResponse;
 import com.azure.android.core.rest.annotation.ReturnType;
@@ -14,6 +17,7 @@ import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.util.Context;
 
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
@@ -27,8 +31,7 @@ public final class ChatClient {
     private final ChatAsyncClient client;
 
     /**
-     * Creates a ChatClient that sends requests to the chat service at {@code serviceEndpoint}. Each
-     * service call goes through the {@code pipeline}.
+     * Creates a ChatClient that sends requests to the chat service.
      *
      * @param client The {@link ChatAsyncClient} that the client routes its request through.
      */
@@ -40,6 +43,7 @@ public final class ChatClient {
      * Creates a chat thread client.
      *
      * @param chatThreadId The id of the chat thread.
+     *
      * @return the client.
      */
     public ChatThreadClient getChatThreadClient(String chatThreadId) {
@@ -51,7 +55,8 @@ public final class ChatClient {
      * Creates a chat thread.
      *
      * @param options Options for creating a chat thread.
-     * @return the response.
+     *
+     * @return the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(CreateChatThreadOptions options) {
@@ -63,7 +68,8 @@ public final class ChatClient {
      *
      * @param options Options for creating a chat thread.
      * @param context The context to associate with this operation.
-     * @return the response.
+     *
+     * @return the response containing the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CreateChatThreadResult> createChatThreadWithResponse(CreateChatThreadOptions options,
@@ -77,8 +83,9 @@ public final class ChatClient {
     /**
      * Gets a chat thread.
      *
-     * @param chatThreadId Chat thread id to get.
-     * @return a chat thread.
+     * @param chatThreadId the id of the Chat thread to retrieve.
+     *
+     * @return the thread with the given id.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChatThread getChatThread(String chatThreadId) {
@@ -88,9 +95,10 @@ public final class ChatClient {
     /**
      * Gets a chat thread.
      *
-     * @param chatThreadId Chat thread id to get.
+     * @param chatThreadId the id of the Chat thread to retrieve.
      * @param context The context to associate with this operation.
-     * @return a chat thread.
+     *
+     * @return the thread with the given id.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChatThread> getChatThreadWithResponse(String chatThreadId, Context context) {
@@ -100,7 +108,7 @@ public final class ChatClient {
     /**
      * Deletes a chat thread.
      *
-     * @param chatThreadId Chat thread id to delete.
+     * @param chatThreadId the id of the Chat thread to delete.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void deleteChatThread(String chatThreadId) {
@@ -110,38 +118,81 @@ public final class ChatClient {
     /**
      * Deletes a chat thread.
      *
-     * @param chatThreadId Chat thread id to delete.
+     * @param chatThreadId the id of the Chat thread to delete.
      * @param context The context to associate with this operation.
-     * @return the completion.
+     *
+     * @return the response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteChatThreadWithResponse(String chatThreadId, Context context) {
         return block(this.client.deleteChatThread(chatThreadId, context));
     }
 
-//    /**
-//     * Gets the list of chat threads of a user.
-//     *
-//     * @return the paged list of chat threads of a user.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedIterable<ChatThreadInfo> listChatThreads() {
-//
-//        return new PagedIterable<>(this.client.listChatThreads());
-//    }
-//
-//    /**
-//     * Gets the list of chat threads of a user.
-//     *
-//     * @param listThreadsOptions The request options.
-//     * @param context The context to associate with this operation.
-//     * @return the paged list of chat threads of a user.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedIterable<ChatThreadInfo> listChatThreads(ListChatThreadsOptions listThreadsOptions, Context context) {
-//
-//        return new PagedIterable<>(this.client.listChatThreads(listThreadsOptions, context));
-//    }
+    /**
+     * Gets the list of Chat threads in the first page.
+     *
+     * @return the list of Chat threads in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<ChatThreadInfo> getChatThreadsFirstPage() {
+        return block(this.client.getChatThreadsFirstPage());
+    }
+
+    /**
+     * Gets the list of Chat threads in the first page.
+     *
+     * @param listThreadsOptions the list options.
+     * @param context the context to associate with this operation.
+     *
+     * @return the list of Chat threads in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<ChatThreadInfo> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions, Context context) {
+        return block(this.client.getChatThreadsFirstPage(listThreadsOptions, context)
+            .thenApply(response -> response.getValue()));
+    }
+
+    /**
+     * Gets the list of Chat threads in the first page.
+     *
+     * @param listThreadsOptions the list options.
+     * @param context the context to associate with this operation.
+     *
+     * @return the response containing the list of Chat threads in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<ChatThreadInfo> getChatThreadsFirstPageWithResponse(
+        ListChatThreadsOptions listThreadsOptions,
+        Context context) {
+        return block(this.client.getChatThreadsFirstPage(listThreadsOptions, context));
+    }
+
+    /**
+     * Gets the page with given id containing list of chat threads.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the list of Chat threads in the page..
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public List<ChatThreadInfo> getChatThreadsNextPage(String nextLink) {
+        return block(this.client.getChatThreadsNextPage(nextLink));
+    }
+
+    /**
+     * Gets the page with given id containing list of chat threads.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     * @param context the context to associate with this operation.
+     *
+     * @return the response containing the list of Chat threads in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public PagedResponse<ChatThreadInfo> getChatThreadsNextPageWithResponse(
+        String nextLink,
+        Context context) {
+        return block(this.client.getChatThreadsNextPage(nextLink, context));
+    }
 
     private <T> T block(CompletableFuture<T> completableFuture) {
         try {
@@ -153,4 +204,3 @@ public final class ChatClient {
         }
     }
 }
-

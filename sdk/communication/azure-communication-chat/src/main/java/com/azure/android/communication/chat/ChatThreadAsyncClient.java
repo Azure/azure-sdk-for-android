@@ -7,18 +7,26 @@ import com.azure.android.communication.chat.implementation.AzureCommunicationCha
 import com.azure.android.communication.chat.implementation.ChatThreadImpl;
 import com.azure.android.communication.chat.implementation.converters.AddChatParticipantsOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatMessageConverter;
+import com.azure.android.communication.chat.implementation.converters.ChatMessageReadReceiptConverter;
+import com.azure.android.communication.chat.implementation.converters.ChatParticipantConverter;
 import com.azure.android.communication.chat.implementation.converters.CommunicationIdentifierConverter;
 import com.azure.android.communication.chat.implementation.converters.SendChatMessageResultConverter;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ListChatMessagesOptions;
+import com.azure.android.communication.chat.models.ListParticipantsOptions;
+import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatThreadOptions;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.rest.PagedResponseBase;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.SimpleResponse;
 import com.azure.android.core.rest.annotation.ReturnType;
@@ -26,7 +34,9 @@ import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.util.Context;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import java9.util.concurrent.CompletableFuture;
 
@@ -46,9 +56,9 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Get the thread id property.
+     * Get the thread id.
      *
-     * @return the thread id value.
+     * @return the thread id.
      */
     public String getChatThreadId() {
         return chatThreadId;
@@ -58,7 +68,8 @@ public final class ChatThreadAsyncClient {
      * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that signals the update result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> updateTopic(String topic) {
@@ -72,10 +83,11 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Updates a thread's properties.
+     * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> updateTopicWithResponse(String topic) {
@@ -90,7 +102,8 @@ public final class ChatThreadAsyncClient {
      *
      * @param topic The new topic.
      * @param context The context to associate with this operation.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the update request.
      */
     CompletableFuture<Response<Void>> updateTopic(String topic, Context context) {
         context = context == null ? Context.NONE : context;
@@ -105,7 +118,8 @@ public final class ChatThreadAsyncClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param options Options for adding participants.
-     * @return the result.
+     *
+     * @return the {@link CompletableFuture} that signals the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> addParticipants(AddChatParticipantsOptions options) {
@@ -122,7 +136,8 @@ public final class ChatThreadAsyncClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param options Options for adding participants.
-     * @return the result.
+     *
+     * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantsWithResponse(
@@ -137,7 +152,8 @@ public final class ChatThreadAsyncClient {
      * Adds a participant to a thread. If the participant already exists, no change occurs.
      *
      * @param participant The new participant.
-     * @return the result.
+     *
+     * @return the {@link CompletableFuture} that signals the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> addParticipant(ChatParticipant participant) {
@@ -153,7 +169,8 @@ public final class ChatThreadAsyncClient {
      * Adds a participant to a thread. If the participant already exists, no change occurs.
      *
      * @param participant The new participant.
-     * @return the result.
+     *
+     * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantWithResponse(
@@ -168,10 +185,11 @@ public final class ChatThreadAsyncClient {
      *
      * @param options Options for adding participants.
      * @param context The context to associate with this operation.
-     * @return the result.
+     *
+     * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
-    CompletableFuture<Response<AddChatParticipantsResult>> addParticipants(AddChatParticipantsOptions
-                                                                               options, Context context) {
+    CompletableFuture<Response<AddChatParticipantsResult>> addParticipants(AddChatParticipantsOptions options,
+                                                                           Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatThreadClient.addChatParticipantsWithResponseAsync(
             this.chatThreadId, AddChatParticipantsOptionsConverter.convert(options, this.logger), context);
@@ -180,8 +198,9 @@ public final class ChatThreadAsyncClient {
     /**
      * Remove a participant from a thread.
      *
-     * @param identifier Identity of the participant to remove from the thread.
-     * @return the completion.
+     * @param identifier identity of the participant to remove from the thread.
+     *
+     * @return the {@link CompletableFuture} that signals the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> removeParticipant(CommunicationIdentifier identifier) {
@@ -196,8 +215,9 @@ public final class ChatThreadAsyncClient {
     /**
      * Remove a participant from a thread.
      *
-     * @param identifier Identity of the participant to remove from the thread.
-     * @return the completion.
+     * @param identifier identity of the participant to remove from the thread.
+     *
+     * @return the {@link CompletableFuture} that emits response of the remove request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> removeParticipantWithResponse(CommunicationIdentifier identifier) {
@@ -210,9 +230,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Remove a participant from a thread.
      *
-     * @param identifier Identity of the participant to remove from the thread.
+     * @param identifier identity of the participant to remove from the thread.
      * @param context The context to associate with this operation.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the remove request.
      */
     CompletableFuture<Response<Void>> removeParticipant(CommunicationIdentifier identifier, Context context) {
         context = context == null ? Context.NONE : context;
@@ -220,88 +241,143 @@ public final class ChatThreadAsyncClient {
             chatThreadId, CommunicationIdentifierConverter.convert(identifier, this.logger), context);
     }
 
-//    /**
-//     * Gets the participants of a thread.
-//     *
-//     * @return the participants of a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatParticipant> listParticipants() {
-//        ListParticipantsOptions listParticipantsOptions = new ListParticipantsOptions();
-//        return listParticipants(listParticipantsOptions);
-//    }
-//
-//    /**
-//     * Gets the participants of a thread.
-//     *
-//     * @param listParticipantsOptions The request options.
-//     * @return the participants of a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatParticipant> listParticipants(ListParticipantsOptions listParticipantsOptions) {
-//        final ListParticipantsOptions serviceListParticipantsOptions =
-//            listParticipantsOptions == null ? new ListParticipantsOptions() : listParticipantsOptions;
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () -> withContext(context ->
-//                        this.chatThreadClient.listChatParticipantsSinglePageAsync(
-//                            chatThreadId,
-//                            serviceListParticipantsOptions.getMaxPageSize(),
-//                            serviceListParticipantsOptions.getSkip(),
-//                            context)),
-//                    nextLink -> withContext(context ->
-//                        this.chatThreadClient.listChatParticipantsNextSinglePageAsync(nextLink, context))),
-//                f -> ChatParticipantConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
-//
-//    /**
-//     * Gets the participants of a thread.
-//     *
-//     * @param context The context to associate with this operation.
-//     * @return the participants of a thread.
-//     */
-//    PagedFlux<ChatParticipant> listParticipants(Context context) {
-//        ListParticipantsOptions listParticipantsOptions = new ListParticipantsOptions();
-//        return listParticipants(listParticipantsOptions, context);
-//    }
-//
-//    /**
-//     * Gets the participants of a thread.
-//     *
-//     * @param context The context to associate with this operation.
-//     * @param listParticipantsOptions The request options.
-//     * @return the participants of a thread.
-//     */
-//    PagedFlux<ChatParticipant> listParticipants(ListParticipantsOptions listParticipantsOptions, Context context) {
-//        final Context serviceContext = context == null ? Context.NONE : context;
-//        final ListParticipantsOptions serviceListParticipantsOptions =
-//            listParticipantsOptions == null ? new ListParticipantsOptions() : listParticipantsOptions;
-//
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () ->
-//                        this.chatThreadClient.listChatParticipantsSinglePageAsync(
-//                            chatThreadId,
-//                            serviceListParticipantsOptions.getMaxPageSize(),
-//                            serviceListParticipantsOptions.getSkip(),
-//                            serviceContext),
-//                    nextLink ->
-//                        this.chatThreadClient.listChatParticipantsNextSinglePageAsync(nextLink, serviceContext)),
-//                f -> ChatParticipantConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
+    /**
+     * Gets the list of the thread participants in the first page.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread participants in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatParticipant>> getParticipantsFirstPage() {
+        ListParticipantsOptions listParticipantsOptions = new ListParticipantsOptions();
+        return this.getParticipantsFirstPage(listParticipantsOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of the thread participants in the first page.
+     *
+     * @param listParticipantsOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread participants in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatParticipant>> getParticipantsFirstPage(
+        ListParticipantsOptions listParticipantsOptions) {
+        if (listParticipantsOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listParticipantsOptions is required."));
+        }
+        return this.getParticipantsFirstPage(listParticipantsOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of the thread participants in the first page.
+     *
+     * @param listParticipantsOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread participants
+     * in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsFirstPageWithResponse(
+        ListParticipantsOptions listParticipantsOptions) {
+        if (listParticipantsOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listParticipantsOptions is required."));
+        }
+        return this.getParticipantsFirstPage(listParticipantsOptions, null);
+    }
+
+    /**
+     * Gets the list of the thread participants in the first page.
+     *
+     * @param listParticipantsOptions the list options.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread participants
+     * in the first page.
+     */
+    CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsFirstPage(
+        ListParticipantsOptions listParticipantsOptions,
+        Context context) {
+        return this.chatThreadClient.listChatParticipantsSinglePageAsync(this.chatThreadId,
+            listParticipantsOptions.getMaxPageSize(),
+            listParticipantsOptions.getSkip(), context)
+            .thenApply(response -> {
+                List<ChatParticipant> participants = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatParticipant innerParticipant
+                        : response.getValue()) {
+                        participants.add(ChatParticipantConverter.convert(innerParticipant, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    participants,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
+
+    /**
+     * Gets the list of the thread participants in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the list of thread participants in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatParticipant>> getParticipantsNextPage(String nextLink) {
+        return this.getParticipantsNextPage(nextLink, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of the thread participants in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread participants in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsNextPageWithResponse(String nextLink) {
+        return this.getParticipantsNextPage(nextLink, null);
+    }
+
+    /**
+     * Gets the list of the thread participants in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread participants in the page.
+     */
+    CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsNextPage(String nextLink,
+                                                                              Context context) {
+        return this.chatThreadClient.listChatParticipantsNextSinglePageAsync(nextLink, context)
+            .thenApply(response -> {
+                List<ChatParticipant> participants = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatParticipant innerParticipant
+                        : response.getValue()) {
+                        participants.add(ChatParticipantConverter.convert(innerParticipant, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    participants,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
 
     /**
      * Sends a message to a thread.
      *
      * @param options Options for sending the message.
-     * @return the MessageId.
+     *
+     * @return the {@link CompletableFuture} that emits the id of the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<String> sendMessage(SendChatMessageOptions options) {
@@ -318,7 +394,8 @@ public final class ChatThreadAsyncClient {
      * Sends a message to a thread.
      *
      * @param options Options for sending the message.
-     * @return the MessageId.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<String>> sendMessageWithResponse(SendChatMessageOptions options) {
@@ -331,9 +408,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Sends a message to a thread.
      *
-     * @param options Options for sending the message.
-     * @param context The context to associate with this operation.
-     * @return the MessageId.
+     * @param options options for sending the message.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
     CompletableFuture<Response<String>> sendMessage(SendChatMessageOptions options, Context context) {
         context = context == null ? Context.NONE : context;
@@ -348,7 +426,8 @@ public final class ChatThreadAsyncClient {
      * Gets a message by id.
      *
      * @param chatMessageId The message id.
-     * @return a message by id.
+     *
+     * @return the {@link CompletableFuture} that emits the the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<ChatMessage> getMessage(String chatMessageId) {
@@ -365,7 +444,8 @@ public final class ChatThreadAsyncClient {
      * Gets a message by id.
      *
      * @param chatMessageId The message id.
-     * @return a message by id.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<ChatMessage>> getMessageWithResponse(String chatMessageId) {
@@ -378,9 +458,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets a message by id.
      *
-     * @param chatMessageId The message id.
-     * @param context The context to associate with this operation.
-     * @return a message by id.
+     * @param chatMessageId the message id.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the message.
      */
     CompletableFuture<Response<ChatMessage>> getMessage(String chatMessageId, Context context) {
         context = context == null ? Context.NONE : context;
@@ -389,89 +470,144 @@ public final class ChatThreadAsyncClient {
                 this.logger)));
     }
 
-//    /**
-//     * Gets a list of messages from a thread.
-//     *
-//     * @return a paged list of messages from a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatMessage> listMessages() {
-//        ListChatMessagesOptions listMessagesOptions = new ListChatMessagesOptions();
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () -> withContext(context ->  this.chatThreadClient.listChatMessagesSinglePageAsync(
-//                        chatThreadId, listMessagesOptions.getMaxPageSize(), listMessagesOptions.getStartTime(),
-//                        context)),
-//                    nextLink -> withContext(context -> this.chatThreadClient.listChatMessagesNextSinglePageAsync(
-//                        nextLink, context))),
-//                f -> ChatMessageConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
-//
-//    /**
-//     * Gets a list of messages from a thread.
-//     *
-//     * @param listMessagesOptions The request options.
-//     * @return a paged list of messages from a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatMessage> listMessages(ListChatMessagesOptions listMessagesOptions) {
-//        final ListChatMessagesOptions serviceListMessagesOptions =
-//            listMessagesOptions == null ? new ListChatMessagesOptions() : listMessagesOptions;
-//
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () -> withContext(context ->  this.chatThreadClient.listChatMessagesSinglePageAsync(
-//                        chatThreadId,
-//                        serviceListMessagesOptions.getMaxPageSize(),
-//                        serviceListMessagesOptions.getStartTime(),
-//                        context)),
-//                    nextLink -> withContext(context -> this.chatThreadClient.listChatMessagesNextSinglePageAsync(
-//                        nextLink, context))),
-//                f -> ChatMessageConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
-//
-//    /**
-//     * Gets a list of messages from a thread.
-//     *
-//     * @param listMessagesOptions The request options.
-//     * @param context The context to associate with this operation.
-//     * @return a paged list of messages from a thread.
-//     */
-//    PagedFlux<ChatMessage> listMessages(ListChatMessagesOptions listMessagesOptions, Context context) {
-//        final ListChatMessagesOptions serviceListMessagesOptions
-//            = listMessagesOptions == null ? new ListChatMessagesOptions() : listMessagesOptions;
-//        final Context serviceContext = context == null ? Context.NONE : context;
-//
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () ->  this.chatThreadClient.listChatMessagesSinglePageAsync(
-//                        chatThreadId,
-//                        serviceListMessagesOptions.getMaxPageSize(),
-//                        serviceListMessagesOptions.getStartTime(),
-//                        serviceContext),
-//                    nextLink -> this.chatThreadClient.listChatMessagesNextSinglePageAsync(
-//                        nextLink, serviceContext)),
-//                f -> ChatMessageConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
+    /**
+     * Gets the list of thread messages in the first page.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread messages in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessage>> getMessagesFirstPage() {
+        ListChatMessagesOptions listMessagesOptions = new ListChatMessagesOptions();
+        return this.getMessagesFirstPage(listMessagesOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of thread messages in the first page.
+     *
+     * @param listChatMessagesOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread messages in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessage>> getMessagesFirstPage(
+        ListChatMessagesOptions listChatMessagesOptions) {
+        if (listChatMessagesOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listChatMessagesOptions is required."));
+        }
+        return this.getMessagesFirstPage(listChatMessagesOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of thread messages in the first page.
+     *
+     * @param listMessagesOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread messages
+     * in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatMessage>> getMessagesFirstPageWithResponse(
+        ListChatMessagesOptions listMessagesOptions) {
+        if (listMessagesOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listChatMessagesOptions is required."));
+        }
+        return this.getMessagesFirstPage(listMessagesOptions, null);
+    }
+
+    /**
+     * Gets the list of thread messages in the first page.
+     *
+     * @param listChatMessagesOptions the list options.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread messages
+     * in the first page.
+     */
+    CompletableFuture<PagedResponse<ChatMessage>> getMessagesFirstPage(
+        ListChatMessagesOptions listChatMessagesOptions,
+        Context context) {
+        return this.chatThreadClient.listChatMessagesSinglePageAsync(this.chatThreadId,
+            listChatMessagesOptions.getMaxPageSize(),
+            listChatMessagesOptions.getStartTime(), context)
+            .thenApply(response -> {
+                List<ChatMessage> messages = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatMessage innerMessage
+                        : response.getValue()) {
+                        messages.add(ChatMessageConverter.convert(innerMessage, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    messages,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
+
+    /**
+     * Gets the list of the thread messages in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the list of thread messages in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessage>> getMessagesNextPage(String nextLink) {
+        return this.getMessagesNextPage(nextLink, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of the thread messages in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread messages in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatMessage>> getMessagesNextPageWithResponse(String nextLink) {
+        return this.getMessagesNextPage(nextLink, null);
+    }
+
+    /**
+     * Gets the list of the thread messages in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread messages in the page.
+     */
+    CompletableFuture<PagedResponse<ChatMessage>> getMessagesNextPage(String nextLink,
+                                                                      Context context) {
+        return this.chatThreadClient.listChatMessagesNextSinglePageAsync(nextLink, context)
+            .thenApply(response -> {
+                List<ChatMessage> messages = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatMessage innerMessage
+                        : response.getValue()) {
+                        messages.add(ChatMessageConverter.convert(innerMessage, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    messages,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
 
     /**
      * Updates a message.
      *
-     * @param chatMessageId The message id.
-     * @param options Options for updating the message.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     * @param options options for updating the message.
+     *
+     * @return the {@link CompletableFuture} that signals the update result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> updateMessage(String chatMessageId, UpdateChatMessageOptions options) {
@@ -488,9 +624,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Updates a message.
      *
-     * @param chatMessageId The message id.
-     * @param options Options for updating the message.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     * @param options options for updating the message.
+     *
+     * @return the {@link CompletableFuture} that emits response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> updateMessageWithResponse(String chatMessageId,
@@ -507,10 +644,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Updates a message.
      *
-     * @param chatMessageId The message id.
-     * @param options Options for updating the message.
-     * @param context The context to associate with this operation.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     * @param options options for updating the message.
+     * @param context the context to associate with this operation.
+     * @return the {@link CompletableFuture} that emits response of the update request.
      */
     CompletableFuture<Response<Void>> updateMessage(String chatMessageId, UpdateChatMessageOptions options,
                                                     Context context) {
@@ -521,8 +658,9 @@ public final class ChatThreadAsyncClient {
     /**
      * Deletes a message.
      *
-     * @param chatMessageId The message id.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     *
+     * @return the {@link CompletableFuture} that signals the result of deletion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> deleteMessage(String chatMessageId) {
@@ -538,8 +676,9 @@ public final class ChatThreadAsyncClient {
     /**
      * Deletes a message.
      *
-     * @param chatMessageId The message id.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     *
+     * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> deleteMessageWithResponse(String chatMessageId) {
@@ -552,9 +691,10 @@ public final class ChatThreadAsyncClient {
     /**
      * Deletes a message.
      *
-     * @param chatMessageId The message id.
-     * @param context The context to associate with this operation.
-     * @return the completion.
+     * @param chatMessageId the message id.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     CompletableFuture<Response<Void>> deleteMessage(String chatMessageId, Context context) {
         context = context == null ? Context.NONE : context;
@@ -564,7 +704,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @return the completion.
+     * @return the {@link CompletableFuture} that signals the result of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> sendTypingNotification() {
@@ -577,7 +717,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @return the completion.
+     * @return the {@link CompletableFuture} that emits response of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> sendTypingNotificationWithResponse() {
@@ -588,7 +728,8 @@ public final class ChatThreadAsyncClient {
      * Posts a typing event to a thread, on behalf of a user.
      *
      * @param context The context to associate with this operation.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the operation.
      */
     CompletableFuture<Response<Void>> sendTypingNotification(Context context) {
         context = context == null ? Context.NONE : context;
@@ -598,8 +739,9 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a read receipt event to a thread, on behalf of a user.
      *
-     * @param chatMessageId The id of the chat message that was read.
-     * @return the completion.
+     * @param chatMessageId the id of the chat message that was read.
+     *
+     * @return the {@link CompletableFuture} that signals the result of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> sendReadReceipt(String chatMessageId) {
@@ -616,7 +758,8 @@ public final class ChatThreadAsyncClient {
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId The id of the chat message that was read.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> sendReadReceiptWithResponse(String chatMessageId) {
@@ -631,7 +774,8 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId The id of the chat message that was read.
      * @param context The context to associate with this operation.
-     * @return the completion.
+     *
+     * @return the {@link CompletableFuture} that emits response of the operation.
      */
     CompletableFuture<Response<Void>> sendReadReceipt(String chatMessageId, Context context) {
         context = context == null ? Context.NONE : context;
@@ -640,107 +784,137 @@ public final class ChatThreadAsyncClient {
         return this.chatThreadClient.sendChatReadReceiptWithResponseAsync(chatThreadId, request, context);
     }
 
-//    /**
-//     * Gets read receipts for a thread.
-//     *
-//     * @return read receipts for a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatMessageReadReceipt> listReadReceipts() {
-//        ListReadReceiptOptions listReadReceiptOptions = new ListReadReceiptOptions();
-//        return listReadReceipts(listReadReceiptOptions);
-//    }
-//
-//    /**
-//     * Gets read receipts for a thread.
-//     *
-//     * @param listReadReceiptOptions The additional options for this operation.
-//     * @return read receipts for a thread.
-//     */
-//    @ServiceMethod(returns = ReturnType.COLLECTION)
-//    public PagedFlux<ChatMessageReadReceipt> listReadReceipts(ListReadReceiptOptions listReadReceiptOptions) {
-//        final ListReadReceiptOptions serviceListReadReceiptOptions =
-//            listReadReceiptOptions == null ? new ListReadReceiptOptions() : listReadReceiptOptions;
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () -> withContext(context ->  this.chatThreadClient.listChatReadReceiptsSinglePageAsync(
-//                        chatThreadId,
-//                        serviceListReadReceiptOptions.getMaxPageSize(),
-//                        serviceListReadReceiptOptions.getSkip(),
-//                        context)),
-//                    nextLink -> withContext(context -> this.chatThreadClient.listChatReadReceiptsNextSinglePageAsync(
-//                        nextLink, context))),
-//                f -> ChatMessageReadReceiptConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
-//
-//    /**
-//     * Gets read receipts for a thread.
-//     *
-//     * @param context The context to associate with this operation.
-//     *
-//     * @return read receipts for a thread.
-//     */
-//    PagedFlux<ChatMessageReadReceipt> listReadReceipts(Context context) {
-//        ListReadReceiptOptions listReadReceiptOptions = new ListReadReceiptOptions();
-//        return listReadReceipts(listReadReceiptOptions, context);
-//    }
-//
-//    /**
-//     * Gets read receipts for a thread.
-//     *
-//     * @param listReadReceiptOptions The additional options for this operation.
-//     * @param context The context to associate with this operation.
-//     *
-//     * @return read receipts for a thread.
-//     */
-//    PagedFlux<ChatMessageReadReceipt> listReadReceipts(ListReadReceiptOptions listReadReceiptOptions,
-//                                                       Context context) {
-//        final Context serviceContext = context == null ? Context.NONE : context;
-//        final ListReadReceiptOptions serviceListReadReceiptOptions =
-//            listReadReceiptOptions == null ? new ListReadReceiptOptions() : listReadReceiptOptions;
-//
-//        try {
-//            return pagedFluxConvert(new PagedFlux<>(
-//                    () -> this.chatThreadClient.listChatReadReceiptsSinglePageAsync(
-//                        chatThreadId,
-//                        serviceListReadReceiptOptions.getMaxPageSize(),
-//                        serviceListReadReceiptOptions.getSkip(),
-//                        serviceContext),
-//                    nextLink -> this.chatThreadClient.listChatReadReceiptsNextSinglePageAsync(
-//                        nextLink, serviceContext)),
-//                f -> ChatMessageReadReceiptConverter.convert(f));
-//        } catch (RuntimeException ex) {
-//
-//            return new PagedFlux<>(() -> monoError(logger, ex));
-//        }
-//    }
-//
-//    private <T1, T2> PagedFlux<T1> pagedFluxConvert(PagedFlux<T2> originalPagedFlux, Function<T2, T1> func) {
-//
-//        final Function<PagedResponse<T2>,
-//            PagedResponse<T1>> responseMapper
-//            = response -> new PagedResponseBase<Void, T1>(response.getRequest(),
-//            response.getStatusCode(),
-//            response.getHeaders(),
-//            response.getValue()
-//                .stream()
-//                .map(value -> func.apply(value)).collect(Collectors.toList()),
-//            response.getContinuationToken(),
-//            null);
-//
-//        final Supplier<PageRetriever<String, PagedResponse<T1>>> provider = () ->
-//            (continuationToken, pageSize) -> {
-//                Flux<PagedResponse<T2>> flux
-//                    = (continuationToken == null)
-//                    ? originalPagedFlux.byPage()
-//                    : originalPagedFlux.byPage(continuationToken);
-//                return flux.map(responseMapper);
-//            };
-//
-//        return PagedFlux.create(provider);
-//    }
+    /**
+     * Gets the list of thread read receipts in the first page.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread read receipts in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessageReadReceipt>> getReadReceiptsFirstPage() {
+        ListReadReceiptOptions listReadReceiptsOptions = new ListReadReceiptOptions();
+        return this.getReadReceiptsFirstPage(listReadReceiptsOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of thread read receipts in the first page.
+     *
+     * @param listReadReceiptOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits list of thread read receipts in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessageReadReceipt>> getReadReceiptsFirstPage(
+        ListReadReceiptOptions listReadReceiptOptions) {
+        if (listReadReceiptOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listReadReceiptOptions is required."));
+        }
+        return this.getReadReceiptsFirstPage(listReadReceiptOptions, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of thread read receipts in the first page.
+     *
+     * @param listReadReceiptOptions the list options.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
+     * in the first page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsFirstPageWithResponse(
+        ListReadReceiptOptions listReadReceiptOptions) {
+        if (listReadReceiptOptions == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("listReadReceiptOptions is required."));
+        }
+        return this.getReadReceiptsFirstPage(listReadReceiptOptions, null);
+    }
+
+    /**
+     * Gets the list of thread read receipts in the first page.
+     *
+     * @param listReadReceiptOptions the list options.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
+     * in the first page.
+     */
+    CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsFirstPage(
+        ListReadReceiptOptions listReadReceiptOptions,
+        Context context) {
+        return this.chatThreadClient.listChatReadReceiptsSinglePageAsync(this.chatThreadId,
+            listReadReceiptOptions.getMaxPageSize(),
+            listReadReceiptOptions.getSkip(), context)
+            .thenApply(response -> {
+                List<ChatMessageReadReceipt> receipts = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatMessageReadReceipt innerReceipt
+                        : response.getValue()) {
+                        receipts.add(ChatMessageReadReceiptConverter.convert(innerReceipt, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    receipts,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
+
+    /**
+     * Gets the list of the thread read receipts in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the list of thread read receipts in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<List<ChatMessageReadReceipt>> getReadReceiptsNextPage(String nextLink) {
+        return this.getReadReceiptsNextPage(nextLink, null)
+            .thenApply(response -> response.getValue());
+    }
+
+    /**
+     * Gets the list of the thread read receipts in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
+     * in the page.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsNextPageWithResponse(
+        String nextLink) {
+        return this.getReadReceiptsNextPage(nextLink, null);
+    }
+
+    /**
+     * Gets the list of the thread read receipts in the page with given id.
+     *
+     * @param nextLink the identifier for the page to retrieve.
+     * @param context the context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
+     * in the page.
+     */
+    CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsNextPage(String nextLink,
+                                                                                     Context context) {
+        return this.chatThreadClient.listChatReadReceiptsNextSinglePageAsync(nextLink, context)
+            .thenApply(response -> {
+                List<ChatMessageReadReceipt> receipts = new ArrayList<>();
+                if (response.getValue() != null) {
+                    for (com.azure.android.communication.chat.implementation.models.ChatMessageReadReceipt innerReceipt
+                        : response.getValue()) {
+                        receipts.add(ChatMessageReadReceiptConverter.convert(innerReceipt, this.logger));
+                    }
+                }
+                return new PagedResponseBase<>(response.getRequest(),
+                    response.getStatusCode(),
+                    response.getHeaders(),
+                    receipts,
+                    response.getContinuationToken(),
+                    null);
+            });
+    }
 }
