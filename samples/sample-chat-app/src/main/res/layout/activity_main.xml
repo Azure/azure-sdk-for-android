@@ -42,6 +42,14 @@
         android:onClick="actionUnregisterATestListener"
         android:text="Unregister real time notification" />
 
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:onClick="actionTestBasicOperations"
+        android:text="Test basic operations" />
+
   </LinearLayout>
 
 
