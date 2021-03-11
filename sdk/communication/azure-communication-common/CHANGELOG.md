@@ -1,8 +1,11 @@
 # Release History
 
-## 1.0.0-beta.7 (Unreleased)
+## 1.0.0-beta.7 (2021-03-09)
 ### Breaking Changes
 - Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
+- Renamed 'getRefreshProactively' to 'isRefreshProactively' in 'CommunicationTokenRefreshOptions'
+- Removed constructor 'MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment cloudEnvironment)' in 'MicrosoftTeamsUserIdentifier'
+- A few classes are made final 'CommunicationTokenCredential', 'CommunicationTokenRefreshOptions', 'CommunicationUserIdentifier', 'MicrosoftTeamsUserIdentifier', 'PhoneNumberIdentifier', 'UnknownIdentifier', 'CommunicationAccessToken'
 
 ### New Features
 - Introduce new class `CommunicationAccessToken`.

@@ -7,7 +7,7 @@ import java.util.Objects;
 /**
  * The cloud that the identifier belongs to.
  */
-public class CommunicationCloudEnvironment {
+public final class CommunicationCloudEnvironment {
     private static final String PUBLIC_VALUE = "public";
     private static final String DOD_VALUE = "dod";
     private static final String GCCH_VALUE = "gcch";
@@ -24,19 +24,29 @@ public class CommunicationCloudEnvironment {
     }
 
     /**
+     * Sets an environment value from a String
+     * @param environmentValue string representation of the environment value
+     * @return CommunicationCloudEnvironment object itself
+     */
+    public final static CommunicationCloudEnvironment fromString(String environmentValue) {
+        Objects.requireNonNull(environmentValue);
+        return new CommunicationCloudEnvironment(environmentValue);
+    }
+
+    /**
      * Represent Azure public cloud
      */
-    public static final CommunicationCloudEnvironment PUBLIC = new CommunicationCloudEnvironment(PUBLIC_VALUE);
+    public static final CommunicationCloudEnvironment PUBLIC = CommunicationCloudEnvironment.fromString(PUBLIC_VALUE);
 
     /**
      * Represent Azure Dod cloud
      */
-    public static final CommunicationCloudEnvironment DOD = new CommunicationCloudEnvironment(DOD_VALUE);
+    public static final CommunicationCloudEnvironment DOD = CommunicationCloudEnvironment.fromString(DOD_VALUE);
 
     /**
      * Represent Azure Gcch cloud
      */
-    public static final CommunicationCloudEnvironment GCCH = new CommunicationCloudEnvironment(GCCH_VALUE);
+    public static final CommunicationCloudEnvironment GCCH = CommunicationCloudEnvironment.fromString(GCCH_VALUE);
 
     @Override
     public boolean equals(Object that) {

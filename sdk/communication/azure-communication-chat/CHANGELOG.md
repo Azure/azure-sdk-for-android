@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.7 (Unreleased)
+## 1.0.0-beta.7 (2021-03-09)
 ### Added
 - Support real time notifications with new methods in ChatClient/ChatAsyncClient: 
     - startRealtimeNotifications
