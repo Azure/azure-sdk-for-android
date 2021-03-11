@@ -1,4 +1,12 @@
 # Release History
+## 1.0.0-beta.9 (Unreleased)
+
+## 1.0.0-beta.8 (2021-03-11)
+### Added
+- Add chat basic operations in test app 
+
+### Breaking Changes
+- Fix real time notification connection url
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Added
