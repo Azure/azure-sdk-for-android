@@ -1,4 +1,4 @@
-## Test android app for Azure Communication Chat Service real time notifications
+## Test android app for Azure Communication Chat Service functionalities
 
 Setup:
 1. Open the whole repo in Android Studio. 
@@ -13,4 +13,6 @@ Functions:
 
 After registering to the event, you need to use postman or JS client to create a thread with the same token you used in the test app, then send a message
 to the thread. Observe log and app UI to see if the test app receives real time notifications.
+
+* Button 'Test basic operations' to run chat normal operations such as create chat thread, send chat message, etc
 
