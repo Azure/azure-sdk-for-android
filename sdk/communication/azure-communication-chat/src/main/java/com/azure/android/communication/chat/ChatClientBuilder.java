@@ -34,6 +34,7 @@ public final class ChatClientBuilder {
     private String endpoint;
     private HttpClient httpClient;
     private CommunicationTokenCredential communicationTokenCredential;
+    private HttpPipelinePolicy credentialPolicy;
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
@@ -77,6 +78,20 @@ public final class ChatClientBuilder {
             throw logger.logExceptionAsError(new NullPointerException("communicationTokenCredential is required."));
         }
         this.communicationTokenCredential = communicationTokenCredential;
+        return this;
+    }
+
+    /**
+     * Sets the {@link HttpPipelinePolicy} that attaches authorization header.
+     *
+     * @param credentialPolicy the credentials policy.
+     * @return the updated ChatClientBuilder object
+     */
+    public ChatClientBuilder credentialPolicy(HttpPipelinePolicy credentialPolicy) {
+        if (credentialPolicy == null) {
+            throw logger.logExceptionAsError(new NullPointerException("credentialPolicy is required."));
+        }
+        this.credentialPolicy = credentialPolicy;
         return this;
     }
 
@@ -150,14 +165,19 @@ public final class ChatClientBuilder {
         if (this.httpPipeline != null) {
             pipeline = this.httpPipeline;
         } else {
-            if (this.communicationTokenCredential == null) {
-                throw logger.logExceptionAsError(new NullPointerException("CommunicationTokenCredential is required."));
+            if (this.communicationTokenCredential == null && this.credentialPolicy == null) {
+                throw logger
+                    .logExceptionAsError(
+                        new NullPointerException(
+                            "Either CommunicationTokenCredential or CredentialPolicy is required."));
             }
             if (this.httpClient == null) {
                 throw logger.logExceptionAsError(new NullPointerException("HttpClient is required."));
             }
-            pipeline = createHttpPipeline(this.httpClient,
-                chain -> {
+
+            final HttpPipelinePolicy authorizationPolicy;
+            if (this.communicationTokenCredential != null) {
+                authorizationPolicy = chain -> {
                     final Future<AccessToken> tokenFuture = this.communicationTokenCredential.getToken();
                     final AccessToken token;
                     try {
@@ -172,7 +192,12 @@ public final class ChatClientBuilder {
                     HttpRequest httpRequest = chain.getRequest();
                     httpRequest.getHeaders().put("Authorization", "Bearer " + token.getToken());
                     chain.processNextPolicy(httpRequest);
-                },
+                };
+            } else {
+                authorizationPolicy = this.credentialPolicy;
+            }
+            pipeline = createHttpPipeline(this.httpClient,
+                authorizationPolicy,
                 this.customPolicies);
         }
 

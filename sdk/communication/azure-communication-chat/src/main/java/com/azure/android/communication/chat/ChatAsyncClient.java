@@ -242,7 +242,7 @@ public final class ChatAsyncClient {
      * @return the {@link CompletableFuture} that emits the response containing list of chat threads in the page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatThreadInfo>> listChatThreadsNextPageWithResponse(
+    public CompletableFuture<PagedResponse<ChatThreadInfo>> getChatThreadsNextPageWithResponse(
         String nextLink,
         Context context) {
         return this.getChatThreadsNextPage(nextLink, context);
