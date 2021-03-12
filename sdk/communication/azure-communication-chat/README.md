@@ -17,7 +17,7 @@ This package contains the Chat client library for Azure Communication Services.
 ### Versions available
 The current Azure Communication Chat Service Version is **2021-01-27-preview4**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.7**.
+The current Azure Communication Chat SDK Version is **1.0.0-beta.8**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,24 +35,53 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.7"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.8"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.7")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.8")
 }
 ```
 
-#### Add a dependency with Maven
+#### Exclude meta files in packaging options in root build.gradle
+```
+android {
+   ...
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/license'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/notice'
+        exclude 'META-INF/ASL2.0'
+        exclude("META-INF/*.md")
+        exclude("META-INF/*.txt")
+        exclude("META-INF/*.kotlin_module")
+    }
+}
+```
+
+#### Add a maven resource in root build.gradle
+```
+allprojects {
+    repositories {
+        ...
+        maven {
+            url 'https://trouterpublicpackages.z13.web.core.windows.net'
+        }
+    }
+```
+
+#### (Alternative) Add a dependency with Maven
 To import the library into your project using the [Maven](https://maven.apache.org/) build system, add it to the `dependencies` section of your app's `pom.xml` file, specifying its artifact ID and the version you wish to use:
 
 ```xml
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.7</version>
+  <version>1.0.0-beta.8</version>
 </dependency>
 ```
 
