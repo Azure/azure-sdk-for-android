@@ -2,8 +2,4 @@
     <issue id="InvalidPackage">
         <ignore path="**/jackson-module-jaxb-annotations*.jar"/>
     </issue>
-    <issue id="NewApi">
-        <!-- TODO: anuchan This exclusion is only for dev wip, will be removed once work done -->
-        <ignore path="**/communication/chat/handwritten/**" />
-    </issue>
 </lint>
