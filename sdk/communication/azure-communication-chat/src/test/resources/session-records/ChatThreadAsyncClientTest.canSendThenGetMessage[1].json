@@ -1,0 +1,68 @@
+{
+  "networkCallRecords" : [ {
+    "Method" : "POST",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-01-27-preview4",
+    "Headers" : {
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
+      "Content-Type" : "application/json"
+    },
+    "Response" : {
+      "Transfer-Encoding" : "chunked",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
+      "X-Processing-Time" : "718ms",
+      "MS-CV" : "bf1W2IMbUUaGlnFxWGxKAg.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "0vHZOYAAAAABk+6qfVOJlSoZOaxD6ZxWjV1NURURHRTA4MjEAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "StatusCode" : "201",
+      "Body" : "{\"chatThread\":{\"id\":\"19:MsaG4L9LnH02bNHWAoMP13OfUwvK_Gn9rZm1s9hsdro1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-14T20:49:00Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d207-1909-740a-113a0d00e84e\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d207-1909-740a-113a0d00e84e\"}}}}",
+      "Date" : "Sun, 14 Mar 2021 20:49:00 GMT",
+      "Content-Type" : "application/json; charset=utf-8",
+      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3AMsaG4L9LnH02bNHWAoMP13OfUwvK_Gn9rZm1s9hsdro1@thread.v2"
+    },
+    "Exception" : null
+  }, {
+    "Method" : "POST",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:MsaG4L9LnH02bNHWAoMP13OfUwvK_Gn9rZm1s9hsdro1@thread.v2/messages?api-version=2021-01-27-preview4",
+    "Headers" : {
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
+      "Content-Type" : "application/json"
+    },
+    "Response" : {
+      "Transfer-Encoding" : "chunked",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
+      "X-Processing-Time" : "114ms",
+      "MS-CV" : "zzIezTE0KEiHJ3rA/HqORA.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "0vXZOYAAAAADO7afr08CcTJe0UisSRo+JV1NURURHRTA4MjEAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "StatusCode" : "201",
+      "Body" : "{\"id\":\"1615754941149\"}",
+      "Date" : "Sun, 14 Mar 2021 20:49:00 GMT",
+      "Content-Type" : "application/json; charset=utf-8",
+      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3AMsaG4L9LnH02bNHWAoMP13OfUwvK_Gn9rZm1s9hsdro1@thread.v2/messages/1615754941149"
+    },
+    "Exception" : null
+  }, {
+    "Method" : "GET",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:MsaG4L9LnH02bNHWAoMP13OfUwvK_Gn9rZm1s9hsdro1@thread.v2/messages/1615754941149?api-version=2021-01-27-preview4",
+    "Headers" : {
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
+    },
+    "Response" : {
+      "Transfer-Encoding" : "chunked",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
+      "X-Processing-Time" : "90ms",
+      "MS-CV" : "a6g8s2tWPkCFi/SEZOl3Ng.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "0vXZOYAAAAAB72hKSzvkmQbzaO8tum8kUV1NURURHRTA4MjEAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "StatusCode" : "200",
+      "Body" : "{\"id\":\"1615754941149\",\"type\":\"text\",\"sequenceId\":\"3\",\"version\":\"1615754941149\",\"content\":{\"message\":\"Content\"},\"senderDisplayName\":\"Tester\",\"createdOn\":\"2021-03-14T20:49:01Z\",\"senderCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d207-1909-740a-113a0d00e84e\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d207-1909-740a-113a0d00e84e\"}}}",
+      "Date" : "Sun, 14 Mar 2021 20:49:00 GMT",
+      "Content-Type" : "application/json; charset=utf-8"
+    },
+    "Exception" : null
+  } ],
+  "variables" : [ ]
+}
