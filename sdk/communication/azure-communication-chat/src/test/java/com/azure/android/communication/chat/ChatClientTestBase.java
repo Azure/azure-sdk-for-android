@@ -3,8 +3,12 @@
 
 package com.azure.android.communication.chat;
 
+import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
+import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
@@ -120,12 +124,54 @@ public class ChatClientTestBase extends TestBase {
         return options;
     }
 
+    public static AddChatParticipantsOptions addParticipantsOptions(String userId1, String userId2) {
+        List<ChatParticipant> participants = new ArrayList<ChatParticipant>();
+        participants.add(generateParticipant(
+            userId1,
+            "Added Tester 1"));
+        participants.add(generateParticipant(
+            userId2,
+            "Added Tester 2"));
+
+        AddChatParticipantsOptions options = new AddChatParticipantsOptions();
+        options.setParticipants(participants);
+
+        return options;
+    }
+
+    public static SendChatMessageOptions sendMessageOptions() {
+        SendChatMessageOptions options = new SendChatMessageOptions();
+        options.setContent("Content");
+        options.setSenderDisplayName("Tester");
+        options.setType(ChatMessageType.TEXT);
+
+        return options;
+    }
+
+    public static UpdateChatMessageOptions updateMessageOptions() {
+        UpdateChatMessageOptions options = new UpdateChatMessageOptions();
+        options.setContent("Update Test");
+
+        return options;
+    }
+
     private static ChatParticipant generateParticipant(String id, String displayName) {
         ChatParticipant chatParticipant = new ChatParticipant();
         chatParticipant.setCommunicationIdentifier(new CommunicationUserIdentifier(id));
         chatParticipant.setDisplayName(displayName);
 
         return chatParticipant;
+    }
+
+    public boolean checkParticipantsListContainsParticipantId(List<ChatParticipant> participantList,
+                                                              String participantId) {
+        for (ChatParticipant participant: participantList) {
+            if (((CommunicationUserIdentifier) participant.getCommunicationIdentifier())
+                .getId().equals(participantId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static TestMode initializeTestMode() {
