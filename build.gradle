@@ -145,8 +145,6 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         maxWarnings = 0
         classpath = files()
         source 'src/main/java'
-        // TODO: anuchan This exclusion is only for dev wip, will be removed once work done
-        exclude 'com/azure/android/communication/chat/handwritten/**'
     }
 
     // Check code style after project evaluation
