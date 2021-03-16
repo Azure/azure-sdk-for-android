@@ -9,6 +9,7 @@ import com.azure.android.communication.chat.implementation.converters.AddChatPar
 import com.azure.android.communication.chat.implementation.converters.ChatMessageConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatMessageReadReceiptConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatParticipantConverter;
+import com.azure.android.communication.chat.implementation.converters.ChatThreadConverter;
 import com.azure.android.communication.chat.implementation.converters.CommunicationIdentifierConverter;
 import com.azure.android.communication.chat.implementation.converters.SendChatMessageResultConverter;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
@@ -17,6 +18,7 @@ import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThread;
 import com.azure.android.communication.chat.models.ListChatMessagesOptions;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
@@ -99,6 +101,47 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
+     * Gets a chat thread.
+     *
+     * @return the {@link CompletableFuture} that emits the thread.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<ChatThread> getChatThreadProperties() {
+        return this.getChatThreadProperties(null)
+            .thenApply(response -> {
+                return response.getValue();
+            });
+    }
+
+    /**
+     * Gets a chat thread.
+     *
+     * @param context The context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the thread.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<Response<ChatThread>> getChatThreadPropertiesWithResponse(Context context) {
+        return this.getChatThreadProperties(context);
+    }
+
+    /**
+     * Gets a chat thread.
+     *
+     * @param context The context to associate with this operation.
+     *
+     * @return the {@link CompletableFuture} that emits the response containing the thread.
+     */
+    CompletableFuture<Response<ChatThread>> getChatThreadProperties(Context context) {
+        context = context == null ? Context.NONE : context;
+        return this.chatThreadClient.getChatThreadPropertiesWithResponseAsync(this.chatThreadId, context)
+            .thenApply(result -> {
+                return new SimpleResponse<ChatThread>(result,
+                    ChatThreadConverter.convert(result.getValue(), this.logger));
+            });
+    }
+
+    /**
      * Updates a thread's topic.
      *
      * @param topic The new topic.
@@ -108,7 +151,7 @@ public final class ChatThreadAsyncClient {
      */
     CompletableFuture<Response<Void>> updateTopic(String topic, Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.updateChatThreadWithResponseAsync(
+        return this.chatThreadClient.updateChatThreadPropertiesWithResponseAsync(
             chatThreadId,
             new UpdateChatThreadOptions().setTopic(topic),
             context
@@ -701,7 +744,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId the message id.
      * @param context The context to associate with this operation.
-     * 
+     *
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
