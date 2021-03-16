@@ -7,6 +7,12 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        jcenter {
+            content {
+                // https://youtrack.jetbrains.com/issue/IDEA-261387
+                includeModule("org.jetbrains.trove4j", "trove4j")
+            }
+        }
     }
 
     ext {
@@ -235,6 +241,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        // org.jetbrains.trove4j:trove4j:20160824.
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     ext {
