@@ -234,7 +234,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     ext {
