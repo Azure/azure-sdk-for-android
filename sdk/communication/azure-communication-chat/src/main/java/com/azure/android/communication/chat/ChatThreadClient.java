@@ -8,6 +8,7 @@ import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThread;
 import com.azure.android.communication.chat.models.ListChatMessagesOptions;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
@@ -56,6 +57,29 @@ public final class ChatThreadClient {
      */
     public String getChatThreadId() {
         return chatThreadId;
+    }
+
+
+    /**
+     * Gets a chat thread.
+     *
+     * @return the thread with the given id.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ChatThread getChatThreadProperties() {
+        return block(this.client.getChatThreadProperties());
+    }
+
+    /**
+     * Gets a chat thread.
+     *
+     * @param context The context to associate with this operation.
+     *
+     * @return the thread with the given id.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<ChatThread> getChatThreadPropertiesWithResponse(Context context) {
+        return block(this.client.getChatThreadProperties(context));
     }
 
     /**

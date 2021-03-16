@@ -6,6 +6,8 @@ package com.azure.android.communication.chat.models;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.List;
+
 /** The CreateChatThreadResult model. */
 @Fluent
 public final class CreateChatThreadResult {
@@ -16,10 +18,10 @@ public final class CreateChatThreadResult {
     private ChatThread chatThread;
 
     /*
-     * The errors property.
+     * The participants that failed to be added to the chat thread.
      */
-    @JsonProperty(value = "errors")
-    private CreateChatThreadErrors errors;
+    @JsonProperty(value = "invalidParticipants", access = JsonProperty.Access.WRITE_ONLY)
+    private List<CommunicationError> invalidParticipants;
 
     /**
      * Get the chatThread property: The chatThread property.
@@ -46,8 +48,8 @@ public final class CreateChatThreadResult {
      *
      * @return the errors value.
      */
-    public CreateChatThreadErrors getErrors() {
-        return this.errors;
+    public List<CommunicationError> getErrors() {
+        return this.invalidParticipants;
     }
 
     /**
@@ -56,8 +58,8 @@ public final class CreateChatThreadResult {
      * @param errors the errors value to set.
      * @return the CreateChatThreadResult object itself.
      */
-    public CreateChatThreadResult setErrors(CreateChatThreadErrors errors) {
-        this.errors = errors;
+    public CreateChatThreadResult setErrors(List<CommunicationError> errors) {
+        this.invalidParticipants = errors;
         return this;
     }
 }

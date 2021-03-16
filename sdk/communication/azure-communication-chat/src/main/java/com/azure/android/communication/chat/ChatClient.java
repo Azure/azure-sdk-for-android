@@ -3,8 +3,7 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
+import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
@@ -81,31 +80,6 @@ public final class ChatClient {
     }
 
     /**
-     * Gets a chat thread.
-     *
-     * @param chatThreadId the id of the Chat thread to retrieve.
-     *
-     * @return the thread with the given id.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public ChatThread getChatThread(String chatThreadId) {
-        return block(this.client.getChatThread(chatThreadId));
-    }
-
-    /**
-     * Gets a chat thread.
-     *
-     * @param chatThreadId the id of the Chat thread to retrieve.
-     * @param context The context to associate with this operation.
-     *
-     * @return the thread with the given id.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ChatThread> getChatThreadWithResponse(String chatThreadId, Context context) {
-        return block(this.client.getChatThread(chatThreadId, context));
-    }
-
-    /**
      * Deletes a chat thread.
      *
      * @param chatThreadId the id of the Chat thread to delete.
@@ -134,7 +108,7 @@ public final class ChatClient {
      * @return the list of Chat threads in the first page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<ChatThreadInfo> getChatThreadsFirstPage() {
+    public List<ChatThreadItem> getChatThreadsFirstPage() {
         return block(this.client.getChatThreadsFirstPage());
     }
 
@@ -147,7 +121,7 @@ public final class ChatClient {
      * @return the list of Chat threads in the first page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<ChatThreadInfo> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions, Context context) {
+    public List<ChatThreadItem> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions, Context context) {
         return block(this.client.getChatThreadsFirstPage(listThreadsOptions, context)
             .thenApply(response -> response.getValue()));
     }
@@ -161,7 +135,7 @@ public final class ChatClient {
      * @return the response containing the list of Chat threads in the first page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatThreadInfo> getChatThreadsFirstPageWithResponse(
+    public PagedResponse<ChatThreadItem> getChatThreadsFirstPageWithResponse(
         ListChatThreadsOptions listThreadsOptions,
         Context context) {
         return block(this.client.getChatThreadsFirstPage(listThreadsOptions, context));
@@ -175,7 +149,7 @@ public final class ChatClient {
      * @return the list of Chat threads in the page..
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public List<ChatThreadInfo> getChatThreadsNextPage(String nextLink) {
+    public List<ChatThreadItem> getChatThreadsNextPage(String nextLink) {
         return block(this.client.getChatThreadsNextPage(nextLink));
     }
 
@@ -188,7 +162,7 @@ public final class ChatClient {
      * @return the response containing the list of Chat threads in the page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatThreadInfo> getChatThreadsNextPageWithResponse(
+    public PagedResponse<ChatThreadItem> getChatThreadsNextPageWithResponse(
         String nextLink,
         Context context) {
         return block(this.client.getChatThreadsNextPage(nextLink, context));

@@ -11,7 +11,7 @@ import org.threeten.bp.OffsetDateTime;
 
 /** Summary information of a chat thread. */
 @Fluent
-public final class ChatThreadInfo {
+public final class ChatThreadItem {
     /*
      * Chat thread id.
      */
@@ -53,7 +53,7 @@ public final class ChatThreadInfo {
      * @param id the id value to set.
      * @return the ChatThreadInfo object itself.
      */
-    public ChatThreadInfo setId(String id) {
+    public ChatThreadItem setId(String id) {
         this.id = id;
         return this;
     }
@@ -73,7 +73,7 @@ public final class ChatThreadInfo {
      * @param topic the topic value to set.
      * @return the ChatThreadInfo object itself.
      */
-    public ChatThreadInfo setTopic(String topic) {
+    public ChatThreadItem setTopic(String topic) {
         this.topic = topic;
         return this;
     }
@@ -95,7 +95,7 @@ public final class ChatThreadInfo {
      * @param deletedOn the deletedOn value to set.
      * @return the ChatThreadInfo object itself.
      */
-    public ChatThreadInfo setDeletedOn(OffsetDateTime deletedOn) {
+    public ChatThreadItem setDeletedOn(OffsetDateTime deletedOn) {
         this.deletedOn = deletedOn;
         return this;
     }

@@ -3,10 +3,10 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.implementation.models.ChatThread;
+import com.azure.android.communication.chat.implementation.models.ChatThreadProperties;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
+import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
@@ -230,11 +230,11 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
 
         String expectedThreadId = result1.getChatThread().getId();
 
-        CompletableFuture<ChatThread> completableFuture2
-            = this.client.getChatClient().getChatThreadAsync(expectedThreadId);
+        CompletableFuture<ChatThreadProperties> completableFuture2
+            = this.client.getChatThreadClient().getChatThreadPropertiesAsync(expectedThreadId);
 
         assertNotNull(completableFuture2);
-        ChatThread result2 = completableFuture2.get();
+        ChatThreadProperties result2 = completableFuture2.get();
         assertNotNull(result2);
         assertNotNull(result2.getId());
 
@@ -262,13 +262,13 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
 
         String expectedThreadId = result1.getChatThread().getId();
 
-        CompletableFuture<Response<ChatThread>> completableFuture2
-            = this.client.getChatClient().getChatThreadWithResponseAsync(expectedThreadId);
+        CompletableFuture<Response<ChatThreadProperties>> completableFuture2
+            = this.client.getChatThreadClient().getChatThreadPropertiesWithResponseAsync(expectedThreadId);
 
         assertNotNull(completableFuture2);
-        Response<ChatThread> response2 = completableFuture2.get();
+        Response<ChatThreadProperties> response2 = completableFuture2.get();
         assertNotNull(response2);
-        ChatThread result2 = response2.getValue();
+        ChatThreadProperties result2 = response2.getValue();
         assertNotNull(result2);
         assertNotNull(result2.getId());
 
@@ -281,7 +281,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            CompletableFuture<ChatThread> completableFuture = client.getChatClient().getChatThreadAsync("19:00000000000000000000000000000000@thread.v2");
+            CompletableFuture<ChatThreadProperties> completableFuture = client.getChatThreadClient().getChatThreadPropertiesAsync("19:00000000000000000000000000000000@thread.v2");
             completableFuture.get();
         });
 
@@ -301,7 +301,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            CompletableFuture<Response<ChatThread>> completableFuture = client.getChatClient().getChatThreadWithResponseAsync("19:00000000000000000000000000000000@thread.v2", null);
+            CompletableFuture<Response<ChatThreadProperties>> completableFuture = client.getChatThreadClient().getChatThreadPropertiesWithResponseAsync("19:00000000000000000000000000000000@thread.v2", null);
             completableFuture.get();
         });
 
@@ -321,7 +321,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         setupTest(httpClient);
 
         assertThrows(NullPointerException.class, () -> {
-            client.getChatClient().getChatThreadAsync(null);
+            client.getChatThreadClient().getChatThreadPropertiesAsync(null);
         });
     }
 
@@ -332,7 +332,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         setupTest(httpClient);
 
         assertThrows(NullPointerException.class, () -> {
-            client.getChatClient().getChatThreadWithResponseAsync(null, null);
+            client.getChatThreadClient().getChatThreadPropertiesWithResponseAsync(null, null);
         });
     }
 
@@ -438,17 +438,17 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         assertNotNull(result2.getChatThread());
         assertNotNull(result2.getChatThread().getId());
 
-        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture
+        CompletableFuture<PagedResponse<ChatThreadItem>> completableFuture
             = this.client.getChatClient().listChatThreadsSinglePageAsync(null, null);
 
         String nextLink;
-        List<ChatThreadInfo> returnedThreads = new ArrayList<ChatThreadInfo>();
+        List<ChatThreadItem> returnedThreads = new ArrayList<ChatThreadItem>();
         do {
-            PagedResponse<ChatThreadInfo> response = completableFuture.get();
+            PagedResponse<ChatThreadItem> response = completableFuture.get();
             assertNotNull(response);
-            List<ChatThreadInfo> threadsInPage = response.getValue();
+            List<ChatThreadItem> threadsInPage = response.getValue();
             assertNotNull(threadsInPage);
-            for (ChatThreadInfo thread : threadsInPage) {
+            for (ChatThreadItem thread : threadsInPage) {
                 returnedThreads.add(thread);
             }
 
@@ -488,17 +488,17 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
         assertNotNull(result2.getChatThread());
         assertNotNull(result2.getChatThread().getId());
 
-        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture
+        CompletableFuture<PagedResponse<ChatThreadItem>> completableFuture
             = this.client.getChatClient().listChatThreadsSinglePageAsync(2, null);
 
         String nextLink;
-        List<ChatThreadInfo> returnedThreads = new ArrayList<ChatThreadInfo>();
+        List<ChatThreadItem> returnedThreads = new ArrayList<ChatThreadItem>();
         do {
-            PagedResponse<ChatThreadInfo> response = completableFuture.get();
+            PagedResponse<ChatThreadItem> response = completableFuture.get();
             assertNotNull(response);
-            List<ChatThreadInfo> threadsInPage = response.getValue();
+            List<ChatThreadItem> threadsInPage = response.getValue();
             assertNotNull(threadsInPage);
-            for (ChatThreadInfo thread : threadsInPage) {
+            for (ChatThreadItem thread : threadsInPage) {
                 returnedThreads.add(thread);
             }
 
