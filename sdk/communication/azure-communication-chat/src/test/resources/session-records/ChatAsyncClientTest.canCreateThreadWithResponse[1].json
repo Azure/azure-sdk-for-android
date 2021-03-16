@@ -1,7 +1,7 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-01-27-preview4",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-03-01-preview5",
     "Headers" : {
       "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
       "Content-Type" : "application/json"
@@ -10,15 +10,15 @@
       "Transfer-Encoding" : "chunked",
       "Strict-Transport-Security" : "max-age=2592000",
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
-      "X-Processing-Time" : "667ms",
-      "MS-CV" : "TORNYhOFWkirN4JYdXUnRw.0",
+      "X-Processing-Time" : "1000ms",
+      "MS-CV" : "GhobhjWuC0u9p63EumeOGg.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "09WVKYAAAAADPtF3yPhj3TrU5AU0MG/B0V1NURURHRTA4MjIAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "X-Azure-Ref" : "0/gBQYAAAAACYwpaJD0syT6a6waCDyNSEV1NURURHRTA4MTYAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
       "StatusCode" : "201",
-      "Body" : "{\"chatThread\":{\"id\":\"19:99VCeHacM2HbdbALLmwpuYIzbO-FuuclnSCJNa930bM1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-11T18:48:21Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-bdce-903f-99c6-593a0d00a4d1\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-bdce-903f-99c6-593a0d00a4d1\"}}}}",
-      "Date" : "Thu, 11 Mar 2021 18:48:21 GMT",
+      "Body" : "{\"chatThread\":{\"id\":\"19:1pK1h_5_OQO1tP8HkdYtut2AR6pj_C0yQjVjuN8ounw1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-16T00:51:10Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\"}}}}",
+      "Date" : "Tue, 16 Mar 2021 00:51:10 GMT",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3A99VCeHacM2HbdbALLmwpuYIzbO-FuuclnSCJNa930bM1@thread.v2"
+      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3A1pK1h_5_OQO1tP8HkdYtut2AR6pj_C0yQjVjuN8ounw1@thread.v2"
     },
     "Exception" : null
   } ],

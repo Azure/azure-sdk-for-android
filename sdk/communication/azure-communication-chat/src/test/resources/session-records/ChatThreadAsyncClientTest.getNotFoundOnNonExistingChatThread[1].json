@@ -1,0 +1,46 @@
+{
+  "networkCallRecords" : [ {
+    "Method" : "POST",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-03-01-preview5",
+    "Headers" : {
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
+      "Content-Type" : "application/json"
+    },
+    "Response" : {
+      "Transfer-Encoding" : "chunked",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
+      "X-Processing-Time" : "1054ms",
+      "MS-CV" : "q+2KbXEzDkKinI7E9FOwjA.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "0gwBQYAAAAACf8JjGTSi6Rq2T0zpKKUWUV1NURURHRTA4MDYAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "StatusCode" : "201",
+      "Body" : "{\"chatThread\":{\"id\":\"19:-lL5jXsmjYAU_PDRwid8BsnlBG4A9Xa_HB1oI1Pbb1Q1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-16T00:49:07Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\"}}}}",
+      "Date" : "Tue, 16 Mar 2021 00:49:08 GMT",
+      "Content-Type" : "application/json; charset=utf-8",
+      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3A-lL5jXsmjYAU_PDRwid8BsnlBG4A9Xa_HB1oI1Pbb1Q1@thread.v2"
+    },
+    "Exception" : null
+  }, {
+    "Method" : "GET",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:00000000000000000000000000000000@thread.v2?api-version=2021-03-01-preview5",
+    "Headers" : {
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
+    },
+    "Response" : {
+      "Transfer-Encoding" : "chunked",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
+      "X-Processing-Time" : "172ms",
+      "MS-CV" : "YSy4a8NBbke2k0xYwcuBkA.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "0hABQYAAAAACGEIrIWuhSSYNqYpZDDWCAV1NURURHRTA4MDYAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "StatusCode" : "404",
+      "Body" : "{\r\n  \"ChatError\": {\r\n    \"Code\": \"NotFound\",\r\n    \"Message\": \"The specified thread id was not found.\",\r\n    \"Details\": []\r\n  }\r\n}",
+      "Date" : "Tue, 16 Mar 2021 00:49:08 GMT",
+      "Content-Type" : "application/json"
+    },
+    "Exception" : null
+  } ],
+  "variables" : [ ]
+}
