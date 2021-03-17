@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private final String firstUserAccessToken = "<first-user-access-token>";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "https://vicolina-acs.communication.azure.com";
+    private final String endpoint = "https://<acs-account-name>.communication.azure.com";
     private final String listenerId = "testListener";
     private final String sdkVersion = "1.0.0-beta.8";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
