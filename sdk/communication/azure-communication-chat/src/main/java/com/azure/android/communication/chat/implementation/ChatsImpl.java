@@ -4,11 +4,11 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.models.ChatThreadItem;
-import com.azure.android.communication.chat.models.ChatThreadsItemCollection;
+import com.azure.android.communication.chat.implementation.models.ChatThreadItem;
+import com.azure.android.communication.chat.implementation.models.ChatThreadsItemCollection;
+import com.azure.android.communication.chat.implementation.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
-import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.core.rest.Callback;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.PagedResponseBase;
@@ -66,7 +66,7 @@ public final class ChatsImpl {
                 @HostParam("endpoint") String endpoint,
                 @HeaderParam("idempotency-token") String idempotencyToken,
                 @QueryParam("api-version") String apiVersion,
-                @BodyParam("application/json") CreateChatThreadRequest createChatThreadRequest,
+                @BodyParam("application/json") CreateChatThreadOptions createChatThreadRequest,
                 @HeaderParam("Accept") String accept,
                 Context context,
                 Callback<Response<CreateChatThreadResult>> callback);
@@ -120,7 +120,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken) {
         final String accept = "application/json";
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture = new CompletableFuture<>();
         Callback<Response<CreateChatThreadResult>> callbackVariable =
@@ -163,7 +163,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken, Context context) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken, Context context) {
         final String accept = "application/json";
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture = new CompletableFuture<>();
         Callback<Response<CreateChatThreadResult>> callbackVariable =
@@ -206,7 +206,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken) {
         return createChatThreadWithResponseAsync(createChatThreadRequest, idempotencyToken)
                 .thenApply(response -> response.getValue());
     }
@@ -222,7 +222,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
-            CreateChatThreadRequest createChatThreadRequest) {
+            CreateChatThreadOptions createChatThreadRequest) {
         final String idempotencyToken = null;
         return createChatThreadWithResponseAsync(createChatThreadRequest, idempotencyToken)
                 .thenApply(response -> response.getValue());
@@ -245,7 +245,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken, Context context) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken, Context context) {
         return createChatThreadWithResponseAsync(createChatThreadRequest, idempotencyToken, context)
                 .thenApply(response -> response.getValue());
     }
@@ -266,7 +266,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken) {
         try {
             return createChatThreadAsync(createChatThreadRequest, idempotencyToken).get();
         } catch (InterruptedException e) {
@@ -286,7 +286,7 @@ public final class ChatsImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CreateChatThreadResult createChatThread(CreateChatThreadRequest createChatThreadRequest) {
+    public CreateChatThreadResult createChatThread(CreateChatThreadOptions createChatThreadRequest) {
         final String idempotencyToken = null;
         try {
             return createChatThreadAsync(createChatThreadRequest, idempotencyToken).get();
@@ -314,7 +314,7 @@ public final class ChatsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CreateChatThreadResult> createChatThreadWithResponse(
-            CreateChatThreadRequest createChatThreadRequest, String idempotencyToken, Context context) {
+            CreateChatThreadOptions createChatThreadRequest, String idempotencyToken, Context context) {
         try {
             return createChatThreadWithResponseAsync(createChatThreadRequest, idempotencyToken, context).get();
         } catch (InterruptedException e) {

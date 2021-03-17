@@ -4,6 +4,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.models.ChatParticipant;
+import com.azure.android.communication.chat.implementation.models.CommunicationIdentifierModel;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
