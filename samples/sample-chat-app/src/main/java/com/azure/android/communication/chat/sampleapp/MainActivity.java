@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
     private String firstUserId = "<first-user-id>";
-    private String secondUserId = "<second-useirer-id>";
+    private String secondUserId = "<second-user-id>";
     // Replace userAccessToken with a valid communication service token for your ACS instance.
     private final String firstUserAccessToken = "<first-user-access-token>";
     private String threadId = "<to-be-updated-below>";
