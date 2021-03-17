@@ -4,29 +4,40 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
-/**
- * Content of a chat message.
- */
+/** Content of a chat message. */
 @Fluent
 public final class ChatMessageContent {
-
+    /*
+     * Chat message content for messages of types text or html.
+     */
     @JsonProperty(value = "message")
     private String message;
 
+    /*
+     * Chat message content for messages of type topicUpdated.
+     */
     @JsonProperty(value = "topic")
     private String topic;
 
+    /*
+     * Chat message content for messages of types participantAdded or
+     * participantRemoved.
+     */
     @JsonProperty(value = "participants")
     private List<ChatParticipant> participants;
 
+    /*
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
+     */
     @JsonProperty(value = "initiatorCommunicationIdentifier")
-    private CommunicationIdentifier initiatorCommunicationIdentifier;
+    private CommunicationIdentifierModel initiatorCommunicationIdentifier;
 
     /**
      * Get the message property: Chat message content for messages of types text or html.
@@ -89,22 +100,26 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Get the initiator property: Chat message content for messages of types participantAdded or participantRemoved.
+     * Get the initiatorCommunicationIdentifier property: Identifies a participant in Azure Communication services. A
+     * participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a
+     * union: Apart from rawId, at most one further property may be set.
      *
-     * @return the initiator value.
+     * @return the initiatorCommunicationIdentifier value.
      */
-    public CommunicationIdentifier getInitiatorCommunicationIdentifier() {
+    public CommunicationIdentifierModel getInitiatorCommunicationIdentifier() {
         return this.initiatorCommunicationIdentifier;
     }
 
     /**
-     * Set the initiator property: Chat message content for messages of types participantAdded or participantRemoved.
+     * Set the initiatorCommunicationIdentifier property: Identifies a participant in Azure Communication services. A
+     * participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a
+     * union: Apart from rawId, at most one further property may be set.
      *
-     * @param initiatorCommunicationIdentifier the initiator value to set.
+     * @param initiatorCommunicationIdentifier the initiatorCommunicationIdentifier value to set.
      * @return the ChatMessageContent object itself.
      */
     public ChatMessageContent setInitiatorCommunicationIdentifier(
-        CommunicationIdentifier initiatorCommunicationIdentifier) {
+            CommunicationIdentifierModel initiatorCommunicationIdentifier) {
         this.initiatorCommunicationIdentifier = initiatorCommunicationIdentifier;
         return this;
     }

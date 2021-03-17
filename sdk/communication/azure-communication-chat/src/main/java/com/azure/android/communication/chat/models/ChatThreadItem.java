@@ -6,8 +6,7 @@ package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 /** Summary information of a chat thread. */
 @Fluent
@@ -51,7 +50,7 @@ public final class ChatThreadItem {
      * Set the id property: Chat thread id.
      *
      * @param id the id value to set.
-     * @return the ChatThreadInfo object itself.
+     * @return the ChatThreadItem object itself.
      */
     public ChatThreadItem setId(String id) {
         this.id = id;
@@ -71,7 +70,7 @@ public final class ChatThreadItem {
      * Set the topic property: Chat thread topic.
      *
      * @param topic the topic value to set.
-     * @return the ChatThreadInfo object itself.
+     * @return the ChatThreadItem object itself.
      */
     public ChatThreadItem setTopic(String topic) {
         this.topic = topic;
@@ -93,7 +92,7 @@ public final class ChatThreadItem {
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @param deletedOn the deletedOn value to set.
-     * @return the ChatThreadInfo object itself.
+     * @return the ChatThreadItem object itself.
      */
     public ChatThreadItem setDeletedOn(OffsetDateTime deletedOn) {
         this.deletedOn = deletedOn;

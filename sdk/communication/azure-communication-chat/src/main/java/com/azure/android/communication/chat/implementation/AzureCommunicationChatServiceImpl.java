@@ -62,41 +62,43 @@ public final class AzureCommunicationChatServiceImpl {
     }
 
     /** The ChatThreadsImpl object to access its operations. */
-    private final ChatThreadImpl chatThreadClient;
+    private final ChatThreadsImpl chatThreads;
 
     /**
      * Gets the ChatThreadsImpl object to access its operations.
      *
      * @return the ChatThreadsImpl object.
      */
-    public ChatThreadImpl getChatThreadClient() {
-        return this.chatThreadClient;
+    public ChatThreadsImpl getChatThreads() {
+        return this.chatThreads;
     }
 
     /** The ChatsImpl object to access its operations. */
-    private final ChatImpl chatClient;
+    private final ChatsImpl chats;
 
     /**
      * Gets the ChatsImpl object to access its operations.
      *
      * @return the ChatsImpl object.
      */
-    public ChatImpl getChatClient() {
-        return this.chatClient;
+    public ChatsImpl getChats() {
+        return this.chats;
     }
 
     /**
      * Initializes an instance of AzureCommunicationChatService client.
      *
      * @param endpoint The endpoint of the Azure Communication resource.
+     * @param apiVersion Api Version.
      */
-    AzureCommunicationChatServiceImpl(String endpoint) {
+    AzureCommunicationChatServiceImpl(String endpoint, String apiVersion) {
         this(
                 new HttpPipelineBuilder()
                         .policies(new UserAgentPolicy(), RetryPolicy.withExponentialBackoff(), new CookiePolicy())
                         .build(),
                 JacksonSerder.createDefault(),
-                endpoint);
+                endpoint,
+                apiVersion);
     }
 
     /**
@@ -104,9 +106,10 @@ public final class AzureCommunicationChatServiceImpl {
      *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint The endpoint of the Azure Communication resource.
+     * @param apiVersion Api Version.
      */
-    AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, String endpoint) {
-        this(httpPipeline, JacksonSerder.createDefault(), endpoint);
+    AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, String endpoint, String apiVersion) {
+        this(httpPipeline, JacksonSerder.createDefault(), endpoint, apiVersion);
     }
 
     /**
@@ -115,13 +118,15 @@ public final class AzureCommunicationChatServiceImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param jacksonSerder The serializer to serialize an object into a string.
      * @param endpoint The endpoint of the Azure Communication resource.
+     * @param apiVersion Api Version.
      */
-    AzureCommunicationChatServiceImpl(HttpPipeline httpPipeline, JacksonSerder jacksonSerder, String endpoint) {
+    AzureCommunicationChatServiceImpl(
+            HttpPipeline httpPipeline, JacksonSerder jacksonSerder, String endpoint, String apiVersion) {
         this.httpPipeline = httpPipeline;
         this.jacksonSerder = jacksonSerder;
         this.endpoint = endpoint;
-        this.apiVersion = "2021-03-01-preview5";
-        this.chatThreadClient = new ChatThreadImpl(this);
-        this.chatClient = new ChatImpl(this);
+        this.apiVersion = apiVersion;
+        this.chatThreads = new ChatThreadsImpl(this);
+        this.chats = new ChatsImpl(this);
     }
 }
