@@ -3,7 +3,7 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -15,7 +15,7 @@ buildscript {
         gradleJunitJacocoPluginVersion = "0.16.0"
         gradleDexcountPluginVersion = "2.0.0"
         gradleSpotbugsPluginVersion = "4.6.0"
-        gradleAndroidJunit5PluginVersion = "1.6.2.0"
+        gradleAndroidJunit5PluginVersion = "1.7.1.1"
         jacocoVersion = "0.8.5"
         junitJupiterVersion = "5.7.0"
         mockitoVersion = "3.3.3"
@@ -234,7 +234,9 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        // org.jetbrains.trove4j:trove4j:20160824.
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     ext {

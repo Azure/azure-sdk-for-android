@@ -10,6 +10,7 @@ import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatMessagesOptions;
@@ -21,6 +22,7 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
@@ -40,7 +42,6 @@ import java9.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -94,12 +95,130 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void canGetExistingChatThread(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        final CreateChatThreadOptions threadRequest = createThreadOptions(
+            firstThreadMember.getId(), secondThreadMember.getId());
+
+        CompletableFuture<CreateChatThreadResult> completableFuture1
+            = this.client.createChatThread(threadRequest);
+
+        assertNotNull(completableFuture1);
+        CreateChatThreadResult result1 = completableFuture1.get();
+        assertNotNull(result1);
+        assertNotNull(result1.getChatThread());
+        assertNotNull(result1.getChatThread().getId());
+
+        String expectedThreadId = result1.getChatThread().getId();
+
+        CompletableFuture<ChatThread> completableFuture2
+            = this.client.getChatThreadClient(expectedThreadId).getChatThreadProperties();
+
+        assertNotNull(completableFuture2);
+        ChatThread result2 = completableFuture2.get();
+        assertNotNull(result2);
+        assertNotNull(result2.getId());
+
+        assertEquals(expectedThreadId, result2.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void canGetExistingChatThreadWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        final CreateChatThreadOptions threadRequest = createThreadOptions(
+            firstThreadMember.getId(), secondThreadMember.getId());
+
+        CompletableFuture<Response<CreateChatThreadResult>> completableFuture1
+            = this.client.createChatThreadWithResponse(threadRequest, null);
+
+        assertNotNull(completableFuture1);
+        Response<CreateChatThreadResult> response1 = completableFuture1.get();
+        assertNotNull(response1);
+        CreateChatThreadResult result1 = response1.getValue();
+        assertNotNull(result1);
+        assertNotNull(result1.getChatThread());
+        assertNotNull(result1.getChatThread().getId());
+
+        String expectedThreadId = result1.getChatThread().getId();
+
+        CompletableFuture<Response<ChatThread>> completableFuture2
+            = this.client.getChatThreadClient(expectedThreadId).getChatThreadPropertiesWithResponse(null);
+
+        assertNotNull(completableFuture2);
+        Response<ChatThread> response2 = completableFuture2.get();
+        assertNotNull(response2);
+        ChatThread result2 = response2.getValue();
+        assertNotNull(result2);
+        assertNotNull(result2.getId());
+
+        assertEquals(expectedThreadId, result2.getId());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void getNotFoundOnNonExistingChatThread(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            CompletableFuture<ChatThread> completableFuture = client
+                .getChatThreadClient("19:00000000000000000000000000000000@thread.v2")
+                .getChatThreadProperties();
+            completableFuture.get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof CommunicationErrorResponseException);
+
+        HttpResponseException exception = (HttpResponseException) cause;
+
+        assertNotNull(exception.getResponse());
+        assertEquals(404, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void getNotFoundOnNonExistingChatThreadWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            CompletableFuture<Response<ChatThread>> completableFuture = client
+                .getChatThreadClient("19:00000000000000000000000000000000@thread.v2")
+                .getChatThreadPropertiesWithResponse(null);
+            completableFuture.get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof CommunicationErrorResponseException);
+
+        HttpResponseException exception = (HttpResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(404, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotGetChatThreadWithNullId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        assertThrows(NullPointerException.class, () -> {
+            client.getChatThreadClient(null);
+        });
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canUpdateThread(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
         String newTopic = "Update Test";
         this.chatThreadClient.updateTopic(newTopic).get();
-        ChatThread chatThread = this.client.getChatThread(this.threadId).get();
+        ChatThread chatThread = this.client.getChatThreadClient(this.threadId)
+            .getChatThreadProperties().get();
         assertEquals(chatThread.getTopic(), newTopic);
     }
 
@@ -112,7 +231,8 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         Response<Void> updateThreadResponse
             = this.chatThreadClient.updateTopicWithResponse(newTopic, null).get();
         assertEquals(204, updateThreadResponse.getStatusCode());
-        ChatThread chatThread = this.client.getChatThread(this.threadId).get();
+        ChatThread chatThread = this.client.getChatThreadClient(this.threadId)
+            .getChatThreadProperties().get();
         assertEquals(chatThread.getTopic(), newTopic);
     }
 

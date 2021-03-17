@@ -3,18 +3,19 @@
 
 package com.azure.android.communication.chat.implementation.converters;
 
+import com.azure.android.communication.chat.implementation.models.ChatThreadProperties;
 import com.azure.android.communication.chat.models.ChatThread;
 import com.azure.android.core.logging.ClientLogger;
 
 /**
- * A converter between {@link com.azure.android.communication.chat.implementation.models.ChatThread} and
+ * A converter between {@link ChatThreadProperties} and
  * {@link ChatThread}.
  */
 public final class ChatThreadConverter {
     /**
      * Maps from {com.azure.android.communication.chat.implementation.models.ChatThread} to {@link ChatThread}.
      */
-    public static ChatThread convert(com.azure.android.communication.chat.implementation.models.ChatThread obj,
+    public static ChatThread convert(ChatThreadProperties obj,
                                      ClientLogger logger) {
         if (obj == null) {
             return null;

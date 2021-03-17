@@ -11,7 +11,7 @@ import org.threeten.bp.OffsetDateTime;
 
 /** Chat thread. */
 @Fluent
-public final class ChatThread {
+public final class ChatThreadProperties {
     /*
      * Chat thread id.
      */
@@ -62,7 +62,7 @@ public final class ChatThread {
      * @param id the id value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setId(String id) {
+    public ChatThreadProperties setId(String id) {
         this.id = id;
         return this;
     }
@@ -82,7 +82,7 @@ public final class ChatThread {
      * @param topic the topic value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setTopic(String topic) {
+    public ChatThreadProperties setTopic(String topic) {
         this.topic = topic;
         return this;
     }
@@ -104,7 +104,7 @@ public final class ChatThread {
      * @param createdOn the createdOn value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setCreatedOn(OffsetDateTime createdOn) {
+    public ChatThreadProperties setCreatedOn(OffsetDateTime createdOn) {
         this.createdOn = createdOn;
         return this;
     }
@@ -128,7 +128,7 @@ public final class ChatThread {
      * @param createdByCommunicationIdentifier the createdByCommunicationIdentifier value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setCreatedByCommunicationIdentifier(
+    public ChatThreadProperties setCreatedByCommunicationIdentifier(
             CommunicationIdentifierModel createdByCommunicationIdentifier) {
         this.createdByCommunicationIdentifier = createdByCommunicationIdentifier;
         return this;
@@ -151,7 +151,7 @@ public final class ChatThread {
      * @param deletedOn the deletedOn value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setDeletedOn(OffsetDateTime deletedOn) {
+    public ChatThreadProperties setDeletedOn(OffsetDateTime deletedOn) {
         this.deletedOn = deletedOn;
         return this;
     }

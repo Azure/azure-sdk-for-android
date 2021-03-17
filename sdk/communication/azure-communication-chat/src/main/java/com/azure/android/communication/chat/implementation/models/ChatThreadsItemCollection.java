@@ -4,19 +4,19 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
-import com.azure.android.communication.chat.models.ChatThreadInfo;
+import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /** Collection of chat threads. */
 @Fluent
-public final class ChatThreadsInfoCollection {
+public final class ChatThreadsItemCollection {
     /*
      * Collection of chat threads.
      */
     @JsonProperty(value = "value", required = true)
-    private List<ChatThreadInfo> value;
+    private List<ChatThreadItem> value;
 
     /*
      * If there are more chat threads that can be retrieved, the next link will
@@ -30,7 +30,7 @@ public final class ChatThreadsInfoCollection {
      *
      * @return the value value.
      */
-    public List<ChatThreadInfo> getValue() {
+    public List<ChatThreadItem> getValue() {
         return this.value;
     }
 
@@ -40,7 +40,7 @@ public final class ChatThreadsInfoCollection {
      * @param value the value value to set.
      * @return the ChatThreadsInfoCollection object itself.
      */
-    public ChatThreadsInfoCollection setValue(List<ChatThreadInfo> value) {
+    public ChatThreadsItemCollection setValue(List<ChatThreadItem> value) {
         this.value = value;
         return this;
     }
