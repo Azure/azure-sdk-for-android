@@ -5,9 +5,12 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** Request payload for updating a chat message. */
+/**
+ * Request payload for updating a chat message.
+ */
 @Fluent
 public final class UpdateChatMessageOptions {
     /*
@@ -18,7 +21,7 @@ public final class UpdateChatMessageOptions {
 
     /**
      * Get the content property: Chat message content.
-     *
+     * 
      * @return the content value.
      */
     public String getContent() {
@@ -27,7 +30,7 @@ public final class UpdateChatMessageOptions {
 
     /**
      * Set the content property: Chat message content.
-     *
+     * 
      * @param content the content value to set.
      * @return the UpdateChatMessageOptions object itself.
      */

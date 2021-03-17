@@ -5,9 +5,12 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** A phone number. */
+/**
+ * A phone number.
+ */
 @Fluent
 public final class PhoneNumberIdentifierModel {
     /*
@@ -18,7 +21,7 @@ public final class PhoneNumberIdentifierModel {
 
     /**
      * Get the value property: The phone number in E.164 format.
-     *
+     * 
      * @return the value value.
      */
     public String getValue() {
@@ -27,7 +30,7 @@ public final class PhoneNumberIdentifierModel {
 
     /**
      * Set the value property: The phone number in E.164 format.
-     *
+     * 
      * @param value the value value to set.
      * @return the PhoneNumberIdentifierModel object itself.
      */

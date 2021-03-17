@@ -8,20 +8,28 @@ import com.azure.android.core.util.ExpandableStringEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Collection;
 
-/** Defines values for CommunicationCloudEnvironmentModel. */
+/**
+ * Defines values for CommunicationCloudEnvironmentModel.
+ */
 public final class CommunicationCloudEnvironmentModel extends ExpandableStringEnum<CommunicationCloudEnvironmentModel> {
-    /** Static value public for CommunicationCloudEnvironmentModel. */
+    /**
+     * Static value public for CommunicationCloudEnvironmentModel.
+     */
     public static final CommunicationCloudEnvironmentModel PUBLIC = fromString("public");
 
-    /** Static value dod for CommunicationCloudEnvironmentModel. */
+    /**
+     * Static value dod for CommunicationCloudEnvironmentModel.
+     */
     public static final CommunicationCloudEnvironmentModel DOD = fromString("dod");
 
-    /** Static value gcch for CommunicationCloudEnvironmentModel. */
+    /**
+     * Static value gcch for CommunicationCloudEnvironmentModel.
+     */
     public static final CommunicationCloudEnvironmentModel GCCH = fromString("gcch");
 
     /**
      * Creates or finds a CommunicationCloudEnvironmentModel from its string representation.
-     *
+     * 
      * @param name a name to look for.
      * @return the corresponding CommunicationCloudEnvironmentModel.
      */
@@ -30,7 +38,9 @@ public final class CommunicationCloudEnvironmentModel extends ExpandableStringEn
         return fromString(name, CommunicationCloudEnvironmentModel.class);
     }
 
-    /** @return known CommunicationCloudEnvironmentModel values. */
+    /**
+     * @return known CommunicationCloudEnvironmentModel values.
+     */
     public static Collection<CommunicationCloudEnvironmentModel> values() {
         return values(CommunicationCloudEnvironmentModel.class);
     }

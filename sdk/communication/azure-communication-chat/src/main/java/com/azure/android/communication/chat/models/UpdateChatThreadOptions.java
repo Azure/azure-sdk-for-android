@@ -5,9 +5,12 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** Request payload for updating a chat thread. */
+/**
+ * Request payload for updating a chat thread.
+ */
 @Fluent
 public final class UpdateChatThreadOptions {
     /*
@@ -18,7 +21,7 @@ public final class UpdateChatThreadOptions {
 
     /**
      * Get the topic property: Chat thread topic.
-     *
+     * 
      * @return the topic value.
      */
     public String getTopic() {
@@ -27,7 +30,7 @@ public final class UpdateChatThreadOptions {
 
     /**
      * Set the topic property: Chat thread topic.
-     *
+     * 
      * @param topic the topic value to set.
      * @return the UpdateChatThreadOptions object itself.
      */

@@ -5,10 +5,13 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-/** Collection of chat messages for a particular chat thread. */
+/**
+ * Collection of chat messages for a particular chat thread.
+ */
 @Fluent
 public final class ChatMessagesCollection {
     /*
@@ -26,7 +29,7 @@ public final class ChatMessagesCollection {
 
     /**
      * Get the value property: Collection of chat messages.
-     *
+     * 
      * @return the value value.
      */
     public List<ChatMessage> getValue() {
@@ -35,7 +38,7 @@ public final class ChatMessagesCollection {
 
     /**
      * Set the value property: Collection of chat messages.
-     *
+     * 
      * @param value the value value to set.
      * @return the ChatMessagesCollection object itself.
      */
@@ -45,9 +48,9 @@ public final class ChatMessagesCollection {
     }
 
     /**
-     * Get the nextLink property: If there are more chat messages that can be retrieved, the next link will be
-     * populated.
-     *
+     * Get the nextLink property: If there are more chat messages that can be
+     * retrieved, the next link will be populated.
+     * 
      * @return the nextLink value.
      */
     public String getNextLink() {

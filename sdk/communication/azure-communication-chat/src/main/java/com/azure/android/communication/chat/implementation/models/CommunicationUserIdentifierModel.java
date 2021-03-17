@@ -5,9 +5,12 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** A user that got created with an Azure Communication Services resource. */
+/**
+ * A user that got created with an Azure Communication Services resource.
+ */
 @Fluent
 public final class CommunicationUserIdentifierModel {
     /*
@@ -18,7 +21,7 @@ public final class CommunicationUserIdentifierModel {
 
     /**
      * Get the id property: The Id of the communication user.
-     *
+     * 
      * @return the id value.
      */
     public String getId() {
@@ -27,7 +30,7 @@ public final class CommunicationUserIdentifierModel {
 
     /**
      * Set the id property: The Id of the communication user.
-     *
+     * 
      * @param id the id value to set.
      * @return the CommunicationUserIdentifierModel object itself.
      */

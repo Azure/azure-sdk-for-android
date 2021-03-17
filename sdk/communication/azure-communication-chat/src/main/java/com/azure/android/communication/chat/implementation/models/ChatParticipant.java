@@ -5,10 +5,13 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
-/** A participant of the chat thread. */
+/**
+ * A participant of the chat thread.
+ */
 @Fluent
 public final class ChatParticipant {
     /*
@@ -34,10 +37,11 @@ public final class ChatParticipant {
     private OffsetDateTime shareHistoryTime;
 
     /**
-     * Get the communicationIdentifier property: Identifies a participant in Azure Communication services. A participant
-     * is, for example, a phone number or an Azure communication user. This model must be interpreted as a union: Apart
-     * from rawId, at most one further property may be set.
-     *
+     * Get the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
      * @return the communicationIdentifier value.
      */
     public CommunicationIdentifierModel getCommunicationIdentifier() {
@@ -45,10 +49,11 @@ public final class ChatParticipant {
     }
 
     /**
-     * Set the communicationIdentifier property: Identifies a participant in Azure Communication services. A participant
-     * is, for example, a phone number or an Azure communication user. This model must be interpreted as a union: Apart
-     * from rawId, at most one further property may be set.
-     *
+     * Set the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
      * @param communicationIdentifier the communicationIdentifier value to set.
      * @return the ChatParticipant object itself.
      */
@@ -59,7 +64,7 @@ public final class ChatParticipant {
 
     /**
      * Get the displayName property: Display name for the chat participant.
-     *
+     * 
      * @return the displayName value.
      */
     public String getDisplayName() {
@@ -68,7 +73,7 @@ public final class ChatParticipant {
 
     /**
      * Set the displayName property: Display name for the chat participant.
-     *
+     * 
      * @param displayName the displayName value to set.
      * @return the ChatParticipant object itself.
      */
@@ -78,9 +83,10 @@ public final class ChatParticipant {
     }
 
     /**
-     * Get the shareHistoryTime property: Time from which the chat history is shared with the participant. The timestamp
-     * is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Get the shareHistoryTime property: Time from which the chat history is
+     * shared with the participant. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @return the shareHistoryTime value.
      */
     public OffsetDateTime getShareHistoryTime() {
@@ -88,9 +94,10 @@ public final class ChatParticipant {
     }
 
     /**
-     * Set the shareHistoryTime property: Time from which the chat history is shared with the participant. The timestamp
-     * is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Set the shareHistoryTime property: Time from which the chat history is
+     * shared with the participant. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @param shareHistoryTime the shareHistoryTime value to set.
      * @return the ChatParticipant object itself.
      */

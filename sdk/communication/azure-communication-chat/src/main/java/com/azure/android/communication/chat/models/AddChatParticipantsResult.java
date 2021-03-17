@@ -5,10 +5,13 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Immutable;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-/** Result of the add chat participants operation. */
+/**
+ * Result of the add chat participants operation.
+ */
 @Immutable
 public final class AddChatParticipantsResult {
     /*
@@ -18,8 +21,9 @@ public final class AddChatParticipantsResult {
     private List<CommunicationError> invalidParticipants;
 
     /**
-     * Get the invalidParticipants property: The participants that failed to be added to the chat thread.
-     *
+     * Get the invalidParticipants property: The participants that failed to be
+     * added to the chat thread.
+     * 
      * @return the invalidParticipants value.
      */
     public List<CommunicationError> getInvalidParticipants() {

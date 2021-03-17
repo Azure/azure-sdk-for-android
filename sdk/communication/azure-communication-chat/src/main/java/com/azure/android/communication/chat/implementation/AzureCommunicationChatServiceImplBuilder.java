@@ -9,8 +9,8 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.policy.CookiePolicy;
-import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.HttpLoggingPolicy;
+import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.annotation.ServiceClientBuilder;
@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** A builder for creating a new instance of the AzureCommunicationChatService type. */
+/**
+ * A builder for creating a new instance of the AzureCommunicationChatService type.
+ */
 @ServiceClientBuilder(serviceClients = {AzureCommunicationChatServiceImpl.class})
 public final class AzureCommunicationChatServiceImplBuilder {
     private static final String SDK_NAME = "name";
@@ -29,7 +31,9 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     private final Map<String, String> properties = new HashMap<>();
 
-    /** Create an instance of the AzureCommunicationChatServiceImplBuilder. */
+    /**
+     * Create an instance of the AzureCommunicationChatServiceImplBuilder.
+     */
     public AzureCommunicationChatServiceImplBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
@@ -41,7 +45,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The endpoint of the Azure Communication resource.
-     *
+     * 
      * @param endpoint the endpoint value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -57,7 +61,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets Api Version.
-     *
+     * 
      * @param apiVersion the apiVersion value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -73,7 +77,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The HTTP pipeline to send requests through.
-     *
+     * 
      * @param pipeline the pipeline value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -89,7 +93,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The serializer to serialize an object into a string.
-     *
+     * 
      * @param jacksonSerder the jacksonSerder value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -105,7 +109,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The HTTP client used to send the request.
-     *
+     * 
      * @param httpClient the httpClient value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -121,7 +125,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The logging configuration for HTTP requests and responses.
-     *
+     * 
      * @param httpLogOptions the httpLogOptions value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -138,7 +142,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Sets The retry policy that will attempt to retry failed requests, if applicable.
-     *
+     * 
      * @param retryPolicy the retryPolicy value.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -154,7 +158,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Adds a custom Http pipeline policy.
-     *
+     * 
      * @param customPolicy The custom Http pipeline policy to add.
      * @return the AzureCommunicationChatServiceImplBuilder.
      */
@@ -165,7 +169,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
 
     /**
      * Builds an instance of AzureCommunicationChatServiceImpl with the provided parameters.
-     *
+     * 
      * @return an instance of AzureCommunicationChatServiceImpl.
      */
     public AzureCommunicationChatServiceImpl buildClient() {
@@ -178,8 +182,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
         if (jacksonSerder == null) {
             this.jacksonSerder = JacksonSerder.createDefault();
         }
-        AzureCommunicationChatServiceImpl client =
-                new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint, apiVersion);
+        AzureCommunicationChatServiceImpl client = new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint, apiVersion);
         return client;
     }
 
@@ -201,11 +204,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
         policies.add(new CookiePolicy());
         policies.addAll(this.pipelinePolicies);
         policies.add(new HttpLoggingPolicy(httpLogOptions));
-        HttpPipeline httpPipeline =
-                new HttpPipelineBuilder()
-                        .policies(policies.toArray(new HttpPipelinePolicy[0]))
-                        .httpClient(httpClient)
-                        .build();
+        HttpPipeline httpPipeline = new HttpPipelineBuilder().policies(policies.toArray(new HttpPipelinePolicy[0])).httpClient(httpClient).build();
         return httpPipeline;
     }
 }

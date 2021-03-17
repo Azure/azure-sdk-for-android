@@ -5,10 +5,13 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
-/** Chat thread. */
+/**
+ * Chat thread.
+ */
 @Fluent
 public final class ChatThreadProperties {
     /*
@@ -48,7 +51,7 @@ public final class ChatThreadProperties {
 
     /**
      * Get the id property: Chat thread id.
-     *
+     * 
      * @return the id value.
      */
     public String getId() {
@@ -57,7 +60,7 @@ public final class ChatThreadProperties {
 
     /**
      * Set the id property: Chat thread id.
-     *
+     * 
      * @param id the id value to set.
      * @return the ChatThreadProperties object itself.
      */
@@ -68,7 +71,7 @@ public final class ChatThreadProperties {
 
     /**
      * Get the topic property: Chat thread topic.
-     *
+     * 
      * @return the topic value.
      */
     public String getTopic() {
@@ -77,7 +80,7 @@ public final class ChatThreadProperties {
 
     /**
      * Set the topic property: Chat thread topic.
-     *
+     * 
      * @param topic the topic value to set.
      * @return the ChatThreadProperties object itself.
      */
@@ -87,9 +90,9 @@ public final class ChatThreadProperties {
     }
 
     /**
-     * Get the createdOn property: The timestamp when the chat thread was created. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Get the createdOn property: The timestamp when the chat thread was
+     * created. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @return the createdOn value.
      */
     public OffsetDateTime getCreatedOn() {
@@ -97,9 +100,9 @@ public final class ChatThreadProperties {
     }
 
     /**
-     * Set the createdOn property: The timestamp when the chat thread was created. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Set the createdOn property: The timestamp when the chat thread was
+     * created. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @param createdOn the createdOn value to set.
      * @return the ChatThreadProperties object itself.
      */
@@ -109,10 +112,12 @@ public final class ChatThreadProperties {
     }
 
     /**
-     * Get the createdByCommunicationIdentifier property: Identifies a participant in Azure Communication services. A
-     * participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a
-     * union: Apart from rawId, at most one further property may be set.
-     *
+     * Get the createdByCommunicationIdentifier property: Identifies a
+     * participant in Azure Communication services. A participant is, for
+     * example, a phone number or an Azure communication user. This model must
+     * be interpreted as a union: Apart from rawId, at most one further
+     * property may be set.
+     * 
      * @return the createdByCommunicationIdentifier value.
      */
     public CommunicationIdentifierModel getCreatedByCommunicationIdentifier() {
@@ -120,23 +125,25 @@ public final class ChatThreadProperties {
     }
 
     /**
-     * Set the createdByCommunicationIdentifier property: Identifies a participant in Azure Communication services. A
-     * participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a
-     * union: Apart from rawId, at most one further property may be set.
-     *
-     * @param createdByCommunicationIdentifier the createdByCommunicationIdentifier value to set.
+     * Set the createdByCommunicationIdentifier property: Identifies a
+     * participant in Azure Communication services. A participant is, for
+     * example, a phone number or an Azure communication user. This model must
+     * be interpreted as a union: Apart from rawId, at most one further
+     * property may be set.
+     * 
+     * @param createdByCommunicationIdentifier the
+     * createdByCommunicationIdentifier value to set.
      * @return the ChatThreadProperties object itself.
      */
-    public ChatThreadProperties setCreatedByCommunicationIdentifier(
-            CommunicationIdentifierModel createdByCommunicationIdentifier) {
+    public ChatThreadProperties setCreatedByCommunicationIdentifier(CommunicationIdentifierModel createdByCommunicationIdentifier) {
         this.createdByCommunicationIdentifier = createdByCommunicationIdentifier;
         return this;
     }
 
     /**
-     * Get the deletedOn property: The timestamp when the chat thread was deleted. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Get the deletedOn property: The timestamp when the chat thread was
+     * deleted. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @return the deletedOn value.
      */
     public OffsetDateTime getDeletedOn() {
@@ -144,9 +151,9 @@ public final class ChatThreadProperties {
     }
 
     /**
-     * Set the deletedOn property: The timestamp when the chat thread was deleted. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * Set the deletedOn property: The timestamp when the chat thread was
+     * deleted. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * 
      * @param deletedOn the deletedOn value to set.
      * @return the ChatThreadProperties object itself.
      */

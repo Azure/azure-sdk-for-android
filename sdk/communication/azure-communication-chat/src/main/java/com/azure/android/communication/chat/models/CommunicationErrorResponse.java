@@ -5,9 +5,12 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/** The Communication Services error. */
+/**
+ * The Communication Services error.
+ */
 @Fluent
 public final class CommunicationErrorResponse {
     /*
@@ -18,7 +21,7 @@ public final class CommunicationErrorResponse {
 
     /**
      * Get the error property: The Communication Services error.
-     *
+     * 
      * @return the error value.
      */
     public CommunicationError getError() {
@@ -27,7 +30,7 @@ public final class CommunicationErrorResponse {
 
     /**
      * Set the error property: The Communication Services error.
-     *
+     * 
      * @param error the error value to set.
      * @return the CommunicationErrorResponse object itself.
      */
