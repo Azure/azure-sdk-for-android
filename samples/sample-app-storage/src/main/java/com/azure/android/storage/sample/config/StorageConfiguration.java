@@ -17,19 +17,12 @@ public class StorageConfiguration {
     @SerializedName("container_name")
     String mContainerName;
 
-    @SerializedName("sas_token")
-    String mSasToken;
-
     public String getBlobServiceUrl() {
         return mBlobServiceUrl;
     }
 
     public String getContainerName() {
         return mContainerName;
-    }
-
-    public String getSasToken() {
-        return mSasToken;
     }
 
     public static StorageConfiguration create(Context context) {

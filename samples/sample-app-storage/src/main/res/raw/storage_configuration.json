@@ -1,5 +1,5 @@
 {
     "blob_service_url" : "https://{storage-account-name}.blob.core.windows.net/",
     "container_name" : "{container-name}",
-    "sas_token" : "{sas-token}"
+
 }
