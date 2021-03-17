@@ -87,8 +87,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:onClick="sendReadReceipt"
-        android:text="@string/send_read_receipt" />
+        android:onClick="sendReadReceipts"
+        android:text="@string/send_read_receipts" />
 
     <Button
         android:id="@+id/button10"

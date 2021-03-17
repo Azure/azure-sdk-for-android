@@ -8,6 +8,6 @@
   <string name="list_users">List users</string>
   <string name="remove_second_user">Remove second user</string>
   <string name="send_typing_notification">Send Typing Notification</string>
-  <string name="send_read_receipt">Send Read Receipt</string>
+  <string name="send_read_receipts">Send Read Receipts</string>
   <string name="list_read_receipts">List Read Receipts</string>
 </resources>
