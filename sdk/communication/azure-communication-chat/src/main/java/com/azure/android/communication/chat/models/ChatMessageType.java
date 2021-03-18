@@ -6,8 +6,6 @@ package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.util.ExpandableStringEnum;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-
 import java.util.Collection;
 
 /** Defines values for ChatMessageType. */
@@ -36,12 +34,6 @@ public final class ChatMessageType extends ExpandableStringEnum<ChatMessageType>
     @JsonCreator
     public static ChatMessageType fromString(String name) {
         return fromString(name, ChatMessageType.class);
-    }
-
-    @Override
-    @JsonValue
-    public String toString() {
-        return super.toString();
     }
 
     /** @return known ChatMessageType values. */

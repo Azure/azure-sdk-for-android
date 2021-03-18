@@ -4,13 +4,12 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.core.rest.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Immutable;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /** Result of the add chat participants operation. */
-@Fluent
+@Immutable
 public final class AddChatParticipantsResult {
     /*
      * The participants that failed to be added to the chat thread.
