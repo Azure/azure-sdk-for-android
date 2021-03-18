@@ -1,7 +1,7 @@
 # Android Sample app for Azure Blob Storage Alpha
 ## Prerequisites
-- [Azure Subscription](https://azure.microsoft.com/en-us/free/)
-- [Create a Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)
+- [Azure Subscription](https://azure.microsoft.com/free/)
+- [Create a Storage Account](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal)
 
 ## Setup
 ### Create a User in your Azure Active Directory
