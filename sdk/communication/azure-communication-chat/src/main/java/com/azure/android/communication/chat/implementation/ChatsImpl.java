@@ -314,7 +314,7 @@ public final class ChatsImpl {
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsSinglePageAsync(
             Integer maxPageSize, OffsetDateTime startTime) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatThreadsItemCollection>, ChatThreadItem> completableFuture =
+        PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -353,7 +353,7 @@ public final class ChatsImpl {
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsSinglePageAsync(
             Integer maxPageSize, OffsetDateTime startTime, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatThreadsItemCollection>, ChatThreadItem> completableFuture =
+        PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -562,7 +562,7 @@ public final class ChatsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatThreadsItemCollection>, ChatThreadItem> completableFuture =
+        PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -592,7 +592,7 @@ public final class ChatsImpl {
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsNextSinglePageAsync(
             String nextLink, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatThreadsItemCollection>, ChatThreadItem> completableFuture =
+        PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(

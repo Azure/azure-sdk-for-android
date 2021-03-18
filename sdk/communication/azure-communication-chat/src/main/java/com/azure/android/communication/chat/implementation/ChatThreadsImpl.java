@@ -276,18 +276,17 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsSinglePageAsync(
             String chatThreadId, Integer maxPageSize, Integer skip) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessageReadReceiptsCollection>, ChatMessageReadReceipt>
-                completableFuture =
-                        new PagedResponseCompletableFuture<>(
-                                response -> {
-                                    return new PagedResponseBase<>(
-                                            response.getRequest(),
-                                            response.getStatusCode(),
-                                            response.getHeaders(),
-                                            response.getValue().getValue(),
-                                            response.getValue().getNextLink(),
-                                            null);
-                                });
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture =
+                new PagedResponseCompletableFuture<>(
+                        response -> {
+                            return new PagedResponseBase<>(
+                                    response.getRequest(),
+                                    response.getStatusCode(),
+                                    response.getHeaders(),
+                                    response.getValue().getValue(),
+                                    response.getValue().getNextLink(),
+                                    null);
+                        });
 
         service.listChatReadReceipts(
                 this.client.getEndpoint(),
@@ -317,18 +316,17 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsSinglePageAsync(
             String chatThreadId, Integer maxPageSize, Integer skip, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessageReadReceiptsCollection>, ChatMessageReadReceipt>
-                completableFuture =
-                        new PagedResponseCompletableFuture<>(
-                                response -> {
-                                    return new PagedResponseBase<>(
-                                            response.getRequest(),
-                                            response.getStatusCode(),
-                                            response.getHeaders(),
-                                            response.getValue().getValue(),
-                                            response.getValue().getNextLink(),
-                                            null);
-                                });
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture =
+                new PagedResponseCompletableFuture<>(
+                        response -> {
+                            return new PagedResponseBase<>(
+                                    response.getRequest(),
+                                    response.getStatusCode(),
+                                    response.getHeaders(),
+                                    response.getValue().getValue(),
+                                    response.getValue().getNextLink(),
+                                    null);
+                        });
 
         service.listChatReadReceipts(
                 this.client.getEndpoint(),
@@ -681,7 +679,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesSinglePageAsync(
             String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessagesCollection>, ChatMessage> completableFuture =
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -722,7 +720,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesSinglePageAsync(
             String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessagesCollection>, ChatMessage> completableFuture =
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -1347,7 +1345,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsSinglePageAsync(
             String chatThreadId, Integer maxPageSize, Integer skip) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatParticipantsCollection>, ChatParticipant> completableFuture =
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -1387,7 +1385,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsSinglePageAsync(
             String chatThreadId, Integer maxPageSize, Integer skip, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatParticipantsCollection>, ChatParticipant> completableFuture =
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -1997,18 +1995,17 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsNextSinglePageAsync(
             String nextLink) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessageReadReceiptsCollection>, ChatMessageReadReceipt>
-                completableFuture =
-                        new PagedResponseCompletableFuture<>(
-                                response -> {
-                                    return new PagedResponseBase<>(
-                                            response.getRequest(),
-                                            response.getStatusCode(),
-                                            response.getHeaders(),
-                                            response.getValue().getValue(),
-                                            response.getValue().getNextLink(),
-                                            null);
-                                });
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture =
+                new PagedResponseCompletableFuture<>(
+                        response -> {
+                            return new PagedResponseBase<>(
+                                    response.getRequest(),
+                                    response.getStatusCode(),
+                                    response.getHeaders(),
+                                    response.getValue().getValue(),
+                                    response.getValue().getNextLink(),
+                                    null);
+                        });
 
         service.listChatReadReceiptsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE, completableFuture);
         return completableFuture;
@@ -2028,18 +2025,17 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> listChatReadReceiptsNextSinglePageAsync(
             String nextLink, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessageReadReceiptsCollection>, ChatMessageReadReceipt>
-                completableFuture =
-                        new PagedResponseCompletableFuture<>(
-                                response -> {
-                                    return new PagedResponseBase<>(
-                                            response.getRequest(),
-                                            response.getStatusCode(),
-                                            response.getHeaders(),
-                                            response.getValue().getValue(),
-                                            response.getValue().getNextLink(),
-                                            null);
-                                });
+        PagedResponseCompletableFuture<ChatMessageReadReceiptsCollection, ChatMessageReadReceipt> completableFuture =
+                new PagedResponseCompletableFuture<>(
+                        response -> {
+                            return new PagedResponseBase<>(
+                                    response.getRequest(),
+                                    response.getStatusCode(),
+                                    response.getHeaders(),
+                                    response.getValue().getValue(),
+                                    response.getValue().getNextLink(),
+                                    null);
+                        });
 
         service.listChatReadReceiptsNext(nextLink, this.client.getEndpoint(), accept, context, completableFuture);
         return completableFuture;
@@ -2057,7 +2053,7 @@ public final class ChatThreadsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessagesCollection>, ChatMessage> completableFuture =
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -2087,7 +2083,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatMessage>> listChatMessagesNextSinglePageAsync(
             String nextLink, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatMessagesCollection>, ChatMessage> completableFuture =
+        PagedResponseCompletableFuture<ChatMessagesCollection, ChatMessage> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -2115,7 +2111,7 @@ public final class ChatThreadsImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatParticipantsCollection>, ChatParticipant> completableFuture =
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
@@ -2145,7 +2141,7 @@ public final class ChatThreadsImpl {
     public CompletableFuture<PagedResponse<ChatParticipant>> listChatParticipantsNextSinglePageAsync(
             String nextLink, Context context) {
         final String accept = "application/json";
-        PagedResponseCompletableFuture<Response<ChatParticipantsCollection>, ChatParticipant> completableFuture =
+        PagedResponseCompletableFuture<ChatParticipantsCollection, ChatParticipant> completableFuture =
                 new PagedResponseCompletableFuture<>(
                         response -> {
                             return new PagedResponseBase<>(
