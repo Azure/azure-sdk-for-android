@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
-import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -38,7 +37,7 @@ public final class ChatThreadsItemCollection {
      * Set the value property: Collection of chat threads.
      *
      * @param value the value value to set.
-     * @return the ChatThreadsInfoCollection object itself.
+     * @return the ChatThreadsItemCollection object itself.
      */
     public ChatThreadsItemCollection setValue(List<ChatThreadItem> value) {
         this.value = value;

@@ -4,11 +4,11 @@
 
 package com.azure.android.communication.chat.implementation.models;
 
+import com.azure.android.communication.chat.models.ChatMessageContent;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.threeten.bp.OffsetDateTime;
+import java.time.OffsetDateTime;
 
 /** Chat message. */
 @Fluent
