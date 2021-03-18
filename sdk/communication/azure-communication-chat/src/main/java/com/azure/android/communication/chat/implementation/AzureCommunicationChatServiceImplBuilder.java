@@ -4,18 +4,17 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.core.rest.annotation.ServiceClientBuilder;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
+import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.policy.CookiePolicy;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.HttpLoggingPolicy;
-import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.http.policy.UserAgentPolicy;
+import com.azure.android.core.rest.annotation.ServiceClientBuilder;
 import com.azure.android.core.serde.jackson.JacksonSerder;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +51,22 @@ public final class AzureCommunicationChatServiceImplBuilder {
     }
 
     /*
+     * Api Version
+     */
+    private String apiVersion;
+
+    /**
+     * Sets Api Version.
+     *
+     * @param apiVersion the apiVersion value.
+     * @return the AzureCommunicationChatServiceImplBuilder.
+     */
+    public AzureCommunicationChatServiceImplBuilder apiVersion(String apiVersion) {
+        this.apiVersion = apiVersion;
+        return this;
+    }
+
+    /*
      * The HTTP pipeline to send requests through
      */
     private HttpPipeline pipeline;
@@ -71,6 +86,17 @@ public final class AzureCommunicationChatServiceImplBuilder {
      * The serializer to serialize an object into a string
      */
     private JacksonSerder jacksonSerder;
+
+    /**
+     * Sets The serializer to serialize an object into a string.
+     *
+     * @param jacksonSerder the jacksonSerder value.
+     * @return the AzureCommunicationChatServiceImplBuilder.
+     */
+    public AzureCommunicationChatServiceImplBuilder jacksonSerder(JacksonSerder jacksonSerder) {
+        this.jacksonSerder = jacksonSerder;
+        return this;
+    }
 
     /*
      * The HTTP client used to send the request.
@@ -143,6 +169,9 @@ public final class AzureCommunicationChatServiceImplBuilder {
      * @return an instance of AzureCommunicationChatServiceImpl.
      */
     public AzureCommunicationChatServiceImpl buildClient() {
+        if (apiVersion == null) {
+            this.apiVersion = "2021-03-01-preview5";
+        }
         if (pipeline == null) {
             this.pipeline = createHttpPipeline();
         }
@@ -150,7 +179,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
             this.jacksonSerder = JacksonSerder.createDefault();
         }
         AzureCommunicationChatServiceImpl client =
-                new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint);
+                new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint, apiVersion);
         return client;
     }
 
@@ -167,8 +196,7 @@ public final class AzureCommunicationChatServiceImplBuilder {
         if (clientVersion == null) {
             clientVersion = "UnknownVersion";
         }
-        policies.add(
-                new UserAgentPolicy(null, clientName, clientVersion));
+        policies.add(new UserAgentPolicy(null, clientName, clientVersion));
         policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.addAll(this.pipelinePolicies);

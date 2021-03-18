@@ -6,7 +6,6 @@ package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import org.threeten.bp.OffsetDateTime;
 
 /** Chat thread. */
@@ -60,7 +59,7 @@ public final class ChatThreadProperties {
      * Set the id property: Chat thread id.
      *
      * @param id the id value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
     public ChatThreadProperties setId(String id) {
         this.id = id;
@@ -80,7 +79,7 @@ public final class ChatThreadProperties {
      * Set the topic property: Chat thread topic.
      *
      * @param topic the topic value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
     public ChatThreadProperties setTopic(String topic) {
         this.topic = topic;
@@ -102,7 +101,7 @@ public final class ChatThreadProperties {
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @param createdOn the createdOn value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
     public ChatThreadProperties setCreatedOn(OffsetDateTime createdOn) {
         this.createdOn = createdOn;
@@ -126,7 +125,7 @@ public final class ChatThreadProperties {
      * union: Apart from rawId, at most one further property may be set.
      *
      * @param createdByCommunicationIdentifier the createdByCommunicationIdentifier value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
     public ChatThreadProperties setCreatedByCommunicationIdentifier(
             CommunicationIdentifierModel createdByCommunicationIdentifier) {
@@ -149,7 +148,7 @@ public final class ChatThreadProperties {
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @param deletedOn the deletedOn value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
     public ChatThreadProperties setDeletedOn(OffsetDateTime deletedOn) {
         this.deletedOn = deletedOn;
