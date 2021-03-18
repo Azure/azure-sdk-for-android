@@ -4,11 +4,11 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.implementation.models.ChatThreadItem;
 import com.azure.android.communication.chat.implementation.models.ChatThreadsItemCollection;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
+import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.core.rest.Callback;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.PagedResponseBase;
@@ -36,7 +36,7 @@ import java9.util.function.Function;
 import org.threeten.bp.OffsetDateTime;
 
 /** An instance of this class provides access to all the operations defined in Chats. */
-public final class ChatsImpl {
+public final class ChatImpl {
     /** The proxy service used to perform REST calls. */
     private final ChatsService service;
 
@@ -48,7 +48,7 @@ public final class ChatsImpl {
      *
      * @param client the instance of the service client containing this operation class.
      */
-    ChatsImpl(AzureCommunicationChatServiceImpl client) {
+    ChatImpl(AzureCommunicationChatServiceImpl client) {
         this.service = RestProxy.create(ChatsService.class, client.getHttpPipeline(), client.getJacksonSerder());
         this.client = client;
     }

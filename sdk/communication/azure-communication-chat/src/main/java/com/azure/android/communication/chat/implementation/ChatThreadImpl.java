@@ -48,7 +48,7 @@ import java9.util.function.Function;
 import org.threeten.bp.OffsetDateTime;
 
 /** An instance of this class provides access to all the operations defined in ChatThreads. */
-public final class ChatThreadsImpl {
+public final class ChatThreadImpl {
     /** The proxy service used to perform REST calls. */
     private final ChatThreadsService service;
 
@@ -60,7 +60,7 @@ public final class ChatThreadsImpl {
      *
      * @param client the instance of the service client containing this operation class.
      */
-    ChatThreadsImpl(AzureCommunicationChatServiceImpl client) {
+    ChatThreadImpl(AzureCommunicationChatServiceImpl client) {
         this.service = RestProxy.create(ChatThreadsService.class, client.getHttpPipeline(), client.getJacksonSerder());
         this.client = client;
     }

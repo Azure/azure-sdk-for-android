@@ -62,26 +62,26 @@ public final class AzureCommunicationChatServiceImpl {
     }
 
     /** The ChatThreadsImpl object to access its operations. */
-    private final ChatThreadsImpl chatThreads;
+    private final ChatThreadImpl chatThreads;
 
     /**
      * Gets the ChatThreadsImpl object to access its operations.
      *
      * @return the ChatThreadsImpl object.
      */
-    public ChatThreadsImpl getChatThreads() {
+    public ChatThreadImpl getChatThreadClient() {
         return this.chatThreads;
     }
 
     /** The ChatsImpl object to access its operations. */
-    private final ChatsImpl chats;
+    private final ChatImpl chats;
 
     /**
      * Gets the ChatsImpl object to access its operations.
      *
      * @return the ChatsImpl object.
      */
-    public ChatsImpl getChats() {
+    public ChatImpl getChatClient() {
         return this.chats;
     }
 
@@ -126,7 +126,7 @@ public final class AzureCommunicationChatServiceImpl {
         this.jacksonSerder = jacksonSerder;
         this.endpoint = endpoint;
         this.apiVersion = apiVersion;
-        this.chatThreads = new ChatThreadsImpl(this);
-        this.chats = new ChatsImpl(this);
+        this.chatThreads = new ChatThreadImpl(this);
+        this.chats = new ChatImpl(this);
     }
 }

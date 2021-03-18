@@ -6,7 +6,7 @@ package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.OffsetDateTime;
+import org.threeten.bp.OffsetDateTime;
 
 /** A participant of the chat thread. */
 @Fluent
