@@ -16,7 +16,7 @@ public final class CreateChatThreadResultConverter {
      * {@link CreateChatThreadResult}.
      */
     public static CreateChatThreadResult convert(
-        com.azure.android.communication.chat.implementation.models.CreateChatThreadResult obj, ClientLogger logger) {
+        com.azure.android.communication.chat.models.CreateChatThreadResult obj, ClientLogger logger) {
 
         if (obj == null) {
             return null;
