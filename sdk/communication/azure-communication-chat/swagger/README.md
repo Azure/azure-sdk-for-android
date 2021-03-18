@@ -31,7 +31,7 @@ To update generated files for chat service, run the following command
 
 ### Code generation settings
 ``` yaml
-input-file: swagger.json
+input-file: https://int.chatgateway.trafficmanager.net/swagger/2021-03-01-preview5/swagger.json
 java: true
 output-folder: ..\
 license-header: MICROSOFT_MIT_SMALL
