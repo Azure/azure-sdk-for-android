@@ -5,13 +5,10 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
-/**
- * Collection of participants belong to a particular thread.
- */
+/** Collection of participants belong to a particular thread. */
 @Fluent
 public final class ChatParticipantsCollection {
     /*
@@ -29,7 +26,7 @@ public final class ChatParticipantsCollection {
 
     /**
      * Get the value property: Chat participants.
-     * 
+     *
      * @return the value value.
      */
     public List<ChatParticipant> getValue() {
@@ -38,7 +35,7 @@ public final class ChatParticipantsCollection {
 
     /**
      * Set the value property: Chat participants.
-     * 
+     *
      * @param value the value value to set.
      * @return the ChatParticipantsCollection object itself.
      */
@@ -48,9 +45,9 @@ public final class ChatParticipantsCollection {
     }
 
     /**
-     * Get the nextLink property: If there are more chat participants that can
-     * be retrieved, the next link will be populated.
-     * 
+     * Get the nextLink property: If there are more chat participants that can be retrieved, the next link will be
+     * populated.
+     *
      * @return the nextLink value.
      */
     public String getNextLink() {

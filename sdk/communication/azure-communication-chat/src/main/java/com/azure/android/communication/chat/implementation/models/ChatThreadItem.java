@@ -5,13 +5,10 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
 
-/**
- * Summary information of a chat thread.
- */
+/** Summary information of a chat thread. */
 @Fluent
 public final class ChatThreadItem {
     /*
@@ -42,7 +39,7 @@ public final class ChatThreadItem {
 
     /**
      * Get the id property: Chat thread id.
-     * 
+     *
      * @return the id value.
      */
     public String getId() {
@@ -51,7 +48,7 @@ public final class ChatThreadItem {
 
     /**
      * Set the id property: Chat thread id.
-     * 
+     *
      * @param id the id value to set.
      * @return the ChatThreadItem object itself.
      */
@@ -62,7 +59,7 @@ public final class ChatThreadItem {
 
     /**
      * Get the topic property: Chat thread topic.
-     * 
+     *
      * @return the topic value.
      */
     public String getTopic() {
@@ -71,7 +68,7 @@ public final class ChatThreadItem {
 
     /**
      * Set the topic property: Chat thread topic.
-     * 
+     *
      * @param topic the topic value to set.
      * @return the ChatThreadItem object itself.
      */
@@ -81,9 +78,9 @@ public final class ChatThreadItem {
     }
 
     /**
-     * Get the deletedOn property: The timestamp when the chat thread was
-     * deleted. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     * Get the deletedOn property: The timestamp when the chat thread was deleted. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     *
      * @return the deletedOn value.
      */
     public OffsetDateTime getDeletedOn() {
@@ -91,9 +88,9 @@ public final class ChatThreadItem {
     }
 
     /**
-     * Set the deletedOn property: The timestamp when the chat thread was
-     * deleted. The timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     * Set the deletedOn property: The timestamp when the chat thread was deleted. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     *
      * @param deletedOn the deletedOn value to set.
      * @return the ChatThreadItem object itself.
      */
@@ -103,10 +100,9 @@ public final class ChatThreadItem {
     }
 
     /**
-     * Get the lastMessageReceivedOn property: The timestamp when the last
-     * message arrived at the server. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     * Get the lastMessageReceivedOn property: The timestamp when the last message arrived at the server. The timestamp
+     * is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     *
      * @return the lastMessageReceivedOn value.
      */
     public OffsetDateTime getLastMessageReceivedOn() {

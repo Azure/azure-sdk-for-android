@@ -5,14 +5,12 @@
 package com.azure.android.communication.chat.implementation.models;
 
 import com.azure.android.core.rest.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Identifies a participant in Azure Communication services. A participant is,
- * for example, a phone number or an Azure communication user. This model must
- * be interpreted as a union: Apart from rawId, at most one further property
- * may be set.
+ * Identifies a participant in Azure Communication services. A participant is, for example, a phone number or an Azure
+ * communication user. This model must be interpreted as a union: Apart from rawId, at most one further property may be
+ * set.
  */
 @Fluent
 public final class CommunicationIdentifierModel {
@@ -41,9 +39,8 @@ public final class CommunicationIdentifierModel {
     private MicrosoftTeamsUserIdentifierModel microsoftTeamsUser;
 
     /**
-     * Get the rawId property: Raw Id of the identifier. Optional in requests,
-     * required in responses.
-     * 
+     * Get the rawId property: Raw Id of the identifier. Optional in requests, required in responses.
+     *
      * @return the rawId value.
      */
     public String getRawId() {
@@ -51,9 +48,8 @@ public final class CommunicationIdentifierModel {
     }
 
     /**
-     * Set the rawId property: Raw Id of the identifier. Optional in requests,
-     * required in responses.
-     * 
+     * Set the rawId property: Raw Id of the identifier. Optional in requests, required in responses.
+     *
      * @param rawId the rawId value to set.
      * @return the CommunicationIdentifierModel object itself.
      */
@@ -64,7 +60,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Get the communicationUser property: The communication user.
-     * 
+     *
      * @return the communicationUser value.
      */
     public CommunicationUserIdentifierModel getCommunicationUser() {
@@ -73,7 +69,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Set the communicationUser property: The communication user.
-     * 
+     *
      * @param communicationUser the communicationUser value to set.
      * @return the CommunicationIdentifierModel object itself.
      */
@@ -84,7 +80,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Get the phoneNumber property: The phone number.
-     * 
+     *
      * @return the phoneNumber value.
      */
     public PhoneNumberIdentifierModel getPhoneNumber() {
@@ -93,7 +89,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Set the phoneNumber property: The phone number.
-     * 
+     *
      * @param phoneNumber the phoneNumber value to set.
      * @return the CommunicationIdentifierModel object itself.
      */
@@ -104,7 +100,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Get the microsoftTeamsUser property: The Microsoft Teams user.
-     * 
+     *
      * @return the microsoftTeamsUser value.
      */
     public MicrosoftTeamsUserIdentifierModel getMicrosoftTeamsUser() {
@@ -113,7 +109,7 @@ public final class CommunicationIdentifierModel {
 
     /**
      * Set the microsoftTeamsUser property: The Microsoft Teams user.
-     * 
+     *
      * @param microsoftTeamsUser the microsoftTeamsUser value to set.
      * @return the CommunicationIdentifierModel object itself.
      */
