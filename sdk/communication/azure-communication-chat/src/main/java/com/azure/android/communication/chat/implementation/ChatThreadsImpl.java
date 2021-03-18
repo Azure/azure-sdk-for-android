@@ -42,10 +42,10 @@ import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.util.Context;
-import java.time.OffsetDateTime;
 import java.util.concurrent.ExecutionException;
 import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Function;
+import org.threeten.bp.OffsetDateTime;
 
 /** An instance of this class provides access to all the operations defined in ChatThreads. */
 public final class ChatThreadsImpl {
