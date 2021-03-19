@@ -5,6 +5,7 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatThreadImpl;
+import com.azure.android.communication.chat.implementation.converters.AddChatParticipantsResultConverter;
 import com.azure.android.communication.chat.implementation.converters.AddChatParticipantsOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatMessageConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatMessageReadReceiptConverter;
@@ -239,7 +240,11 @@ public final class ChatThreadAsyncClient {
                                                                            Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatThreadClient.addChatParticipantsWithResponseAsync(
-            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(options, this.logger), context);
+            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(options, this.logger), context)
+            .thenApply(result -> {
+                return new SimpleResponse<>(result,
+                    AddChatParticipantsResultConverter.convert(result.getValue(), this.logger));
+            });
     }
 
     /**

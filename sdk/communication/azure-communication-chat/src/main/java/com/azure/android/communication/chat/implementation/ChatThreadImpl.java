@@ -5,6 +5,7 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions;
+import com.azure.android.communication.chat.implementation.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.implementation.models.ChatMessage;
 import com.azure.android.communication.chat.implementation.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.implementation.models.ChatMessageReadReceiptsCollection;
@@ -15,7 +16,6 @@ import com.azure.android.communication.chat.implementation.models.ChatThreadProp
 import com.azure.android.communication.chat.implementation.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.CommunicationIdentifierModel;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
