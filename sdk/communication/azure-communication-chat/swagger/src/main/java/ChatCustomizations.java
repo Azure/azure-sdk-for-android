@@ -8,7 +8,6 @@ import com.azure.autorest.customization.LibraryCustomization;
 import com.azure.autorest.customization.PackageCustomization;
 import com.azure.autorest.customization.models.Modifier;
 
-
 import java.util.Locale;
 
 public class ChatCustomizations extends Customization {
@@ -21,7 +20,6 @@ public class ChatCustomizations extends Customization {
     }
 
     private void customizeModelsPackage(PackageCustomization packageCustomization) {
-
         ClassCustomization responseExceptionCls
             = packageCustomization.getClass("CommunicationErrorResponseException")
             .rename("ChatErrorResponseException");
