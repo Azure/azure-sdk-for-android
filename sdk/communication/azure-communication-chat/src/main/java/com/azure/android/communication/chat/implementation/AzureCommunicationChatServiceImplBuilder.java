@@ -83,22 +83,6 @@ public final class AzureCommunicationChatServiceImplBuilder {
     }
 
     /*
-     * The serializer to serialize an object into a string
-     */
-    private JacksonSerder jacksonSerder;
-
-    /**
-     * Sets The serializer to serialize an object into a string.
-     *
-     * @param jacksonSerder the jacksonSerder value.
-     * @return the AzureCommunicationChatServiceImplBuilder.
-     */
-    public AzureCommunicationChatServiceImplBuilder jacksonSerder(JacksonSerder jacksonSerder) {
-        this.jacksonSerder = jacksonSerder;
-        return this;
-    }
-
-    /*
      * The HTTP client used to send the request.
      */
     private HttpClient httpClient;
@@ -175,11 +159,8 @@ public final class AzureCommunicationChatServiceImplBuilder {
         if (pipeline == null) {
             this.pipeline = createHttpPipeline();
         }
-        if (jacksonSerder == null) {
-            this.jacksonSerder = JacksonSerder.createDefault();
-        }
         AzureCommunicationChatServiceImpl client =
-                new AzureCommunicationChatServiceImpl(pipeline, jacksonSerder, endpoint, apiVersion);
+                new AzureCommunicationChatServiceImpl(pipeline, JacksonSerder.createDefault(), endpoint, apiVersion);
         return client;
     }
 
