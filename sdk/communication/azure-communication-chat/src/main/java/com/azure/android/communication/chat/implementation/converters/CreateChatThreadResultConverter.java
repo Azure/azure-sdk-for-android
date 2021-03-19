@@ -27,15 +27,19 @@ public final class CreateChatThreadResultConverter {
             return null;
         }
 
-        List<ChatError> invalidParticipants
-            = new ArrayList<>(obj.getInvalidParticipants().size());
-        for (CommunicationError invalidParticipant: obj.getInvalidParticipants()) {
-            invalidParticipants.add(ChatErrorConverter.convert(invalidParticipant));
+        CreateChatThreadResult createChatThreadResult = new CreateChatThreadResult()
+            .setChatThread(ChatThreadConverter.convert(obj.getChatThread(), logger));
+
+        if (obj.getInvalidParticipants() != null) {
+            List<ChatError> invalidParticipants
+                = new ArrayList<>(obj.getInvalidParticipants().size());
+            for (CommunicationError invalidParticipant: obj.getInvalidParticipants()) {
+                invalidParticipants.add(ChatErrorConverter.convert(invalidParticipant));
+            }
+            createChatThreadResult.setInvalidParticipants(invalidParticipants);
         }
 
-        return new CreateChatThreadResult()
-            .setChatThread(ChatThreadConverter.convert(obj.getChatThread(), logger))
-            .setInvalidParticipants(invalidParticipants);
+        return createChatThreadResult;
     }
 
     private CreateChatThreadResultConverter() {

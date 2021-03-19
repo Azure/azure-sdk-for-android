@@ -27,14 +27,18 @@ public final class AddChatParticipantsResultConverter {
             return null;
         }
 
-        List<ChatError> invalidParticipants
-            = new ArrayList<>(obj.getInvalidParticipants().size());
-        for (CommunicationError invalidParticipant: obj.getInvalidParticipants()) {
-            invalidParticipants.add(ChatErrorConverter.convert(invalidParticipant));
+        AddChatParticipantsResult addChatParticipantsResult = new AddChatParticipantsResult();
+
+        if (obj.getInvalidParticipants() != null) {
+            List<ChatError> invalidParticipants
+                = new ArrayList<>(obj.getInvalidParticipants().size());
+            for (CommunicationError invalidParticipant: obj.getInvalidParticipants()) {
+                invalidParticipants.add(ChatErrorConverter.convert(invalidParticipant));
+            }
+            addChatParticipantsResult.setInvalidParticipants(invalidParticipants);
         }
 
-        return new AddChatParticipantsResult()
-            .setInvalidParticipants(invalidParticipants);
+        return addChatParticipantsResult;
     }
 
     private AddChatParticipantsResultConverter() {
