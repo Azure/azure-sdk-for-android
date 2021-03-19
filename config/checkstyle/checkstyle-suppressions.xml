@@ -159,6 +159,7 @@
       files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder.java"/>
 
   <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+  <suppress checks="Indentation" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
 
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatImpl.java"/>
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatThreadImpl.java"/>

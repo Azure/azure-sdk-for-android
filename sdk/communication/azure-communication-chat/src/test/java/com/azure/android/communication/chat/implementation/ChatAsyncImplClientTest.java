@@ -4,10 +4,10 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.communication.chat.implementation.models.ChatThreadProperties;
+import com.azure.android.communication.chat.implementation.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ChatThreadItem;
-import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.exception.HttpResponseException;

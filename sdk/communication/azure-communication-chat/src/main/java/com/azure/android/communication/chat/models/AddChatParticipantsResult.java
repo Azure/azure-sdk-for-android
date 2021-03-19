@@ -4,26 +4,36 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.core.rest.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Immutable;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /** Result of the add chat participants operation. */
-@Fluent
+@Immutable
 public final class AddChatParticipantsResult {
     /*
      * The participants that failed to be added to the chat thread.
      */
     @JsonProperty(value = "invalidParticipants", access = JsonProperty.Access.WRITE_ONLY)
-    private List<CommunicationError> invalidParticipants;
+    private List<ChatError> invalidParticipants;
 
     /**
      * Get the invalidParticipants property: The participants that failed to be added to the chat thread.
      *
      * @return the invalidParticipants value.
      */
-    public List<CommunicationError> getInvalidParticipants() {
+    public List<ChatError> getInvalidParticipants() {
         return this.invalidParticipants;
+    }
+
+    /**
+     * Set the invalidParticipants property: The invalidParticipants property.
+     *
+     * @param invalidParticipants the invalidParticipants value to set.
+     * @return the AddChatParticipantsResult object itself.
+     */
+    public AddChatParticipantsResult setInvalidParticipants(List<ChatError> invalidParticipants) {
+        this.invalidParticipants = invalidParticipants;
+        return this;
     }
 }

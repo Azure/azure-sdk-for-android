@@ -38,7 +38,7 @@ public final class ChatThreadsItemCollection {
      * Set the value property: Collection of chat threads.
      *
      * @param value the value value to set.
-     * @return the ChatThreadsInfoCollection object itself.
+     * @return the ChatThreadsItemCollection object itself.
      */
     public ChatThreadsItemCollection setValue(List<ChatThreadItem> value) {
         this.value = value;
