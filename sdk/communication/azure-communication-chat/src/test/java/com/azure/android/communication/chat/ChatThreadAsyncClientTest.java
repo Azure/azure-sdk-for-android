@@ -171,7 +171,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof CommunicationErrorResponseException);
+        assertTrue(cause instanceof HttpResponseException);
 
         HttpResponseException exception = (HttpResponseException) cause;
 
@@ -193,7 +193,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof CommunicationErrorResponseException);
+        assertTrue(cause instanceof HttpResponseException);
 
         HttpResponseException exception = (HttpResponseException) cause;
         assertNotNull(exception.getResponse());
