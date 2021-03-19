@@ -39,7 +39,7 @@ pr:
       - build.gradle
       - gradle.properties
       - settings.gradle
-      
+
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
     parameters:
@@ -47,6 +47,9 @@ stages:
       Artifacts:
         - name: azure-core-credential
           safeName: azurecorecredential
+          groupId: com.azure.android
+        - name: azure-core-http
+          safeName: azurecorehttp
           groupId: com.azure.android
         - name: azure-core-http-httpurlconnection
           safeName: azurecorehttphttpurlconnection
