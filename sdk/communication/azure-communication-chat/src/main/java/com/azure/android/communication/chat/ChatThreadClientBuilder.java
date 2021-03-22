@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat;
 
+import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.credential.AccessToken;
@@ -31,6 +32,7 @@ import java.util.concurrent.Future;
 public final class ChatThreadClientBuilder {
     private final ClientLogger logger = new ClientLogger(ChatThreadClientBuilder.class);
 
+    private String chatThreadId;
     private String endpoint;
     private HttpClient httpClient;
     private CommunicationTokenCredential communicationTokenCredential;
@@ -138,57 +140,60 @@ public final class ChatThreadClientBuilder {
     }
 
     /**
-     * Create synchronous client applying CommunicationTokenCredential, UserAgentPolicy,
-     * RetryPolicy, and CookiePolicy.
-     * Additional HttpPolicies specified by additionalPolicies will be applied after them
+     * Sets the ChatThreadId used to construct a client for this chat thread.
      *
-     * @param chatThreadId Thread ID for the chat thread client.
-     * @return ChatThreadClient instance
+     * @param chatThreadId The id of the chat thread.
+     * @return the updated ChatThreadClientBuilder object
      */
-    public ChatThreadClient buildClient(String chatThreadId) {
-        ChatThreadAsyncClient asyncClient = buildAsyncClient(chatThreadId);
-        return new ChatThreadClient(asyncClient);
+    public ChatThreadClientBuilder chatThreadId(String chatThreadId) {
+        this.chatThreadId = chatThreadId;
+        return this;
     }
 
     /**
-     * Create synchronous client applying CommunicationTokenCredential, UserAgentPolicy,
+     * Create synchronous chat thread client applying CommunicationTokenCredential, UserAgentPolicy,
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @param pipeline The HTTP pipeline to send requests through.
-     * @param chatThreadId Thread ID for the chat thread client.
      * @return ChatThreadClient instance
      */
-    public ChatThreadClient buildClient(HttpPipeline pipeline, String chatThreadId) {
-        ChatThreadAsyncClient asyncClient = buildAsyncClient(pipeline, chatThreadId);
-        return new ChatThreadClient(asyncClient);
+    public ChatThreadClient buildClient() {
+        return new ChatThreadClient(buildAsyncClient());
     }
 
+
     /**
-     * Create asynchronous client applying CommunicationTokenCredential, UserAgentPolicy,
+     * Create asynchronous chat thread client applying CommunicationTokenCredential, UserAgentPolicy,
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @param chatThreadId Thread ID for the chat thread client.
      * @return ChatThreadAsyncClient instance
      */
-    public ChatThreadAsyncClient buildAsyncClient(String chatThreadId) {
-        if (this.endpoint == null) {
-            throw logger.logExceptionAsError(new NullPointerException("Endpoint is required."));
+    public ChatThreadAsyncClient buildAsyncClient() {
+        if (chatThreadId == null) {
+            throw logger.logExceptionAsError(new NullPointerException("'chatThreadId' is required."));
+        }
+
+        return new ChatThreadAsyncClient(createInternalClient(), chatThreadId);
+    }
+
+    private AzureCommunicationChatServiceImpl createInternalClient() {
+        if (endpoint == null) {
+            throw logger.logExceptionAsError(new NullPointerException("'endpoint' is required."));
         }
 
         HttpPipeline pipeline;
+
         if (this.httpPipeline != null) {
             pipeline = this.httpPipeline;
         } else {
             if (this.communicationTokenCredential == null && this.credentialPolicy == null) {
-                throw logger
-                    .logExceptionAsError(
-                        new NullPointerException(
-                            "Either CommunicationTokenCredential or CredentialPolicy is required."));
+                throw logger.logExceptionAsError(
+                    new NullPointerException("Either 'communicationTokenCredential' or 'credentialPolicy' is required."));
             }
+
             if (this.httpClient == null) {
-                throw logger.logExceptionAsError(new NullPointerException("HttpClient is required."));
+                throw logger.logExceptionAsError(new NullPointerException("'httpClient' is required."));
             }
 
             final HttpPipelinePolicy authorizationPolicy;
@@ -212,28 +217,17 @@ public final class ChatThreadClientBuilder {
             } else {
                 authorizationPolicy = this.credentialPolicy;
             }
+
             pipeline = createHttpPipeline(this.httpClient,
                 authorizationPolicy,
                 this.customPolicies);
         }
 
-        return buildAsyncClient(pipeline, chatThreadId);
-    }
-
-    /**
-     * Create asynchronous client applying CommunicationTokenCredential, UserAgentPolicy,
-     * RetryPolicy, and CookiePolicy.
-     * Additional HttpPolicies specified by additionalPolicies will be applied after them
-     *
-     * @param pipeline The HTTP pipeline to send requests through.
-     * @param chatThreadId Thread ID for the chat thread client.
-     * @return ChatThreadAsyncClient instance
-     */
-    public ChatThreadAsyncClient buildAsyncClient(HttpPipeline pipeline, String chatThreadId) {
-        AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder();
-        clientBuilder.endpoint(this.endpoint)
+        AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder()
+            .endpoint(endpoint)
             .pipeline(pipeline);
-        return new ChatThreadAsyncClient(clientBuilder.buildClient(), chatThreadId);
+
+        return clientBuilder.buildClient();
     }
 
     private HttpPipeline createHttpPipeline(HttpClient httpClient,
