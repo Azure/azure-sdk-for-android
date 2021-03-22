@@ -12,18 +12,20 @@ import com.azure.android.communication.chat.implementation.converters.ChatMessag
 import com.azure.android.communication.chat.implementation.converters.ChatParticipantConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatThreadConverter;
 import com.azure.android.communication.chat.implementation.converters.CommunicationIdentifierConverter;
-import com.azure.android.communication.chat.implementation.converters.SendChatMessageResultConverter;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
+import com.azure.android.communication.chat.models.ChatError;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
+import com.azure.android.communication.chat.models.InvalidParticipantException;
 import com.azure.android.communication.chat.models.ListChatMessagesOptions;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatThreadOptions;
 import com.azure.android.communication.common.CommunicationIdentifier;
@@ -47,7 +49,7 @@ import java9.util.concurrent.CompletableFuture;
 /**
  * Async Client that supports chat thread operations.
  */
-@ServiceClient(builder = ChatClientBuilder.class, isAsync = true)
+@ServiceClient(builder = ChatThreadClientBuilder.class, isAsync = true)
 public final class ChatThreadAsyncClient {
     private final ClientLogger logger = new ClientLogger(ChatThreadAsyncClient.class);
 
@@ -103,42 +105,42 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Gets a chat thread.
+     * Gets chat thread properties.
      *
-     * @return the {@link CompletableFuture} that emits the thread.
+     * @return the {@link CompletableFuture} that emits the thread properties.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<ChatThread> getChatThreadProperties() {
-        return this.getChatThreadProperties(null)
+    public CompletableFuture<ChatThreadProperties> getProperties() {
+        return this.getProperties(null)
             .thenApply(response -> {
                 return response.getValue();
             });
     }
 
     /**
-     * Gets a chat thread.
+     * Gets chat thread properties.
      *
      * @param context The context to associate with this operation.
      *
-     * @return the {@link CompletableFuture} that emits the response containing the thread.
+     * @return the {@link CompletableFuture} that emits the response containing the thread properties.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<ChatThread>> getChatThreadPropertiesWithResponse(Context context) {
-        return this.getChatThreadProperties(context);
+    public CompletableFuture<Response<ChatThreadProperties>> getPropertiesWithResponse(Context context) {
+        return this.getProperties(context);
     }
 
     /**
-     * Gets a chat thread.
+     * Gets chat thread properties.
      *
      * @param context The context to associate with this operation.
      *
-     * @return the {@link CompletableFuture} that emits the response containing the thread.
+     * @return the {@link CompletableFuture} that emits the response containing the thread properties.
      */
-    CompletableFuture<Response<ChatThread>> getChatThreadProperties(Context context) {
+    CompletableFuture<Response<ChatThreadProperties>> getProperties(Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatThreadClient.getChatThreadPropertiesWithResponseAsync(this.chatThreadId, context)
             .thenApply(result -> {
-                return new SimpleResponse<ChatThread>(result,
+                return new SimpleResponse<ChatThreadProperties>(result,
                     ChatThreadConverter.convert(result.getValue(), this.logger));
             });
     }
@@ -223,9 +225,33 @@ public final class ChatThreadAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantWithResponse(
         ChatParticipant participant, Context context) {
-        return this.addParticipants(
+        return this.addParticipant(
             new AddChatParticipantsOptions().setParticipants(Collections.singletonList(participant)),
             context);
+    }
+
+    /**
+     * Adds a participant to a thread. If participants already exist, no change occurs.
+     *
+     * @param options Options for adding participants.
+     * @param context The context to associate with this operation.
+     * @throws InvalidParticipantException thrown if the participant is rejected by the server.
+     *
+     * @return the {@link CompletableFuture} that emits response containing the operation result.
+     */
+    CompletableFuture<Response<AddChatParticipantsResult>> addParticipant(AddChatParticipantsOptions options,
+                                                                           Context context) {
+        context = context == null ? Context.NONE : context;
+        return this.addParticipants(options, context)
+            .thenApply(result -> {
+                if (result.getValue().getInvalidParticipants() != null) {
+                    if (result.getValue().getInvalidParticipants().size() > 0) {
+                        ChatError error = result.getValue().getInvalidParticipants().get(0);
+                        this.logger.logExceptionAsError(new InvalidParticipantException(error));
+                    }
+                }
+                return result;
+            });
     }
 
     /**
@@ -443,7 +469,7 @@ public final class ChatThreadAsyncClient {
      * @return the {@link CompletableFuture} that emits the id of the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<String> sendMessage(SendChatMessageOptions options) {
+    public CompletableFuture<SendChatMessageResult> sendMessage(SendChatMessageOptions options) {
         if (options == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
         }
@@ -462,7 +488,7 @@ public final class ChatThreadAsyncClient {
      * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<String>> sendMessageWithResponse(SendChatMessageOptions options,
+    public CompletableFuture<Response<SendChatMessageResult>> sendMessageWithResponse(SendChatMessageOptions options,
                                                                        Context context) {
         if (options == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
@@ -478,13 +504,9 @@ public final class ChatThreadAsyncClient {
      *
      * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
-    CompletableFuture<Response<String>> sendMessage(SendChatMessageOptions options, Context context) {
+    CompletableFuture<Response<SendChatMessageResult>> sendMessage(SendChatMessageOptions options, Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.sendChatMessageWithResponseAsync(this.chatThreadId, options, context)
-            .thenApply(result -> {
-                return new SimpleResponse<>(result,
-                    SendChatMessageResultConverter.convert(result.getValue(), this.logger));
-            });
+        return this.chatThreadClient.sendChatMessageWithResponseAsync(this.chatThreadId, options, context);
     }
 
     /**

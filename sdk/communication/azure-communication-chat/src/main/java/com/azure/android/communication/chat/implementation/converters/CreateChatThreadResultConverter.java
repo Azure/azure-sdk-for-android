@@ -28,7 +28,7 @@ public final class CreateChatThreadResultConverter {
         }
 
         CreateChatThreadResult createChatThreadResult = new CreateChatThreadResult()
-            .setChatThread(ChatThreadConverter.convert(obj.getChatThread(), logger));
+            .setChatThreadProperties(ChatThreadConverter.convert(obj.getChatThread(), logger));
 
         if (obj.getInvalidParticipants() != null) {
             List<ChatError> invalidParticipants

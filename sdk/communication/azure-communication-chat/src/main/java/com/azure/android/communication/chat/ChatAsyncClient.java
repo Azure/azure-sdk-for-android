@@ -101,7 +101,7 @@ public final class ChatAsyncClient {
         context = context == null ? Context.NONE : context;
         return this.chatClient.createChatThreadWithResponseAsync(
             CreateChatThreadOptionsConverter.convert(options, this.logger),
-            options.getRepeatabilityRequestId(),
+            options.getIdempotencyToken(),
             context).thenApply(result -> {
                 return new SimpleResponse<>(result,
                     CreateChatThreadResultConverter.convert(result.getValue(), this.logger));

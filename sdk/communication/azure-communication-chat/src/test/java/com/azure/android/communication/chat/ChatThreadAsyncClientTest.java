@@ -9,13 +9,14 @@ import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatMessagesOptions;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpCallback;
@@ -73,7 +74,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
             this.secondThreadMember.getId());
 
         CreateChatThreadResult createChatThreadResult = client.createChatThread(threadRequest).get();
-        this.chatThreadClient = client.getChatThreadClient(createChatThreadResult.getChatThread().getId());
+        this.chatThreadClient = client.getChatThreadClient(createChatThreadResult.getChatThreadProperties().getId());
         this.threadId = chatThreadClient.getChatThreadId();
     }
 
@@ -107,16 +108,16 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(completableFuture1);
         CreateChatThreadResult result1 = completableFuture1.get();
         assertNotNull(result1);
-        assertNotNull(result1.getChatThread());
-        assertNotNull(result1.getChatThread().getId());
+        assertNotNull(result1.getChatThreadProperties());
+        assertNotNull(result1.getChatThreadProperties().getId());
 
-        String expectedThreadId = result1.getChatThread().getId();
+        String expectedThreadId = result1.getChatThreadProperties().getId();
 
-        CompletableFuture<ChatThread> completableFuture2
-            = this.client.getChatThreadClient(expectedThreadId).getChatThreadProperties();
+        CompletableFuture<ChatThreadProperties> completableFuture2
+            = this.client.getChatThreadClient(expectedThreadId).getProperties();
 
         assertNotNull(completableFuture2);
-        ChatThread result2 = completableFuture2.get();
+        ChatThreadProperties result2 = completableFuture2.get();
         assertNotNull(result2);
         assertNotNull(result2.getId());
 
@@ -139,18 +140,18 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(response1);
         CreateChatThreadResult result1 = response1.getValue();
         assertNotNull(result1);
-        assertNotNull(result1.getChatThread());
-        assertNotNull(result1.getChatThread().getId());
+        assertNotNull(result1.getChatThreadProperties());
+        assertNotNull(result1.getChatThreadProperties().getId());
 
-        String expectedThreadId = result1.getChatThread().getId();
+        String expectedThreadId = result1.getChatThreadProperties().getId();
 
-        CompletableFuture<Response<ChatThread>> completableFuture2
-            = this.client.getChatThreadClient(expectedThreadId).getChatThreadPropertiesWithResponse(null);
+        CompletableFuture<Response<ChatThreadProperties>> completableFuture2
+            = this.client.getChatThreadClient(expectedThreadId).getPropertiesWithResponse(null);
 
         assertNotNull(completableFuture2);
-        Response<ChatThread> response2 = completableFuture2.get();
+        Response<ChatThreadProperties> response2 = completableFuture2.get();
         assertNotNull(response2);
-        ChatThread result2 = response2.getValue();
+        ChatThreadProperties result2 = response2.getValue();
         assertNotNull(result2);
         assertNotNull(result2.getId());
 
@@ -163,9 +164,9 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            CompletableFuture<ChatThread> completableFuture = client
+            CompletableFuture<ChatThreadProperties> completableFuture = client
                 .getChatThreadClient("19:00000000000000000000000000000000@thread.v2")
-                .getChatThreadProperties();
+                .getProperties();
             completableFuture.get();
         });
 
@@ -185,9 +186,9 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            CompletableFuture<Response<ChatThread>> completableFuture = client
+            CompletableFuture<Response<ChatThreadProperties>> completableFuture = client
                 .getChatThreadClient("19:00000000000000000000000000000000@thread.v2")
-                .getChatThreadPropertiesWithResponse(null);
+                .getPropertiesWithResponse(null);
             completableFuture.get();
         });
 
@@ -217,9 +218,9 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         String newTopic = "Update Test";
         this.chatThreadClient.updateTopic(newTopic).get();
-        ChatThread chatThread = this.client.getChatThreadClient(this.threadId)
-            .getChatThreadProperties().get();
-        assertEquals(chatThread.getTopic(), newTopic);
+        ChatThreadProperties chatThreadProperties = this.client.getChatThreadClient(this.threadId)
+            .getProperties().get();
+        assertEquals(chatThreadProperties.getTopic(), newTopic);
     }
 
     @ParameterizedTest
@@ -231,9 +232,9 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         Response<Void> updateThreadResponse
             = this.chatThreadClient.updateTopicWithResponse(newTopic, null).get();
         assertEquals(204, updateThreadResponse.getStatusCode());
-        ChatThread chatThread = this.client.getChatThreadClient(this.threadId)
-            .getChatThreadProperties().get();
-        assertEquals(chatThread.getTopic(), newTopic);
+        ChatThreadProperties chatThreadProperties = this.client.getChatThreadClient(this.threadId)
+            .getProperties().get();
+        assertEquals(chatThreadProperties.getTopic(), newTopic);
     }
 
     @ParameterizedTest
@@ -490,7 +491,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
             .setSenderDisplayName("John")
             .setContent("<div>test</div>");
 
-        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         final ChatMessage message = this.chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
@@ -556,7 +557,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
 
-        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         final ChatMessage message = this.chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
@@ -569,12 +570,12 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
 
-        CompletableFuture<Response<String>> completableFuture1
+        CompletableFuture<Response<SendChatMessageResult>> completableFuture1
             = this.chatThreadClient.sendMessageWithResponse(messageRequest, null);
 
-        Response<String> response1 = completableFuture1.get();
+        Response<SendChatMessageResult> response1 = completableFuture1.get();
         assertNotNull(response1);
-        final String messageId = response1.getValue();
+        final String messageId = response1.getValue().getId();
 
         CompletableFuture<Response<ChatMessage>> completableFuture2
             = this.chatThreadClient.getMessageWithResponse(messageId, null);
@@ -645,8 +646,8 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
 
-        CompletableFuture<String> completableFuture1 = this.chatThreadClient.sendMessage(messageRequest);
-        String messageId = completableFuture1.get();
+        CompletableFuture<SendChatMessageResult> completableFuture1 = this.chatThreadClient.sendMessage(messageRequest);
+        String messageId = completableFuture1.get().getId();
         assertNotNull(messageId);
         CompletableFuture<Void> completableFuture2 = this.chatThreadClient.deleteMessage(messageId);
         completableFuture2.get();
@@ -681,7 +682,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
-        String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         CompletableFuture<Response<Void>> completableFuture = chatThreadClient.deleteMessageWithResponse(messageId,
             null);
         Response<Void> deleteResponse = completableFuture.get();
@@ -696,7 +697,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
         UpdateChatMessageOptions updateMessageRequest = super.updateMessageOptions();
 
-        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        final String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         this.chatThreadClient.updateMessage(messageId, updateMessageRequest).get();
         final ChatMessage message = chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
@@ -738,10 +739,10 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
         UpdateChatMessageOptions updateMessageRequest = super.updateMessageOptions();
 
-        CompletableFuture<Response<String>> completableFuture1 = this.chatThreadClient.sendMessageWithResponse(messageRequest, null);
-        Response<String> sendResponse = completableFuture1.get();
+        CompletableFuture<Response<SendChatMessageResult>> completableFuture1 = this.chatThreadClient.sendMessageWithResponse(messageRequest, null);
+        Response<SendChatMessageResult> sendResponse = completableFuture1.get();
         assertNotNull(sendResponse);
-        final String messageId = sendResponse.getValue();
+        final String messageId = sendResponse.getValue().getId();
         assertNotNull(messageId);
 
         CompletableFuture<Response<Void>> completableFuture2 = this.chatThreadClient.updateMessageWithResponse(messageId, updateMessageRequest, null);
@@ -893,7 +894,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
-        String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         this.chatThreadClient.sendReadReceipt(messageId).get();
     }
 
@@ -904,7 +905,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         SendChatMessageOptions messageRequest = super.sendMessageOptions();
-        String messageId = this.chatThreadClient.sendMessage(messageRequest).get();
+        String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         CompletableFuture<Response<Void>> completableFuture = this.chatThreadClient.sendReadReceiptWithResponse(messageId, null);
         Response<Void> response = completableFuture.get();
         assertNotNull(response);
