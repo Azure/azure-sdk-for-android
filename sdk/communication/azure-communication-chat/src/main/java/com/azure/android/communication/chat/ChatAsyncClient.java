@@ -11,6 +11,8 @@ import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
+import com.azure.android.communication.chat.signaling.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.signaling.SignalingClient;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Page;
 import com.azure.android.core.rest.PagedResponse;
@@ -33,10 +35,13 @@ public final class ChatAsyncClient {
     private final ClientLogger logger = new ClientLogger(ChatAsyncClient.class);
 
     private final AzureCommunicationChatServiceImpl chatServiceClient;
+    private SignalingClient signalingClient;
     private final ChatImpl chatClient;
+    private boolean isRealtimeNotificationsStarted;
 
-    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
+    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
         this.chatServiceClient = chatServiceClient;
+        this.signalingClient = signalingClient;
         this.chatClient = chatServiceClient.getChatClient();
     }
 
@@ -255,6 +260,62 @@ public final class ChatAsyncClient {
     CompletableFuture<Response<Void>> deleteChatThread(String chatThreadId, Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatClient.deleteChatThreadWithResponseAsync(chatThreadId, context);
+    }
+
+    /**
+     * Receive real-time messages and notifications.
+     */
+    public void startRealtimeNotifications() {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        if (this.isRealtimeNotificationsStarted) {
+            return;
+        }
+
+        this.isRealtimeNotificationsStarted = true;
+        this.signalingClient.start();
+    }
+
+    /**
+     * Stop receiving real-time messages and notifications.
+     */
+    public void stopRealtimeNotifications() {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        this.isRealtimeNotificationsStarted = false;
+        this.signalingClient.stop();
+    }
+
+    /**
+     * Listen to a chat event.
+     */
+    public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
+        if (this.signalingClient == null) {
+            throw new Error("Realtime notification parameters (context, userToken) are not set");
+        }
+
+        if (!this.isRealtimeNotificationsStarted) {
+            throw new Error(
+                "You must call startRealtimeNotifications before you can subscribe to events."
+            );
+        }
+
+        this.signalingClient.on(chatEventId, listenerId, listener);
+    }
+
+    /**
+     * Stop listening to a chat event.
+     */
+    public void off(String chatEventId, String listenerId) {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        this.signalingClient.off(chatEventId, listenerId);
     }
 
     static class PageImpl<T> implements Page<T> {
