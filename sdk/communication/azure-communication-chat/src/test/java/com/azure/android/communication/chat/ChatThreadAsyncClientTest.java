@@ -436,7 +436,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void canAddSingleParticipantWithResponse(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
-        Response<AddChatParticipantsResult> addResponse = this.chatThreadClient
+        Response<Void> addResponse = this.chatThreadClient
             .addParticipantWithResponse(
                 new ChatParticipant().setCommunicationIdentifier(this.firstThreadMember), null)
             .get();

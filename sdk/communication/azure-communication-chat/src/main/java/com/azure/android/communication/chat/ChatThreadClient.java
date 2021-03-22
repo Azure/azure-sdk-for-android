@@ -25,7 +25,6 @@ import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.util.Context;
 
-import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
@@ -137,8 +136,7 @@ public final class ChatThreadClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void addParticipant(ChatParticipant participant) {
-        block(this.client.addParticipants(new AddChatParticipantsOptions()
-            .setParticipants(Collections.singletonList(participant))));
+        block(this.client.addParticipant(participant));
     }
 
     /**
@@ -150,10 +148,8 @@ public final class ChatThreadClient {
      * @return the response containing operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<AddChatParticipantsResult> addParticipantWithResponse(ChatParticipant participant,
-                                                                          Context context) {
-        return block(this.client.addParticipants(new AddChatParticipantsOptions()
-            .setParticipants(Collections.singletonList(participant)), context));
+    public Response<Void> addParticipantWithResponse(ChatParticipant participant, Context context) {
+        return block(this.client.addParticipant(participant, context));
     }
 
     /**

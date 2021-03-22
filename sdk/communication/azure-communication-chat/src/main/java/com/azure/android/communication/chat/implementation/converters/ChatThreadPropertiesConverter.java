@@ -10,7 +10,7 @@ import com.azure.android.core.logging.ClientLogger;
  * A converter between {@link com.azure.android.communication.chat.implementation.models.ChatThreadProperties} and
  * {@link ChatThreadProperties}.
  */
-public final class ChatThreadConverter {
+public final class ChatThreadPropertiesConverter {
     /**
      * Maps from {com.azure.android.communication.chat.implementation.models.ChatThread} to {@link ChatThreadProperties}.
      */
@@ -33,6 +33,6 @@ public final class ChatThreadConverter {
         return chatThreadProperties;
     }
 
-    private ChatThreadConverter() {
+    private ChatThreadPropertiesConverter() {
     }
 }

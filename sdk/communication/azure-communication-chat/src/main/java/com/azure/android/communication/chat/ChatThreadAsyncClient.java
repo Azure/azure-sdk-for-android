@@ -10,7 +10,7 @@ import com.azure.android.communication.chat.implementation.converters.AddChatPar
 import com.azure.android.communication.chat.implementation.converters.ChatMessageConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatMessageReadReceiptConverter;
 import com.azure.android.communication.chat.implementation.converters.ChatParticipantConverter;
-import com.azure.android.communication.chat.implementation.converters.ChatThreadConverter;
+import com.azure.android.communication.chat.implementation.converters.ChatThreadPropertiesConverter;
 import com.azure.android.communication.chat.implementation.converters.CommunicationIdentifierConverter;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
@@ -141,7 +141,7 @@ public final class ChatThreadAsyncClient {
         return this.chatThreadClient.getChatThreadPropertiesWithResponseAsync(this.chatThreadId, context)
             .thenApply(result -> {
                 return new SimpleResponse<ChatThreadProperties>(result,
-                    ChatThreadConverter.convert(result.getValue(), this.logger));
+                    ChatThreadPropertiesConverter.convert(result.getValue(), this.logger));
             });
     }
 
@@ -206,9 +206,7 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> addParticipant(ChatParticipant participant) {
-        return this.addParticipants(
-            new AddChatParticipantsOptions().setParticipants(Collections.singletonList(participant)),
-            null)
+        return this.addParticipant(participant, null)
             .thenApply(response -> {
                 return null;
             });
@@ -223,26 +221,25 @@ public final class ChatThreadAsyncClient {
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantWithResponse(
+    public CompletableFuture<Response<Void>> addParticipantWithResponse(
         ChatParticipant participant, Context context) {
-        return this.addParticipant(
-            new AddChatParticipantsOptions().setParticipants(Collections.singletonList(participant)),
-            context);
+        return this.addParticipant(participant, context);
     }
 
     /**
      * Adds a participant to a thread. If participants already exist, no change occurs.
      *
-     * @param options Options for adding participants.
+     * @param participant The new participant.
      * @param context The context to associate with this operation.
      * @throws InvalidParticipantException thrown if the participant is rejected by the server.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
-    CompletableFuture<Response<AddChatParticipantsResult>> addParticipant(AddChatParticipantsOptions options,
-                                                                           Context context) {
+    CompletableFuture<Response<Void>> addParticipant(ChatParticipant participant, Context context) {
         context = context == null ? Context.NONE : context;
-        return this.addParticipants(options, context)
+        return this.addParticipants(
+            new AddChatParticipantsOptions().setParticipants(Collections.singletonList(participant)),
+            context)
             .thenApply(result -> {
                 if (result.getValue().getInvalidParticipants() != null) {
                     if (result.getValue().getInvalidParticipants().size() > 0) {
@@ -250,7 +247,7 @@ public final class ChatThreadAsyncClient {
                         this.logger.logExceptionAsError(new InvalidParticipantException(error));
                     }
                 }
-                return result;
+                return new SimpleResponse<>(result, null);
             });
     }
 
