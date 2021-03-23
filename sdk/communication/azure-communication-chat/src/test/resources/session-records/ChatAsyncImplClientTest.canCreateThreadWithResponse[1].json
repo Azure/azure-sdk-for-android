@@ -1,7 +1,7 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-03-01-preview5",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
     "Headers" : {
       "User-Agent" : "azsdk-android-UnknownName/UnknownVersion (null; null)",
       "Content-Type" : "application/json"
@@ -9,16 +9,16 @@
     "Response" : {
       "Transfer-Encoding" : "chunked",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
-      "X-Processing-Time" : "601ms",
-      "MS-CV" : "S2spS94vRUm2IJ8eZYaI9w.0",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "1136ms",
+      "MS-CV" : "wfXeSqfH20CAPRJ+erbV9A.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0uANQYAAAAAAgfCWbjs7rQLMqUeQpfFUyV1NURURHRTA4MTAAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "X-Azure-Ref" : "0uj1ZYAAAAABwxoslTWOVR6bw0GdpIYkiWVZSMzBFREdFMDMxMgBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "201",
-      "Body" : "{\"chatThread\":{\"id\":\"19:f55a23c78ed8427386b7387ddc81e927@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-16T01:02:48Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\",\"communicationUser\":{\"id\":\"8:acs:63ef2115-d9a3-4ca4-a584-fccafb48af25_00000008-d842-e2fa-740a-113a0d0098e8\"}}}}",
-      "Date" : "Tue, 16 Mar 2021 01:02:48 GMT",
+      "Body" : "{\"chatThread\":{\"id\":\"19:9a423f48c73544d9aeaa665186ae0d40@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-23T01:00:43Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\"}}}}",
+      "Date" : "Tue, 23 Mar 2021 01:00:43 GMT",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://acs-android.communication.azure.com/chat/threads/19%3Af55a23c78ed8427386b7387ddc81e927@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3A9a423f48c73544d9aeaa665186ae0d40@thread.v2"
     },
     "Exception" : null
   } ],

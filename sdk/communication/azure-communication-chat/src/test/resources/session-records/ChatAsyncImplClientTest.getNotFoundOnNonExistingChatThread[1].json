@@ -1,21 +1,21 @@
 {
   "networkCallRecords" : [ {
     "Method" : "GET",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:00000000000000000000000000000000@thread.v2?api-version=2021-03-01-preview5",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:00000000000000000000000000000000@thread.v2?api-version=2021-03-07",
     "Headers" : {
       "User-Agent" : "azsdk-android-UnknownName/UnknownVersion (null; null)"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5",
-      "X-Processing-Time" : "287ms",
-      "MS-CV" : "lCkwFoMgTkuuzfgklBs3/w.0",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "607ms",
+      "MS-CV" : "DNnzEGe9PEu0OXD0PxkAHw.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0kQNQYAAAAAB643NeVGbHTZxkIwkA6KwMV1NURURHRTA4MTQAOWZjN2I1MTktYThjYy00Zjg5LTkzNWUtYzkxNDhhZTA5ZTgx",
+      "X-Azure-Ref" : "0rz1ZYAAAAABR8FU3c3QZRatjXJl7pO3MWVZSMzBFREdFMDMxOQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "404",
-      "Body" : "{\r\n  \"ChatError\": {\r\n    \"Code\": \"NotFound\",\r\n    \"Message\": \"The specified thread id was not found.\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Tue, 16 Mar 2021 01:02:09 GMT",
+      "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"NotFound\",\r\n    \"Message\": \"The specified thread id was not found.\",\r\n    \"Details\": []\r\n  }\r\n}",
+      "Date" : "Tue, 23 Mar 2021 01:00:32 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null
