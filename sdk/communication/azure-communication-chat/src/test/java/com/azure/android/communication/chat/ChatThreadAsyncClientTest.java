@@ -29,6 +29,7 @@ import com.azure.android.core.test.TestMode;
 import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.android.core.util.CancellationToken;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.threeten.bp.OffsetDateTime;
@@ -885,8 +886,8 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(readReceiptList.get(0).getSenderCommunicationIdentifier());
     }
 
-    // REVISIT: Unreliable test
-    // @ParameterizedTest
+    @Disabled("Unreliable test")
+    @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canSendReadReceipt(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
@@ -896,8 +897,8 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         this.chatThreadClient.sendReadReceipt(messageId).get();
     }
 
-// REVISIT: Unreliable test
-    // @ParameterizedTest
+    @Disabled("Unreliable test")
+    @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canSendReadReceiptWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
