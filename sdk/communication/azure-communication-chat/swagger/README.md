@@ -36,6 +36,7 @@ java: true
 output-folder: ..\
 license-header: MICROSOFT_MIT_SMALL
 namespace: com.azure.android.communication.chat
+customization-class: src\main\java\ChatCustomizations.java
 generate-client-as-impl: true
 custom-types: ChatMessagePriority,ChatThreadItem,PostReadReceiptOptions,SendChatMessageOptions,UpdateChatMessageOptions,UpdateChatThreadOptions,ChatMessageType,SendChatMessageResult
 custom-types-subpackage: models

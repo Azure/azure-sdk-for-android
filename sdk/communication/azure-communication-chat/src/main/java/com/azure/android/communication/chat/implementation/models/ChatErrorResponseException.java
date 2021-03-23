@@ -8,14 +8,14 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
 
 /** Exception thrown for an invalid response with CommunicationErrorResponse information. */
-public final class CommunicationErrorResponseException extends HttpResponseException {
+public final class ChatErrorResponseException extends HttpResponseException {
     /**
      * Initializes a new instance of the CommunicationErrorResponseException class.
      *
      * @param message the exception message or the response content if a message is not available.
      * @param response the HTTP response.
      */
-    public CommunicationErrorResponseException(String message, HttpResponse response) {
+    public ChatErrorResponseException(String message, HttpResponse response) {
         super(message, response);
     }
 
@@ -26,13 +26,21 @@ public final class CommunicationErrorResponseException extends HttpResponseExcep
      * @param response the HTTP response.
      * @param value the deserialized response value.
      */
-    public CommunicationErrorResponseException(
-            String message, HttpResponse response, CommunicationErrorResponse value) {
+    public ChatErrorResponseException(String message, HttpResponse response, CommunicationErrorResponse value) {
         super(message, response, value);
     }
 
-    @Override
-    public CommunicationErrorResponse getValue() {
+    private CommunicationErrorResponse getValueIntern() {
         return (CommunicationErrorResponse) super.getValue();
+    }
+
+    /**
+     * Get error
+     *
+     * @return the error.
+     */
+    @Override
+    public CommunicationError getValue() {
+        return this.getValueIntern().getError();
     }
 }

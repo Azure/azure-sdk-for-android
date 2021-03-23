@@ -6,6 +6,7 @@ package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.implementation.models.AddChatParticipantsResult;
+import com.azure.android.communication.chat.implementation.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.ChatMessage;
 import com.azure.android.communication.chat.implementation.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.implementation.models.ChatMessageReadReceiptsCollection;
@@ -13,7 +14,6 @@ import com.azure.android.communication.chat.implementation.models.ChatMessagesCo
 import com.azure.android.communication.chat.implementation.models.ChatParticipant;
 import com.azure.android.communication.chat.implementation.models.ChatParticipantsCollection;
 import com.azure.android.communication.chat.implementation.models.ChatThreadProperties;
-import com.azure.android.communication.chat.implementation.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.CommunicationIdentifierModel;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
@@ -74,7 +74,7 @@ public final class ChatThreadImpl {
     private interface ChatThreadsService {
         @Get("/chat/threads/{chatThreadId}/readReceipts")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatReadReceipts(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -87,7 +87,7 @@ public final class ChatThreadImpl {
 
         @Post("/chat/threads/{chatThreadId}/readReceipts")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void sendChatReadReceipt(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -99,7 +99,7 @@ public final class ChatThreadImpl {
 
         @Post("/chat/threads/{chatThreadId}/messages")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void sendChatMessage(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -111,7 +111,7 @@ public final class ChatThreadImpl {
 
         @Get("/chat/threads/{chatThreadId}/messages")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatMessages(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -124,7 +124,7 @@ public final class ChatThreadImpl {
 
         @Get("/chat/threads/{chatThreadId}/messages/{chatMessageId}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void getChatMessage(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -136,7 +136,7 @@ public final class ChatThreadImpl {
 
         @Patch("/chat/threads/{chatThreadId}/messages/{chatMessageId}")
         @ExpectedResponses({204})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void updateChatMessage(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -149,7 +149,7 @@ public final class ChatThreadImpl {
 
         @Delete("/chat/threads/{chatThreadId}/messages/{chatMessageId}")
         @ExpectedResponses({204})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void deleteChatMessage(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -161,7 +161,7 @@ public final class ChatThreadImpl {
 
         @Post("/chat/threads/{chatThreadId}/typing")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void sendTypingNotification(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -172,7 +172,7 @@ public final class ChatThreadImpl {
 
         @Get("/chat/threads/{chatThreadId}/participants")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatParticipants(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -185,7 +185,7 @@ public final class ChatThreadImpl {
 
         @Post("/chat/threads/{chatThreadId}/participants/:remove")
         @ExpectedResponses({204})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void removeChatParticipant(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -197,7 +197,7 @@ public final class ChatThreadImpl {
 
         @Post("/chat/threads/{chatThreadId}/participants/:add")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void addChatParticipants(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -209,7 +209,7 @@ public final class ChatThreadImpl {
 
         @Patch("/chat/threads/{chatThreadId}")
         @ExpectedResponses({204})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void updateChatThreadProperties(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -221,7 +221,7 @@ public final class ChatThreadImpl {
 
         @Get("/chat/threads/{chatThreadId}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void getChatThreadProperties(
                 @HostParam("endpoint") String endpoint,
                 @PathParam("chatThreadId") String chatThreadId,
@@ -232,7 +232,7 @@ public final class ChatThreadImpl {
 
         @Get("{nextLink}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatReadReceiptsNext(
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
@@ -242,7 +242,7 @@ public final class ChatThreadImpl {
 
         @Get("{nextLink}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatMessagesNext(
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
@@ -252,7 +252,7 @@ public final class ChatThreadImpl {
 
         @Get("{nextLink}")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(CommunicationErrorResponseException.class)})
+        @UnexpectedResponseExceptionTypes({@UnexpectedResponseExceptionType(ChatErrorResponseException.class)})
         void listChatParticipantsNext(
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
@@ -268,7 +268,7 @@ public final class ChatThreadImpl {
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return chat message read receipts for a thread.
      */
@@ -308,7 +308,7 @@ public final class ChatThreadImpl {
      * @param skip Skips chat message read receipts up to a specified position in response.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return chat message read receipts for a thread.
      */
@@ -410,7 +410,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Read receipt details.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -436,7 +436,7 @@ public final class ChatThreadImpl {
      * @param sendReadReceiptRequest Read receipt details.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -461,7 +461,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Read receipt details.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -479,7 +479,7 @@ public final class ChatThreadImpl {
      * @param sendReadReceiptRequest Read receipt details.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -496,7 +496,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Read receipt details.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -517,7 +517,7 @@ public final class ChatThreadImpl {
      * @param sendReadReceiptRequest Read receipt details.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -539,7 +539,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -565,7 +565,7 @@ public final class ChatThreadImpl {
      * @param sendChatMessageRequest Details of the message to send.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -590,7 +590,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
@@ -608,7 +608,7 @@ public final class ChatThreadImpl {
      * @param sendChatMessageRequest Details of the message to send.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
@@ -625,7 +625,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
@@ -647,7 +647,7 @@ public final class ChatThreadImpl {
      * @param sendChatMessageRequest Details of the message to send.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
@@ -671,7 +671,7 @@ public final class ChatThreadImpl {
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format:
      *     `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a list of messages from a thread.
      */
@@ -712,7 +712,7 @@ public final class ChatThreadImpl {
      *     `yyyy-MM-ddTHH:mm:ssZ`.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a list of messages from a thread.
      */
@@ -818,7 +818,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -844,7 +844,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -869,13 +869,14 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a message by id.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<ChatMessage> getChatMessageAsync(String chatThreadId, String chatMessageId) {
-        return getChatMessageWithResponseAsync(chatThreadId, chatMessageId).thenApply(response -> response.getValue());
+        return getChatMessageWithResponseAsync(chatThreadId, chatMessageId)
+                .thenApply(response -> response.getValue());
     }
 
     /**
@@ -885,7 +886,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a message by id.
      */
@@ -902,7 +903,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a message by id.
      */
@@ -924,7 +925,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a message by id.
      */
@@ -947,7 +948,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param updateChatMessageRequest Details of the request to update the message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -975,7 +976,7 @@ public final class ChatThreadImpl {
      * @param updateChatMessageRequest Details of the request to update the message.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1005,7 +1006,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param updateChatMessageRequest Details of the request to update the message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1024,7 +1025,7 @@ public final class ChatThreadImpl {
      * @param updateChatMessageRequest Details of the request to update the message.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1045,7 +1046,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param updateChatMessageRequest Details of the request to update the message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1068,7 +1069,7 @@ public final class ChatThreadImpl {
      * @param updateChatMessageRequest Details of the request to update the message.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1094,7 +1095,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1120,7 +1121,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1145,7 +1146,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1162,7 +1163,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1178,7 +1179,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1199,7 +1200,7 @@ public final class ChatThreadImpl {
      * @param chatMessageId The message id.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1219,7 +1220,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1242,7 +1243,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1265,7 +1266,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1280,7 +1281,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1295,7 +1296,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1315,7 +1316,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1337,7 +1338,7 @@ public final class ChatThreadImpl {
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the participants of a thread.
      */
@@ -1377,7 +1378,7 @@ public final class ChatThreadImpl {
      * @param skip Skips participants up to a specified position in response.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the participants of a thread.
      */
@@ -1479,7 +1480,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to remove the participant from.
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1505,7 +1506,7 @@ public final class ChatThreadImpl {
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1530,7 +1531,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to remove the participant from.
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1548,7 +1549,7 @@ public final class ChatThreadImpl {
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1565,7 +1566,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Thread id to remove the participant from.
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1587,7 +1588,7 @@ public final class ChatThreadImpl {
      * @param participantCommunicationIdentifier Id of the thread participant to remove from the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1610,7 +1611,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread to add participants to.
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1636,7 +1637,7 @@ public final class ChatThreadImpl {
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1661,7 +1662,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread to add participants to.
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the add chat participants operation.
      */
@@ -1679,7 +1680,7 @@ public final class ChatThreadImpl {
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the add chat participants operation.
      */
@@ -1696,7 +1697,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread to add participants to.
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the add chat participants operation.
      */
@@ -1719,7 +1720,7 @@ public final class ChatThreadImpl {
      * @param addChatParticipantsRequest Thread participants to be added to the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the add chat participants operation.
      */
@@ -1741,7 +1742,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1767,7 +1768,7 @@ public final class ChatThreadImpl {
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1792,7 +1793,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1810,7 +1811,7 @@ public final class ChatThreadImpl {
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
@@ -1827,7 +1828,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1848,7 +1849,7 @@ public final class ChatThreadImpl {
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1869,7 +1870,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1893,7 +1894,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -1916,7 +1917,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread's properties.
      */
@@ -1931,7 +1932,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread's properties.
      */
@@ -1946,7 +1947,7 @@ public final class ChatThreadImpl {
      *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread's properties.
      */
@@ -1967,7 +1968,7 @@ public final class ChatThreadImpl {
      * @param chatThreadId Id of the thread.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread's properties.
      */
@@ -1987,7 +1988,7 @@ public final class ChatThreadImpl {
      *
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a paged collection of chat message read receipts.
      */
@@ -2017,7 +2018,7 @@ public final class ChatThreadImpl {
      * @param nextLink The nextLink parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a paged collection of chat message read receipts.
      */
@@ -2046,7 +2047,7 @@ public final class ChatThreadImpl {
      *
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return collection of chat messages for a particular chat thread.
      */
@@ -2075,7 +2076,7 @@ public final class ChatThreadImpl {
      * @param nextLink The nextLink parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return collection of chat messages for a particular chat thread.
      */
@@ -2104,7 +2105,7 @@ public final class ChatThreadImpl {
      *
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return collection of participants belong to a particular thread.
      */
@@ -2133,7 +2134,7 @@ public final class ChatThreadImpl {
      * @param nextLink The nextLink parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return collection of participants belong to a particular thread.
      */

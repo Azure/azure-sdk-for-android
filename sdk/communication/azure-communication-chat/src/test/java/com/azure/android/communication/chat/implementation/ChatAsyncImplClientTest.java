@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.implementation;
 
+import com.azure.android.communication.chat.implementation.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.ChatThreadProperties;
-import com.azure.android.communication.chat.implementation.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ChatThreadItem;
@@ -287,7 +287,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof CommunicationErrorResponseException);
+        assertTrue(cause instanceof ChatErrorResponseException);
 
         HttpResponseException exception = (HttpResponseException) cause;
 
@@ -307,7 +307,7 @@ public class ChatAsyncImplClientTest extends ChatImplClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof CommunicationErrorResponseException);
+        assertTrue(cause instanceof ChatErrorResponseException);
 
         HttpResponseException exception = (HttpResponseException) cause;
         assertNotNull(exception.getResponse());
