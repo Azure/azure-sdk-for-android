@@ -3,14 +3,14 @@
 
 package com.azure.android.communication.common;
 
-import java.util.concurrent.Future;
-
 import com.azure.android.core.credential.AccessToken;
+
+import java9.util.concurrent.CompletableFuture;
 
 abstract class UserCredential {
     private boolean isDisposed = false;
 
-    abstract Future<AccessToken> getToken();
+    abstract CompletableFuture<AccessToken> getToken();
 
     void dispose() {
         this.isDisposed = true;
