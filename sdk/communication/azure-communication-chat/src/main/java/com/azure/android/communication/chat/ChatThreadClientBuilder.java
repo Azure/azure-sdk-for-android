@@ -189,7 +189,8 @@ public final class ChatThreadClientBuilder {
         } else {
             if (this.communicationTokenCredential == null && this.credentialPolicy == null) {
                 throw logger.logExceptionAsError(
-                    new NullPointerException("Either 'communicationTokenCredential' or 'credentialPolicy' is required."));
+                    new NullPointerException(
+                        "Either 'communicationTokenCredential' or 'credentialPolicy' is required."));
             }
 
             if (this.httpClient == null) {

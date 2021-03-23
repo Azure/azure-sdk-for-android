@@ -5,8 +5,12 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatImpl;
+import com.azure.android.communication.chat.implementation.converters.ChatErrorConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
+import com.azure.android.communication.chat.implementation.models.CommunicationErrorResponseException;
+import com.azure.android.communication.chat.models.ChatError;
+import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -102,7 +106,9 @@ public final class ChatAsyncClient {
         return this.chatClient.createChatThreadWithResponseAsync(
             CreateChatThreadOptionsConverter.convert(options, this.logger),
             options.getIdempotencyToken(),
-            context).thenApply(result -> {
+            context)
+            .exceptionally(throwable -> translateException(throwable))
+            .thenApply(result -> {
                 return new SimpleResponse<>(result,
                     CreateChatThreadResultConverter.convert(result.getValue(), this.logger));
             });
@@ -165,7 +171,8 @@ public final class ChatAsyncClient {
                                                                              Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatClient.listChatThreadsSinglePageAsync(listThreadsOptions.getMaxPageSize(),
-            listThreadsOptions.getStartTime(), context);
+            listThreadsOptions.getStartTime(), context)
+            .exceptionally(throwable -> translateException(throwable));
     }
 
     /**
@@ -207,7 +214,8 @@ public final class ChatAsyncClient {
     CompletableFuture<PagedResponse<ChatThreadItem>> getChatThreadsNextPage(String nextLink,
                                                                             Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatClient.listChatThreadsNextSinglePageAsync(nextLink, context);
+        return this.chatClient.listChatThreadsNextSinglePageAsync(nextLink, context)
+            .exceptionally(throwable -> translateException(throwable));
     }
 
     /**
@@ -254,7 +262,27 @@ public final class ChatAsyncClient {
      */
     CompletableFuture<Response<Void>> deleteChatThread(String chatThreadId, Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatClient.deleteChatThreadWithResponseAsync(chatThreadId, context);
+        return this.chatClient.deleteChatThreadWithResponseAsync(chatThreadId, context)
+            .exceptionally(throwable -> translateException(throwable));
+    }
+
+    private <T> T translateException(Throwable throwable) {
+        if (throwable instanceof CommunicationErrorResponseException) {
+            ChatError error = null;
+            CommunicationErrorResponseException exception = (CommunicationErrorResponseException) throwable;
+            if (exception.getValue() != null) {
+                error = ChatErrorConverter.convert(exception.getValue().getError());
+            }
+            this.logger.logExceptionAsError(
+                new ChatErrorResponseException(exception.getMessage(), exception.getResponse(), error));
+        } else if (throwable instanceof RuntimeException) {
+            // avoid double-wrapping for already unchecked exception
+            this.logger.logExceptionAsError((RuntimeException) throwable);
+        } else {
+            // wrap checked exception in a unchecked runtime exception
+            this.logger.logExceptionAsError(new RuntimeException(throwable));
+        }
+        return null;
     }
 
     static class PageImpl<T> implements Page<T> {

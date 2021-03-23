@@ -5,6 +5,7 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
+import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageType;
@@ -194,7 +195,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof HttpResponseException);
+        assertTrue(cause instanceof ChatErrorResponseException);
 
         HttpResponseException exception = (HttpResponseException) cause;
         assertNotNull(exception.getResponse());
