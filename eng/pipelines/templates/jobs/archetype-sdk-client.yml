@@ -46,7 +46,7 @@ jobs:
 
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:check
-        displayName: Run code qualiity tools (lint, checkstyle and spotbug)
+        displayName: Run code quality tools (lint, checkstyle and spotbug)
 
       - task: Gradle@2
         inputs:
