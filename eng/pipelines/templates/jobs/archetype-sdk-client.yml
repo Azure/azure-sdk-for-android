@@ -45,8 +45,8 @@ jobs:
           CheckLinkGuidance: $true
 
       - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
-        displayName: Lint sources
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:check
+        displayName: Run code qualiity tools (lint, checkstyle and spotbug)
 
       - task: Gradle@2
         inputs:
@@ -60,8 +60,14 @@ jobs:
       - ${{ each artifact in parameters.Artifacts }}:
         - script: |
             mkdir -p $(Build.ArtifactStagingDirectory)/lint
-            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/lint-results-debug.html \
-               $(Build.ArtifactStagingDirectory)/lint/${{artifact.name}}-results-debug.html
+            mkdir -p $(Build.ArtifactStagingDirectory)/checkstyle
+            mkdir -p $(Build.ArtifactStagingDirectory)/spotbugs
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/lint-results.html \
+               $(Build.ArtifactStagingDirectory)/lint/${{artifact.name}}-lint-results.html
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/checkstyle/checkstyle.html \
+               $(Build.ArtifactStagingDirectory)/checkstyle/${{artifact.name}}-checkstyle.html
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/spotbugs/debug.xml \
+               $(Build.ArtifactStagingDirectory)/spotbugs/${{artifact.name}}-spotbugs-debug.xml
           displayName: Stage reports for ${{artifact.name}}
 
       - publish: $(Build.ArtifactStagingDirectory)
