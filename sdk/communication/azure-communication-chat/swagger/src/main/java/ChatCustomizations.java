@@ -6,8 +6,9 @@ import com.azure.autorest.customization.Customization;
 import com.azure.autorest.customization.JavadocCustomization;
 import com.azure.autorest.customization.LibraryCustomization;
 import com.azure.autorest.customization.PackageCustomization;
+import com.azure.autorest.customization.models.Modifier;
 
-import java.lang.reflect.Modifier;
+
 import java.util.Locale;
 
 public class ChatCustomizations extends Customization {
@@ -20,8 +21,26 @@ public class ChatCustomizations extends Customization {
     }
 
     private void customizeModelsPackage(PackageCustomization packageCustomization) {
-        ClassCustomization classCustomization
-        = packageCustomization.getClass("CommunicationErrorResponseException");
-        classCustomization.rename("ChatErrorResponseException");
+
+        ClassCustomization responseExceptionCls
+            = packageCustomization.getClass("CommunicationErrorResponseException")
+            .rename("ChatErrorResponseException");
+        responseExceptionCls
+            .getMethod("getValue")
+            .rename("getValueIntern")
+            .setModifier(Modifier.PRIVATE)
+            .removeAnnotation("Override");
+        responseExceptionCls
+            .addMethod(
+                "/**\n" +
+                    " * Get error \n" +
+                    " * @return the error.\n" +
+                    " */\n" +
+                    "@Override\n" +
+                    "public CommunicationError getValue() {\n" +
+                    "    return this.getValueIntern().getError();\n" +
+                    "}"
+            );
+
     }
 }
