@@ -1,6 +1,25 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.9 (Unreleased)
+### Breaking Changes
+- `UserCredential` `getToken` returns `CompletableFuture<CommunicationAccessToken>` object instead of `Future<CommunicationAccessToken>`.
+- Invoking `getToken` on a disposed `UserCredential` returns failed `CompletableFuture` instead of cancelled future.
+- Removed the `fromString` method from `CommunicationCloudEnvironment` given same result can be achieved using existing public constructor.
+- Renamed the `getToken` method in `CommunicationTokenRefreshOptions` to `getInitialToken`.
+
+## 1.0.0-beta.8 (2021-03-29)
+
+## 1.0.0-beta.7 (2021-03-09)
+### Breaking Changes
+- Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
+- Renamed 'getRefreshProactively' to 'isRefreshProactively' in 'CommunicationTokenRefreshOptions'
+- Removed constructor 'MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment cloudEnvironment)' in 'MicrosoftTeamsUserIdentifier'
+- A few classes are made final 'CommunicationTokenCredential', 'CommunicationTokenRefreshOptions', 'CommunicationUserIdentifier', 'MicrosoftTeamsUserIdentifier', 'PhoneNumberIdentifier', 'UnknownIdentifier', 'CommunicationAccessToken'
+
+### New Features
+- Introduce new class `CommunicationAccessToken`.
+
+## 1.0.0-beta.6 (2021-02-26)
 ### Breaking Changes
 - Removed `CommunicationTokenCredential(Callable<String> tokenRefresher)`, ` CommunicationTokenCredential(Callable<String> tokenRefresher, String initialToken)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken)`, and added `CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions)`
 

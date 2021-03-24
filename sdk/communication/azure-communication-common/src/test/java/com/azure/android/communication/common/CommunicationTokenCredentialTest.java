@@ -3,26 +3,21 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Supplier;
+
+import java9.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -56,7 +51,7 @@ public class CommunicationTokenCredentialTest {
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, true));
         countDownLatch.await();
 
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(refreshedToken, accessToken.getToken());
         assertEquals(1, mockTokenRefresher.getCallCount());
@@ -81,7 +76,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
 
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, true, tokenString));
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(tokenString, accessToken.getToken());
         assertEquals(0, mockTokenRefresher.getCallCount());
@@ -127,7 +122,7 @@ public class CommunicationTokenCredentialTest {
         String tokenString = TokenStubHelper.createTokenString(expiryEpochSecond);
 
         CommunicationTokenCredential credential = new CommunicationTokenCredential(tokenString);
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(tokenString, accessToken.getToken());
         assertEquals(expiryEpochSecond, accessToken.getExpiresAt().toEpochSecond());
@@ -140,7 +135,7 @@ public class CommunicationTokenCredentialTest {
         String tokenString = TokenStubHelper.createTokenString(expiryEpochSecond);
 
         CommunicationTokenCredential credential = new CommunicationTokenCredential(tokenString);
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(tokenString, accessToken.getToken());
         assertEquals(expiryEpochSecond, accessToken.getExpiresAt().toEpochSecond());
@@ -153,16 +148,15 @@ public class CommunicationTokenCredentialTest {
         CommunicationTokenCredential credential = new CommunicationTokenCredential(tokenString);
 
         credential.dispose();
-        Future<AccessToken> accessTokenFuture = credential.getToken();
+        CompletableFuture<CommunicationAccessToken> accessTokenFuture = credential.getToken();
 
         assertTrue(accessTokenFuture.isDone());
-        assertTrue(accessTokenFuture.isCancelled());
-        assertThrows(CancellationException.class,
+        ExecutionException executionException = assertThrows(ExecutionException.class,
             () -> {
                 accessTokenFuture.get();
             });
-
-
+        assertNotNull(executionException.getCause());
+        assertTrue(executionException.getCause() instanceof IllegalStateException);
     }
 
     @Test
@@ -172,7 +166,7 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setToken(refreshedToken);
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false));
 
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(refreshedToken, accessToken.getToken());
         assertEquals(1, mockTokenRefresher.getCallCount());
@@ -212,20 +206,17 @@ public class CommunicationTokenCredentialTest {
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
         int numCalls = 5;
-        List<Future<AccessToken>> accessTokenFutures = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(numCalls);
+        List<CompletableFuture<CommunicationAccessToken>> accessTokenFutures = new ArrayList<>();
         for (int i = 0; i < numCalls; i++) {
-            Future<AccessToken> accessTokenFuture = executorService.submit(() -> credential.getToken().get());
-            accessTokenFutures.add(accessTokenFuture);
+            accessTokenFutures.add(credential.getToken());
         }
 
         // Unblock refresh and wait for results
         blockedRefresh.run();
-        Set<AccessToken> accessTokenResults = new HashSet<>();
-        for (Future<AccessToken> accessTokenFuture : accessTokenFutures) {
+        Set<CommunicationAccessToken> accessTokenResults = new HashSet<>();
+        for (CompletableFuture<CommunicationAccessToken> accessTokenFuture : accessTokenFutures) {
             accessTokenResults.add(accessTokenFuture.get());
         }
-        executorService.shutdown();
 
         assertEquals(1, accessTokenResults.size());
         assertEquals(1, mockTokenRefresher.getCallCount());
@@ -237,7 +228,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false, tokenString));
 
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertEquals(tokenString, accessToken.getToken());
         assertEquals(0, mockTokenRefresher.getCallCount());
@@ -252,20 +243,17 @@ public class CommunicationTokenCredentialTest {
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
         int numCalls = 5;
-        List<Future<AccessToken>> accessTokenFutures = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(numCalls);
+        List<CompletableFuture<CommunicationAccessToken>> accessTokenFutures = new ArrayList<>();
         for (int i = 0; i < numCalls; i++) {
-            Future<AccessToken> accessTokenFuture = executorService.submit(() -> credential.getToken().get());
-            accessTokenFutures.add(accessTokenFuture);
+            accessTokenFutures.add(credential.getToken());
         }
 
         // Unblock refresh and wait for results
         blockedRefresh.run();
-        Set<AccessToken> accessTokenResults = new HashSet<>();
-        for (Future<AccessToken> accessTokenFuture : accessTokenFutures) {
+        Set<CommunicationAccessToken> accessTokenResults = new HashSet<>();
+        for (CompletableFuture<CommunicationAccessToken> accessTokenFuture : accessTokenFutures) {
             accessTokenResults.add(accessTokenFuture.get());
         }
-        executorService.shutdown();
 
         assertEquals(1, accessTokenResults.size());
         assertEquals(tokenString, accessTokenResults.iterator().next().getToken());
@@ -279,7 +267,7 @@ public class CommunicationTokenCredentialTest {
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false, tokenString));
-        AccessToken accessToken = credential.getToken().get();
+        CommunicationAccessToken accessToken = credential.getToken().get();
 
         assertNotEquals(tokenString, accessToken.getToken());
         assertEquals(refreshedToken, accessToken.getToken());
@@ -316,10 +304,10 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setToken(refreshedToken);
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false, tokenString));
 
-        Set<AccessToken> accessTokens = new HashSet<>();
+        Set<CommunicationAccessToken> accessTokens = new HashSet<>();
         int numCalls = 3;
         for (int i = 0; i < numCalls; i++) {
-            AccessToken accessToken = credential.getToken().get();
+            CommunicationAccessToken accessToken = credential.getToken().get();
             accessTokens.add(accessToken);
         }
 
@@ -340,20 +328,17 @@ public class CommunicationTokenCredentialTest {
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
         int numCalls = 5;
-        List<Future<AccessToken>> accessTokenFutures = new ArrayList<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(numCalls);
+        List<CompletableFuture<CommunicationAccessToken>> accessTokenFutures = new ArrayList<>();
         for (int i = 0; i < numCalls; i++) {
-            Future<AccessToken> accessTokenFuture = executorService.submit(() -> credential.getToken().get());
-            accessTokenFutures.add(accessTokenFuture);
+            accessTokenFutures.add(credential.getToken());
         }
 
         // Unblock refresh and wait for results
         blockedRefresh.run();
-        Set<AccessToken> accessTokenResults = new HashSet<>();
-        for (Future<AccessToken> accessTokenFuture : accessTokenFutures) {
+        Set<CommunicationAccessToken> accessTokenResults = new HashSet<>();
+        for (CompletableFuture<CommunicationAccessToken> accessTokenFuture : accessTokenFutures) {
             accessTokenResults.add(accessTokenFuture.get());
         }
-        executorService.shutdown();
 
         assertEquals(1, accessTokenResults.size());
         assertNotEquals(tokenString, accessTokenResults.iterator().next().getToken());
@@ -367,14 +352,15 @@ public class CommunicationTokenCredentialTest {
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false));
 
         credential.dispose();
-        Future<AccessToken> accessTokenFuture = credential.getToken();
+        CompletableFuture<CommunicationAccessToken> accessTokenFuture = credential.getToken();
 
         assertTrue(accessTokenFuture.isDone());
-        assertTrue(accessTokenFuture.isCancelled());
-        assertThrows(CancellationException.class,
+        ExecutionException executionException = assertThrows(ExecutionException.class,
             () -> {
                 accessTokenFuture.get();
             });
+        assertNotNull(executionException.getCause());
+        assertTrue(executionException.getCause() instanceof IllegalStateException);
     }
 
     @Test
@@ -385,9 +371,9 @@ public class CommunicationTokenCredentialTest {
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, true));
 
-        Future<AccessToken> accessTokenFuture = credential.getToken();
+        CompletableFuture<CommunicationAccessToken> accessTokenFuture = credential.getToken();
         blockedRefresh.run();
-        AccessToken accessToken = accessTokenFuture.get();
+        CommunicationAccessToken accessToken = accessTokenFuture.get();
 
         assertEquals(refreshedToken, accessToken.getToken());
         assertEquals(1, mockTokenRefresher.getCallCount());
@@ -403,14 +389,13 @@ public class CommunicationTokenCredentialTest {
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
 
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, false, tokenString));
-        Future<AccessToken> accessTokenFuture = credential.getToken();
+        CompletableFuture<CommunicationAccessToken> accessTokenFuture = credential.getToken();
         credential.dispose();
         blockedRefresh.run();
 
-        assertTrue(accessTokenFuture.isCancelled());
         assertTrue(accessTokenFuture.isDone());
 
-        assertThrows(CancellationException.class,
+        assertThrows(IllegalStateException.class,
             () -> {
                 accessTokenFuture.get();
             });
@@ -424,14 +409,13 @@ public class CommunicationTokenCredentialTest {
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
 
         CommunicationTokenCredential credential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(mockTokenRefresher, true));
-        Future<AccessToken> accessTokenFuture = credential.getToken();
+        CompletableFuture<CommunicationAccessToken> accessTokenFuture = credential.getToken();
         credential.dispose();
         blockedRefresh.run();
 
-        assertTrue(accessTokenFuture.isCancelled());
         assertTrue(accessTokenFuture.isDone());
 
-        assertThrows(CancellationException.class,
+        assertThrows(IllegalStateException.class,
             () -> {
                 accessTokenFuture.get();
             });
