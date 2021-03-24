@@ -36,8 +36,8 @@ android {
 }
 
 dependencies {
-    implementation project(':sdk:core:azure-core-http-okhttp')
-    implementation project(':sdk:communication:azure-communication-chat')
+    implementation project(":sdk:core:azure-core-http-okhttp")
+    implementation project(":sdk:communication:azure-communication-chat")
     implementation "androidx.appcompat:appcompat:1.2.0"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
 }
