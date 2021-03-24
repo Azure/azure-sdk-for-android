@@ -4,8 +4,8 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
+import com.azure.android.communication.common.CommunicationAccessToken;
 import com.azure.android.communication.common.CommunicationTokenCredential;
-import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
@@ -22,7 +22,8 @@ import com.azure.android.core.rest.annotation.ServiceClientBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * Builder for creating clients of Azure Communication Service Chat
@@ -178,8 +179,9 @@ public final class ChatClientBuilder {
             final HttpPipelinePolicy authorizationPolicy;
             if (this.communicationTokenCredential != null) {
                 authorizationPolicy = chain -> {
-                    final Future<AccessToken> tokenFuture = this.communicationTokenCredential.getToken();
-                    final AccessToken token;
+                    final CompletableFuture<CommunicationAccessToken> tokenFuture
+                        = this.communicationTokenCredential.getToken();
+                    final CommunicationAccessToken token;
                     try {
                         token = tokenFuture.get();
                     } catch (ExecutionException e) {

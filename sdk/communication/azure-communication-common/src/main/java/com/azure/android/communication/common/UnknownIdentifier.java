@@ -5,7 +5,7 @@ package com.azure.android.communication.common;
 /**
  * Catch-all for all other Communication identifiers for Communication Services
  */
-public class UnknownIdentifier extends CommunicationIdentifier {
+public final class UnknownIdentifier extends CommunicationIdentifier {
 
     private final String id;
 
@@ -16,7 +16,7 @@ public class UnknownIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if id parameter fail the validation.
      */
     public UnknownIdentifier(String id) {
-        if (id == null || id.length() == 0) {
+        if (id == null || id.trim().length() == 0) {
             throw new IllegalArgumentException("The initialization parameter [id] cannot be null or empty.");
         }
         this.id = id;

@@ -38,13 +38,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-common:1.0.0-beta.5"
+    implementation "com.azure.android:azure-communication-common:1.0.0-beta.7"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-common:1.0.0-beta.5")
+    implementation("com.azure.android:azure-communication-common:1.0.0-beta.7")
 }
 ```
 
@@ -55,7 +55,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-common</artifactId>
-  <version>1.0.0-beta.5</version>
+  <version>1.0.0-beta.7</version>
 </dependency>
 ```
 
@@ -115,11 +115,11 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(n
 
 ### Getting a token asynchronously
 
-Calling `getToken()` will return a `Future<AccessToken>`
+Calling `getToken()` will return a `CompletableFuture<AccessToken>`
 
 ```java
 CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false));
-Future<AccessToken> accessTokenFuture = userCredential.getToken();
+CompletableFuture<AccessToken> accessTokenFuture = userCredential.getToken();
 ```
 
 ### Invalidating a credential

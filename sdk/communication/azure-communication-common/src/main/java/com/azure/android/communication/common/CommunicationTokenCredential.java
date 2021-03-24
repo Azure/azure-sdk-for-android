@@ -3,19 +3,16 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.logging.ClientLogger;
 
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * The Azure Communication Services User token credential.
  * <p>
  * This class is used to cache/refresh the access token required by Azure Communication Services.
  */
-public class CommunicationTokenCredential {
+public final class CommunicationTokenCredential {
     private final ClientLogger logger = new ClientLogger(CommunicationTokenCredential.class);
     private final UserCredential userCredential;
 
@@ -51,27 +48,28 @@ public class CommunicationTokenCredential {
     public CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions) {
         this.userCredential = new AutoRefreshUserCredential(
             tokenRefreshOptions.getTokenRefresher(),
-            tokenRefreshOptions.getRefreshProactively(),
-            tokenRefreshOptions.getToken());
+            tokenRefreshOptions.isRefreshProactively(),
+            tokenRefreshOptions.getInitialToken());
     }
 
 
     /**
      * Get Azure core access token from credential
      * <p>
-     * This method returns an asynchronous {@link java.util.concurrent.Future} with the AccessToken.
+     * This method returns an asynchronous {@link CompletableFuture} with the AccessToken.
      * When the {@link CommunicationTokenCredential} is constructed with a <code>tokenRefresher</code>
      * {@link java.util.concurrent.Callable}, the AccessToken will automatically be updated as part of
-     * the {@link java.util.concurrent.Future} if the cached token exceeds the expiry threshold.
+     * the {@link CompletableFuture} if the cached token exceeds the expiry threshold.
      * <p>
-     * If this method is called after {@link #dispose()} has been invoked, a cancelled
-     * {@link java.util.concurrent.Future} will be returned.
+     * If this method is called after {@link #dispose()} has been invoked, a failed
+     * {@link CompletableFuture} that emits {@link IllegalStateException} will be returned.
      *
-     * @return Asynchronous {@link java.util.concurrent.Future} with the AccessToken
+     * @return Asynchronous {@link CompletableFuture} with the AccessToken
      */
-    public Future<AccessToken> getToken() {
+    public CompletableFuture<CommunicationAccessToken> getToken() {
         if (this.userCredential.isDisposed()) {
-            return new CancelledTokenFuture();
+            return CompletableFuture.failedFuture(
+                logger.logExceptionAsError(new IllegalStateException("UserCredential has been disposed.")));
         }
         return this.userCredential.getToken();
     }
@@ -81,38 +79,5 @@ public class CommunicationTokenCredential {
      */
     public void dispose() {
         this.userCredential.dispose();
-    }
-
-    private final class CancelledTokenFuture implements Future<AccessToken> {
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return true;
-        }
-
-        @Override
-        public boolean isDone() {
-            return true;
-        }
-
-        /**
-         * {@inheritdoc}.
-         */
-        @Override
-        public AccessToken get() {
-            throw logger.logExceptionAsError(new CancellationException());
-        }
-
-        /**
-         * {@inheritdoc}.
-         */
-        @Override
-        public AccessToken get(long timeout, TimeUnit unit) {
-            throw logger.logExceptionAsError(new CancellationException());
-        }
     }
 }

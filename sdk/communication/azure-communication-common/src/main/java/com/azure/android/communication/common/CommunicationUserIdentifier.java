@@ -5,8 +5,7 @@ package com.azure.android.communication.common;
 /**
  * Communication identifier for Communication Services Users
  */
-public class CommunicationUserIdentifier extends CommunicationIdentifier {
-
+public final class CommunicationUserIdentifier extends CommunicationIdentifier {
     private final String id;
 
     /**
@@ -24,6 +23,7 @@ public class CommunicationUserIdentifier extends CommunicationIdentifier {
 
     /**
      * Get id of the communication user.
+     *
      * @return id of the communication user.
      */
     public String getId() {

@@ -3,7 +3,6 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.concurrent.Callable;
@@ -21,7 +20,7 @@ final class AutoRefreshUserCredential extends UserCredential {
 
     private final Callable<String> tokenRefreshCallable;
     private final boolean refreshProactively;
-    private volatile CompletableFuture<AccessToken> tokenFuture;
+    private volatile CompletableFuture<CommunicationAccessToken> tokenFuture;
     private CompletableFuture<Void> tokenFutureUpdater;
 
     AutoRefreshUserCredential(final Callable<String> tokenRefresher) {
@@ -44,7 +43,7 @@ final class AutoRefreshUserCredential extends UserCredential {
         this.tokenRefreshCallable = tokenRefresher;
         this.refreshProactively = refreshProactively;
 
-        AccessToken initialAccessToken = null;
+        CommunicationAccessToken initialAccessToken = null;
 
         if (initialToken != null) {
             initialAccessToken = TokenParser.createAccessToken(initialToken);
@@ -57,7 +56,7 @@ final class AutoRefreshUserCredential extends UserCredential {
     }
 
     @Override
-    public CompletableFuture<AccessToken> getToken() {
+    public CompletableFuture<CommunicationAccessToken> getToken() {
         if (this.shouldRefreshOnDemand()) {
             this.updateTokenFuture();
         }
@@ -65,12 +64,12 @@ final class AutoRefreshUserCredential extends UserCredential {
     }
 
     private boolean shouldRefreshOnDemand() {
-        final CompletableFuture<AccessToken> tokenFuture = this.tokenFuture;
+        final CompletableFuture<CommunicationAccessToken> tokenFuture = this.tokenFuture;
         if (tokenFuture == null || tokenFuture.isCancelled()) {
             return true;
         } else if (tokenFuture.isDone()) {
             try {
-                AccessToken accessToken = tokenFuture.get();
+                CommunicationAccessToken accessToken = tokenFuture.get();
                 long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - ON_DEMAND_REFRESH_BUFFER_SECS;
                 long currentEpochSecond = System.currentTimeMillis() / 1000;
                 return currentEpochSecond >= refreshEpochSecond;
@@ -88,7 +87,7 @@ final class AutoRefreshUserCredential extends UserCredential {
             return;
         }
 
-        final CompletableFuture<AccessToken> tokenFuture = this.tokenFuture;
+        final CompletableFuture<CommunicationAccessToken> tokenFuture = this.tokenFuture;
         if (tokenFuture != null && !tokenFuture.isDone() && !tokenFuture.isCancelled()) {
             // don't update if the tokenFuture in-progress.
             return;
@@ -99,7 +98,7 @@ final class AutoRefreshUserCredential extends UserCredential {
                 throw logger.logExceptionAsError(new IllegalStateException(CREDENTIAL_DISPOSED));
             }
 
-            final AccessToken accessToken;
+            final CommunicationAccessToken accessToken;
 
             try {
                 final String tokenStr = this.tokenRefreshCallable.call();
@@ -116,7 +115,7 @@ final class AutoRefreshUserCredential extends UserCredential {
         });
     }
 
-    private synchronized void scheduleTokenFutureUpdate(AccessToken accessToken) {
+    private synchronized void scheduleTokenFutureUpdate(CommunicationAccessToken accessToken) {
         if (this.isDisposed()) {
             return;
         }

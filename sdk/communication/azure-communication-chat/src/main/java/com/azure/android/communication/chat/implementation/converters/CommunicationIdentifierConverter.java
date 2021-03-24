@@ -68,7 +68,7 @@ public class CommunicationIdentifierConverter {
             return new MicrosoftTeamsUserIdentifier(userId,
                 teamsUserIdentifierModel.isAnonymous())
                 .setRawId(rawId)
-                .setCloudEnvironment(new CommunicationCloudEnvironment(cloud.toString()));
+                .setCloudEnvironment(CommunicationCloudEnvironment.fromString(cloud.toString()));
         }
 
         if (rawId == null) {

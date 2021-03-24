@@ -13,7 +13,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
-import com.azure.android.core.credential.AccessToken;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -22,8 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 final class TokenParser {
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    private TokenParser() {
-        // Empty constructor to prevent instantiation of this class.
+    TokenParser() {
     }
 
     /**
@@ -32,7 +30,7 @@ final class TokenParser {
      * @param tokenStr token string
      * @return AccessToken instance
      */
-    static AccessToken createAccessToken(String tokenStr) {
+    static CommunicationAccessToken createAccessToken(String tokenStr) {
         try {
             if (tokenStr == null) {
                 throw new NullPointerException("'tokenStr' cannot be null.");
@@ -47,7 +45,7 @@ final class TokenParser {
             OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000),
                 ZoneId.of("UTC"));
 
-            return new AccessToken(tokenStr, offsetExpiry);
+            return new CommunicationAccessToken(tokenStr, offsetExpiry);
         } catch (Exception e) {
             throw new IllegalArgumentException("'tokenStr' is not a valid token string", e);
         }

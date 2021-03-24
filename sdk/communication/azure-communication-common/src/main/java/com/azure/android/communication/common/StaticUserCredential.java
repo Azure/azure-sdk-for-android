@@ -3,20 +3,17 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
-
 import java9.util.concurrent.CompletableFuture;
 
 final class StaticUserCredential extends UserCredential {
-    private final CompletableFuture<AccessToken> tokenFuture;
+    private final CompletableFuture<CommunicationAccessToken> tokenFuture;
 
     StaticUserCredential(String userToken) {
-        AccessToken accessToken = TokenParser.createAccessToken(userToken);
-        this.tokenFuture = CompletableFuture.completedFuture(accessToken);
+        this.tokenFuture = CompletableFuture.completedFuture(TokenParser.createAccessToken(userToken));
     }
 
     @Override
-    public CompletableFuture<AccessToken> getToken() {
+    public CompletableFuture<CommunicationAccessToken> getToken() {
         return this.tokenFuture;
     }
 }

@@ -2,62 +2,34 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
-import java.util.Objects;
+import com.azure.android.core.util.ExpandableStringEnum;
 
 /**
  * The cloud that the identifier belongs to.
  */
-public class CommunicationCloudEnvironment {
-    private static final String PUBLIC_VALUE = "public";
-    private static final String DOD_VALUE = "dod";
-    private static final String GCCH_VALUE = "gcch";
-
-    private final String environmentValue;
-
+public final class CommunicationCloudEnvironment extends ExpandableStringEnum<CommunicationCloudEnvironment> {
     /**
-     * Create CommunicationCloudEnvironment with name string
-     * @param environmentValue name of hte cloud environment
+     * Returns the {@link CommunicationCloudEnvironment} associated with the name.
+     *
+     * @param name The name of the environment.
+     * @return The {@link CommunicationCloudEnvironment} associated with the given name.
      */
-    public CommunicationCloudEnvironment(String environmentValue) {
-        Objects.requireNonNull(environmentValue);
-        this.environmentValue = environmentValue;
-    }
-
-    static CommunicationCloudEnvironment fromModel(CommunicationCloudEnvironmentModel environmentModel) {
-        return new CommunicationCloudEnvironment(environmentModel.toString());
+    public static CommunicationCloudEnvironment fromString(String name) {
+        return fromString(name, CommunicationCloudEnvironment.class);
     }
 
     /**
      * Represent Azure public cloud
      */
-    public static final CommunicationCloudEnvironment PUBLIC = new CommunicationCloudEnvironment(PUBLIC_VALUE);
+    public static final CommunicationCloudEnvironment PUBLIC = fromString("public");
 
     /**
      * Represent Azure Dod cloud
      */
-    public static final CommunicationCloudEnvironment DOD = new CommunicationCloudEnvironment(DOD_VALUE);
+    public static final CommunicationCloudEnvironment DOD = fromString("dod");
 
     /**
      * Represent Azure Gcch cloud
      */
-    public static final CommunicationCloudEnvironment GCCH = new CommunicationCloudEnvironment(GCCH_VALUE);
-
-    @Override
-    public boolean equals(Object that) {
-        if (this == that) {
-            return true;
-        }
-        return that != null && this.environmentValue.equals(that.toString());
-    }
-
-    @Override
-    public String toString() {
-        return environmentValue;
-    }
-
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
-
+    public static final CommunicationCloudEnvironment GCCH = fromString("gcch");
 }
