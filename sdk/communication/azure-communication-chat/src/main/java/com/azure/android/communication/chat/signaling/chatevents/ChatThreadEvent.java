@@ -3,7 +3,10 @@
 
 package com.azure.android.communication.chat.signaling.chatevents;
 
-public class ChatThreadEvent {
+/**
+ * Chat thread event
+ */
+public abstract class ChatThreadEvent {
     /**
      * Thread Id of the event.
      */

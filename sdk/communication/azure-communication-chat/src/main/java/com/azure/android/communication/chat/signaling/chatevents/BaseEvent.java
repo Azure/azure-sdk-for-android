@@ -8,7 +8,7 @@ import com.azure.android.communication.chat.signaling.properties.CommunicationUs
 /**
  * Base class for chat event
  */
-public class BaseEvent {
+public abstract class BaseEvent {
     /**
      * Thread Id of the event.
      */

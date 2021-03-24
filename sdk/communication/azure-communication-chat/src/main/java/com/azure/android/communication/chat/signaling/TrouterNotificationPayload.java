@@ -4,7 +4,7 @@
 package com.azure.android.communication.chat.signaling;
 
 class BasePayload {
-    long _eventId;
+    long eventId;
     String senderId;
     String recipientId;
     String groupId;
@@ -59,7 +59,7 @@ class ReadReceiptMessageBody {
 }
 
 class ChatThreadPayload {
-    long _eventId;
+    long eventId;
     String threadId;
     String version;
 }

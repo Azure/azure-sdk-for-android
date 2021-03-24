@@ -186,6 +186,9 @@ public final class ChatClient {
 
     /**
      * Listen to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId the listener id that is used to identify a listener
+     * @param listener the listener callback function
      */
     public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
         this.client.on(chatEventId, listenerId, listener);
@@ -193,6 +196,8 @@ public final class ChatClient {
 
     /**
      * Stop listening to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId the listener id that is to off
      */
     public void off(String chatEventId, String listenerId) {
         client.off(chatEventId, listenerId);

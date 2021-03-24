@@ -5,7 +5,6 @@ package com.azure.android.communication.chat;
 
 import android.content.Context;
 
-import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
 import com.azure.android.communication.chat.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -144,6 +143,12 @@ public final class ChatClientBuilder {
         return this;
     }
 
+    /**
+     * Set realtime notification params to be able to start the real time notification
+     * @param context the app context of the app
+     * @param userToken the skype user token
+     * @return ChatClientBuilder instance
+     */
     public ChatClientBuilder realtimeNotificationParams(Context context, String userToken) {
         this.context = context;
         this.userToken = userToken;

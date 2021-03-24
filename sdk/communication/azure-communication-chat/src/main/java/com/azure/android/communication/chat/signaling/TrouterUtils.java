@@ -16,31 +16,31 @@ import java.util.Map;
 
 class TrouterUtils {
 
-    private static final ClientLogger logger = new ClientLogger(TrouterUtils.class);
+    private static final ClientLogger CLIENT_LOGGER = new ClientLogger(TrouterUtils.class);
     /**
      * Mapping chat event id to trouter event id code
      */
-    static Map<ChatEventId, Integer> eventIdsMapping = new HashMap<ChatEventId, Integer>() {{
-        put(ChatEventId.chatMessageReceived, 200);
-        put(ChatEventId.typingIndicatorReceived, 245);
-        put(ChatEventId.readReceiptReceived, 246);
-        put(ChatEventId.chatMessageEdited, 247);
-        put(ChatEventId.chatMessageDeleted, 248);
-        put(ChatEventId.chatThreadCreated, 257);
-        put(ChatEventId.chatThreadPropertiesUpdated, 258);
-        put(ChatEventId.chatThreadDeleted, 259);
-        put(ChatEventId.participantsAdded, 260);
-        put(ChatEventId.participantsRemoved, 261);
-    }};
+    static final Map<ChatEventId, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventId, Integer>() {{
+            put(ChatEventId.chatMessageReceived, 200);
+            put(ChatEventId.typingIndicatorReceived, 245);
+            put(ChatEventId.readReceiptReceived, 246);
+            put(ChatEventId.chatMessageEdited, 247);
+            put(ChatEventId.chatMessageDeleted, 248);
+            put(ChatEventId.chatThreadCreated, 257);
+            put(ChatEventId.chatThreadPropertiesUpdated, 258);
+            put(ChatEventId.chatThreadDeleted, 259);
+            put(ChatEventId.participantsAdded, 260);
+            put(ChatEventId.participantsRemoved, 261);
+        }};
 
     public static JSONObject toMessageHandler(String chatEventId, String responseBody) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
-            eventId = eventIdsMapping.get(ChatEventId.valueOf(chatEventId));
+            eventId = EVENT_IDS_MAPPING.get(ChatEventId.valueOf(chatEventId));
             genericPayload = new JSONObject(responseBody);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            CLIENT_LOGGER.error(e.getMessage());
         }
 
         try {
@@ -48,7 +48,7 @@ class TrouterUtils {
                 return null;
             }
         } catch (JSONException e) {
-            logger.error(e.getMessage());
+            CLIENT_LOGGER.error(e.getMessage());
         }
 
         return toEventPayload(chatEventId, genericPayload);
@@ -77,7 +77,7 @@ class TrouterUtils {
                 eventPayload.put("content", payload.get("messageBody"));
                 eventPayload.put("priority", payload.get("priority"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -104,7 +104,7 @@ class TrouterUtils {
                 eventPayload.put("content", payload.get("messageBody"));
                 eventPayload.put("editedOn", payload.get("edittime"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -130,7 +130,7 @@ class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("deletedOn", payload.get("deletetime"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -153,7 +153,7 @@ class TrouterUtils {
                 eventPayload.put("receivedOn", payload.get("originalArrivalTime"));
                 eventPayload.put("version", payload.get("version"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -176,7 +176,7 @@ class TrouterUtils {
                 eventPayload.put("chatMessageId", payload.get("messageId"));
                 eventPayload.put("readOn", new Date().toString());
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -197,7 +197,7 @@ class TrouterUtils {
 
                 JSONArray chatParticipants = new JSONArray();
                 JSONArray members = payload.getJSONArray("members");
-                for (int i = 0 ; i < members.length(); i++) {
+                for (int i = 0; i < members.length(); i++) {
                     JSONObject member = members.getJSONObject(i);
                     communicationUserId = new JSONObject();
                     communicationUserId.put("communicationUserId", member.get("participantId"));
@@ -215,7 +215,7 @@ class TrouterUtils {
                 eventPayload.put("participants", chatParticipants);
                 eventPayload.put("properties", payload.getJSONObject("properties"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -239,7 +239,7 @@ class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("properties", payload.getJSONObject("properties"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -262,7 +262,7 @@ class TrouterUtils {
                 eventPayload.put("deletedBy", deletedBy);
                 eventPayload.put("version", payload.get("version"));
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -283,7 +283,7 @@ class TrouterUtils {
 
                 JSONArray chatParticipants = new JSONArray();
                 JSONArray members = payload.getJSONArray("participantsAdded");
-                for (int i = 0 ; i < members.length(); i++) {
+                for (int i = 0; i < members.length(); i++) {
                     JSONObject member = members.getJSONObject(i);
                     communicationUserId = new JSONObject();
                     communicationUserId.put("communicationUserId", member.get("participantId"));
@@ -301,7 +301,7 @@ class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("participantsAdded", chatParticipants);
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;
@@ -322,7 +322,7 @@ class TrouterUtils {
 
                 JSONArray chatParticipants = new JSONArray();
                 JSONArray members = payload.getJSONArray("participantsRemoved");
-                for (int i = 0 ; i < members.length(); i++) {
+                for (int i = 0; i < members.length(); i++) {
                     JSONObject member = members.getJSONObject(i);
                     communicationUserId = new JSONObject();
                     communicationUserId.put("communicationUserId", member.get("participantId"));
@@ -340,7 +340,7 @@ class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("participantsRemoved", chatParticipants);
             } catch (JSONException e) {
-                logger.error(e.getMessage());
+                CLIENT_LOGGER.error(e.getMessage());
             }
 
             return eventPayload;

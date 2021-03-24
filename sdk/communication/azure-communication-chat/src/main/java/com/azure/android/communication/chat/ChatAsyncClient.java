@@ -35,9 +35,8 @@ public final class ChatAsyncClient {
     private final ClientLogger logger = new ClientLogger(ChatAsyncClient.class);
 
     private final AzureCommunicationChatServiceImpl chatServiceClient;
-    private SignalingClient signalingClient;
+    private final SignalingClient signalingClient;
     private final ChatImpl chatClient;
-    private boolean isRealtimeNotificationsStarted;
 
     ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
         this.chatServiceClient = chatServiceClient;
@@ -267,14 +266,13 @@ public final class ChatAsyncClient {
      */
     public void startRealtimeNotifications() {
         if (this.signalingClient == null) {
-            throw new Error("Signaling client not initialized");
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
 
-        if (this.isRealtimeNotificationsStarted) {
+        if (this.signalingClient.hasStarted()) {
             return;
         }
 
-        this.isRealtimeNotificationsStarted = true;
         this.signalingClient.start();
     }
 
@@ -283,25 +281,29 @@ public final class ChatAsyncClient {
      */
     public void stopRealtimeNotifications() {
         if (this.signalingClient == null) {
-            throw new Error("Signaling client not initialized");
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
 
-        this.isRealtimeNotificationsStarted = false;
         this.signalingClient.stop();
     }
 
     /**
      * Listen to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId a listener id that is used to identify the listner
+     * @param listener the listener callback function
      */
     public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
         if (this.signalingClient == null) {
-            throw new Error("Realtime notification parameters (context, userToken) are not set");
+            throw logger.logExceptionAsError(
+                new IllegalStateException("Realtime notification parameters (context, userToken) are not set")
+            );
         }
 
-        if (!this.isRealtimeNotificationsStarted) {
-            throw new Error(
+        if (!this.signalingClient.hasStarted()) {
+            throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
-            );
+            ));
         }
 
         this.signalingClient.on(chatEventId, listenerId, listener);
@@ -309,10 +311,12 @@ public final class ChatAsyncClient {
 
     /**
      * Stop listening to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId the listener id that is to off
      */
     public void off(String chatEventId, String listenerId) {
         if (this.signalingClient == null) {
-            throw new Error("Signaling client not initialized");
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
 
         this.signalingClient.off(chatEventId, listenerId);

@@ -3,6 +3,9 @@
 
 package com.azure.android.communication.chat.signaling;
 
+/**
+ * Connection states
+ */
 public enum ConnectionState {
     Unknown(0),
     Connected(2),
@@ -15,5 +18,11 @@ public enum ConnectionState {
         value = newValue;
     }
 
-    public int getValue() { return value; }
+    /**
+     * Get connection state value
+     * @return an integer for connection state
+     */
+    public int getValue() {
+        return value;
+    }
 }
