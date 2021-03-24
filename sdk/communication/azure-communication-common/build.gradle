@@ -12,6 +12,7 @@ android {
 
 dependencies {
     // <!-- begin: api Dependencies -->
+    api project(":sdk:core:azure-core")
     api project(":sdk:core:azure-core-logging")
     api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
     // <!-- end: api Dependencies -->
