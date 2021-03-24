@@ -65,30 +65,15 @@ public class CommunicationSignalingClient implements SignalingClient {
      */
     public void start() {
         this.isRealtimeNotificationsStarted = true;
-        String skypetoken = userToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
-                return skypetoken;
+                return userToken;
             }
         };
 
         ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
             new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
-
-        class InMemoryConnectionDataCache implements ITrouterConnectionDataCache {
-            private String cachedData = "";
-
-            @Override
-            public void store(String s) {
-                cachedData = s;
-            }
-
-            @Override
-            public String load() {
-                return cachedData;
-            }
-        }
 
         TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
             null,
@@ -172,6 +157,20 @@ public class CommunicationSignalingClient implements SignalingClient {
         if (trouterListeners.containsKey(listenerId)) {
             trouter.unregisterListener(trouterListeners.get(listenerId));
             trouterListeners.remove(listenerId);
+        }
+    }
+
+    static class InMemoryConnectionDataCache implements ITrouterConnectionDataCache {
+        private String cachedData = "";
+
+        @Override
+        public void store(String s) {
+            cachedData = s;
+        }
+
+        @Override
+        public String load() {
+            return cachedData;
         }
     }
 
