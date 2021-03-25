@@ -23,7 +23,8 @@ import com.azure.android.core.rest.annotation.ServiceClientBuilder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+
+import java9.util.concurrent.CompletableFuture;
 
 /**
  * Builder for creating clients of Azure Communication Service Chat
@@ -200,7 +201,7 @@ public final class ChatThreadClientBuilder {
             final HttpPipelinePolicy authorizationPolicy;
             if (this.communicationTokenCredential != null) {
                 authorizationPolicy = chain -> {
-                    final Future<AccessToken> tokenFuture = this.communicationTokenCredential.getToken();
+                    final CompletableFuture<AccessToken> tokenFuture = this.communicationTokenCredential.getToken();
                     final AccessToken token;
                     try {
                         token = tokenFuture.get();
