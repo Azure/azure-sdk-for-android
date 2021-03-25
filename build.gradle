@@ -255,7 +255,7 @@ allprojects {
         jacksonVersion = "2.11.2"
         jUnitVersion = "5.7.0"
         lifecycleVersion = "2.2.0"
-        nimbusJoseJwtVersion = "9.1.2"
+        nimbusJoseJwtTestVersion = "9.1.2"
         okHttpVersion = "3.14.9"
         retrofitVersion = "2.9.0"
         roomVersion = "2.2.5"
