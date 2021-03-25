@@ -64,8 +64,9 @@ public class CommunicationSignalingClient implements SignalingClient {
      * Start the realtime connection.
      */
     public void start() {
-        if (this.isRealtimeNotificationsStarted)
+        if (this.isRealtimeNotificationsStarted) {
             return;
+        }
 
         this.isRealtimeNotificationsStarted = true;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
@@ -108,8 +109,9 @@ public class CommunicationSignalingClient implements SignalingClient {
      * Stop the realtime connection and unsubscribe all event handlers.
      */
     public void stop() {
-        if (!isRealtimeNotificationsStarted)
+        if (!isRealtimeNotificationsStarted) {
             return;
+        }
 
         this.isRealtimeNotificationsStarted = false;
         this.trouter.close();
