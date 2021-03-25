@@ -9,7 +9,7 @@ import com.azure.android.core.http.HttpResponse;
 /**
  * Exception thrown on chat specific errors
  */
-public class ChatErrorResponseException extends HttpResponseException {
+public final class ChatErrorResponseException extends HttpResponseException {
     /**
      * Initializes a new instance of the ChatErrorResponseException class.
      *

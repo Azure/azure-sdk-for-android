@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat;
 
+import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -206,6 +207,48 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotCreateThreadWithInvalidUser(HttpClient httpClient) {
+        setupTest(httpClient);
+
+        final CreateChatThreadOptions threadRequest = createThreadOptions(
+            "8:acs:invalidUserId", secondThreadMember.getId());
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            client.createChatThread(threadRequest).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotCreateThreadWithResponseWithInvalidUser(HttpClient httpClient) {
+        setupTest(httpClient);
+
+        final CreateChatThreadOptions threadRequest = createThreadOptions(
+            "8:acs:invalidUserId", secondThreadMember.getId());
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            client.createChatThreadWithResponse(threadRequest, null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canGetChatThreadClient(HttpClient httpClient) {
         setupTest(httpClient);
         String threadId = "19:fe0a2f65a7834185b29164a7de57699c@thread.v2";
@@ -293,6 +336,46 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
 
         assertNotNull(executionException.getCause());
         assertTrue(executionException.getCause() instanceof NullPointerException);
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotDeleteChatThreadWithInvalidThreadId(HttpClient httpClient) {
+        setupTest(httpClient);
+
+        final String invalidChatThreadId = "invalid_chat_thread_id";
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            client.deleteChatThread(invalidChatThreadId).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotDeleteChatThreadWithResponseWithInvalidThreadId(HttpClient httpClient) {
+        setupTest(httpClient);
+
+        final String invalidChatThreadId = "invalid_chat_thread_id";
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            client.deleteChatThreadWithResponse(invalidChatThreadId, null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
     }
 
     @ParameterizedTest

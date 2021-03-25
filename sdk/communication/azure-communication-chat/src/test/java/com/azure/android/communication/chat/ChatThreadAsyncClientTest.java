@@ -23,7 +23,6 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
@@ -173,9 +172,9 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         Throwable cause = executionException.getCause();
         assertNotNull(cause);
-        assertTrue(cause instanceof HttpResponseException);
+        assertTrue(cause instanceof ChatErrorResponseException);
 
-        HttpResponseException exception = (HttpResponseException) cause;
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
 
         assertNotNull(exception.getResponse());
         assertEquals(404, exception.getResponse().getStatusCode());
@@ -197,7 +196,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(cause);
         assertTrue(cause instanceof ChatErrorResponseException);
 
-        HttpResponseException exception = (HttpResponseException) cause;
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
         assertNotNull(exception.getResponse());
         assertEquals(404, exception.getResponse().getStatusCode());
     }
@@ -387,6 +386,48 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotAddParticipantsWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
+        setupTest(httpClient);
+
+        AddChatParticipantsOptions options = addParticipantsOptions("8:acs:invalidUserId",
+            this.secondThreadMember.getId());
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.addParticipants(options).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotAddParticipantsWithResponseWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
+        setupTest(httpClient);
+
+        AddChatParticipantsOptions options = addParticipantsOptions("8:acs:invalidUserId",
+            this.secondThreadMember.getId());
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.addParticipantsWithResponse(options, null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canAddSingleParticipant(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
@@ -484,6 +525,45 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotAddSingleParticipantWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.addParticipant(generateParticipant("8:acs:invalidUserId", "name"))
+                .get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotAddSingleParticipantWithResponseWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.addParticipantWithResponse(
+                generateParticipant("8:acs:invalidUserId", "name"),
+                null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canSendThenGetHtmlMessage(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
@@ -550,6 +630,42 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         assertNotNull(executionException.getCause());
         assertTrue(executionException.getCause() instanceof NullPointerException);
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotRemoveParticipantWithInvalidUser(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.removeParticipant(new CommunicationUserIdentifier("8:acs:invalidUserId")).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotRemoveParticipantWithResponseWithInvalidUser(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.removeParticipantWithResponse(new CommunicationUserIdentifier("8:acs:invalidUserId"), null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
     }
 
     @ParameterizedTest
@@ -630,7 +746,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
-    public void cannotGetMessageWithReponseNullId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+    public void cannotGetMessageWithResponseNullId(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
@@ -639,6 +755,42 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         assertNotNull(executionException.getCause());
         assertTrue(executionException.getCause() instanceof NullPointerException);
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotGetMessageWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.getMessage("invalid_chat_message_id").get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotGetMessageWithResponseWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.getMessageWithResponse("invalid_chat_message_id", null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
     }
 
     @ParameterizedTest
@@ -669,12 +821,15 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
-    public void cannotDeleteMessageWithRepsonseNullId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+    public void cannotDeleteMessageWithResponseNullId(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
             this.chatThreadClient.deleteMessageWithResponse(null, null).get();
         });
+
+        assertNotNull(executionException.getCause());
+        assertTrue(executionException.getCause() instanceof NullPointerException);
     }
 
     @ParameterizedTest
@@ -688,6 +843,42 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
             null);
         Response<Void> deleteResponse = completableFuture.get();
         assertEquals(deleteResponse.getStatusCode(), 204);
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotDeleteMessageWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.deleteMessage("invalid_chat_message_id").get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotDeleteMessageWithResponseWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.deleteMessageWithResponse("invalid_chat_message_id", null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
     }
 
     @ParameterizedTest
@@ -757,6 +948,44 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         ChatMessage message = getResponse.getValue();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotUpdateMessageWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        UpdateChatMessageOptions updateMessageRequest = super.updateMessageOptions();
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.updateMessage("invalid_chat_message_id", updateMessageRequest).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void cannotUpdateMessageWithResponseWithInvalidId(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        UpdateChatMessageOptions updateMessageRequest = super.updateMessageOptions();
+        ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
+            this.chatThreadClient.updateMessageWithResponse("invalid_chat_message_id", updateMessageRequest, null).get();
+        });
+
+        Throwable cause = executionException.getCause();
+        assertNotNull(cause);
+        assertTrue(cause instanceof ChatErrorResponseException);
+
+        ChatErrorResponseException exception = (ChatErrorResponseException) cause;
+        assertNotNull(exception.getResponse());
+        assertEquals(400, exception.getResponse().getStatusCode());
     }
 
     @ParameterizedTest
