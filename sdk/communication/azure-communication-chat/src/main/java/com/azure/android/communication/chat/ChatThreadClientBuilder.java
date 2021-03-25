@@ -5,8 +5,8 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
+import com.azure.android.communication.common.CommunicationAccessToken;
 import com.azure.android.communication.common.CommunicationTokenCredential;
-import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
@@ -201,8 +201,9 @@ public final class ChatThreadClientBuilder {
             final HttpPipelinePolicy authorizationPolicy;
             if (this.communicationTokenCredential != null) {
                 authorizationPolicy = chain -> {
-                    final CompletableFuture<AccessToken> tokenFuture = this.communicationTokenCredential.getToken();
-                    final AccessToken token;
+                    final CompletableFuture<CommunicationAccessToken> tokenFuture
+                        = this.communicationTokenCredential.getToken();
+                    final CommunicationAccessToken token;
                     try {
                         token = tokenFuture.get();
                     } catch (ExecutionException e) {
