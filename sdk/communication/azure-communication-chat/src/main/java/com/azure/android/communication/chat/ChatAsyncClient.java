@@ -12,6 +12,9 @@ import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
+import com.azure.android.communication.chat.signaling.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.signaling.SignalingClient;
+import com.azure.android.communication.chat.signaling.properties.ChatEventId;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Page;
 import com.azure.android.core.rest.PagedResponse;
@@ -34,10 +37,12 @@ public final class ChatAsyncClient {
     private final ClientLogger logger = new ClientLogger(ChatAsyncClient.class);
 
     private final AzureCommunicationChatServiceImpl chatServiceClient;
+    private final SignalingClient signalingClient;
     private final ChatImpl chatClient;
 
-    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
+    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
         this.chatServiceClient = chatServiceClient;
+        this.signalingClient = signalingClient;
         this.chatClient = chatServiceClient.getChatClient();
     }
 
@@ -268,6 +273,65 @@ public final class ChatAsyncClient {
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
+    }
+
+    /**
+     * Receive real-time messages and notifications.
+     */
+    public void startRealtimeNotifications() {
+        if (signalingClient == null) {
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
+        }
+
+        if (this.signalingClient.hasStarted()) {
+            return;
+        }
+
+        this.signalingClient.start();
+    }
+
+    /**
+     * Stop receiving real-time messages and notifications.
+     */
+    public void stopRealtimeNotifications() {
+        if (signalingClient == null) {
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
+        }
+
+        this.signalingClient.stop();
+    }
+
+    /**
+     * Listen to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId a listener id that is used to identify the listner
+     * @param listener the listener callback function
+     */
+    public void on(ChatEventId chatEventId, String listenerId, RealTimeNotificationCallback listener) {
+        if (signalingClient == null) {
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
+        }
+
+        if (!this.signalingClient.hasStarted()) {
+            throw logger.logExceptionAsError(new IllegalStateException(
+                "You must call startRealtimeNotifications before you can subscribe to events."
+            ));
+        }
+
+        this.signalingClient.on(chatEventId, listenerId, listener);
+    }
+
+    /**
+     * Stop listening to a chat event.
+     * @param chatEventId the chat event id
+     * @param listenerId the listener id that is to off
+     */
+    public void off(ChatEventId chatEventId, String listenerId) {
+        if (signalingClient == null) {
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
+        }
+
+        this.signalingClient.off(chatEventId, listenerId);
     }
 
     static class PageImpl<T> implements Page<T> {

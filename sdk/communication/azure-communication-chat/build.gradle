@@ -8,10 +8,32 @@ android {
         minSdkVersion 21
         versionCode project.versionCode
         versionName project.version
+
+        def buildVariant = getBuildVariant()
+        def envPropertiesFile
+        if ((buildVariant == "Prod")) {
+            envPropertiesFile = "env-prod.properties"
+        } else if ((buildVariant == "Test")) {
+            envPropertiesFile = "env-test.properties"
+        } else {
+            envPropertiesFile = "env-prod.properties"
+        }
+
+        def envProperties = new Properties()
+        envProperties.load(new FileInputStream("$projectDir/" + envPropertiesFile))
+        println("buildVariant = $buildVariant")
+        for (String key : envProperties.keySet()) {
+            buildConfigField "String", key.replaceAll("\\.", "_").toUpperCase(), envProperties[key]
+        }
     }
 }
 
+static def getBuildVariant() {
+    return "Prod"
+}
+
 dependencies {
+    implementation 'com.microsoft.trouter:client-android:0.0.1-beta.1'
     // <!-- begin: api Dependencies -->
     api project(":sdk:core:azure-core")
     api project(":sdk:core:azure-core-logging")
