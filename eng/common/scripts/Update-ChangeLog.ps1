@@ -35,11 +35,11 @@ if ($ReleaseDate)
         exit 1
     }
 }
-elseif ($Unreleased) 
+elseif ($Unreleased)
 {
     $ReleaseStatus = $CHANGELOG_UNRELEASED_STATUS
 }
-else 
+else
 {
     $ReleaseStatus = "$(Get-Date -Format $CHANGELOG_DATE_FORMAT)"
     $ReleaseStatus = "($ReleaseStatus)"
@@ -53,7 +53,6 @@ if ($null -eq [AzureEngSemanticVersion]::ParseVersionString($Version))
 
 $PkgProperties = Get-PkgProperties -PackageName $PackageName -ServiceDirectory $ServiceDirectory
 $ChangeLogEntries = Get-ChangeLogEntries -ChangeLogLocation $PkgProperties.ChangeLogPath
-
 
 if ($ChangeLogEntries.Contains($Version))
 {
@@ -89,7 +88,7 @@ if ($LatestsSorted[0] -ne $Version) {
     LogWarning "Version [$Version] is older than the latestversion [$LatestVersion] in the changelog. Consider using a more recent version."
 }
 
-if ($ReplaceLatestEntryTitle) 
+if ($ReplaceLatestEntryTitle)
 {
     $newChangeLogEntry = New-ChangeLogEntry -Version $Version -Status $ReleaseStatus -Content $ChangeLogEntries[$LatestVersion].ReleaseContent
     LogDebug "Resetting latest entry title to [$($newChangeLogEntry.ReleaseTitle)]"

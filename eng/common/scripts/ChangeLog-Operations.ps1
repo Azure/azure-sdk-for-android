@@ -25,7 +25,7 @@ function Get-ChangeLogEntries {
     $changeLogEntry = $null
     foreach ($line in $contents) {
       if ($line -match $RELEASE_TITLE_REGEX) {
-        $changeLogEntry = [pscustomobject]@{ 
+        $changeLogEntry = [pscustomobject]@{
           ReleaseVersion = $matches["version"]
           ReleaseStatus  =  $matches["releaseStatus"]
           ReleaseTitle   = "## {0} {1}" -f $matches["version"], $matches["releaseStatus"]
@@ -169,7 +169,7 @@ function New-ChangeLogEntry {
 
   if (!$Content) { $Content = @() }
 
-  $newChangeLogEntry = [pscustomobject]@{ 
+  $newChangeLogEntry = [pscustomobject]@{
     ReleaseVersion = $Version
     ReleaseStatus  = $Status
     ReleaseTitle   = "## $Version $Status"
@@ -193,15 +193,15 @@ function Set-ChangeLogContent {
 
   try
   {
-    $VersionsSorted = [AzureEngSemanticVersion]::SortVersionStrings($ChangeLogEntries.Keys)
+    $ChangeLogEntries = $ChangeLogEntries.Values | Sort-Object -Descending -Property ReleaseStatus, `
+      @{e = {[AzureEngSemanticVersion]::new($_.ReleaseVersion)}}
   }
   catch {
     LogError "Problem sorting version in ChangeLogEntries"
     return
   }
 
-  foreach ($version in $VersionsSorted) {
-    $changeLogEntry = $ChangeLogEntries[$version]
+  foreach ($changeLogEntry in $ChangeLogEntries) {
     $changeLogContent += $changeLogEntry.ReleaseTitle
     if ($changeLogEntry.ReleaseContent.Count -eq 0) {
       $changeLogContent += @("","")
