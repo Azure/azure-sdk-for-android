@@ -1,5 +1,5 @@
 # Release History
-## 1.0.0-beta.9 (2021-03-29)
+## 1.0.0-beta.8 (2021-03-29)
 ### Breaking Changes
 - ChatThreadAsyncClient:
     - Renamed `getChatThreadProperties` to `getProperties`.
@@ -21,10 +21,7 @@
 ### New Features
 - Added ChatThreadClientBuilder
 - Added InvalidParticipantException
-
-## 1.0.0-beta.8 (Unreleased)
-### New Features
-- Add chat basic operations in test app 
+- Added chat basic operations in test app 
 
 ### Bug Fixes
 - Fixed real time notification connection URL.
