@@ -16,7 +16,7 @@ import com.azure.android.communication.chat.ChatThreadAsyncClient;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
@@ -110,14 +110,14 @@ public class MainActivity extends AppCompatActivity {
         CreateChatThreadOptions createChatThreadOptions = new CreateChatThreadOptions()
             .setTopic(topic)
             .setParticipants(participants)
-            .setRepeatabilityRequestId(repeatabilityRequestID);
+            .setIdempotencyToken(repeatabilityRequestID);
 
         try {
             CreateChatThreadResult createChatThreadResult =
                 chatAsyncClient.createChatThread(createChatThreadOptions).get();
 
-            ChatThread chatThread = createChatThreadResult.getChatThread();
-            threadId = chatThread.getId();
+            ChatThreadProperties chatThreadProperties = createChatThreadResult.getChatThreadProperties();
+            threadId = chatThreadProperties.getId();
 
             logAndToast("Created thread with ID: " + threadId);
 
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
             // A string is the response returned from sending a message, it is an id, which is the unique ID of the
             // message.
             try {
-                chatMessageId = chatThreadAsyncClient.sendMessage(chatMessageOptions).get();
+                chatMessageId = chatThreadAsyncClient.sendMessage(chatMessageOptions).get().getId();
                 unreadMessages.add(chatMessageId);
 
                 logAndToast("Message sent with ID: " + chatMessageId);

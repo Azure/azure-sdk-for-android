@@ -12,10 +12,10 @@ import java.util.List;
 @Fluent
 public final class CreateChatThreadResult {
     /*
-     * The thread property.
+     * The chatThreadProperties property.
      */
-    @JsonProperty(value = "chatThread")
-    private ChatThread chatThread;
+    @JsonProperty(value = "chatThreadProperties")
+    private ChatThreadProperties chatThreadProperties;
 
     /*
      * The participants that failed to be added to the chat thread.
@@ -24,22 +24,22 @@ public final class CreateChatThreadResult {
     private List<ChatError> invalidParticipants;
 
     /**
-     * Get the chatThread property: The chatThread property.
+     * Get the chatThreadProperties property: The chatThreadProperties property.
      *
-     * @return the chatThread value.
+     * @return the chatThreadProperties value.
      */
-    public ChatThread getChatThread() {
-        return this.chatThread;
+    public ChatThreadProperties getChatThreadProperties() {
+        return this.chatThreadProperties;
     }
 
     /**
-     * Set the chatThread property: The chatThread property.
+     * Set the chatThreadProperties property: The chatThreadProperties property.
      *
-     * @param chatThread the thread value to set.
+     * @param chatThreadProperties the thread value to set.
      * @return the CreateChatThreadResult object itself.
      */
-    public CreateChatThreadResult setChatThread(ChatThread chatThread) {
-        this.chatThread = chatThread;
+    public CreateChatThreadResult setChatThreadProperties(ChatThreadProperties chatThreadProperties) {
+        this.chatThreadProperties = chatThreadProperties;
         return this;
     }
 
