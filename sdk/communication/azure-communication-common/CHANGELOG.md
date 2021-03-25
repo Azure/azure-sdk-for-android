@@ -1,13 +1,11 @@
 # Release History
 
-## 1.0.0-beta.9 (Unreleased)
-### Breaking Changes
-- `UserCredential` `getToken` returns `CompletableFuture<CommunicationAccessToken>` object instead of `Future<CommunicationAccessToken>`.
-- Invoking `getToken` on a disposed `UserCredential` returns failed `CompletableFuture` instead of cancelled future.
-- Removed the `fromString` method from `CommunicationCloudEnvironment` given same result can be achieved using existing public constructor.
-- Renamed the `getToken` method in `CommunicationTokenRefreshOptions` to `getInitialToken`.
-
 ## 1.0.0-beta.8 (2021-03-29)
+### Breaking Changes
+- Changed `UserCredential.getToken()` to return `CompletableFuture<CommunicationAccessToken>` instead of `Future<CommunicationAccessToken>`.
+- Invoking `getToken` on a disposed `UserCredential` returns a failed `CompletableFuture` instead of cancelled `Future`.
+- Removed the `fromString` method from `CommunicationCloudEnvironment` given the same result can be achieved using the existing public constructor.
+- Renamed the `getToken` method in `CommunicationTokenRefreshOptions` to `getInitialToken`.
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Breaking Changes

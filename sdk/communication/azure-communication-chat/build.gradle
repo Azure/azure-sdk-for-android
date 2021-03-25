@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Client Library Chat SDK For Communication Service"
 description = "This package contains the Android client library Chat SDK for Microsoft Azure Communication Service."
-version = "1.0.0-beta.6"
+version = "1.0.0-beta.8"
 ext.versionCode = 1
 
 android {
@@ -35,25 +35,25 @@ static def getBuildVariant() {
 dependencies {
     implementation 'com.microsoft.trouter:client-android:0.0.1-beta.1'
     // <!-- begin: api Dependencies -->
-    api project(":sdk:core:azure-core")
-    api project(":sdk:core:azure-core-logging")
-    api project(":sdk:core:azure-core-credential")
-    api project(":sdk:core:azure-core-rest")
-    api project(":sdk:core:azure-core-http")
+    api "com.azure.android:azure-core:$azureCoreVersion"
+    api "com.azure.android:azure-core-logging:$azureCoreVersion"
+    api "com.azure.android:azure-core-credential:$azureCoreVersion"
+    api "com.azure.android:azure-core-rest:$azureCoreVersion"
+    api "com.azure.android:azure-core-http:$azureCoreVersion"
     api project(":sdk:communication:azure-communication-common")
     api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
-    implementation project(":sdk:core:azure-core-http-okhttp")
+    implementation "com.azure.android:azure-core-http-okhttp:$azureCoreVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation project(":sdk:core:azure-core-test")
+    testImplementation "com.azure.android:azure-core-test:$azureCoreVersion"
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation ("org.mockito:mockito-core:$mockitoVersion")
-    testImplementation ("com.nimbusds:nimbus-jose-jwt:8.19")
+    testImplementation ("com.nimbusds:nimbus-jose-jwt:$nimbusJoseJwtTestVersion")
     // <!-- end: test Dependencies -->
 }
