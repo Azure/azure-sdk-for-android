@@ -246,6 +246,7 @@ allprojects {
         annotationsVersion = "1.1.0"
         appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
+        azureCoreVersion = "1.0.0-beta.4"
         concurrentFuturesVersion = "1.0.0"
         jUnitVersion = "5.7.0"
         androidxTestVersion = "1.3.0"
