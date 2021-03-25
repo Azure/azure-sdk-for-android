@@ -40,6 +40,9 @@ public final class ChatAsyncClient {
 
     ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
         this.chatServiceClient = chatServiceClient;
+        if (signalingClient == null) {
+            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
+        }
         this.signalingClient = signalingClient;
         this.chatClient = chatServiceClient.getChatClient();
     }
@@ -265,10 +268,6 @@ public final class ChatAsyncClient {
      * Receive real-time messages and notifications.
      */
     public void startRealtimeNotifications() {
-        if (this.signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         if (this.signalingClient.hasStarted()) {
             return;
         }
@@ -280,10 +279,6 @@ public final class ChatAsyncClient {
      * Stop receiving real-time messages and notifications.
      */
     public void stopRealtimeNotifications() {
-        if (this.signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         this.signalingClient.stop();
     }
 
@@ -294,12 +289,6 @@ public final class ChatAsyncClient {
      * @param listener the listener callback function
      */
     public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
-        if (this.signalingClient == null) {
-            throw logger.logExceptionAsError(
-                new IllegalStateException("Realtime notification parameters (context, userToken) are not set")
-            );
-        }
-
         if (!this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
@@ -315,10 +304,6 @@ public final class ChatAsyncClient {
      * @param listenerId the listener id that is to off
      */
     public void off(String chatEventId, String listenerId) {
-        if (this.signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         this.signalingClient.off(chatEventId, listenerId);
     }
 
