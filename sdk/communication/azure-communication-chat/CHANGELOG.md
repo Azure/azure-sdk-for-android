@@ -1,5 +1,21 @@
 # Release History
 
+## not release yet (2021-3-24)
+### Breaking Changes
+- ChatThreadAsyncClient - `getChatThreadProperties` renamed to `getProperties`, `getChatThreadPropertiesWithResponse` renamed to `getPropertiesWithResponse`, `addParticipant` and `addParticipantWithResponse` updated to throw `InvalidParticipantException` for failure instead of returning `AddChatParticipantsResult`, and `sendMessage` and `sendMessageWithResponse` updated to return `SendChatMessageResult`.
+- ChatThreadClient - `getChatThreadProperties` renamed to `getProperties`, `getChatThreadPropertiesWithResponse` renamed to `getPropertiesWithResponse`, `addParticipant` and `addParticipantWithResponse` updated to throw `InvalidParticipantException` for failure instead of returning `AddChatParticipantsResult`, and `sendMessage` and `sendMessageWithResponse` updated to return `SendChatMessageResult`.
+- ChatThread - renamed to ChatThreadProperties
+- CommunicationError - renamed to ChatError
+- CommunicationErrorResponse - removed
+- CommunicationErrorResponseException - renamed to ChatErrorResponseException
+- CreateChatThreadOption - `repeatabilityRequestId` renamed to `idempotencyToken`
+- CreateChatThreadResult - `chatThread` renamed to `chatThreadProperties`
+
+### Added
+- Added ChatThreadClientBuilder
+- Added InvalidParticipantException
+
+
 ## 1.0.0-beta.5 (2021-03-02)
 ### Breaking Changes
 

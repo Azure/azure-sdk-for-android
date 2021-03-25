@@ -23,7 +23,6 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     packagingOptions {
-        exclude 'azure-core.properties'
         exclude 'META-INF/DEPENDENCIES'
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/license'
@@ -38,7 +37,7 @@ android {
 
 dependencies {
     implementation project(":sdk:core:azure-core-http-okhttp")
-    implementation project(path: ':sdk:communication:azure-communication-chat')
+    implementation project(":sdk:communication:azure-communication-chat")
     implementation "androidx.appcompat:appcompat:1.2.0"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
 }

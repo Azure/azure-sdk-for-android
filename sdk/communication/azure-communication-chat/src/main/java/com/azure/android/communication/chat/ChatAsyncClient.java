@@ -5,6 +5,7 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatImpl;
+import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
 import com.azure.android.communication.chat.models.ChatThreadItem;
@@ -109,8 +110,11 @@ public final class ChatAsyncClient {
         context = context == null ? Context.NONE : context;
         return this.chatClient.createChatThreadWithResponseAsync(
             CreateChatThreadOptionsConverter.convert(options, this.logger),
-            options.getRepeatabilityRequestId(),
-            context).thenApply(result -> {
+            options.getIdempotencyToken(),
+            context)
+            .exceptionally(throwable -> {
+                throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
+            }).thenApply(result -> {
                 return new SimpleResponse<>(result,
                     CreateChatThreadResultConverter.convert(result.getValue(), this.logger));
             });
@@ -173,7 +177,10 @@ public final class ChatAsyncClient {
                                                                              Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatClient.listChatThreadsSinglePageAsync(listThreadsOptions.getMaxPageSize(),
-            listThreadsOptions.getStartTime(), context);
+            listThreadsOptions.getStartTime(), context)
+            .exceptionally(throwable -> {
+                throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
+            });
     }
 
     /**
@@ -215,7 +222,10 @@ public final class ChatAsyncClient {
     CompletableFuture<PagedResponse<ChatThreadItem>> getChatThreadsNextPage(String nextLink,
                                                                             Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatClient.listChatThreadsNextSinglePageAsync(nextLink, context);
+        return this.chatClient.listChatThreadsNextSinglePageAsync(nextLink, context)
+            .exceptionally(throwable -> {
+                throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
+            });
     }
 
     /**
@@ -262,7 +272,10 @@ public final class ChatAsyncClient {
      */
     CompletableFuture<Response<Void>> deleteChatThread(String chatThreadId, Context context) {
         context = context == null ? Context.NONE : context;
-        return this.chatClient.deleteChatThreadWithResponseAsync(chatThreadId, context);
+        return this.chatClient.deleteChatThreadWithResponseAsync(chatThreadId, context)
+            .exceptionally(throwable -> {
+                throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
+            });
     }
 
     /**

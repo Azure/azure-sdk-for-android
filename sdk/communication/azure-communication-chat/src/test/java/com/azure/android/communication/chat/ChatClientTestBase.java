@@ -155,7 +155,7 @@ public class ChatClientTestBase extends TestBase {
         return options;
     }
 
-    private static ChatParticipant generateParticipant(String id, String displayName) {
+    public static ChatParticipant generateParticipant(String id, String displayName) {
         ChatParticipant chatParticipant = new ChatParticipant();
         chatParticipant.setCommunicationIdentifier(new CommunicationUserIdentifier(id));
         chatParticipant.setDisplayName(displayName);

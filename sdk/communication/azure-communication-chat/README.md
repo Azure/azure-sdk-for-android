@@ -125,18 +125,7 @@ CreateChatThreadOptions createChatThreadOptions = new CreateChatThreadOptions()
     .setTopic("Topic")
     .setParticipants(participants);
 CreateChatThreadResult result = chatClient.createChatThread(createChatThreadOptions);
-String chatThreadId = result.getChatThread().getId();
-```
-
-#### Get a chat thread
-
-The `getChatThread` method retrieves a thread from the service.
-`chatThreadId` is the unique ID of the chat thread.
-
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L97-L98 -->
-```Java
-String chatThreadId = "Id";
-ChatThread chatThread = chatClient.getChatThread(chatThreadId);
+String chatThreadId = result.getChatThreadProperties().getId();
 ```
 
 #### Delete a thread
@@ -161,6 +150,15 @@ String chatThreadId = "Id";
 ChatThreadClient chatThreadClient = chatClient.getChatThreadClient(chatThreadId);
 ```
 
+#### Get properties of a chat thread
+
+The `getProperties` method retrieves properties of a thread from the service.
+
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L97-L98 -->
+```Java
+ChatThreadProperties chatThreadProperties = chatClient.getProperties();
+```
+
 #### Update a chat thread topic
 
 Use `updateTopic` method to update a thread's topic
@@ -182,7 +180,7 @@ Use the `sendMessage` method to sends a chat message to a chat thread identified
 - Use `priority` to specify the chat message priority level, such as 'Normal' or 'High';
 - Use `senderDisplayName` to specify the display name of the sender;
 
-A `String` response returned from sending a chat message, it contains an id, which is the unique ID of the message.
+A `SendChatMessageResult` response returned from sending a chat message, it contains an `id`, which is the unique ID of the message.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L142-L148 -->
 ```Java
@@ -192,7 +190,7 @@ SendChatMessageOptions sendChatMessageOptions = new SendChatMessageOptions()
     .setSenderDisplayName("Sender Display Name");
 
 
-String chatMessageId = chatThreadClient.sendMessage(sendChatMessageOptions);
+String chatMessageId = chatThreadClient.sendMessage(sendChatMessageOptions).getId();
 ```
 
 #### Get a chat message
@@ -208,21 +206,21 @@ ChatMessage chatMessage = chatThreadClient.getMessage(chatMessageId);
 
 #### Get chat messages
 
-You can retrieve chat messages using the `listMessages` method on the chat thread client at specified intervals (polling).
+You can retrieve chat messages using the `getMessagesFirstPage` and `getMessagesNextPage` method on the chat thread client at specified intervals (polling).
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L167-L174 -->
 ```Java
-PagedIterable<ChatMessage> chatMessagesResponse = chatThreadClient.listMessages();
-chatMessagesResponse.iterableByPage().forEach(resp -> {
-    System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-        resp.getRequest().getUrl(), resp.getStatusCode());
-    resp.getItems().forEach(message -> {
-        System.out.printf("Message id is %s.", message.getId());
-    });
-});
+Page<ChatMessage> chatMessagesResponse = chatThreadClient.getMessagesFirstPage();
+List<ChatMessage> chatMessages = chatMessagesResponse.getElements();
+String nextLink = chatMessagesResponse.getContinuationToken();
+while (nextLink != null) {
+    chatMessagesResponse = chatThreadClient.getMessagesNextPage(nextLink);
+    chatMessages = chatMessagesResponse.getElements();
+    nextLink = chatMessagesResponse.getContinuationToken();
+}
 ```
 
-`listMessages` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`. 
+`getMessagesFirstPage` and `getMessagesNextPage` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`. 
 
 For deleted messages, `chatMessage.getDeletedOn()` returns a datetime value indicating when that message was deleted. 
 
@@ -276,28 +274,28 @@ chatThreadClient.deleteMessage(chatMessageId);
 
 #### List chat participants
 
-Use `listParticipants` to retrieve a paged collection containing the participants of the chat thread identified by chatThreadId.
+Use `getParticipantsFirstPage` and `getParticipantsNextPage` to retrieve a paged collection containing the participants of the chat thread identified by chatThreadId.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L206-L213 -->
 ```Java
-PagedIterable<ChatParticipant> chatParticipantsResponse = chatThreadClient.listParticipants();
-chatParticipantsResponse.iterableByPage().forEach(resp -> {
-    System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-        resp.getRequest().getUrl(), resp.getStatusCode());
-    resp.getItems().forEach(chatParticipant -> {
-        System.out.printf("Participant id is %s.", ((CommunicationUserIdentifier) chatParticipant.getCommunicationIdentifier()).getId());
-    });
-});
+Page<ChatParticipant> chatParticipantsResponse = chatThreadClient.getParticipantsFirstPage();
+List<ChatParticipant> chatParticipants = chatParticipantsResponse.getElements();
+String nextLink = chatParticipantsResponse.getContinuationToken();
+while (nextLink != null) {
+    chatParticipantsResponse = chatThreadClient.getParticipantsNextPage(nextLink);
+    chatParticipants = chatParticipantsResponse.getElements();
+    nextLink = chatParticipantsResponse.getContinuationToken();
+}
 ```
 
 #### Add participants
 
 Use `addParticipants` method to add participants to the thread identified by threadId.
-`addChatParticipantsOptions` describes the request object containing the members to be added; Use `.setParticipants()` to set the participants to be added to the thread;
+`addChatParticipantsOptions` describes the request object containing the participants to be added; Use `.setParticipants()` to set the participants to be added to the thread;
 
 - `communicationIdentifier`, required, is the CommunicationIdentifier you've created by using the CommunicationIdentityClient. More info at: [Create A User](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-java#create-a-user).
-- `display_name`, optional, is the display name for the thread member.
-- `share_history_time`, optional, is the time from which the chat history is shared with the member. To share history since the inception of the chat thread, set this property to any date equal to, or less than the thread creation time. To share no history previous to when the member was added, set it to the current date. To share partial history, set it to the required date.
+- `displayName`, optional, is the display name for the thread participant.
+- `shareHistoryTime`, optional, is the time from which the chat history is shared with the participant. To share history since the inception of the chat thread, set this property to any date equal to, or less than the thread creation time. To share no history previous to when the member was added, set it to the current date. To share partial history, set it to the required date.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L225-L240 -->
 ```Java
@@ -326,7 +324,7 @@ Use `removeParticipant` method to remove a participant from the chat thread iden
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L251-L251 -->
 ```Java
-chatThreadClient.removeParticipant(user);
+chatThreadClient.removeParticipant(identifier);
 ```
 
 ### Read Receipt Operations
@@ -344,18 +342,19 @@ chatThreadClient.sendReadReceipt(chatMessageId);
 
 #### Get read receipts
 
-`getReadReceipts` method retrieves read receipts for a chat thread.
+Use `getReadReceiptsFirstPage` and `getReadReceiptsNextPage` to retrieve a paged collection containing the read receipts for a chat thread.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L270-L277 -->
 ```Java
-PagedIterable<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.listReadReceipts();
-readReceiptsResponse.iterableByPage().forEach(resp -> {
-    System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-        resp.getRequest().getUrl(), resp.getStatusCode());
-    resp.getItems().forEach(readReceipt -> {
-        System.out.printf("Read message id is %s.", readReceipt.getChatMessageId());
-    });
-});
+
+Page<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.getReadReceiptsFirstPage();
+List<ChatMessageReadReceipt> chatMessageReadReceipts = readReceiptsResponse.getElements();
+String nextLink = readReceiptsResponse.getContinuationToken();
+while (nextLink != null) {
+    readReceiptsResponse = chatThreadClient.getReadReceiptsNextPage(nextLink);
+    chatMessageReadReceipts = readReceiptsResponse.getElements();
+    nextLink = readReceiptsResponse.getContinuationToken();
+}
 ```
 
 ### Typing Notification Operations

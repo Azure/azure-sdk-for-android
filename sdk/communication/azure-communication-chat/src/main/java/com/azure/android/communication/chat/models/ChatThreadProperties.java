@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
 
-/** The ChatThread model. */
+/** The ChatThreadProperties model. */
 @Fluent
-public final class ChatThread {
+public final class ChatThreadProperties {
     /*
      * Chat thread id.
      */
@@ -53,9 +53,9 @@ public final class ChatThread {
      * Set the id property: Chat thread id.
      *
      * @param id the id value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
-    public ChatThread setId(String id) {
+    public ChatThreadProperties setId(String id) {
         this.id = id;
         return this;
     }
@@ -73,9 +73,9 @@ public final class ChatThread {
      * Set the topic property: Chat thread topic.
      *
      * @param topic the topic value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
-    public ChatThread setTopic(String topic) {
+    public ChatThreadProperties setTopic(String topic) {
         this.topic = topic;
         return this;
     }
@@ -95,9 +95,9 @@ public final class ChatThread {
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @param createdOn the createdOn value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
-    public ChatThread setCreatedOn(OffsetDateTime createdOn) {
+    public ChatThreadProperties setCreatedOn(OffsetDateTime createdOn) {
         this.createdOn = createdOn;
         return this;
     }
@@ -119,9 +119,10 @@ public final class ChatThread {
      * union: Apart from rawId, at most one further property may be set.
      *
      * @param createdByCommunicationIdentifier the createdByCommunicationIdentifier value to set.
-     * @return the ChatThread object itself.
+     * @return the ChatThreadProperties object itself.
      */
-    public ChatThread setCreatedByCommunicationIdentifier(CommunicationIdentifier createdByCommunicationIdentifier) {
+    public ChatThreadProperties setCreatedByCommunicationIdentifier(
+        CommunicationIdentifier createdByCommunicationIdentifier) {
         this.createdByCommunicationIdentifier = createdByCommunicationIdentifier;
         return this;
     }
