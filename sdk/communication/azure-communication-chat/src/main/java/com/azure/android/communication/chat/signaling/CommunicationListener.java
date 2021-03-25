@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat.signaling;
 
+import com.azure.android.communication.chat.signaling.properties.ChatEventId;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;
@@ -14,10 +15,10 @@ import org.json.JSONObject;
 final class CommunicationListener implements ITrouterListener {
 
     private final ClientLogger logger;
-    private final String chatEventId;
+    private final ChatEventId chatEventId;
     private final RealTimeNotificationCallback listenerFromConsumer;
 
-    CommunicationListener(String chatEventId, RealTimeNotificationCallback listener) {
+    CommunicationListener(ChatEventId chatEventId, RealTimeNotificationCallback listener) {
         this.chatEventId = chatEventId;
         this.listenerFromConsumer = listener;
         this.logger = new ClientLogger(this.getClass());

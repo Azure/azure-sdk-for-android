@@ -116,11 +116,11 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
+    public void on(ChatEventId chatEventId, String listenerId, RealTimeNotificationCallback listener) {
         CommunicationListener communicationListener = new CommunicationListener(chatEventId, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
         if (!trouterListeners.containsKey(listenerId)) {
-            switch (ChatEventId.valueOf(chatEventId)) {
+            switch (chatEventId) {
                 case chatMessageReceived:
                     trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
                     break;
@@ -159,7 +159,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void off(String chatEventId, String listenerId) {
+    public void off(ChatEventId chatEventId, String listenerId) {
         if (trouterListeners.containsKey(listenerId)) {
             trouter.unregisterListener(trouterListeners.get(listenerId));
             trouterListeners.remove(listenerId);
