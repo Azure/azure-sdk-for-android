@@ -1,5 +1,5 @@
 # Release History
-## 1.0.0-beta.9 (Unreleased)
+## 1.0.0-beta.9 (2021-03-29)
 ### Breaking Changes
 - ChatThreadAsyncClient:
     - Renamed `getChatThreadProperties` to `getProperties`.

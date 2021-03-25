@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.9 (Unreleased)
+## 1.0.0-beta.9 (2021-03-29)
 ### Breaking Changes
 - Changed `UserCredential.getToken()` to return `CompletableFuture<CommunicationAccessToken>` instead of `Future<CommunicationAccessToken>`.
 - Invoking `getToken` on a disposed `UserCredential` returns a failed `CompletableFuture` instead of cancelled `Future`.
