@@ -106,30 +106,31 @@ class TrouterUtils {
         ParticipantsRemovedEvent eventPayload = new ParticipantsRemovedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("threadId");
+            eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant removedBy = new ChatParticipant();
-            removedBy.user =  constructIdentifierKindFromMri(payload.getJSONObject("removedBy").getString("participantId"));
-            removedBy.displayName = payload.getJSONObject("removedBy").getString("displayName");
-            eventPayload.removedBy = removedBy;
+            removedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("removedBy").getString("participantId")));
+            removedBy.setDisplayName(payload.getJSONObject("removedBy").getString("displayName"));
+            eventPayload.setRemovedBy(removedBy);
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
             JSONArray members = payload.getJSONArray("participantsRemoved");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
 
-                CommunicationIdentifier communicationUser = constructIdentifierKindFromMri(member.getString("participantId"));
+                CommunicationIdentifier communicationUser =
+                    constructIdentifierKindFromMri(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.user = communicationUser;
-                chatParticipant.displayName = member.getString("displayName");
-                chatParticipant.shareHistoryTime = new Date(member.getString("shareHistoryTime")).toString();
+                chatParticipant.setUser(communicationUser);
+                chatParticipant.setDisplayName(member.getString("displayName"));
+                chatParticipant.setShareHistoryTime(new Date(member.getString("shareHistoryTime")).toString());
 
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.removedOn = payload.getString("time");
-            eventPayload.version = payload.getString("version");
-            eventPayload.participantsRemoved = chatParticipants;
+            eventPayload.setRemovedOn(payload.getString("time"));
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setParticipantsRemoved(chatParticipants);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -141,30 +142,31 @@ class TrouterUtils {
         ParticipantsAddedEvent eventPayload = new ParticipantsAddedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("threadId");
+            eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant addedBy = new ChatParticipant();
-            addedBy.user =  constructIdentifierKindFromMri(payload.getJSONObject("addedBy").getString("participantId"));
-            addedBy.displayName = payload.getJSONObject("addedBy").getString("displayName");
-            eventPayload.addedBy = addedBy;
+            addedBy.setUser( constructIdentifierKindFromMri(payload.getJSONObject("addedBy").getString("participantId")));
+            addedBy.setDisplayName(payload.getJSONObject("addedBy").getString("displayName"));
+            eventPayload.setAddedBy(addedBy);
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
             JSONArray members = payload.getJSONArray("participantsAdded");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
 
-                CommunicationIdentifier communicationUser = constructIdentifierKindFromMri(member.getString("participantId"));
+                CommunicationIdentifier communicationUser =
+                    constructIdentifierKindFromMri(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.user = communicationUser;
-                chatParticipant.displayName = member.getString("displayName");
-                chatParticipant.shareHistoryTime = new Date(member.getString("shareHistoryTime")).toString();
+                chatParticipant.setUser(communicationUser);
+                chatParticipant.setDisplayName(member.getString("displayName"));
+                chatParticipant.setShareHistoryTime(new Date(member.getString("shareHistoryTime")).toString());
 
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.addedOn = payload.getString("time");
-            eventPayload.version = payload.getString("version");
-            eventPayload.participantsAdded = chatParticipants;
+            eventPayload.setAddedOn(payload.getString("time"));
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setParticipantsAdded(chatParticipants);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -176,15 +178,15 @@ class TrouterUtils {
         ChatThreadDeletedEvent eventPayload = new ChatThreadDeletedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("threadId");
+            eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant deletedBy = new ChatParticipant();
-            deletedBy.user =  constructIdentifierKindFromMri(payload.getJSONObject("deletedBy").getString("participantId"));
-            deletedBy.displayName = payload.getJSONObject("deletedBy").getString("displayName");
-            eventPayload.deletedBy = deletedBy;
+            deletedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("deletedBy").getString("participantId")));
+            deletedBy.setDisplayName(payload.getJSONObject("deletedBy").getString("displayName"));
+            eventPayload.setDeletedBy(deletedBy);
 
-            eventPayload.deletedOn = payload.getString("deleteTime");
-            eventPayload.version = payload.getString("version");
+            eventPayload.setDeletedOn(payload.getString("deleteTime"));
+            eventPayload.setVersion(payload.getString("version"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -196,20 +198,20 @@ class TrouterUtils {
         ChatThreadPropertiesUpdatedEvent eventPayload = new ChatThreadPropertiesUpdatedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("threadId");
+            eventPayload.setThreadId(payload.getString("threadId"));
 
-            eventPayload.updatedOn = payload.getString("editTime");
+            eventPayload.setUpdatedOn(payload.getString("editTime"));
 
             ChatParticipant updatedBy = new ChatParticipant();
-            updatedBy.user =  constructIdentifierKindFromMri(payload.getJSONObject("editedBy").getString("participantId"));
-            updatedBy.displayName = payload.getJSONObject("editedBy").getString("displayName");
-            eventPayload.updatedBy = updatedBy;
+            updatedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("editedBy").getString("participantId")));
+            updatedBy.setDisplayName(payload.getJSONObject("editedBy").getString("displayName"));
+            eventPayload.setUpdatedBy(updatedBy);
 
-            eventPayload.version = payload.getString("version");
+            eventPayload.setVersion(payload.getString("version"));
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.topic = payload.getJSONObject("properties").getString("topic");
-            eventPayload.properties = chatThreadProperties;
+            chatThreadProperties.setTopic(payload.getJSONObject("properties").getString("topic"));
+            eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -221,33 +223,34 @@ class TrouterUtils {
         ChatThreadCreatedEvent eventPayload = new ChatThreadCreatedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("threadId");
+            eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant createdBy = new ChatParticipant();
-            createdBy.user =  constructIdentifierKindFromMri(payload.getJSONObject("createdBy").getString("participantId"));
-            createdBy.displayName = payload.getJSONObject("createdBy").getString("displayName");
+            createdBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("createdBy").getString("participantId")));
+            createdBy.setDisplayName(payload.getJSONObject("createdBy").getString("displayName"));
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
             JSONArray members = payload.getJSONArray("members");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
-                CommunicationIdentifier communicationUser = constructIdentifierKindFromMri(member.getString("participantId"));
+                CommunicationIdentifier communicationUser =
+                    constructIdentifierKindFromMri(member.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.user = communicationUser;
-                chatParticipant.displayName = member.getString("displayName");
+                chatParticipant.setUser(communicationUser);
+                chatParticipant.setDisplayName(member.getString("displayName"));
 
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.createdOn = payload.getString("createTime");
-            eventPayload.createdBy = createdBy;
-            eventPayload.version = payload.getString("version");
-            eventPayload.participants = chatParticipants;
+            eventPayload.setCreatedOn(payload.getString("createTime"));
+            eventPayload.setCreatedBy(createdBy);
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setParticipants(chatParticipants);
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.topic = payload.getJSONObject("properties").getString("topic");
-            eventPayload.properties = chatThreadProperties;
+            chatThreadProperties.setTopic(payload.getJSONObject("properties").getString("topic"));
+            eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -259,13 +262,13 @@ class TrouterUtils {
         ReadReceiptReceivedEvent eventPayload = new ReadReceiptReceivedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("groupId");
+            eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.sender = constructIdentifierKindFromMri(payload.getString("senderId"));
-            eventPayload.recipient = constructIdentifierKindFromMri(payload.getString("recipientId"));
+            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
+            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
 
-            eventPayload.chatMessageId = payload.getString("messageId");
-            eventPayload.readOn = new Date().toString();
+            eventPayload.setChatMessageId(payload.getString("messageId"));
+            eventPayload.setReadOn(new Date().toString());
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -277,13 +280,13 @@ class TrouterUtils {
         TypingIndicatorReceivedEvent eventPayload = new TypingIndicatorReceivedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("groupId");
+            eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.sender = constructIdentifierKindFromMri(payload.getString("senderId"));
-            eventPayload.recipient = constructIdentifierKindFromMri(payload.getString("recipientId"));
+            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
+            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
 
-            eventPayload.receivedOn = payload.getString("originalArrivalTime");
-            eventPayload.version = payload.getString("version");
+            eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setVersion(payload.getString("version"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -295,17 +298,17 @@ class TrouterUtils {
         ChatMessageDeletedEvent eventPayload = new ChatMessageDeletedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("groupId");
+            eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.sender = constructIdentifierKindFromMri(payload.getString("senderId"));
-            eventPayload.recipient = constructIdentifierKindFromMri(payload.getString("recipientId"));
+            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
+            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
 
 
-            eventPayload.id = payload.getString("messageId");
-            eventPayload.senderDisplayName = payload.getString("senderDisplayName");
-            eventPayload.createdOn = payload.getString("originalArrivalTime");
-            eventPayload.version = payload.getString("version");
-            eventPayload.deletedOn = payload.getString("deletetime");
+            eventPayload.setId(payload.getString("messageId"));
+            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
+            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setDeletedOn(payload.getString("deletetime"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -317,17 +320,17 @@ class TrouterUtils {
         ChatMessageEditedEvent eventPayload = new ChatMessageEditedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("groupId");
+            eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.sender = constructIdentifierKindFromMri(payload.getString("senderId"));
-            eventPayload.recipient = constructIdentifierKindFromMri(payload.getString("recipientId"));
+            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
+            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
 
-            eventPayload.id = payload.getString("messageId");
-            eventPayload.senderDisplayName = payload.getString("senderDisplayName");
-            eventPayload.createdOn = payload.getString("originalArrivalTime");
-            eventPayload.version = payload.getString("version");
-            eventPayload.content = payload.getString("messageBody");
-            eventPayload.editedOn = payload.getString("edittime");
+            eventPayload.setId(payload.getString("messageId"));
+            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
+            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setContent(payload.getString("messageBody"));
+            eventPayload.setEditedOn(payload.getString("edittime"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -339,17 +342,17 @@ class TrouterUtils {
         ChatMessageReceivedEvent eventPayload = new ChatMessageReceivedEvent();
 
         try {
-            eventPayload.threadId = payload.getString("groupId");
-            eventPayload.sender = constructIdentifierKindFromMri(payload.getString("senderId"));
-            eventPayload.recipient = constructIdentifierKindFromMri(payload.getString("recipientId"));
+            eventPayload.setThreadId(payload.getString("groupId"));
+            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
+            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
 
-            eventPayload.id = payload.getString("messageId");
-            eventPayload.senderDisplayName = payload.getString("senderDisplayName");
-            eventPayload.createdOn = payload.getString("originalArrivalTime");
-            eventPayload.version = payload.getString("version");
-            eventPayload.type = payload.getString("messageType");
-            eventPayload.content = payload.getString("messageBody");
-            eventPayload.priority = payload.getString("priority");
+            eventPayload.setId(payload.getString("messageId"));
+            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
+            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setVersion(payload.getString("version"));
+            eventPayload.setType(payload.getString("messageType"));
+            eventPayload.setContent(payload.getString("messageBody"));
+            eventPayload.setPriority(payload.getString("priority"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }

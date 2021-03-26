@@ -11,8 +11,6 @@ import com.microsoft.trouterclient.ITrouterListener;
 import com.microsoft.trouterclient.ITrouterRequest;
 import com.microsoft.trouterclient.ITrouterResponse;
 
-import org.json.JSONObject;
-
 final class CommunicationListener implements ITrouterListener {
 
     private final ClientLogger logger;

@@ -33,7 +33,7 @@ static def getBuildVariant() {
 }
 
 dependencies {
-    implementation 'com.microsoft.trouter:client-android:0.0.1-beta.1'
+    implementation 'com.microsoft:trouter-client-android:0.0.1-beta.3'
     // <!-- begin: api Dependencies -->
     api project(":sdk:core:azure-core")
     api project(":sdk:core:azure-core-logging")

@@ -10,5 +10,24 @@ public class ChatThreadProperties {
     /**
      * Thread topic.
      */
-    public String topic;
+    private String topic;
+
+
+    /**
+     * Sets new Thread topic..
+     *
+     * @param topic New value of Thread topic..
+     */
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    /**
+     * Gets Thread topic..
+     *
+     * @return Value of Thread topic..
+     */
+    public String getTopic() {
+        return topic;
+    }
 }

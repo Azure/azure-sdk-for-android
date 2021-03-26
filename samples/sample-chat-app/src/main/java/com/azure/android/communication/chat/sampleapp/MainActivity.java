@@ -22,6 +22,7 @@ import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
@@ -41,12 +42,14 @@ import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
+import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatMessageReceived;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
-    //private int eventHandlerCalled;
+    private int eventHandlerCalled;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
     private String firstUserId = "<first-user-id>";
@@ -146,11 +149,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void registerRealTimeNotificationListener(View view) {
-        logAndToast("Implementation pending");
-
         // Act - subscribe
-        log("Register a test listener");
-        chatClient.on("chatMessageReceived", listenerId, (BaseEvent payload) -> {
+        logAndToast("Register a test listener");
+        chatAsyncClient.on(chatMessageReceived, listenerId, (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
@@ -160,11 +161,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
-        logAndToast("Implementation pending");
-
         // Act - subscribe
-        log("Unregister a test listener");
-        chatClient.off("chatMessageReceived", listenerId);
+        logAndToast("Unregister a test listener");
+        chatAsyncClient.off(chatMessageReceived, listenerId);
     }
 
     public void sendChatMessage(View view) {
