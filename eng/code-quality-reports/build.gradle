@@ -10,11 +10,11 @@ jar {
 
 dependencies {
     // <!-- begin: implementation Dependencies -->
-    implementation ("com.puppycrawl.tools:checkstyle:$qualityReportsPuppycrawlVersion")
+    implementation "com.puppycrawl.tools:checkstyle:$qualityReportsPuppycrawlVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation ("com.puppycrawl.tools:checkstyle:$qualityReportsPuppycrawlVersion:tests")
-    testImplementation ("junit:junit:$qualityReportsJunitVersion")
+    testImplementation "com.puppycrawl.tools:checkstyle:$qualityReportsPuppycrawlVersion:tests"
+    testImplementation "junit:junit:$qualityReportsJunitVersion"
     // <!-- end: test Dependencies -->
 }

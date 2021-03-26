@@ -12,13 +12,14 @@ android {
 
 dependencies {
     // <!-- begin: implementation Dependencies -->
-    implementation ("org.slf4j:slf4j-api:$slf4jApiVersion")
+    implementation "org.slf4j:slf4j-api:$slf4jApiVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
-    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     // <!-- end: test Dependencies -->
 }
