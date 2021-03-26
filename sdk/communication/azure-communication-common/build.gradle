@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Client Library common code For Communication Service"
 description = "This package contains the Android client library common code for Microsoft Azure Communication Service."
-version = "1.0.0-beta.9"
+version = "1.0.0-beta.8"
 ext.versionCode = 1
 
 android {
@@ -12,8 +12,8 @@ android {
 
 dependencies {
     // <!-- begin: api Dependencies -->
-    api project(":sdk:core:azure-core")
-    api project(":sdk:core:azure-core-logging")
+    api "com.azure.android:azure-core:$azureCoreVersion"
+    api "com.azure.android:azure-core-logging:$azureCoreVersion"
     api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
     // <!-- end: api Dependencies -->
 

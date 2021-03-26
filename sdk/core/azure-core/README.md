@@ -15,9 +15,9 @@ Azure Core Micro provides shared primitives, abstractions, and helpers for moder
 [//]: # ({x-version-update-start;com.azure:azure-core;current})
 ```xml
 <dependency>
-  <groupId>com.azure</groupId>
-  <artifactId>azure-core</artifactId>
-  <version>1.0.0-beta.4</version>
+    <groupId>com.azure</groupId>
+    <artifactId>azure-core</artifactId>
+    <version>1.0.0-beta.5</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
