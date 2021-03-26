@@ -53,8 +53,8 @@ public class TypingIndicatorReceivedEvent extends ChatUserEvent {
      * Sets new The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`..
      *
-     * @param receivedOn New value of The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
-     *                   `yyyy-MM-ddTHH:mm:ssZ`..
+     * @param receivedOn New value of The timestamp when the message arrived at the server.
+     *                   The timestamp is in ISO8601 format:  `yyyy-MM-ddTHH:mm:ssZ`..
      */
     public void setReceivedOn(String receivedOn) {
         this.receivedOn = receivedOn;

@@ -30,7 +30,8 @@ public class ReadReceiptReceivedEvent extends ChatUserEvent {
     /**
      * Sets new The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
      *
-     * @param readOn New value of The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
+     * @param readOn New value of The timestamp when the message was read.
+     *               The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
      */
     public void setReadOn(String readOn) {
         this.readOn = readOn;
@@ -48,7 +49,8 @@ public class ReadReceiptReceivedEvent extends ChatUserEvent {
     /**
      * Gets The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
      *
-     * @return Value of The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
+     * @return Value of The timestamp when the message was read.
+     *         The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ.
      */
     public String getReadOn() {
         return readOn;

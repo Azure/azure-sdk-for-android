@@ -109,7 +109,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant removedBy = new ChatParticipant();
-            removedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("removedBy").getString("participantId")));
+            removedBy.setUser(getUserIdentifier(payload.getJSONObject("removedBy").getString("participantId")));
             removedBy.setDisplayName(payload.getJSONObject("removedBy").getString("displayName"));
             eventPayload.setRemovedBy(removedBy);
 
@@ -119,7 +119,7 @@ class TrouterUtils {
                 JSONObject member = members.getJSONObject(i);
 
                 CommunicationIdentifier communicationUser =
-                    constructIdentifierKindFromMri(member.getString("participantId"));
+                    getUserIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
@@ -145,7 +145,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant addedBy = new ChatParticipant();
-            addedBy.setUser( constructIdentifierKindFromMri(payload.getJSONObject("addedBy").getString("participantId")));
+            addedBy.setUser(getUserIdentifier(payload.getJSONObject("addedBy").getString("participantId")));
             addedBy.setDisplayName(payload.getJSONObject("addedBy").getString("displayName"));
             eventPayload.setAddedBy(addedBy);
 
@@ -155,7 +155,7 @@ class TrouterUtils {
                 JSONObject member = members.getJSONObject(i);
 
                 CommunicationIdentifier communicationUser =
-                    constructIdentifierKindFromMri(member.getString("participantId"));
+                    getUserIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
@@ -181,7 +181,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant deletedBy = new ChatParticipant();
-            deletedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("deletedBy").getString("participantId")));
+            deletedBy.setUser(getUserIdentifier(payload.getJSONObject("deletedBy").getString("participantId")));
             deletedBy.setDisplayName(payload.getJSONObject("deletedBy").getString("displayName"));
             eventPayload.setDeletedBy(deletedBy);
 
@@ -203,7 +203,7 @@ class TrouterUtils {
             eventPayload.setUpdatedOn(payload.getString("editTime"));
 
             ChatParticipant updatedBy = new ChatParticipant();
-            updatedBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("editedBy").getString("participantId")));
+            updatedBy.setUser(getUserIdentifier(payload.getJSONObject("editedBy").getString("participantId")));
             updatedBy.setDisplayName(payload.getJSONObject("editedBy").getString("displayName"));
             eventPayload.setUpdatedBy(updatedBy);
 
@@ -226,7 +226,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant createdBy = new ChatParticipant();
-            createdBy.setUser(constructIdentifierKindFromMri(payload.getJSONObject("createdBy").getString("participantId")));
+            createdBy.setUser(getUserIdentifier(payload.getJSONObject("createdBy").getString("participantId")));
             createdBy.setDisplayName(payload.getJSONObject("createdBy").getString("displayName"));
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
@@ -234,7 +234,7 @@ class TrouterUtils {
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
                 CommunicationIdentifier communicationUser =
-                    constructIdentifierKindFromMri(member.getString("participantId"));
+                    getUserIdentifier(member.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
@@ -264,8 +264,8 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
-            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
+            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
             eventPayload.setReadOn(new Date().toString());
@@ -282,8 +282,8 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
-            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
+            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
 
             eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
             eventPayload.setVersion(payload.getString("version"));
@@ -300,8 +300,8 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
-            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
+            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
 
 
             eventPayload.setId(payload.getString("messageId"));
@@ -322,8 +322,8 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
-            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
+            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -343,8 +343,8 @@ class TrouterUtils {
 
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
-            eventPayload.setSender(constructIdentifierKindFromMri(payload.getString("senderId")));
-            eventPayload.setRecipient(constructIdentifierKindFromMri(payload.getString("recipientId")));
+            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -360,7 +360,7 @@ class TrouterUtils {
         return eventPayload;
     }
 
-    private static CommunicationIdentifier constructIdentifierKindFromMri(String mri) {
+    private static CommunicationIdentifier getUserIdentifier(String mri) {
         if (mri.startsWith("8:orgid")) {
             MicrosoftTeamsUserIdentifier userIdentifier = new MicrosoftTeamsUserIdentifier(mri, false);
             userIdentifier.setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);

@@ -88,8 +88,8 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
      * Sets new Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`.
      *
-     * @param version New value of Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
-     *                `1593117207131`.
+     * @param version New value of Version of the message.
+     *                This version is an epoch time in a numeric unsigned Int64 format: `1593117207131`.
      */
     public void setVersion(String version) {
         this.version = version;
@@ -126,8 +126,8 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
      * Sets new The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`..
      *
-     * @param createdOn New value of The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
-     *                  `yyyy-MM-ddTHH:mm:ssZ`..
+     * @param createdOn New value of The timestamp when the message arrived at the server.
+     *                  The timestamp is in ISO8601 format:  `yyyy-MM-ddTHH:mm:ssZ`..
      */
     public void setCreatedOn(String createdOn) {
         this.createdOn = createdOn;

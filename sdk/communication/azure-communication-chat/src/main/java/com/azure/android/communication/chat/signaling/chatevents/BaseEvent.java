@@ -3,6 +3,9 @@
 
 package com.azure.android.communication.chat.signaling.chatevents;
 
+/**
+ * The base event of chat events
+ */
 public abstract class BaseEvent {
     /**
      * Thread Id of the event.
