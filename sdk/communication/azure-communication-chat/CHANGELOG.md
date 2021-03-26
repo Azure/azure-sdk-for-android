@@ -17,6 +17,7 @@
 - Renamed `CommunicationErrorResponseException` to `ChatErrorResponseException`.
 - Renamed `repeatabilityRequestId` renamed to `idempotencyToken` in `CreateChatThreadOptions`. 
 - Renamed `chatThread` to `chatThreadProperties` in `CreateChatThreadResult`.
+- Removed the `azure-communication-chat.properties` file.
 
 ### New Features
 - Added ChatThreadClientBuilder

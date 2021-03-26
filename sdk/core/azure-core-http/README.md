@@ -15,9 +15,9 @@ Azure Core HTTP provides shared primitives, abstractions, and helpers for concre
 [//]: # ({x-version-update-start;com.azure:azure-core-http;current})
 ```xml
 <dependency>
-  <groupId>com.azure</groupId>
-  <artifactId>azure-core-http</artifactId>
-  <version>1.0.0-beta.4</version>
+    <groupId>com.azure</groupId>
+    <artifactId>azure-core-http</artifactId>
+    <version>1.0.0-beta.5</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
