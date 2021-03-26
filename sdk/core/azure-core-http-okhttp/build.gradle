@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Core HTTP OkHttp Library"
 description = "This package contains HTTP implementation using OkHttp for Azure Android clients."
-version = "1.0.0-beta.5"
+version = "1.0.0-beta.6"
 ext.versionCode = 1
 
 android {
