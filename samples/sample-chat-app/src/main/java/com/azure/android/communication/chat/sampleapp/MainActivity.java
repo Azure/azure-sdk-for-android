@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
 import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatMessageReceived;
+import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatThreadCreated;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -82,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 .credentialPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
                     callback.onSuccess(new AccessToken(firstUserAccessToken, OffsetDateTime.now().plusDays(1)))))
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
+                .realtimeNotificationParams(getApplicationContext(), firstUserAccessToken)
                 .httpClient(new OkHttpAsyncClientProvider().createInstance())
                 .buildAsyncClient();
 
@@ -137,20 +139,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startRealTimeNotification(View view) {
-        logAndToast("Implementation pending");
-
-        // TODO: Implement when Trouter functionality is available for chat clients
-        /*Log.i(TAG, "Starting real time notification");
+        logAndToast( "Starting real time notification");
         try {
-            chatClient.startRealtimeNotifications();
+            chatAsyncClient.startRealtimeNotifications();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
-        }*/
+        }
     }
 
     public void registerRealTimeNotificationListener(View view) {
-        // Act - subscribe
         logAndToast("Register a test listener");
+        chatAsyncClient.on(chatThreadCreated, "testListenerForThreadCreation", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Message received! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
         chatAsyncClient.on(chatMessageReceived, listenerId, (BaseEvent payload) -> {
             eventHandlerCalled++;
 
@@ -161,7 +167,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
-        // Act - subscribe
         logAndToast("Unregister a test listener");
         chatAsyncClient.off(chatMessageReceived, listenerId);
     }

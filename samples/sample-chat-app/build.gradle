@@ -32,6 +32,7 @@ android {
         exclude("META-INF/*.md")
         exclude("META-INF/*.txt")
         exclude("META-INF/*.kotlin_module")
+        exclude 'azure-core.properties'
     }
 }
 

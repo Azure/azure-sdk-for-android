@@ -109,12 +109,13 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant removedBy = new ChatParticipant();
-            removedBy.setUser(getUserIdentifier(payload.getJSONObject("removedBy").getString("participantId")));
-            removedBy.setDisplayName(payload.getJSONObject("removedBy").getString("displayName"));
+            removedBy.setUser(
+                getUserIdentifier(getJSONObject(payload, "removedBy").getString("participantId")));
+            removedBy.setDisplayName(getJSONObject(payload, "removedBy").getString("displayName"));
             eventPayload.setRemovedBy(removedBy);
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = payload.getJSONArray("participantsRemoved");
+            JSONArray members = getJSONArray(payload, "participantsRemoved");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
 
@@ -145,12 +146,13 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant addedBy = new ChatParticipant();
-            addedBy.setUser(getUserIdentifier(payload.getJSONObject("addedBy").getString("participantId")));
-            addedBy.setDisplayName(payload.getJSONObject("addedBy").getString("displayName"));
+            addedBy.setUser(
+                getUserIdentifier(getJSONObject(payload, "addedBy").getString("participantId")));
+            addedBy.setDisplayName(getJSONObject(payload, "addedBy").getString("displayName"));
             eventPayload.setAddedBy(addedBy);
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = payload.getJSONArray("participantsAdded");
+            JSONArray members = getJSONArray(payload, "participantsAdded");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
 
@@ -181,8 +183,9 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant deletedBy = new ChatParticipant();
-            deletedBy.setUser(getUserIdentifier(payload.getJSONObject("deletedBy").getString("participantId")));
-            deletedBy.setDisplayName(payload.getJSONObject("deletedBy").getString("displayName"));
+            deletedBy.setUser(
+                getUserIdentifier(getJSONObject(payload, "deletedBy").getString("participantId")));
+            deletedBy.setDisplayName(getJSONObject(payload, "deletedBy").getString("displayName"));
             eventPayload.setDeletedBy(deletedBy);
 
             eventPayload.setDeletedOn(payload.getString("deleteTime"));
@@ -203,14 +206,15 @@ class TrouterUtils {
             eventPayload.setUpdatedOn(payload.getString("editTime"));
 
             ChatParticipant updatedBy = new ChatParticipant();
-            updatedBy.setUser(getUserIdentifier(payload.getJSONObject("editedBy").getString("participantId")));
-            updatedBy.setDisplayName(payload.getJSONObject("editedBy").getString("displayName"));
+            updatedBy.setUser(
+                getUserIdentifier(getJSONObject(payload, "editedBy").getString("participantId")));
+            updatedBy.setDisplayName(getJSONObject(payload, "editedBy").getString("displayName"));
             eventPayload.setUpdatedBy(updatedBy);
 
             eventPayload.setVersion(payload.getString("version"));
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.setTopic(payload.getJSONObject("properties").getString("topic"));
+            chatThreadProperties.setTopic(getJSONObject(payload, "properties").getString("topic"));
             eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -226,11 +230,12 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant createdBy = new ChatParticipant();
-            createdBy.setUser(getUserIdentifier(payload.getJSONObject("createdBy").getString("participantId")));
-            createdBy.setDisplayName(payload.getJSONObject("createdBy").getString("displayName"));
+            createdBy.setUser(
+                getUserIdentifier(getJSONObject(payload, "createdBy").getString("participantId")));
+            createdBy.setDisplayName(getJSONObject(payload, "createdBy").getString("displayName"));
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = payload.getJSONArray("members");
+            JSONArray members = getJSONArray(payload, "members");
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
                 CommunicationIdentifier communicationUser =
@@ -249,7 +254,7 @@ class TrouterUtils {
             eventPayload.setParticipants(chatParticipants);
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.setTopic(payload.getJSONObject("properties").getString("topic"));
+            chatThreadProperties.setTopic(getJSONObject(payload, "properties").getString("topic"));
             eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -382,5 +387,13 @@ class TrouterUtils {
         } else {
             return new UnknownIdentifier(mri);
         }
+    }
+
+    private static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {
+        return new JSONObject(payload.getString(property));
+    }
+
+    private static JSONArray getJSONArray(JSONObject payload, String property) throws JSONException {
+        return new JSONArray(payload.getString(property));
     }
 }
