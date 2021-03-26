@@ -3,7 +3,8 @@
 
 package com.azure.android.communication.chat.signaling;
 
-import org.json.JSONObject;
+import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
+
 
 /**
  *  Funcitonal interface of real time notification callback
@@ -15,6 +16,6 @@ public interface RealTimeNotificationCallback {
      * the call back method
      * @param chatEvent the chat event json object
      */
-    void onChatEvent(JSONObject chatEvent);
+    void onChatEvent(BaseEvent chatEvent);
 
 }

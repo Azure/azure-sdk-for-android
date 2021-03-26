@@ -236,12 +236,7 @@ allprojects {
         google()
         mavenCentral()
         // org.jetbrains.trove4j:trove4j:20160824.
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
-        maven {
-            url 'https://trouterpublicpackages.z13.web.core.windows.net'
-        }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
 
     ext {
