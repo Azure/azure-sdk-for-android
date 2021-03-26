@@ -47,7 +47,6 @@ public class MainActivity extends AppCompatActivity {
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
     //private int eventHandlerCalled;
-    //private JSONObject eventPayload;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
     private String firstUserId = "<first-user-id>";
@@ -149,26 +148,23 @@ public class MainActivity extends AppCompatActivity {
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Implementation pending");
 
-        // TODO: Implement when Trouter functionality is available for chat clients
-        /*// Act - subscribe
+        // Act - subscribe
         log("Register a test listener");
-        chatClient.on("chatMessageReceived", listenerId, (JSONObject payload) -> {
+        chatClient.on("chatMessageReceived", listenerId, (BaseEvent payload) -> {
             eventHandlerCalled++;
-            eventPayload = payload;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message received! Content is %s.", eventPayload);
+            System.out.printf("Message received! Content is %s.", payload);
             Log.i(TAG, payload.toString());
-        });*/
+        });
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
         logAndToast("Implementation pending");
 
-        // TODO: Implement when Trouter functionality is available for chat clients
-        /*// Act - subscribe
+        // Act - subscribe
         log("Unregister a test listener");
-        chatClient.off("chatMessageReceived", listenerId);*/
+        chatClient.off("chatMessageReceived", listenerId);
     }
 
     public void sendChatMessage(View view) {
