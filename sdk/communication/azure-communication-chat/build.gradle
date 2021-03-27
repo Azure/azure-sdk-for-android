@@ -33,27 +33,29 @@ static def getBuildVariant() {
 }
 
 dependencies {
-    implementation 'com.microsoft:trouter-client-android:0.0.1-beta.3'
     // <!-- begin: api Dependencies -->
     api "com.azure.android:azure-core:$azureCoreVersion"
-    api "com.azure.android:azure-core-logging:$azureCoreVersion"
     api "com.azure.android:azure-core-credential:$azureCoreVersion"
-    api "com.azure.android:azure-core-rest:$azureCoreVersion"
     api "com.azure.android:azure-core-http:$azureCoreVersion"
+    api "com.azure.android:azure-core-logging:$azureCoreVersion"
+    api "com.azure.android:azure-core-rest:$azureCoreVersion"
+    api "net.sourceforge.streamsupport:android-retrofuture:$retroFutureVersion"
+
     api project(":sdk:communication:azure-communication-common")
-    api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
     implementation "com.azure.android:azure-core-http-okhttp:$azureCoreVersion"
+    implementation "com.microsoft:trouter-client-android:$trouterVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
     testImplementation "com.azure.android:azure-core-test:$azureCoreVersion"
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
-    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
-    testImplementation ("com.nimbusds:nimbus-jose-jwt:$nimbusJoseJwtTestVersion")
+    testImplementation "com.nimbusds:nimbus-jose-jwt:$nimbusJoseJwtTestVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     // <!-- end: test Dependencies -->
 }

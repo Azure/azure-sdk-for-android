@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Core HTTP Library"
 description = "This package contains core HTTP types for Azure Android clients."
-version = "1.0.0-beta.5"
+version = "1.0.0-beta.6"
 ext.versionCode = 1
 
 android {
@@ -13,6 +13,7 @@ android {
 dependencies {
     // <!-- begin: api Dependencies -->
     api project (":sdk:core:azure-core")
+
     compileOnly project (":sdk:core:azure-core-credential") // provided scope
     // <!-- end: api Dependencies -->
 
@@ -21,9 +22,10 @@ dependencies {
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
-    testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
-    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     // <!-- end: test Dependencies -->
 }
