@@ -1,0 +1,282 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    ext {
+        gradleAndroidBuildToolsPluginVersion = "30.0.3"
+        gradleAndroidToolsPluginVersion = "4.0.1"
+        gradleJunitJacocoPluginVersion = "0.16.0"
+        gradleDexcountPluginVersion = "2.0.0"
+        gradleSpotbugsPluginVersion = "4.6.0"
+        gradleAndroidJunit5PluginVersion = "1.7.1.1"
+        jacocoVersion = "0.8.5"
+        junitJupiterVersion = "5.7.0"
+        mockitoVersion = "3.3.3"
+        orgtestngVersion = "6.9.6"
+        okHttpVersion = "4.8.1"
+        qualityReportsPuppycrawlVersion = "8.29"
+        qualityReportsJunitVersion = "4.13.1"
+        reactorCoreVersion = "3.3.11.RELEASE"
+        reactorTestVersion = "3.3.11.RELEASE"
+        slf4jApiVersion = "1.7.30"
+        wireMockVersion = "2.24.1"
+    }
+
+    dependencies {
+        classpath ("com.android.tools.build:gradle:$gradleAndroidToolsPluginVersion")
+        classpath ("de.mannodermaus.gradle.plugins:android-junit5:$gradleAndroidJunit5PluginVersion")
+        classpath ("com.getkeepsafe.dexcount:dexcount-gradle-plugin:$gradleDexcountPluginVersion")
+        classpath ("com.vanniktech:gradle-android-junit-jacoco-plugin:$gradleJunitJacocoPluginVersion")
+        classpath ("gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$gradleSpotbugsPluginVersion")
+    }
+}
+
+apply plugin: "com.vanniktech.android.junit.jacoco"
+
+// Configure all client library projects with the standard Android build / publish template
+configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
+    apply plugin: "com.android.library"
+    apply plugin: "de.mannodermaus.android-junit5"
+    // https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222#issuecomment-604247658
+    // apply plugin: 'com.getkeepsafe.dexcount'
+    apply plugin: 'checkstyle'
+    apply plugin: 'com.github.spotbugs'
+    apply plugin: "maven-publish"
+
+    group = "com.azure.android"
+
+    android {
+        compileSdkVersion 30
+        buildToolsVersion ("$gradleAndroidBuildToolsPluginVersion")
+
+        defaultConfig {
+            minSdkVersion 15
+            targetSdkVersion 30
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
+        lintOptions {
+            lintConfig file("$rootDir/eng/lint.xml")
+            htmlReport true
+            textReport true
+            textOutput 'stdout'
+            explainIssues false
+            abortOnError true
+        }
+
+        packagingOptions {
+            exclude 'META-INF/DEPENDENCIES'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/LICENSE.md'
+            exclude 'META-INF/license'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/NOTICE.md'
+            exclude 'META-INF/notice'
+            exclude 'META-INF/ASL2.0'
+            exclude("META-INF/*.md")
+            exclude("META-INF/*.txt")
+            exclude("META-INF/*.kotlin_module")
+        }
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            }
+
+            debug {
+                debuggable true
+            }
+        }
+
+        testOptions {
+            unitTests {
+                includeAndroidResources = true
+                unitTests.returnDefaultValues = true
+            }
+        }
+
+    }
+
+    junitJacoco {
+        jacocoVersion = "$jacocoVersion"
+    }
+
+    task jacocoTestReport(type: JacocoReport) {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports"
+        reports {
+            xml.enabled = true
+            html.enabled = false
+            csv.enabled = false
+        }
+    }
+
+    tasks.withType(Test) {
+        junitJacoco.includeNoLocationClasses = true
+        junitJacoco.excludes = ['jdk.internal.*']
+    }
+
+    // Add dependency to the module containing azure custom checkstyle.
+    dependencies {
+        checkstyle project(":eng:code-quality-reports")
+    }
+
+    task checkstyle(type: Checkstyle) {
+        project.ext.checkstyleVersion = '8.29'
+        description 'Runs Checkstyle inspection.'
+        group = 'Code Quality'
+        configDirectory = file("${rootDir}/config/checkstyle")
+        configProperties = [samedir: "${rootDir}/config/checkstyle"]
+        ignoreFailures false
+        showViolations true
+        maxWarnings = 0
+        classpath = files()
+        source 'src/main/java'
+    }
+
+    // Check code style after project evaluation
+    afterEvaluate {
+        check.dependsOn('checkstyle')
+    }
+
+    // Set spotbugs plugin to use SpotBugs.
+    dependencies {
+        spotbugs 'com.github.spotbugs:spotbugs:4.0.0'
+    }
+
+    spotbugs {
+        ignoreFailures = false
+        showStackTraces = true
+        showProgress = true
+        effort = "max"
+        reportLevel = "Low" // threshold
+        reportsDir = file("$buildDir/spotbugs")
+        excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
+    }
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        archiveClassifier.set("sources")
+    }
+
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
+        archiveClassifier.set("javadoc")
+    }
+
+    project.afterEvaluate {
+        javadoc.classpath += files(android.libraryVariants.collect { variant ->
+            variant.javaCompileProvider.get().classpath.files
+        })
+
+        publishing {
+            publications {
+                release(MavenPublication) { -> project
+                    from components.release
+
+                    artifact sourcesJar
+                    artifact javadocJar
+
+                    pom {
+                        name = project.publishName
+                        description = project.description
+                        url = 'https://github.com/Azure/azure-sdk-for-android'
+                        licenses {
+                            license {
+                                name = 'The MIT License (MIT)'
+                                url = 'http://opensource.org/licenses/MIT'
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = 'microsoft'
+                                name = 'Microsoft'
+                            }
+                        }
+                        scm {
+                            connection = 'scm:git:https://github.com/Azure/azure-sdk-for-android.git'
+                            developerConnection = 'scm:git:https://github.com/Azure/azure-sdk-for-android.git'
+                            url = 'https://github.com/Azure/azure-sdk-for-android'
+                        }
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    url = "$buildDir/repo/"
+                }
+            }
+        }
+    }
+
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        // org.jetbrains.trove4j:trove4j:20160824.
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+
+    ext {
+        androidxTestVersion = "1.3.0"
+        annotationsVersion = "1.1.0"
+        appCompatVersion = "1.2.0"
+        archCoreTestVersion = "2.1.0"
+        azureCoreVersion = "1.0.0-beta.5"
+        concurrentFuturesVersion = "1.0.0"
+        dataproviderVersion =  "2.6"
+        jacksonVersion = "2.11.2"
+        jUnitVersion = "5.7.0"
+        lifecycleVersion = "2.2.0"
+        nimbusJoseJwtTestVersion = "9.1.2"
+        okHttpVersion = "3.14.9"
+        retrofitVersion = "2.9.0"
+        retroFutureVersion = "1.7.3"
+        roomVersion = "2.2.5"
+        staxApiVersion = "1.0-2"
+        threeTenAbpVersion = "1.3.0"
+        threeTenBpVersion = "1.5.0"
+        trouterVersion = "0.0.1-beta.3"
+        workVersion = "2.4.0"
+    }
+}
+
+// Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
+// runs it on all sub-projects of that project
+configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
+    apply plugin: "org.gradle.help-tasks"
+    def setupTasks = ["init", "wrapper"]
+
+    project.gradle.startParameter.taskNames.each { task ->
+        task = task.split(':').last()
+        if (!task.startsWith("-") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
+            tasks.create(task) {
+                subprojects.each { dependsOn("$it.name:$task") }
+            }
+        }
+    }
+}

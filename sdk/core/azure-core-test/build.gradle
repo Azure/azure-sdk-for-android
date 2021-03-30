@@ -1,0 +1,37 @@
+ext.publishName = "Microsoft Azure Android Core Test Library"
+description = "This package contains core types for testing Azure Android clients."
+version = "1.0.0-beta.6"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        minSdkVersion 29
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    // <!-- begin: api Dependencies -->
+    api project (":sdk:core:azure-core")
+    api project (":sdk:core:azure-core-jackson")
+    api project (":sdk:core:azure-core-rest")
+    // <!-- end: api Dependencies -->
+
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-logging")
+
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    implementation "com.github.tomakehurst:wiremock-standalone:$wireMockVersion" // For 'HttpClientTestsWireMockServer'
+    implementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion" // For 'AzureTestWatcher'
+    implementation "org.testng:testng:$orgtestngVersion"
+    // <!-- end: implementation Dependencies -->
+
+    // <!-- begin: test Dependencies -->
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    // <!-- end: test Dependencies -->
+}

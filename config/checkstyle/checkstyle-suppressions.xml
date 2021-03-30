@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+    "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+  <!-- Add Javadoc suppression for any test files (ie. ones that live under src/test/java). -->
+  <suppress checks="Javadoc" files="src[/\\]test[/\\]java[/\\].*.java"/>
+
+
+  <suppress checks="Javadoc" files=".*CoverageReporter\.java"/>
+  <suppress checks="Javadoc" files=".*[/\\]implementation[/\\].*\.java"/>
+  <suppress checks="Javadoc" files=".*[/\\]com[/\\]microsoft[/\\].*"/>
+  <suppress checks="Header" files=".*package-info.java"/>
+
+  <!-- ignore missing javadoc in samples -->
+  <suppress checks="MissingJavadocMethod" files=".*[/\\]samples[/\\].*\.java"/>
+  <suppress checks="MissingJavadocType" files=".*[/\\]samples[/\\].*\.java"/>
+  <suppress checks="MissingJavadocPackage" files=".*[/\\]samples[/\\].*\.java"/>
+
+  <!-- Star imports are ok in unit tests - it makes it easier to import all assertions, etc -->
+  <suppress checks="AvoidStarImport" files=".*[/\\]src[/\\]test[/\\]java[/\\].*\.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.EnforceFinalFieldsCheck" files=".*SearchIndexClientBuilder.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.EnforceFinalFieldsCheck"
+            files=".*SearchServiceClientBuilder.java"/>
+
+  <!-- Don't apply custom Checkstyle rules to files under test package -->
+  <suppress
+      checks="com\.azure\.tools\.checkstyle\.checks\.(ExternalDependencyExposedCheck|NoImplInPublicAPI|ServiceClientCheck|ServiceClientBuilderCheck|ServiceInterfaceCheck|HttpPipelinePolicyCheck|JavaDocFormatting|JavadocThrowsChecks|EnforceFinalFieldsCheck|ThrowFromClientLoggerCheck|GoodLoggingCheck)"
+      files=".*[/\\]src[/\\]test[/\\]java[/\\].*\.java"/>
+
+  <!-- Don't apply custom Checkstyle rules to files under implementation package -->
+  <suppress
+      checks="com\.azure\.tools\.checkstyle\.checks\.(ExternalDependencyExposedCheck|NoImplInPublicAPI|ServiceClientCheck|ServiceClientBuilderCheck|ServiceInterfaceCheck|JavaDocFormatting|JavadocThrowsChecks|EnforceFinalFieldsCheck)"
+      files=".*[/\\]implementation[/\\].*\.java"/>
+
+  <!-- Don't apply custom Checkstyle rules to files under samples package -->
+  <suppress
+      checks="com\.azure\.tools\.checkstyle\.checks\.(ExternalDependencyExposedCheck|HttpPipelinePolicyCheck|EnforceFinalFieldsCheck|ThrowFromClientLoggerCheck|GoodLoggingCheck|JavadocThrowsChecks)"
+      files=".*[/\\]samples[/\\].*\.java"/>
+
+  <!-- Don't check for JavaDocPackage in samples or tests -->
+  <suppress checks="JavadocPackage" files=".*[/\\](samples|test)[/\\].*\.java"/>
+
+  <!-- Suppress LineLength for samples and tests -->
+  <suppress checks="LineLength" files=".*[/\\](samples|test)[/\\].*\.java"/>
+
+  <!-- Don't apply custom Checkstyle rules to files under checkstyle package. -->
+  <suppress checks="com\.azure\.tools\.checkstyle\.checks\..+" files=".*[/\\]tools[/\\]checkstyle[/\\].*"/>
+
+  <!-- Suppress external dependency checkstyle for test classes as JUnit 5 has TestInfo dependency injection and should be part of method args -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+            files="src[/\\]test[/\\]java[/\\].*.java"/>
+
+  <!-- Logger class suppression -->
+  <suppress checks="com.azure.tools.checkstyle.checks.GoodLoggingCheck" files="ClientLogger.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.GoodLoggingCheck" files="DefaultLogger.java"/>
+
+  <!-- Checkstyle rules should not check files in generated-test-sources -->
+  <suppress checks="[a-zA-Z0-9]*" files="[/\\](generated-test-sources|generatedtestsources)[/\\]"/>
+
+  <!-- Only checks Public Api classes -->
+  <suppress checks="com.azure.tools.checkstyle.checks.BlacklistedWordsCheck" files=".*[/\\]test[/\\].*"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.BlacklistedWordsCheck" files=".*[/\\]samples[/\\].*"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.BlacklistedWordsCheck" files=".*[/\\]implementation[/\\].*"/>
+
+  <!-- suppress the runtime exception in the POC class-->
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.core.customserde.json.jackson.JacksonJsonSerializerBuilder.java"/>
+
+  <!-- suppress the runtime exception in the POC class-->
+  <suppress checks="MethodName" files="SerdeJacksonAnnotationIntrospector.java"/>
+
+  <!-- Some classes are named *Builder but are not @ServiceClientBuilder -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder"/>
+  <!-- Some classes are named *Builder but are not @ServiceClientBuilder -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder"/>
+
+  <!-- Files licensed with alternate license in the header -->
+  <suppress checks="Header" files="com.azure.android.core.util.CancellationToken.java"/>
+
+  <!-- Don't enforce non-static ClientLogger instances in com.azure.android.core.util.Option types-->
+  <suppress checks="com\.azure\.tools\.checkstyle\.checks\.(ThrowFromClientLoggerCheck|GoodLoggingCheck)"
+      files="com.azure.android.core.util.Option.java"/>
+
+  <!-- false positive, the field needs to be non-final for copy api to work -->
+  <suppress checks="EnforceFinalFields" files="com.azure.android.core.http.HttpRequest.java"/>
+
+  <suppress checks="VisibilityModifier" files="com.azure.android.core.rest.implementation/HttpResponseExceptionInfo.java"/>
+
+  <!-- Do not worry about leaking implementation API out of azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.core.test.*"/>
+  <!-- The mock android util types in azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="android.util.*"/>
+
+  <!-- Files licensed with alternate license in the header and package names -->
+  <suppress checks="Header" files="android.util.ArrayMap.java"/>
+  <suppress checks="Header" files="android.util.Base64.java"/>
+  <suppress checks="Header" files="android.util.Log.java"/>
+  <suppress checks="Header" files="android.util.Pair.java"/>
+  <suppress checks="PackageName" files="android.util.ArrayMap.java"/>
+  <suppress checks="PackageName" files="android.util.Base64.java"/>
+  <suppress checks="PackageName" files="android.util.Log.java"/>
+  <suppress checks="PackageName" files="android.util.Pair.java"/>
+  <suppress checks="PackageName" files="android.util.package-info.java"/>
+  <suppress checks="GoodLogging" files="android.util.Log.java"/>
+  <suppress checks="VisibilityModifier" files="android.util.Pair.java"/>
+
+  <!-- Do not worry about throwing from azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.core.test.*"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]test[/\\].*"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.serde.jackson.FlatteningSerializer.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.serde.jackson.JacksonSerder.java"/>
+
+  <!-- Its legit to have Jackson ObjectMapper in public API -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.serde.jackson.JacksonSerder"/>
+
+  <!-- 310bp DateTime types are allowed to be exposed in public API -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.util.DateTimeRfc1123"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.util.UnixTime"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.credential.AccessToken"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.http.policy.ExponentialBackoff"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.http.policy.FixedDelay"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.http.policy.RetryPolicy"/>
+
+  <!-- Suppress checkstyle for vendor-ed 310bp package -->
+  <suppress checks="[a-zA-Z0-9]*"
+      files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]serde[/\\]jackson[/\\]implementation[/\\]threeten[/\\].*"/>
+
+  <!-- Replacing Objects.requireNonNull with explicit null check -->
+  <suppress
+      checks="com.azure.tools.checkstyle.checks.JavadocThrowsChecks"
+      files="com.azure.android.core.util.Context"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.credential.AzureKeyCredential.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.credential.TokenRequestContext.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.http.implementation.Util.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder.java"/>
+
+  <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+  <suppress checks="Indentation" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatImpl.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatThreadImpl.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadAsyncClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadClient.java"/>
+
+</suppressions>

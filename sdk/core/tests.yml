@@ -1,0 +1,40 @@
+trigger: none
+
+jobs:
+  - template: ../../eng/pipelines/templates/jobs/archetype-sdk-tests.yml
+    parameters:
+      ServiceDirectory: core
+      Artifacts:
+        - name: azure-core
+          groupId: com.azure
+          safeName: azurecore
+        - name: azure-core-credential
+          groupId: com.azure
+          safeName: azurecorecredential
+        - name: azure-core-customserde
+          groupId: com.azure
+          safeName: azurecorecustomserde
+        - name: azure-core-customserde-json-jackson
+          groupId: com.azure
+          safeName: azurecorecustomserdejsonjackson
+        - name: azure-core-http
+          groupId: com.azure
+          safeName: azurecorehttp
+        - name: azure-core-http-http-okhttp
+          groupId: com.azure
+          safeName: azurecorehttpokhttp
+        - name: azure-core-logging
+          groupId: com.azure
+          safeName: azurecorelogging
+        - name: azure-core-rest
+          groupId: com.azure
+          safeName: azurecorerest
+        - name: azure-core-serde
+          groupId: com.azure
+          safeName: azurecoreserde
+        - name: azure-core-serde-jackson
+          groupId: com.azure
+          safeName: azurecoreserdejackson
+        - name: azure-core-test
+          groupId: com.azure
+          safeName: azurecoretest
