@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter>
+
+  <Match>
+    <Class
+        name="~com\.azure\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+  </Match>
+
+  <!-- This is false positive, the method won't ignore exception parameter -->
+  <Match>
+    <Class name="com.azure.android.core.http.policy.RetryPolicy" />
+    <Bug pattern="DE_MIGHT_IGNORE" />
+  </Match>
+
+  <!-- This warning is due class member directly referencing the user provided byte[] (the request body),
+   we don't want to make a copy of the entire body in this case -->
+  <Match>
+    <Class name="com.azure.android.core.http.HttpRequest"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.http.implementation.BufferedHttpResponse"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
+  <!-- FIXME: spotbugs issues in core test packages -->
+  <Match>
+    <Or>
+      <Package name="android.util"/>
+      <Package name="com.azure.android.core.test"/>
+      <Package name="com.azure.android.core.test.implementation"/>
+      <Package name="com.azure.android.core.test.http"/>
+    </Or>
+    <Bug pattern="DM_BOXED_PRIMITIVE_FOR_PARSING,
+                  DM_CONVERT_CASE,
+                  EC_UNRELATED_TYPES,
+                  REC_CATCH_EXCEPTION,
+                  DM_DEFAULT_ENCODING,
+                  NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,
+                  RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE,
+                  UPM_UNCALLED_PRIVATE_METHOD,
+                  DM_STRING_CTOR,
+                  RV_RETURN_VALUE_IGNORED,
+                  SIC_INNER_SHOULD_BE_STATIC_ANON,
+                  SE_NO_SERIALVERSIONID,
+                  RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+  </Match>
+
+  <!-- FIXME: spotbugs issues in core test packages -->
+  <Match>
+    <Class name="com.azure.android.core.test.http.MockHttpResponse"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
+  <!-- RootDispatchableCall extends AtomicBoolean, which is serializable but we don't need the
+       internal RootDispatchableCall to be serializable. -->
+  <Match>
+    <Class name="com.azure.android.core.http.HttpCallDispatcher$RootDispatchableCall"/>
+    <Bug pattern="SE_BAD_FIELD,
+                  SE_NO_SERIALVERSIONID"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.rest.implementation.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+    <Class name="com.azure.android.core.serde.jackson.AccessibleByteArrayOutputStream"/>
+  </Match>
+
+  <Match>
+    <Class
+        name="~com\.azure\.android\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="com.azure.android.core.serde.jackson.FlatteningSerializer"/>
+      <Class name="com.azure.android.core.serde.jackson.FlatteningDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.AdditionalPropertiesSerializer"/>
+      <Class name="com.azure.android.core.serde.jackson.AdditionalPropertiesDeserializer"/>
+    </Or>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.serde.jackson.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.util.Base64Url"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.test.http.MockHttpResponse"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.DurationDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.InstantDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenFormattedSerializerBase"/>
+    </Or>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON,
+                 SE_BAD_FIELD,
+                 RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.communication.common.TokenParser"/>
+    <Bug pattern="REC_CATCH_EXCEPTION"/>
+  </Match>
+
+  <!-- Known issue in autorest where it will generate a variable with a value of null.-->
+  <Match>
+    <Or>
+      <Class name="~com\.azure\.(.+)Impl"/>
+    </Or>
+    <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+  </Match>
+
+</FindBugsFilter>
+
