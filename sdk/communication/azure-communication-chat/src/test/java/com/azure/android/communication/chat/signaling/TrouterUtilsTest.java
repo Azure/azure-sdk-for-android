@@ -21,9 +21,9 @@ public class TrouterUtilsTest {
     private static final String USER_ID = "user_id";
 
     @Test
-    public void canParseTeamsPublicUserMri() {
-        final String teamsPublicUserMri = "8:orgid:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsPublicUserMri);
+    public void canParseTeamsPublicUserRawId() {
+        final String teamsPublicUserRawId = "8:orgid:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsPublicUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -32,13 +32,13 @@ public class TrouterUtilsTest {
         assertEquals(CommunicationCloudEnvironment.PUBLIC, microsoftTeamsUserIdentifier.getCloudEnvironment());
         assertEquals(false, microsoftTeamsUserIdentifier.isAnonymous());
         assertEquals(USER_ID, microsoftTeamsUserIdentifier.getUserId());
-        assertEquals(teamsPublicUserMri, microsoftTeamsUserIdentifier.getRawId());
+        assertEquals(teamsPublicUserRawId, microsoftTeamsUserIdentifier.getRawId());
     }
 
     @Test
-    public void canParseTeamsDodUserMri() {
-        final String teamsDodUserMri = "8:dod:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsDodUserMri);
+    public void canParseTeamsDodUserRawId() {
+        final String teamsDodUserRawId = "8:dod:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsDodUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -47,13 +47,13 @@ public class TrouterUtilsTest {
         assertEquals(CommunicationCloudEnvironment.DOD, microsoftTeamsUserIdentifier.getCloudEnvironment());
         assertFalse(microsoftTeamsUserIdentifier.isAnonymous());
         assertEquals(USER_ID, microsoftTeamsUserIdentifier.getUserId());
-        assertEquals(teamsDodUserMri, microsoftTeamsUserIdentifier.getRawId());
+        assertEquals(teamsDodUserRawId, microsoftTeamsUserIdentifier.getRawId());
     }
 
     @Test
-    public void canParseTeamsGcchUserMri() {
-        final String teamsGcchUserMri = "8:gcch:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsGcchUserMri);
+    public void canParseTeamsGcchUserRawId() {
+        final String teamsGcchUserRawId = "8:gcch:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsGcchUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -62,13 +62,13 @@ public class TrouterUtilsTest {
         assertEquals(CommunicationCloudEnvironment.GCCH, microsoftTeamsUserIdentifier.getCloudEnvironment());
         assertFalse(microsoftTeamsUserIdentifier.isAnonymous());
         assertEquals(USER_ID, microsoftTeamsUserIdentifier.getUserId());
-        assertEquals(teamsGcchUserMri, microsoftTeamsUserIdentifier.getRawId());
+        assertEquals(teamsGcchUserRawId, microsoftTeamsUserIdentifier.getRawId());
     }
 
     @Test
-    public void canParseTeamsVisitorUserMri() {
-        final String teamsVisitorUserMri = "8:teamsvisitor:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsVisitorUserMri);
+    public void canParseTeamsVisitorUserRawId() {
+        final String teamsVisitorUserRawId = "8:teamsvisitor:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsVisitorUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -77,56 +77,56 @@ public class TrouterUtilsTest {
         assertEquals(CommunicationCloudEnvironment.PUBLIC, microsoftTeamsUserIdentifier.getCloudEnvironment());
         assertTrue(microsoftTeamsUserIdentifier.isAnonymous());
         assertEquals(USER_ID, microsoftTeamsUserIdentifier.getUserId());
-        assertEquals(teamsVisitorUserMri, microsoftTeamsUserIdentifier.getRawId());
+        assertEquals(teamsVisitorUserRawId, microsoftTeamsUserIdentifier.getRawId());
     }
 
     @Test
-    public void canParseAcsUserMri() {
-        final String acsUserMri = "8:acs:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(acsUserMri);
+    public void canParseAcsUserRawId() {
+        final String acsUserRawId = "8:acs:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(acsUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
         CommunicationUserIdentifier communicationUserIdentifier =
             (CommunicationUserIdentifier) communicationIdentifier;
-        assertEquals(acsUserMri, communicationUserIdentifier.getId());
+        assertEquals(acsUserRawId, communicationUserIdentifier.getId());
     }
 
     @Test
-    public void canParseSpoolUserMri() {
-        final String spoolUserMri = "8:spool:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(spoolUserMri);
+    public void canParseSpoolUserRawId() {
+        final String spoolUserRawId = "8:spool:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(spoolUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
         CommunicationUserIdentifier communicationUserIdentifier =
             (CommunicationUserIdentifier) communicationIdentifier;
-        assertEquals(spoolUserMri, communicationUserIdentifier.getId());
+        assertEquals(spoolUserRawId, communicationUserIdentifier.getId());
     }
 
     @Test
-    public void canParsePhoneNumberMri() {
+    public void canParsePhoneNumberRawId() {
         final String phoneNumber = "+1234567890";
-        final String phoneNumberMri = "4:" + phoneNumber;
+        final String phoneNumberRawId = "4:" + phoneNumber;
 
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(phoneNumberMri);
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(phoneNumberRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof PhoneNumberIdentifier);
         PhoneNumberIdentifier phoneNumberIdentifier = (PhoneNumberIdentifier) communicationIdentifier;
         assertEquals(phoneNumber, phoneNumberIdentifier.getPhoneNumber());
-        assertEquals(phoneNumberMri, phoneNumberIdentifier.getRawId());
+        assertEquals(phoneNumberRawId, phoneNumberIdentifier.getRawId());
     }
 
     @Test
-    public void fallbackToUnknownIdentifierForUnknownMri() {
-        final String unknownMri = "unknown_mri";
+    public void fallbackToUnknownIdentifierForUnknownRawId() {
+        final String unknownRawId = "unknown_raw_id";
 
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(unknownMri);
+        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(unknownRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof UnknownIdentifier);
         UnknownIdentifier unknownIdentifier = (UnknownIdentifier) communicationIdentifier;
-        assertEquals(unknownMri, unknownIdentifier.getId());
+        assertEquals(unknownRawId, unknownIdentifier.getId());
     }
 }

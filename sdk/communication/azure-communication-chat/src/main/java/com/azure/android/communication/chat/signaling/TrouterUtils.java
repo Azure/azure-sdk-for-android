@@ -114,29 +114,29 @@ class TrouterUtils {
         }
     }
 
-    public static CommunicationIdentifier getCommunicationIdentifier(String mri) {
-        if (mri.startsWith(TEAMS_PUBLIC_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_PUBLIC_USER_PREFIX.length()), false)
-                .setRawId(mri)
+    public static CommunicationIdentifier getCommunicationIdentifier(String rawId) {
+        if (rawId.startsWith(TEAMS_PUBLIC_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_PUBLIC_USER_PREFIX.length()), false)
+                .setRawId(rawId)
                 .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);
-        } else if (mri.startsWith(TEAMS_DOD_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_DOD_USER_PREFIX.length()), false)
-                .setRawId(mri)
+        } else if (rawId.startsWith(TEAMS_DOD_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_DOD_USER_PREFIX.length()), false)
+                .setRawId(rawId)
                 .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-        } else if (mri.startsWith(TEAMS_GCCH_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_GCCH_USER_PREFIX.length()), false)
-                .setRawId(mri)
+        } else if (rawId.startsWith(TEAMS_GCCH_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_GCCH_USER_PREFIX.length()), false)
+                .setRawId(rawId)
                 .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-        } else if (mri.startsWith(TEAMS_VISITOR_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_VISITOR_USER_PREFIX.length()), true)
-                .setRawId(mri);
-        } else if (mri.startsWith(PHONE_NUMBER_PREFIX)) {
-            return new PhoneNumberIdentifier(mri.substring(PHONE_NUMBER_PREFIX.length()))
-                .setRawId(mri);
-        } else if (mri.startsWith(ACS_USER_PREFIX) || mri.startsWith(SPOOL_USER_PREFIX)) {
-            return new CommunicationUserIdentifier(mri);
+        } else if (rawId.startsWith(TEAMS_VISITOR_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_VISITOR_USER_PREFIX.length()), true)
+                .setRawId(rawId);
+        } else if (rawId.startsWith(PHONE_NUMBER_PREFIX)) {
+            return new PhoneNumberIdentifier(rawId.substring(PHONE_NUMBER_PREFIX.length()))
+                .setRawId(rawId);
+        } else if (rawId.startsWith(ACS_USER_PREFIX) || rawId.startsWith(SPOOL_USER_PREFIX)) {
+            return new CommunicationUserIdentifier(rawId);
         } else {
-            return new UnknownIdentifier(mri);
+            return new UnknownIdentifier(rawId);
         }
     }
 
@@ -314,7 +314,7 @@ class TrouterUtils {
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(
-                parseRecipientRawId(payload.getString("recipientId"))));
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
             eventPayload.setReadOn(new Date().toString());
@@ -333,7 +333,7 @@ class TrouterUtils {
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(
-                parseRecipientRawId(payload.getString("recipientId"))));
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
             eventPayload.setVersion(payload.getString("version"));
@@ -352,7 +352,7 @@ class TrouterUtils {
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(
-                parseRecipientRawId(payload.getString("recipientId"))));
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
 
             eventPayload.setId(payload.getString("messageId"));
@@ -375,7 +375,7 @@ class TrouterUtils {
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(
-                parseRecipientRawId(payload.getString("recipientId"))));
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -397,7 +397,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(
-                parseRecipientRawId(payload.getString("recipientId"))));
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -420,7 +420,7 @@ class TrouterUtils {
             .toString();
     }
 
-    private static String parseRecipientRawId(String rawId) {
+    private static String addRawIdPrefixIfMissing(String rawId) {
         if (rawId.startsWith(USER_PREFIX)) {
             return rawId;
         }
