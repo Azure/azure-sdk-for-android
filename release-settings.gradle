@@ -1,3 +1,0 @@
-include ':sdk:communication:azure-communication-chat'
-include ':sdk:communication:azure-communication-common'
-include ':sdk:core:azure-core'

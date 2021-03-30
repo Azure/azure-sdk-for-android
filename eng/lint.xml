@@ -1,5 +1,0 @@
-<lint>
-    <issue id="InvalidPackage">
-        <ignore path="**/jackson-module-jaxb-annotations*.jar"/>
-    </issue>
-</lint>
