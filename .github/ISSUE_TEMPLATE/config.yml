@@ -1,0 +1,4 @@
+contact_links:
+  - name: Question, comment, or idea
+    url: https://github.com/Azure/azure-sdk-for-android/discussions
+    about: Create a new Discussion
