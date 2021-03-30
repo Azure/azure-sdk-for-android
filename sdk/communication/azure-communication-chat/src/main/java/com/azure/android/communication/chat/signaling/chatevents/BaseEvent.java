@@ -3,25 +3,30 @@
 
 package com.azure.android.communication.chat.signaling.chatevents;
 
-import com.azure.android.communication.chat.signaling.properties.CommunicationUser;
-
 /**
- * Base class for chat event
+ * The base event of chat events
  */
-public class BaseEvent {
+public abstract class BaseEvent {
     /**
      * Thread Id of the event.
      */
-    String threadId;
+    private String threadId;
 
     /**
-     * The Id of the event sender.
+     * Gets Thread Id of the event..
+     *
+     * @return Value of Thread Id of the event..
      */
-    CommunicationUser sender;
+    public String getThreadId() {
+        return threadId;
+    }
 
     /**
-     * The Id of the event recipient.
+     * Sets new Thread Id of the event..
+     *
+     * @param threadId New value of Thread Id of the event..
      */
-    CommunicationUser recipient;
-
+    public void setThreadId(String threadId) {
+        this.threadId = threadId;
+    }
 }

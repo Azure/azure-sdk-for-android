@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Exceptions used by client libraries.
+ * Package containing core exception types.
  */
 package com.azure.android.core.exception;

@@ -1,10 +1,33 @@
 # Release History
-## 1.0.0-beta.8 (2021-03-11)
-### Added
-- Add chat basic operations in test app 
+## 1.0.0-beta.9 (Unreleased)
 
+## 1.0.0-beta.8 (2021-03-29)
 ### Breaking Changes
-- Fix real time notification connection url
+- ChatThreadAsyncClient:
+    - Renamed `getChatThreadProperties` to `getProperties`.
+    - Renamed `getChatThreadPropertiesWithResponse` to `getPropertiesWithResponse`.
+    - Changed `addParticipant` and `addParticipantWithResponse` to throw `InvalidParticipantException` for failure instead of returning `AddChatParticipantsResult`.
+    - Changed `sendMessage` and `sendMessageWithResponse` to return `SendChatMessageResult`.
+- ChatThreadClient:
+    - Renamed `getChatThreadProperties` to `getProperties`.
+    - Renamed `getChatThreadPropertiesWithResponse` to `getPropertiesWithResponse`.
+    - Changed `addParticipant` and `addParticipantWithResponse` to throw `InvalidParticipantException` for failure instead of returning `AddChatParticipantsResult`.
+    - Changed `sendMessage` and `sendMessageWithResponse` to return `SendChatMessageResult`.
+- Renamed `ChatThread` to `ChatThreadProperties`.
+- Renamed `CommunicationError` to `ChatError`.
+- Removed `CommunicationErrorResponse`.
+- Renamed `CommunicationErrorResponseException` to `ChatErrorResponseException`.
+- Renamed `repeatabilityRequestId` renamed to `idempotencyToken` in `CreateChatThreadOptions`. 
+- Renamed `chatThread` to `chatThreadProperties` in `CreateChatThreadResult`.
+- Removed the `azure-communication-chat.properties` file.
+
+### New Features
+- Added ChatThreadClientBuilder
+- Added InvalidParticipantException
+- Added chat basic operations in test app 
+
+### Bug Fixes
+- Fixed real time notification connection URL.
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Added

@@ -3,44 +3,61 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     ext {
-        androidBuildToolsVersion = "30.0.1"
-        androidGradlePluginVersion = "4.0.1"
-        androidJunitJacocoGradlePluginVersion = "0.16.0"
+        gradleAndroidBuildToolsPluginVersion = "30.0.3"
+        gradleAndroidToolsPluginVersion = "4.0.1"
+        gradleJunitJacocoPluginVersion = "0.16.0"
+        gradleDexcountPluginVersion = "2.0.0"
+        gradleSpotbugsPluginVersion = "4.6.0"
+        gradleAndroidJunit5PluginVersion = "1.7.1.1"
         jacocoVersion = "0.8.5"
-        kotlinGradlePluginVersion = "1.4.20"
-        dokkaGradlePluginVersion = "1.4.20"
+        junitJupiterVersion = "5.7.0"
+        mockitoVersion = "3.3.3"
+        orgtestngVersion = "6.9.6"
+        okHttpVersion = "4.8.1"
+        qualityReportsPuppycrawlVersion = "8.29"
+        qualityReportsJunitVersion = "4.13.1"
+        reactorCoreVersion = "3.3.11.RELEASE"
+        reactorTestVersion = "3.3.11.RELEASE"
+        slf4jApiVersion = "1.7.30"
+        wireMockVersion = "2.24.1"
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
-        classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:$androidJunitJacocoGradlePluginVersion"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinGradlePluginVersion"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaGradlePluginVersion"
+        classpath ("com.android.tools.build:gradle:$gradleAndroidToolsPluginVersion")
+        classpath ("de.mannodermaus.gradle.plugins:android-junit5:$gradleAndroidJunit5PluginVersion")
+        classpath ("com.getkeepsafe.dexcount:dexcount-gradle-plugin:$gradleDexcountPluginVersion")
+        classpath ("com.vanniktech:gradle-android-junit-jacoco-plugin:$gradleJunitJacocoPluginVersion")
+        classpath ("gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$gradleSpotbugsPluginVersion")
     }
 }
 
-apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.vanniktech.android.junit.jacoco"
 
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
-    apply plugin: "kotlin-android"
-    apply plugin: "org.jetbrains.dokka"
+    apply plugin: "de.mannodermaus.android-junit5"
+    // https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222#issuecomment-604247658
+    // apply plugin: 'com.getkeepsafe.dexcount'
+    apply plugin: 'checkstyle'
+    apply plugin: 'com.github.spotbugs'
     apply plugin: "maven-publish"
 
     group = "com.azure.android"
 
     android {
         compileSdkVersion 30
-        buildToolsVersion "$androidBuildToolsVersion"
+        buildToolsVersion ("$gradleAndroidBuildToolsPluginVersion")
 
         defaultConfig {
-            minSdkVersion 21
+            minSdkVersion 15
             targetSdkVersion 30
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -90,73 +107,64 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
                 unitTests.returnDefaultValues = true
             }
         }
-    }
 
-    dependencies {
-        dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:$dokkaGradlePluginVersion")
-    }
-
-    tasks.withType(org.jetbrains.dokka.gradle.DokkaTask) {
-        dokkaSourceSets {
-            configureEach {
-                platform.set(org.jetbrains.dokka.Platform.jvm)
-                displayName.set("Java")
-            }
-            named("main") {
-                includeNonPublic.set(false)
-                skipDeprecated.set(false)
-                reportUndocumented.set(true)
-                skipEmptyPackages.set(true)
-                jdkVersion.set(8)
-                noStdlibLink.set(false)
-                noJdkLink.set(false)
-                noAndroidSdkLink.set(false)
-                includes.setFrom(files("module.md"))
-                perPackageOption {
-                    matchingRegex.set(".+\\.internal(\\..+)?")
-                    suppress.set(true)
-                }
-                perPackageOption {
-                    matchingRegex.set(".+\\.implementation(\\..+)?")
-                    suppress.set(true)
-                }
-                sourceLink {
-                    localDirectory.set(file("src/main/java"))
-                    remoteUrl.set(new URL("https://github.com/Azure/azure-sdk-for-android/tree/master" + it.project.path.replace(":", "/") + "/src/main/java"))
-                    remoteLineSuffix.set("#L")
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://square.github.io/okhttp/3.x/okhttp/"))
-                    packageListUrl.set(new URL("https://square.github.io/okhttp/3.x/okhttp/package-list"))
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://developer.android.com/reference/"))
-                    packageListUrl.set(new URL("https://developer.android.com/reference/package-list"))
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://developer.android.com/reference/"))
-                    packageListUrl.set(new URL("https://developer.android.com/reference/androidx/package-list"))
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://javadoc.io/doc/com.jakewharton.threetenabp/threetenabp/$threeTenAbpVersion/"))
-                    packageListUrl.set(new URL("https://javadoc.io/doc/com.jakewharton.threetenabp/threetenabp/$threeTenAbpVersion/package-list"))
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://javadoc.io/doc/org.threeten/threetenbp/$threeTenBpVersion/"))
-                    packageListUrl.set(new URL("https://javadoc.io/doc/org.threeten/threetenbp/1.3.6/package-list"))
-                }
-                externalDocumentationLink {
-                    url.set(new URL("https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/"))
-                    packageListUrl.set(new URL("https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/package-list"))
-                }
-            }
-        }
-
-        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase" : """{ "customAssets" : ["${file("$rootDir/eng/docs/assets/docs_logo.svg")}"] }"""])
     }
 
     junitJacoco {
         jacocoVersion = "$jacocoVersion"
+    }
+
+    task jacocoTestReport(type: JacocoReport) {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports"
+        reports {
+            xml.enabled = true
+            html.enabled = false
+            csv.enabled = false
+        }
+    }
+
+    tasks.withType(Test) {
+        junitJacoco.includeNoLocationClasses = true
+        junitJacoco.excludes = ['jdk.internal.*']
+    }
+
+    // Add dependency to the module containing azure custom checkstyle.
+    dependencies {
+        checkstyle project(":eng:code-quality-reports")
+    }
+
+    task checkstyle(type: Checkstyle) {
+        project.ext.checkstyleVersion = '8.29'
+        description 'Runs Checkstyle inspection.'
+        group = 'Code Quality'
+        configDirectory = file("${rootDir}/config/checkstyle")
+        configProperties = [samedir: "${rootDir}/config/checkstyle"]
+        ignoreFailures false
+        showViolations true
+        maxWarnings = 0
+        classpath = files()
+        source 'src/main/java'
+    }
+
+    // Check code style after project evaluation
+    afterEvaluate {
+        check.dependsOn('checkstyle')
+    }
+
+    // Set spotbugs plugin to use SpotBugs.
+    dependencies {
+        spotbugs 'com.github.spotbugs:spotbugs:4.0.0'
+    }
+
+    spotbugs {
+        ignoreFailures = false
+        showStackTraces = true
+        showProgress = true
+        effort = "max"
+        reportLevel = "Low" // threshold
+        reportsDir = file("$buildDir/spotbugs")
+        excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
     }
 
     task sourcesJar(type: Jar) {
@@ -164,12 +172,22 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         archiveClassifier.set("sources")
     }
 
-    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-        from dokkaJavadoc.outputDirectory
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        from javadoc.destinationDir
         archiveClassifier.set("javadoc")
     }
 
     project.afterEvaluate {
+        javadoc.classpath += files(android.libraryVariants.collect { variant ->
+            variant.javaCompileProvider.get().classpath.files
+        })
+
         publishing {
             publications {
                 release(MavenPublication) { -> project
@@ -210,33 +228,40 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             }
         }
     }
+
 }
 
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        // org.jetbrains.trove4j:trove4j:20160824.
         maven {
-            url 'https://trouterpublicpackages.z13.web.core.windows.net'
+            url 'https://plugins.gradle.org/m2/'
         }
     }
 
     ext {
+        androidxTestVersion = "1.3.0"
         annotationsVersion = "1.1.0"
         appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
+        azureCoreVersion = "1.0.0-beta.5"
         concurrentFuturesVersion = "1.0.0"
-        jUnitVersion = "4.13"
+        dataproviderVersion =  "2.6"
         jacksonVersion = "2.11.2"
+        jUnitVersion = "5.7.0"
         lifecycleVersion = "2.2.0"
+        nimbusJoseJwtTestVersion = "9.1.2"
         okHttpVersion = "3.14.9"
         retrofitVersion = "2.9.0"
+        retroFutureVersion = "1.7.3"
         roomVersion = "2.2.5"
         staxApiVersion = "1.0-2"
-        threeTenAbpVersion = "1.2.4"
-        threeTenBpVersion = "1.4.4"
+        threeTenAbpVersion = "1.3.0"
+        threeTenBpVersion = "1.5.0"
+        trouterVersion = "0.0.1-beta.3"
         workVersion = "2.4.0"
-        dataproviderVersion =  "2.6"
     }
 }
 
@@ -248,7 +273,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
-        if (!task.startsWith("-") && !task.startsWith("dokka") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
+        if (!task.startsWith("-") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
             tasks.create(task) {
                 subprojects.each { dependsOn("$it.name:$task") }
             }

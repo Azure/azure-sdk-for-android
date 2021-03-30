@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Utility functions used by client libraries.
+ * Package containing core util types.
  */
 package com.azure.android.core.util;

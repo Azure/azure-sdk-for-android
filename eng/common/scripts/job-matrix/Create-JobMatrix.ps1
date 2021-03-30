@@ -13,7 +13,6 @@ param (
     [Parameter(Mandatory=$True)][string] $Selection,
     [Parameter(Mandatory=$False)][string] $DisplayNameFilter,
     [Parameter(Mandatory=$False)][array] $Filters,
-    [Parameter(Mandatory=$False)][array] $Replace,
     [Parameter(Mandatory=$False)][array] $NonSparseParameters
 )
 
@@ -28,7 +27,6 @@ $Filters = $Filters | Where-Object { $_ }
     -selectFromMatrixType $Selection `
     -displayNameFilter $DisplayNameFilter `
     -filters $Filters `
-    -replace $Replace `
     -nonSparseParameters $NonSparseParameters
 
 $serialized = SerializePipelineMatrix $matrix

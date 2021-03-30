@@ -4,11 +4,21 @@
 package com.azure.android.core.exception;
 
 /**
- * The base exception type for all Azure-related exceptions.
+ * The base Azure exception.
+ *
+ * @see ServiceResponseException
  */
 public class AzureException extends RuntimeException {
+
     /**
-     * Initializes a new instance of the {@link AzureException} class.
+     * Initializes a new instance of the AzureException class.
+     */
+    public AzureException() {
+        super();
+    }
+
+    /**
+     * Initializes a new instance of the AzureException class.
      *
      * @param message The exception message.
      */
@@ -17,10 +27,19 @@ public class AzureException extends RuntimeException {
     }
 
     /**
-     * Initializes a new instance of the {@link AzureException} class.
+     * Initializes a new instance of the AzureException class.
+     *
+     * @param cause The {@link Throwable} which caused the creation of this AzureException.
+     */
+    public AzureException(final Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * Initializes a new instance of the AzureException class.
      *
      * @param message The exception message.
-     * @param cause   The {@link Throwable} which caused the creation of this {@link AzureException}.
+     * @param cause The {@link Throwable} which caused the creation of this AzureException.
      */
     public AzureException(final String message, final Throwable cause) {
         super(message, cause);

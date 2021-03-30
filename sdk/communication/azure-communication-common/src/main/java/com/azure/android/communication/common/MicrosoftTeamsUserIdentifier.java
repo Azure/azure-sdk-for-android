@@ -3,13 +3,10 @@
 
 package com.azure.android.communication.common;
 
-import java.util.Objects;
-
 /**
  * Communication identifier for Microsoft Teams User
  */
 public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
-
     private final String userId;
     private final boolean isAnonymous;
     private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
@@ -19,13 +16,14 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
      *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous,
+     *               the id is the AAD object id of the user.
      * @param isAnonymous set this to true if the user is anonymous,
      *                    for example when joining a meeting with a share link
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
-    */
+     */
     public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous) {
-        if (userId == null || userId.trim().isEmpty()) {
+        if (userId == null || userId.trim().length() == 0) {
             throw new IllegalArgumentException("The initialization parameter [userId] cannot be null or empty.");
         }
         this.userId = userId;
@@ -35,16 +33,18 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
      *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous,
+     *               the id is the AAD object id of the user.
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
-    */
+     */
     public MicrosoftTeamsUserIdentifier(String userId) {
         this(userId, false);
     }
 
     /**
      * Get Teams User Id
-     * @return userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @return userId Id of the Microsoft Teams user. If the user isn't anonymous,
+     * the id is the AAD object id of the user.
      */
     public String getUserId() {
         return this.userId;
@@ -62,7 +62,7 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @return this object
      */
-    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment  cloudEnvironment) {
+    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
         this.cloudEnvironment = cloudEnvironment;
         return this;
     }
@@ -127,5 +127,4 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
     public int hashCode() {
         return userId.hashCode();
     }
-
 }

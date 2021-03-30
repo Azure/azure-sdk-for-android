@@ -4,41 +4,36 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.azure.android.core.rest.annotation.Immutable;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
-/**
- * The AddChatParticipantsResult model.
- */
-@Fluent
+/** Result of the add chat participants operation. */
+@Immutable
 public final class AddChatParticipantsResult {
     /*
-     * Errors encountered during the addition of the chat participant to the
-     * chat thread.
+     * The participants that failed to be added to the chat thread.
      */
-    @JsonProperty(value = "errors")
-    private AddChatParticipantsErrors errors;
+    @JsonProperty(value = "invalidParticipants", access = JsonProperty.Access.WRITE_ONLY)
+    private List<ChatError> invalidParticipants;
 
     /**
-     * Get the errors property: Errors encountered during the addition of the
-     * chat participant to the chat thread.
-     * 
-     * @return the errors value.
+     * Get the invalidParticipants property: The participants that failed to be added to the chat thread.
+     *
+     * @return the invalidParticipants value.
      */
-    public AddChatParticipantsErrors getErrors() {
-        return this.errors;
+    public List<ChatError> getInvalidParticipants() {
+        return this.invalidParticipants;
     }
 
     /**
-     * Set the errors property: Errors encountered during the addition of the
-     * chat participant to the chat thread.
-     * 
-     * @param errors the errors value to set.
+     * Set the invalidParticipants property: The invalidParticipants property.
+     *
+     * @param invalidParticipants the invalidParticipants value to set.
      * @return the AddChatParticipantsResult object itself.
      */
-    public AddChatParticipantsResult setErrors(AddChatParticipantsErrors errors) {
-        this.errors = errors;
+    public AddChatParticipantsResult setInvalidParticipants(List<ChatError> invalidParticipants) {
+        this.invalidParticipants = invalidParticipants;
         return this;
     }
 }

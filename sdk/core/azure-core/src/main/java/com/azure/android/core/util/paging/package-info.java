@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Data models used to represent paged results.
+ * Package containing paging abstraction.
  */
 package com.azure.android.core.util.paging;

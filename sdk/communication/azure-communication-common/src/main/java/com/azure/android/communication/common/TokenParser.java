@@ -5,8 +5,7 @@ package com.azure.android.communication.common;
 
 import android.util.Base64;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -20,29 +19,31 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Utility for Handling Access Tokens.
  */
 final class TokenParser {
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
-    private TokenParser() {
-        // Empty constructor to prevent instantiation of this class.
+    TokenParser() {
     }
 
     /**
-     * Create CommunicationAccessToken object from Token string
+     * Create AccessToken object from Token string
      *
      * @param tokenStr token string
      * @return AccessToken instance
      */
     static CommunicationAccessToken createAccessToken(String tokenStr) {
         try {
-            Objects.requireNonNull(tokenStr, "'tokenStr' cannot be null.");
+            if (tokenStr == null) {
+                throw new NullPointerException("'tokenStr' cannot be null.");
+            }
             String[] tokenParts = tokenStr.split("\\.");
             String tokenPayload = tokenParts[1];
             byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
-            String decodedPayloadJson = new String(decodedBytes, StandardCharsets.UTF_8);
+            String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
 
-            ObjectNode payloadObj = jsonMapper.readValue(decodedPayloadJson, ObjectNode.class);
+            ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
             long expire = payloadObj.get("exp").longValue();
-            OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000), ZoneId.of("UTC"));
+            OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000),
+                ZoneId.of("UTC"));
 
             return new CommunicationAccessToken(tokenStr, offsetExpiry);
         } catch (Exception e) {

@@ -3,8 +3,6 @@
 
 package com.azure.android.core.util;
 
-import androidx.annotation.NonNull;
-
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -12,60 +10,52 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
- * Wrapper over java.time.OffsetDateTime used for specifying RFC1123 format during serialization and deserialization.
+ * Wrapper over org.threeten.bp.OffsetDateTime used for specifying RFC1123 format
+ * during serialization and deserialization.
  */
 public final class DateTimeRfc1123 {
     /**
-     * The pattern of the DateTime used for RFC1123 datetime format.
-     */
-    private static final String RFC1123_FORMAT = "EEE, dd MMM yyyy HH:mm:ss 'GMT'";
-
-    /**
-     * The formatter used for RFC1123 datetime format.
+     * The pattern of the datetime used for RFC1123 datetime format.
      */
     private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
-        DateTimeFormatter.ofPattern(RFC1123_FORMAT).withZone(ZoneId.of("UTC")).withLocale(Locale.US);
-
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'").withZone(ZoneId.of("UTC")).withLocale(Locale.US);
     /**
-     * The actual DateTime object.
+     * The actual datetime object.
      */
     private final OffsetDateTime dateTime;
 
     /**
-     * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
-     *
+     * Creates a new DateTimeRfc1123 object with the specified DateTime.
      * @param dateTime The DateTime object to wrap.
      */
-    public DateTimeRfc1123(@NonNull OffsetDateTime dateTime) {
+    public DateTimeRfc1123(OffsetDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
     /**
-     * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
-     *
-     * @param formattedString The DateTime string in RFC1123 format.
+     * Creates a new DateTimeRfc1123 object with the specified DateTime.
+     * @param formattedString The datetime string in RFC1123 format
      */
-    public DateTimeRfc1123(@NonNull String formattedString) {
-        dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
+    public DateTimeRfc1123(String formattedString) {
+        this.dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
     /**
      * Returns the underlying DateTime.
-     *
      * @return The underlying DateTime.
      */
     public OffsetDateTime getDateTime() {
-        return dateTime;
+        return this.dateTime;
     }
 
     @Override
     public String toString() {
-        return RFC1123_DATE_TIME_FORMATTER.format(dateTime);
+        return RFC1123_DATE_TIME_FORMATTER.format(this.dateTime);
     }
 
     @Override
     public int hashCode() {
-        return dateTime.hashCode();
+        return this.dateTime.hashCode();
     }
 
     @Override
@@ -79,7 +69,6 @@ public final class DateTimeRfc1123 {
         }
 
         DateTimeRfc1123 rhs = (DateTimeRfc1123) obj;
-
-        return dateTime.equals(rhs.getDateTime());
+        return this.dateTime.equals(rhs.getDateTime());
     }
 }

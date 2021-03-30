@@ -1,0 +1,35 @@
+ext.publishName = "Microsoft Azure Android Serde Jackson Library"
+description = "This package contains Serde implementation using Jackson for Azure Android clients."
+version = "1.0.0-beta.6"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    // <!-- begin: api Dependencies -->
+    compileOnly project (":sdk:core:azure-core") // provided scope
+
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    api "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
+    // <!-- end: api Dependencies -->
+
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-logging")
+    // <!-- end: implementation Dependencies -->
+
+    // <!-- begin: test Dependencies -->
+    testImplementation project (":sdk:core:azure-core-http")
+
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
+
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
+    // <!-- end: test Dependencies -->
+}

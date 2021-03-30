@@ -39,12 +39,36 @@ pr:
       - build.gradle
       - gradle.properties
       - settings.gradle
-      
+
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
     parameters:
       ServiceDirectory: core
       Artifacts:
+        - name: azure-core-credential
+          safeName: azurecorecredential
+          groupId: com.azure.android
+        - name: azure-core-http
+          safeName: azurecorehttp
+          groupId: com.azure.android
+        - name: azure-core-http-httpurlconnection
+          safeName: azurecorehttphttpurlconnection
+          groupId: com.azure.android
+        - name: azure-core-http-okhttp
+          safeName: azurecorehttpokhttp
+          groupId: com.azure.android
+        - name: azure-core-jackson
+          safeName: azurecorejackson
+          groupId: com.azure.android
+        - name: azure-core-logging
+          safeName: azurecorelogging
+          groupId: com.azure.android
+        - name: azure-core-rest
+          safeName: azurecorerest
+          groupId: com.azure.android
+        - name: azure-core-test
+          safeName: azurecoretest
+          groupId: com.azure.android
         - name: azure-core
           safeName: azurecore
           groupId: com.azure.android

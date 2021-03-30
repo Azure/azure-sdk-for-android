@@ -2,10 +2,9 @@ plugins {
     id 'com.android.application'
 }
 
-
 android {
     compileSdkVersion 30
-    buildToolsVersion "30.0.2"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.azure.android.communication.chat.sampleapp"
@@ -33,11 +32,14 @@ android {
         exclude("META-INF/*.md")
         exclude("META-INF/*.txt")
         exclude("META-INF/*.kotlin_module")
+        exclude 'azure-core.properties'
     }
 }
 
 dependencies {
-    implementation project(path: ':sdk:communication:azure-communication-chat')
+    implementation project(":sdk:communication:azure-communication-chat")
+    implementation project(":sdk:core:azure-core-http-okhttp")
+
     implementation "androidx.appcompat:appcompat:1.2.0"
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.4"
 }

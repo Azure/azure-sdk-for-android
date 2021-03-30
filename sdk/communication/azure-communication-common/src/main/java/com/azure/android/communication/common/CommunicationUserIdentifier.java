@@ -6,7 +6,6 @@ package com.azure.android.communication.common;
  * Communication identifier for Communication Services Users
  */
 public final class CommunicationUserIdentifier extends CommunicationIdentifier {
-
     private final String id;
 
     /**
@@ -16,7 +15,7 @@ public final class CommunicationUserIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if id parameter fail the validation.
      */
     public CommunicationUserIdentifier(String id) {
-        if (id == null || id.trim().isEmpty()) {
+        if (id == null || id.length() == 0) {
             throw new IllegalArgumentException("The initialization parameter [id] cannot be null or empty.");
         }
         this.id = id;
@@ -24,6 +23,7 @@ public final class CommunicationUserIdentifier extends CommunicationIdentifier {
 
     /**
      * Get id of the communication user.
+     *
      * @return id of the communication user.
      */
     public String getId() {

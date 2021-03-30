@@ -3,53 +3,17 @@
 
 package com.azure.android.communication.common;
 
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java9.util.concurrent.CompletableFuture;
 
-class StaticUserCredential extends UserCredential {
-
-    private Future<CommunicationAccessToken> tokenFuture;
+final class StaticUserCredential extends UserCredential {
+    private final CompletableFuture<CommunicationAccessToken> tokenFuture;
 
     StaticUserCredential(String userToken) {
-        CommunicationAccessToken accessToken = TokenParser.createAccessToken(userToken);
-        this.tokenFuture = new CompletedTokenFuture(accessToken);
+        this.tokenFuture = CompletableFuture.completedFuture(TokenParser.createAccessToken(userToken));
     }
 
     @Override
-    public Future<CommunicationAccessToken> getToken() {
+    public CompletableFuture<CommunicationAccessToken> getToken() {
         return this.tokenFuture;
-    }
-
-    private final class CompletedTokenFuture implements Future<CommunicationAccessToken> {
-        private final CommunicationAccessToken accessToken;
-
-        CompletedTokenFuture(CommunicationAccessToken accessToken) {
-            this.accessToken = accessToken;
-        }
-
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public boolean isDone() {
-            return true;
-        }
-
-        @Override
-        public CommunicationAccessToken get() {
-            return this.accessToken;
-        }
-
-        @Override
-        public CommunicationAccessToken get(long timeout, TimeUnit unit) {
-            return accessToken;
-        }
     }
 }

@@ -3,61 +3,136 @@
 
 package com.azure.android.communication.common;
 
-import android.util.Log;
+import com.azure.android.core.logging.ClientLogger;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
-class AutoRefreshUserCredential extends UserCredential {
+import java9.util.concurrent.CompletableFuture;
+
+final class AutoRefreshUserCredential extends UserCredential {
+    private static final String CREDENTIAL_DISPOSED = "UserCredential has been disposed.";
     private static final int ON_DEMAND_REFRESH_BUFFER_SECS = 120;
     private static final int PROACTIVE_REFRESH_BUFFER_SECS = 600;
 
-    private Callable<String> tokenRefresher;
-    private Callable<CommunicationAccessToken> accessTokenCallable;
-    private FutureTask<CommunicationAccessToken> tokenFuture;
-    private Timer timer;
-    private TimerTask proactiveRefreshTask;
+    private final ClientLogger logger = new ClientLogger(AutoRefreshUserCredential.class);
 
-    AutoRefreshUserCredential(Callable<String> tokenRefresher) {
+    private final Callable<String> tokenRefreshCallable;
+    private final boolean refreshProactively;
+    private volatile CompletableFuture<CommunicationAccessToken> tokenFuture;
+    private CompletableFuture<Void> tokenFutureUpdater;
+
+    AutoRefreshUserCredential(final Callable<String> tokenRefresher) {
         this(tokenRefresher, false);
     }
 
-    AutoRefreshUserCredential(Callable<String> tokenRefresher, String initialToken) {
+    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
+                              final String initialToken) {
         this(tokenRefresher, false, initialToken);
     }
 
-    AutoRefreshUserCredential(Callable<String> tokenRefresher, boolean refreshProactively) {
+    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
+                              final boolean refreshProactively) {
         this(tokenRefresher, refreshProactively, null);
     }
 
-    AutoRefreshUserCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
-        this.tokenRefresher = tokenRefresher;
-        this.timer = new Timer();
-        this.accessTokenCallable = setupAccessTokenCallable(refreshProactively);
+    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
+                              final boolean refreshProactively,
+                              final String initialToken) {
+        this.tokenRefreshCallable = tokenRefresher;
+        this.refreshProactively = refreshProactively;
 
         CommunicationAccessToken initialAccessToken = null;
 
         if (initialToken != null) {
             initialAccessToken = TokenParser.createAccessToken(initialToken);
-            this.tokenFuture = setupInitialTokenFuture(initialAccessToken);
+            this.tokenFuture = CompletableFuture.completedFuture(initialAccessToken);
         }
 
-        if (refreshProactively) {
-            this.scheduleProactiveRefresh(initialAccessToken);
+        if (this.refreshProactively) {
+            this.scheduleTokenFutureUpdate(initialAccessToken);
         }
     }
 
     @Override
-    public Future<CommunicationAccessToken> getToken() {
-        if (shouldRefreshTokenOnDemand()) {
+    public CompletableFuture<CommunicationAccessToken> getToken() {
+        if (this.shouldRefreshOnDemand()) {
             this.updateTokenFuture();
         }
-
         return this.tokenFuture;
+    }
+
+    private boolean shouldRefreshOnDemand() {
+        final CompletableFuture<CommunicationAccessToken> tokenFuture = this.tokenFuture;
+        if (tokenFuture == null || tokenFuture.isCancelled()) {
+            return true;
+        } else if (tokenFuture.isDone()) {
+            try {
+                CommunicationAccessToken accessToken = tokenFuture.get();
+                long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - ON_DEMAND_REFRESH_BUFFER_SECS;
+                long currentEpochSecond = System.currentTimeMillis() / 1000;
+                return currentEpochSecond >= refreshEpochSecond;
+            } catch (ExecutionException | InterruptedException e) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private synchronized void updateTokenFuture() {
+        if (this.isDisposed()) {
+            this.tokenFuture = CompletableFuture.failedFuture(new IllegalStateException(CREDENTIAL_DISPOSED));
+            return;
+        }
+
+        final CompletableFuture<CommunicationAccessToken> tokenFuture = this.tokenFuture;
+        if (tokenFuture != null && !tokenFuture.isDone() && !tokenFuture.isCancelled()) {
+            // don't update if the tokenFuture in-progress.
+            return;
+        }
+
+        this.tokenFuture = CompletableFuture.supplyAsync(() -> {
+            if (this.isDisposed()) {
+                throw logger.logExceptionAsError(new IllegalStateException(CREDENTIAL_DISPOSED));
+            }
+
+            final CommunicationAccessToken accessToken;
+
+            try {
+                final String tokenStr = this.tokenRefreshCallable.call();
+                accessToken = TokenParser.createAccessToken(tokenStr);
+            } catch (Exception e) {
+                throw logger.logExceptionAsError(new RuntimeException(e));
+            }
+
+            if (this.refreshProactively) {
+                this.scheduleTokenFutureUpdate(accessToken);
+            }
+
+            return accessToken;
+        });
+    }
+
+    private synchronized void scheduleTokenFutureUpdate(CommunicationAccessToken accessToken) {
+        if (this.isDisposed()) {
+            return;
+        }
+
+        if (this.tokenFutureUpdater != null) {
+            this.tokenFutureUpdater.cancel(true);
+        }
+
+        long delayMs = 0;
+        if (accessToken != null) {
+            long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - PROACTIVE_REFRESH_BUFFER_SECS;
+            long currentEpochSecond = System.currentTimeMillis() / 1000;
+            delayMs = Math.max((refreshEpochSecond - currentEpochSecond) * 1000, 0);
+        }
+
+        this.tokenFutureUpdater = CompletableFuture.runAsync(this::updateTokenFuture,
+            CompletableFuture.delayedExecutor(delayMs, TimeUnit.MILLISECONDS));
     }
 
     @Override
@@ -66,115 +141,11 @@ class AutoRefreshUserCredential extends UserCredential {
             this.tokenFuture.cancel(true);
         }
 
-        if (this.proactiveRefreshTask != null) {
-            this.proactiveRefreshTask.cancel();
+        if (this.tokenFutureUpdater != null) {
+            this.tokenFutureUpdater.cancel(true);
         }
-
-        this.timer.cancel();
-        this.timer.purge();
-
-        this.tokenRefresher = null;
-        this.tokenFuture = null;
-        this.proactiveRefreshTask = null;
 
         super.dispose();
     }
 
-    private FutureTask<CommunicationAccessToken> setupInitialTokenFuture(CommunicationAccessToken initialAccessToken) {
-        FutureTask<CommunicationAccessToken> initialTokenFuture = new FutureTask<>(() -> initialAccessToken);
-        initialTokenFuture.run();
-        return initialTokenFuture;
-    }
-
-    private Callable<CommunicationAccessToken> setupAccessTokenCallable(boolean refreshProactively) {
-        if (!refreshProactively) {
-            return this::refreshAccessToken;
-        }
-
-        return () -> {
-            CommunicationAccessToken accessToken = this.refreshAccessToken();
-            this.scheduleProactiveRefresh(accessToken);
-            return accessToken;
-        };
-    }
-
-    private CommunicationAccessToken refreshAccessToken() throws Exception {
-        String tokenStr = this.tokenRefresher.call();
-        CommunicationAccessToken accessToken = TokenParser.createAccessToken(tokenStr);
-        return accessToken;
-    }
-
-    private boolean shouldRefreshTokenOnDemand() {
-        boolean shouldRefreshTokenOnDemand = false;
-        if (this.tokenFuture == null || this.tokenFuture.isCancelled()) {
-            shouldRefreshTokenOnDemand = true;
-        } else if (this.tokenFuture.isDone()) {
-            try {
-                CommunicationAccessToken accessToken = this.tokenFuture.get();
-                long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - ON_DEMAND_REFRESH_BUFFER_SECS;
-                long currentEpochSecond = System.currentTimeMillis() / 1000;
-                shouldRefreshTokenOnDemand = currentEpochSecond >= refreshEpochSecond;
-            } catch (ExecutionException | InterruptedException e) {
-                shouldRefreshTokenOnDemand = true;
-            }
-        }
-
-        return shouldRefreshTokenOnDemand;
-    }
-
-    private synchronized void updateTokenFuture() {
-        // Ignore update if disposed
-        if (this.isDisposed()) {
-            return;
-        }
-
-        // Ignore update if tokenFuture in progress
-        if (this.tokenFuture != null && !this.tokenFuture.isDone() && !this.tokenFuture.isCancelled()) {
-            return;
-        }
-
-        FutureTask<CommunicationAccessToken> futureTask = new FutureTask<>(this.accessTokenCallable);
-        this.tokenFuture = futureTask;
-
-        ScheduledTask scheduledTask = new ScheduledTask(futureTask::run);
-        try {
-            this.timer.schedule(scheduledTask, 0);
-        } catch (IllegalStateException e) {
-            Log.w("Communication", "AutoRefreshUserCredential has been disposed. Unable to schedule token refresh.");
-        }
-    }
-
-    private synchronized void scheduleProactiveRefresh(CommunicationAccessToken accessToken) {
-        if (this.isDisposed()) {
-            return;
-        }
-
-        long delayMs = 0;
-
-        if (accessToken != null) {
-            long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - PROACTIVE_REFRESH_BUFFER_SECS;
-            long currentEpochSecond = System.currentTimeMillis() / 1000;
-            delayMs = Math.max((refreshEpochSecond - currentEpochSecond) * 1000, 0);
-        }
-
-        if (this.proactiveRefreshTask != null) {
-            this.proactiveRefreshTask.cancel();
-        }
-
-        this.proactiveRefreshTask = new ScheduledTask(this::updateTokenFuture);
-        this.timer.schedule(this.proactiveRefreshTask, delayMs);
-    }
-
-    private final class ScheduledTask extends TimerTask {
-        private Runnable runnable;
-
-        ScheduledTask(Runnable runnable) {
-            this.runnable = runnable;
-        }
-
-        @Override
-        public void run() {
-            this.runnable.run();
-        }
-    }
 }

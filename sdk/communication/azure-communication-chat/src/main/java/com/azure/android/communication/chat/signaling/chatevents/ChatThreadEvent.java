@@ -3,15 +3,38 @@
 
 package com.azure.android.communication.chat.signaling.chatevents;
 
-public class ChatThreadEvent {
-    /**
-     * Thread Id of the event.
-     */
-    String threadId;
+/**
+ * Chat thread event
+ */
+public abstract class ChatThreadEvent extends BaseEvent {
+
 
     /**
      * Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`
      */
-    String version;
+    private String version;
+
+
+    /**
+     * Sets new Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
+     * `1593117207131`.
+     *
+     * @param version New value of Version of the thread.
+     *                This version is an epoch time in a numeric unsigned Int64 format: `1593117207131`.
+     */
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    /**
+     * Gets Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
+     * `1593117207131`.
+     *
+     * @return Value of Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
+     * `1593117207131`.
+     */
+    public String getVersion() {
+        return version;
+    }
 }

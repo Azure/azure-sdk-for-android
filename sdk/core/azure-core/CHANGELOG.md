@@ -1,7 +1,28 @@
 # Release History
 
-## 1.0.0-beta.4 (Unreleased)
+## 1.0.0-beta.6 (Unreleased)
 
+
+## 1.0.0-beta.5 (2021-03-26)
+
+### Breaking Changes
+
+- Removed the `azure-core.properties` file.
+
+## 1.0.0-beta.4 (2021-03-18)
+
+### Breaking Changes
+
+- Split Azure Core into smaller modules:
+    - azure-core
+    - azure-core-credential
+    - azure-core-http
+    - azure-core-http-httpurlconnection
+    - azure-core-http-okhttp
+    - azure-core-jackson
+    - azure-core-logging
+    - azure-core-rest
+    - azure-core-test
 
 ## 1.0.0-beta.3 (2021-01-15)
 

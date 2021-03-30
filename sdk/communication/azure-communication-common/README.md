@@ -115,11 +115,11 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(n
 
 ### Getting a token asynchronously
 
-Calling `getToken()` will return a `Future<AccessToken>`
+Calling `getToken()` will return a `CompletableFuture<AccessToken>`
 
 ```java
 CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false));
-Future<AccessToken> accessTokenFuture = userCredential.getToken();
+CompletableFuture<AccessToken> accessTokenFuture = userCredential.getToken();
 ```
 
 ### Invalidating a credential

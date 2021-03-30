@@ -3,29 +3,30 @@
 
 package com.azure.android.communication.chat.signaling;
 
-import com.azure.android.core.util.logging.ClientLogger;
+import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
+import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;
 import com.microsoft.trouterclient.ITrouterRequest;
 import com.microsoft.trouterclient.ITrouterResponse;
 
-import org.json.JSONObject;
+final class CommunicationListener implements ITrouterListener {
 
-class CommunicationListener implements ITrouterListener {
+    private final ClientLogger logger;
+    private final ChatEventId chatEventId;
+    private final RealTimeNotificationCallback listenerFromConsumer;
 
-    private ClientLogger logger;
-    private String chatEventId;
-    private RealTimeNotificationCallback listenerFromConsumer;
-
-    public CommunicationListener(String chatEventId, RealTimeNotificationCallback listener) {
+    CommunicationListener(ChatEventId chatEventId, RealTimeNotificationCallback listener) {
         this.chatEventId = chatEventId;
         this.listenerFromConsumer = listener;
-        this.logger = ClientLogger.getDefault(this.getClass());
+        this.logger = new ClientLogger(this.getClass());
     }
 
     @Override
     public void onTrouterConnected(String endpointUrl, ITrouterConnectionInfo connectionInfo) {
-        final String msg = "onTrouterConnected(): url=" + endpointUrl + ", newPublicUrl=" + Boolean.toString(connectionInfo.isNewEndpointUrl());
+        final String msg = "onTrouterConnected(): url=" + endpointUrl + ", newPublicUrl="
+            + Boolean.toString(connectionInfo.isNewEndpointUrl());
         logger.info(msg);
     }
 
@@ -37,10 +38,12 @@ class CommunicationListener implements ITrouterListener {
 
     @Override
     public void onTrouterRequest(ITrouterRequest iTrouterRequest, ITrouterResponse iTrouterResponse) {
-        final String msg = "onTrouterRequest(): #" + Long.toString(iTrouterResponse.getId()) + " " + iTrouterRequest.getMethod() + " " + iTrouterRequest.getUrlPathComponent() + "\n" + iTrouterRequest.getBody();
+        final String msg = "onTrouterRequest(): #" + Long.toString(iTrouterResponse.getId()) + " "
+            + iTrouterRequest.getMethod() + " " + iTrouterRequest.getUrlPathComponent() + "\n"
+            + iTrouterRequest.getBody();
         logger.info(msg);
         // convert payload to chat event here
-        JSONObject chatEvent = TrouterUtils.toMessageHandler(chatEventId, iTrouterRequest.getBody());
+        BaseEvent chatEvent = TrouterUtils.toMessageHandler(chatEventId, iTrouterRequest.getBody());
         if (chatEvent != null) {
             listenerFromConsumer.onChatEvent(chatEvent);
         }
@@ -48,7 +51,8 @@ class CommunicationListener implements ITrouterListener {
 
     @Override
     public void onTrouterResponseSent(ITrouterResponse iTrouterResponse, boolean isSuccess) {
-        final String msg = "onTrouterResponse(): #" + Long.toString(iTrouterResponse.getId()) + " isSuccess=" + Boolean.toString(isSuccess);
+        final String msg = "onTrouterResponse(): #" + Long.toString(iTrouterResponse.getId())
+            + " isSuccess=" + Boolean.toString(isSuccess);
         logger.info(msg);
     }
 

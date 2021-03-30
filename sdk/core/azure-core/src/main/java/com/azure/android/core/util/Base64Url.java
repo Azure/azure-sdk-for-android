@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -11,12 +11,12 @@ import java.util.Arrays;
  */
 public final class Base64Url {
     /**
-     * The {@link Base64Url} encoded bytes.
+     * The Base64Url encoded bytes.
      */
     private final byte[] bytes;
 
     /**
-     * Creates a new {@link Base64Url} object with the specified encoded string.
+     * Creates a new Base64Url object with the specified encoded string.
      *
      * @param string The encoded string.
      */
@@ -25,12 +25,12 @@ public final class Base64Url {
             this.bytes = null;
         } else {
             string = unquote(string);
-            this.bytes = string.getBytes(StandardCharsets.UTF_8);
+            this.bytes = string.getBytes(Charset.forName("UTF-8"));
         }
     }
 
     /**
-     * Creates a new {@link Base64Url} object with the specified encoded bytes.
+     * Creates a new Base64Url object with the specified encoded bytes.
      *
      * @param bytes The encoded bytes.
      */
@@ -40,31 +40,27 @@ public final class Base64Url {
 
     private static byte[] unquote(byte[] bytes) {
         if (bytes != null && bytes.length > 1) {
-            bytes = unquote(new String(bytes, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
+            bytes = unquote(new String(bytes, Charset.forName("UTF-8"))).getBytes(Charset.forName("UTF-8"));
         }
-
         return bytes;
     }
 
     private static String unquote(String string) {
         if (string != null && !string.isEmpty()) {
             final char firstCharacter = string.charAt(0);
-
             if (firstCharacter == '\"' || firstCharacter == '\'') {
                 final int base64UrlStringLength = string.length();
                 final char lastCharacter = string.charAt(base64UrlStringLength - 1);
-
                 if (lastCharacter == firstCharacter) {
                     string = string.substring(1, base64UrlStringLength - 1);
                 }
             }
         }
-
         return string;
     }
 
     /**
-     * Encodes a byte array into {@link Base64Url} encoded bytes.
+     * Encodes a byte array into Base64Url encoded bytes.
      *
      * @param bytes The byte array to encode.
      * @return A new Base64Url instance.
@@ -73,7 +69,7 @@ public final class Base64Url {
         if (bytes == null) {
             return new Base64Url((String) null);
         } else {
-            return new Base64Url(Base64Util.encodeUrlWithoutPadding(bytes));
+            return new Base64Url(Base64Util.encodeURLWithoutPadding(bytes));
         }
     }
 
@@ -83,7 +79,12 @@ public final class Base64Url {
      * @return The underlying encoded byte array.
      */
     public byte[] encodedBytes() {
-        return copy(bytes);
+        if (bytes == null) {
+            return null;
+        }
+        byte[] copy = new byte[bytes.length];
+        System.arraycopy(bytes, 0, copy, 0, bytes.length);
+        return copy;
     }
 
     /**
@@ -96,12 +97,12 @@ public final class Base64Url {
             return null;
         }
 
-        return Base64Util.decodeUrl(bytes);
+        return Base64Util.decodeURL(bytes);
     }
 
     @Override
     public String toString() {
-        return bytes == null ? "" : new String(bytes, StandardCharsets.UTF_8);
+        return bytes == null ? "" : new String(bytes, Charset.forName("UTF-8"));
     }
 
     @Override
@@ -120,25 +121,6 @@ public final class Base64Url {
         }
 
         Base64Url rhs = (Base64Url) obj;
-
         return Arrays.equals(this.bytes, rhs.encodedBytes());
-    }
-
-    /**
-     * Creates a copy of the source byte array.
-     *
-     * @param source Array to make copy of.
-     * @return A copy of the array, or null if source was null.
-     */
-    private static byte[] copy(byte[] source) {
-        if (source == null) {
-            return null;
-        }
-
-        byte[] copy = new byte[source.length];
-
-        System.arraycopy(source, 0, copy, 0, source.length);
-
-        return copy;
     }
 }
