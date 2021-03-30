@@ -136,10 +136,7 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(
-                    OffsetDateTime.ofInstant(
-                        Instant.ofEpochMilli(member.getLong("shareHistoryTime")),
-                        ZoneId.of("UTC")).toString());
+                chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
 
                 chatParticipants.add(chatParticipant);
             }
@@ -176,10 +173,7 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(
-                    OffsetDateTime.ofInstant(
-                        Instant.ofEpochMilli(member.getLong("shareHistoryTime")),
-                        ZoneId.of("UTC")).toString());
+                chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
 
                 chatParticipants.add(chatParticipant);
             }
@@ -388,6 +382,13 @@ class TrouterUtils {
         return eventPayload;
     }
 
+    private static String parseShareHistoryTime(Long shareHistoryTimeEpochMilli) {
+        return OffsetDateTime.ofInstant(
+            Instant.ofEpochMilli(shareHistoryTimeEpochMilli),
+            ZoneId.of("UTC"))
+            .toString();
+    }
+
     private static String parseRecipientSkypeId(String skypeId) {
         if (skypeId.startsWith(USER_PREFIX)) {
             return skypeId;
@@ -415,7 +416,7 @@ class TrouterUtils {
         } else if (mri.startsWith(PHONE_NUMBER_PREFIX)) {
             return new PhoneNumberIdentifier(mri.substring(PHONE_NUMBER_PREFIX.length()))
                 .setRawId(mri);
-        } else if (mri.startsWith("8:acs:") || mri.startsWith("8:spool:")) {
+        } else if (mri.startsWith(ACS_USER_PREFIX) || mri.startsWith(SPOOL_USER_PREFIX)) {
             return new CommunicationUserIdentifier(mri);
         } else {
             return new UnknownIdentifier(mri);
