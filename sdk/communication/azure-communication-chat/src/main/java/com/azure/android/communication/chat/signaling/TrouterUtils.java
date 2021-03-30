@@ -28,6 +28,9 @@ import com.azure.android.core.logging.ClientLogger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +39,15 @@ import java.util.List;
 import java.util.Map;
 
 class TrouterUtils {
+
+    private static final String USER_PREFIX = "8:";
+    private static final String ACS_USER_PREFIX = "8:acs:";
+    private static final String SPOOL_USER_PREFIX = "8:spool:";
+    private static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
+    private static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
+    private static final String TEAMS_DOD_USER_PREFIX = "8:dod:";
+    private static final String TEAMS_VISITOR_USER_PREFIX = "8:teamsvisitor:";
+    private static final String PHONE_NUMBER_PREFIX = "4:";
 
     private static final ClientLogger CLIENT_LOGGER = new ClientLogger(TrouterUtils.class);
     /**
@@ -124,7 +136,10 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(new Date(member.getString("shareHistoryTime")).toString());
+                chatParticipant.setShareHistoryTime(
+                    OffsetDateTime.ofInstant(
+                        Instant.ofEpochMilli(member.getLong("shareHistoryTime")),
+                        ZoneId.of("UTC")).toString());
 
                 chatParticipants.add(chatParticipant);
             }
@@ -161,7 +176,10 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(new Date(member.getString("shareHistoryTime")).toString());
+                chatParticipant.setShareHistoryTime(
+                    OffsetDateTime.ofInstant(
+                        Instant.ofEpochMilli(member.getLong("shareHistoryTime")),
+                        ZoneId.of("UTC")).toString());
 
                 chatParticipants.add(chatParticipant);
             }
@@ -270,7 +288,8 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
+            eventPayload.setRecipient(getUserIdentifier(
+                parseRecipientSkypeId(payload.getString("recipientId"))));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
             eventPayload.setReadOn(new Date().toString());
@@ -288,7 +307,8 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
+            eventPayload.setRecipient(getUserIdentifier(
+                parseRecipientSkypeId(payload.getString("recipientId"))));
 
             eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
             eventPayload.setVersion(payload.getString("version"));
@@ -306,7 +326,8 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
+            eventPayload.setRecipient(getUserIdentifier(
+                parseRecipientSkypeId(payload.getString("recipientId"))));
 
 
             eventPayload.setId(payload.getString("messageId"));
@@ -328,7 +349,8 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
+            eventPayload.setRecipient(getUserIdentifier(
+                parseRecipientSkypeId(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -349,7 +371,8 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
             eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(payload.getString("recipientId")));
+            eventPayload.setRecipient(getUserIdentifier(
+                parseRecipientSkypeId(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -365,23 +388,33 @@ class TrouterUtils {
         return eventPayload;
     }
 
+    private static String parseRecipientSkypeId(String skypeId) {
+        if (skypeId.startsWith(USER_PREFIX)) {
+            return skypeId;
+        }
+
+        return USER_PREFIX + skypeId;
+    }
+
     private static CommunicationIdentifier getUserIdentifier(String mri) {
-        if (mri.startsWith("8:orgid")) {
-            MicrosoftTeamsUserIdentifier userIdentifier = new MicrosoftTeamsUserIdentifier(mri, false);
-            userIdentifier.setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);
-            return userIdentifier;
-        } else if (mri.startsWith("8:dod")) {
-            MicrosoftTeamsUserIdentifier userIdentifier = new MicrosoftTeamsUserIdentifier(mri, false);
-            userIdentifier.setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-            return userIdentifier;
-        } else if (mri.startsWith("8:gcch")) {
-            MicrosoftTeamsUserIdentifier userIdentifier = new MicrosoftTeamsUserIdentifier(mri, false);
-            userIdentifier.setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-            return userIdentifier;
-        } else if (mri.startsWith("8:teamsvisitor")) {
-            return new MicrosoftTeamsUserIdentifier(mri, true);
-        } else if (mri.startsWith("4:")) {
-            return new PhoneNumberIdentifier(mri);
+        if (mri.startsWith(TEAMS_PUBLIC_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_PUBLIC_USER_PREFIX.length()), false)
+                    .setRawId(mri)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);
+        } else if (mri.startsWith(TEAMS_DOD_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_DOD_USER_PREFIX.length()), false)
+                    .setRawId(mri)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
+        } else if (mri.startsWith(TEAMS_GCCH_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_GCCH_USER_PREFIX.length()), false)
+                    .setRawId(mri)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
+        } else if (mri.startsWith(TEAMS_VISITOR_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_VISITOR_USER_PREFIX.length()), true)
+                .setRawId(mri);
+        } else if (mri.startsWith(PHONE_NUMBER_PREFIX)) {
+            return new PhoneNumberIdentifier(mri.substring(PHONE_NUMBER_PREFIX.length()))
+                .setRawId(mri);
         } else if (mri.startsWith("8:acs:") || mri.startsWith("8:spool:")) {
             return new CommunicationUserIdentifier(mri);
         } else {
