@@ -114,6 +114,32 @@ class TrouterUtils {
         }
     }
 
+    public static CommunicationIdentifier getCommunicationIdentifier(String rawId) {
+        if (rawId.startsWith(TEAMS_PUBLIC_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_PUBLIC_USER_PREFIX.length()), false)
+                .setRawId(rawId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);
+        } else if (rawId.startsWith(TEAMS_DOD_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_DOD_USER_PREFIX.length()), false)
+                .setRawId(rawId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
+        } else if (rawId.startsWith(TEAMS_GCCH_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_GCCH_USER_PREFIX.length()), false)
+                .setRawId(rawId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
+        } else if (rawId.startsWith(TEAMS_VISITOR_USER_PREFIX)) {
+            return new MicrosoftTeamsUserIdentifier(rawId.substring(TEAMS_VISITOR_USER_PREFIX.length()), true)
+                .setRawId(rawId);
+        } else if (rawId.startsWith(PHONE_NUMBER_PREFIX)) {
+            return new PhoneNumberIdentifier(rawId.substring(PHONE_NUMBER_PREFIX.length()))
+                .setRawId(rawId);
+        } else if (rawId.startsWith(ACS_USER_PREFIX) || rawId.startsWith(SPOOL_USER_PREFIX)) {
+            return new CommunicationUserIdentifier(rawId);
+        } else {
+            return new UnknownIdentifier(rawId);
+        }
+    }
+
     private static BaseEvent getParticipantsRemoved(JSONObject payload) {
         ParticipantsRemovedEvent eventPayload = new ParticipantsRemovedEvent();
 
@@ -122,7 +148,8 @@ class TrouterUtils {
 
             ChatParticipant removedBy = new ChatParticipant();
             removedBy.setUser(
-                getUserIdentifier(getJSONObject(payload, "removedBy").getString("participantId")));
+                getCommunicationIdentifier(
+                    getJSONObject(payload, "removedBy").getString("participantId")));
             removedBy.setDisplayName(getJSONObject(payload, "removedBy").getString("displayName"));
             eventPayload.setRemovedBy(removedBy);
 
@@ -132,7 +159,7 @@ class TrouterUtils {
                 JSONObject member = members.getJSONObject(i);
 
                 CommunicationIdentifier communicationUser =
-                    getUserIdentifier(member.getString("participantId"));
+                    getCommunicationIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
@@ -159,7 +186,8 @@ class TrouterUtils {
 
             ChatParticipant addedBy = new ChatParticipant();
             addedBy.setUser(
-                getUserIdentifier(getJSONObject(payload, "addedBy").getString("participantId")));
+                getCommunicationIdentifier(
+                    getJSONObject(payload, "addedBy").getString("participantId")));
             addedBy.setDisplayName(getJSONObject(payload, "addedBy").getString("displayName"));
             eventPayload.setAddedBy(addedBy);
 
@@ -169,7 +197,7 @@ class TrouterUtils {
                 JSONObject member = members.getJSONObject(i);
 
                 CommunicationIdentifier communicationUser =
-                    getUserIdentifier(member.getString("participantId"));
+                    getCommunicationIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
@@ -196,7 +224,8 @@ class TrouterUtils {
 
             ChatParticipant deletedBy = new ChatParticipant();
             deletedBy.setUser(
-                getUserIdentifier(getJSONObject(payload, "deletedBy").getString("participantId")));
+                getCommunicationIdentifier(
+                    getJSONObject(payload, "deletedBy").getString("participantId")));
             deletedBy.setDisplayName(getJSONObject(payload, "deletedBy").getString("displayName"));
             eventPayload.setDeletedBy(deletedBy);
 
@@ -219,7 +248,8 @@ class TrouterUtils {
 
             ChatParticipant updatedBy = new ChatParticipant();
             updatedBy.setUser(
-                getUserIdentifier(getJSONObject(payload, "editedBy").getString("participantId")));
+                getCommunicationIdentifier(
+                    getJSONObject(payload, "editedBy").getString("participantId")));
             updatedBy.setDisplayName(getJSONObject(payload, "editedBy").getString("displayName"));
             eventPayload.setUpdatedBy(updatedBy);
 
@@ -243,7 +273,8 @@ class TrouterUtils {
 
             ChatParticipant createdBy = new ChatParticipant();
             createdBy.setUser(
-                getUserIdentifier(getJSONObject(payload, "createdBy").getString("participantId")));
+                getCommunicationIdentifier(
+                    getJSONObject(payload, "createdBy").getString("participantId")));
             createdBy.setDisplayName(getJSONObject(payload, "createdBy").getString("displayName"));
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
@@ -251,7 +282,7 @@ class TrouterUtils {
             for (int i = 0; i < members.length(); i++) {
                 JSONObject member = members.getJSONObject(i);
                 CommunicationIdentifier communicationUser =
-                    getUserIdentifier(member.getString("participantId"));
+                    getCommunicationIdentifier(member.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setUser(communicationUser);
@@ -281,9 +312,9 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(
-                parseRecipientSkypeId(payload.getString("recipientId"))));
+            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getCommunicationIdentifier(
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
             eventPayload.setReadOn(new Date().toString());
@@ -300,9 +331,9 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(
-                parseRecipientSkypeId(payload.getString("recipientId"))));
+            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getCommunicationIdentifier(
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
             eventPayload.setVersion(payload.getString("version"));
@@ -319,9 +350,9 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(
-                parseRecipientSkypeId(payload.getString("recipientId"))));
+            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getCommunicationIdentifier(
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
 
             eventPayload.setId(payload.getString("messageId"));
@@ -342,9 +373,9 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
 
-            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(
-                parseRecipientSkypeId(payload.getString("recipientId"))));
+            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getCommunicationIdentifier(
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -364,9 +395,9 @@ class TrouterUtils {
 
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
-            eventPayload.setSender(getUserIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getUserIdentifier(
-                parseRecipientSkypeId(payload.getString("recipientId"))));
+            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
+            eventPayload.setRecipient(getCommunicationIdentifier(
+                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -389,38 +420,12 @@ class TrouterUtils {
             .toString();
     }
 
-    private static String parseRecipientSkypeId(String skypeId) {
-        if (skypeId.startsWith(USER_PREFIX)) {
-            return skypeId;
+    private static String addRawIdPrefixIfMissing(String rawId) {
+        if (rawId.startsWith(USER_PREFIX)) {
+            return rawId;
         }
 
-        return USER_PREFIX + skypeId;
-    }
-
-    private static CommunicationIdentifier getUserIdentifier(String mri) {
-        if (mri.startsWith(TEAMS_PUBLIC_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_PUBLIC_USER_PREFIX.length()), false)
-                    .setRawId(mri)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC);
-        } else if (mri.startsWith(TEAMS_DOD_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_DOD_USER_PREFIX.length()), false)
-                    .setRawId(mri)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-        } else if (mri.startsWith(TEAMS_GCCH_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_GCCH_USER_PREFIX.length()), false)
-                    .setRawId(mri)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-        } else if (mri.startsWith(TEAMS_VISITOR_USER_PREFIX)) {
-            return new MicrosoftTeamsUserIdentifier(mri.substring(TEAMS_VISITOR_USER_PREFIX.length()), true)
-                .setRawId(mri);
-        } else if (mri.startsWith(PHONE_NUMBER_PREFIX)) {
-            return new PhoneNumberIdentifier(mri.substring(PHONE_NUMBER_PREFIX.length()))
-                .setRawId(mri);
-        } else if (mri.startsWith(ACS_USER_PREFIX) || mri.startsWith(SPOOL_USER_PREFIX)) {
-            return new CommunicationUserIdentifier(mri);
-        } else {
-            return new UnknownIdentifier(mri);
-        }
+        return USER_PREFIX + rawId;
     }
 
     private static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {
