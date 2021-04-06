@@ -19,12 +19,18 @@ android {
     compileSdkVersion 30
     buildToolsVersion "30.0.1"
 
+
     defaultConfig {
         applicationId "com.azure.autoresttest"
         minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "COMMUNICATION_SERVICE_ENDPOINT", "\"${System.env.COMMUNICATION_SERVICE_ENDPOINT}\""
+        buildConfigField "String", "COMMUNICATION_SERVICE_ACCESS_KEY", "\"${System.env.COMMUNICATION_SERVICE_ACCESS_KEY}\""
+        buildConfigField "String", "COMMUNICATION_CHAT_THREAD_MEMBER_1", "\"${System.env.COMMUNICATION_CHAT_THREAD_MEMBER_1}\""
+        buildConfigField "String", "COMMUNICATION_CHAT_THREAD_MEMBER_2", "\"${System.env.COMMUNICATION_CHAT_THREAD_MEMBER_2}\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

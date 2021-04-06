@@ -1,6 +1,9 @@
 package com.azure.android.communication.chat.samples;
 
+import android.os.Bundle;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
@@ -11,6 +14,7 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
+import com.azure.autoresttest.BuildConfig;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,27 +40,10 @@ public class CreateChatThread {
     private static CommunicationUserIdentifier firstThreadMember;
 
     static {
-        final String endpoint = getConfig("COMMUNICATION_SERVICE_ENDPOINT");
-        ENDPOINT = endpoint != null ? endpoint : "https://chat-sdktester-e2e.communication.azure.com";
-
-        final String accessKey = getConfig("COMMUNICATION_SERVICE_ACCESS_KEY");
-        ACCESS_KEY = accessKey != null ? accessKey : "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMiIsIng1dCI6IjNNSnZRYzhrWVNLd1hqbEIySmx6NTRQVzNBYyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOjM1N2UzOWQyLWEyOWEtNGJmNi04OGNjLWZkYTBhZmMyYzBlZF8wMDAwMDAwOS00N2ZjLTRjNzctZWRiZS1hNDNhMGQwMDNkZGYiLCJzY3AiOjE3OTIsImNzaSI6IjE2MTc3MjgwMzgiLCJpYXQiOjE2MTc3MjgwMzgsImV4cCI6MTYxNzgxNDQzOCwiYWNzU2NvcGUiOiJjaGF0IiwicmVzb3VyY2VJZCI6IjM1N2UzOWQyLWEyOWEtNGJmNi04OGNjLWZkYTBhZmMyYzBlZCJ9.TvtnkKtU2foL0yvfvShrqoOxcKJ7UeoTGrb99CZSZ6FZeG2jf8wEBUpz4n_j2Im_0Fo7PJXN2Y82PcwwRu17BB6TrgM7OapK4OVK5Jrg27KmgO3SoA1wCqvfBHUaa91LkTLF9Mb4gKY3m8FhY9yk6pW1oSrmCANwjXqDvFhOp3GPpyXDrRZTD3KkqY-U4d9r3IaDA-AbjQmifhVzLSc08uCgEkehI7evCBsI92BcWD3z3-GxXa5U4de9NyK8_4O1YivnL-_YeKG7aD0xGALOPkrGTrEKdRdbH1AE3XPCx1H5kYtEpqTMkciKmUKNS4qs-uryhvvFiTX4Pf3dkn2ZHg";
-
-        final String threadMember1 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_1");
-        THREAD_MEMBER_1 = threadMember1 != null ? threadMember1 : "8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_00000009-47fb-c12e-edbe-a43a0d003dda";
-
-        final String threadMember2 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_2");
-        THREAD_MEMBER_2 = threadMember2 != null ? threadMember2 : "8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_00000009-47fc-4c77-edbe-a43a0d003ddf";
-    }
-
-    protected static String getConfig(String name) {
-        String value = System.getProperty(name);
-
-        if (value != null) {
-            return value;
-        }
-
-        return System.getenv(name);
+        ENDPOINT = BuildConfig.COMMUNICATION_SERVICE_ENDPOINT;
+        ACCESS_KEY = BuildConfig.COMMUNICATION_SERVICE_ACCESS_KEY;
+        THREAD_MEMBER_1 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_1;
+        THREAD_MEMBER_2 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_2;
     }
 
     private static ChatAsyncClient client;
@@ -94,7 +81,7 @@ public class CreateChatThread {
         return options;
     }
 
-    public static ChatParticipant generateParticipant(String id, String displayName) {
+    private static ChatParticipant generateParticipant(String id, String displayName) {
         ChatParticipant chatParticipant = new ChatParticipant();
         chatParticipant.setCommunicationIdentifier(new CommunicationUserIdentifier(id));
         chatParticipant.setDisplayName(displayName);
