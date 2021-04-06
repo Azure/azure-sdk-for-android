@@ -32,19 +32,12 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(AndroidJUnit4.class)
 public class CreateChatThread {
-    protected static final String ENDPOINT;
-    protected static final String ACCESS_KEY;
-    protected static final String THREAD_MEMBER_1;
-    protected static final String THREAD_MEMBER_2;
+    protected static final String ENDPOINT = BuildConfig.COMMUNICATION_SERVICE_ENDPOINT;
+    protected static final String ACCESS_KEY = BuildConfig.COMMUNICATION_SERVICE_ACCESS_KEY;
+    protected static final String THREAD_MEMBER_1 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_1;
+    protected static final String THREAD_MEMBER_2 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_2;
     private static CommunicationUserIdentifier secondThreadMember;
     private static CommunicationUserIdentifier firstThreadMember;
-
-    static {
-        ENDPOINT = BuildConfig.COMMUNICATION_SERVICE_ENDPOINT;
-        ACCESS_KEY = BuildConfig.COMMUNICATION_SERVICE_ACCESS_KEY;
-        THREAD_MEMBER_1 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_1;
-        THREAD_MEMBER_2 = BuildConfig.COMMUNICATION_CHAT_THREAD_MEMBER_2;
-    }
 
     private static ChatAsyncClient client;
 
