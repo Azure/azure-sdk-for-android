@@ -1,9 +1,6 @@
 package com.azure.android.communication.chat.samples;
 
-import android.os.Bundle;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
