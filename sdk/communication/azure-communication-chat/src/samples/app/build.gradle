@@ -51,13 +51,14 @@ dependencies {
 
     api "net.sourceforge.streamsupport:android-retrofuture:1.7.3"
 
-    api "com.azure.android:azure-core:$azureCoreVersion"
-    api "com.azure.android:azure-core-credential:$azureCoreVersion"
-    api "com.azure.android:azure-core-http:$azureCoreVersion"
-    api "com.azure.android:azure-core-logging:$azureCoreVersion"
-    api "com.azure.android:azure-core-rest:$azureCoreVersion"
-    api "com.azure.android:azure-core-http-okhttp:$azureCoreVersion"
-    api project(":sdk:communication:azure-communication-chat")
+    api "com.azure.android:azure-core:1.0.0-beta.5"
+    api "com.azure.android:azure-core-credential:1.0.0-beta.5"
+    api "com.azure.android:azure-core-http:1.0.0-beta.5"
+    api "com.azure.android:azure-core-logging:1.0.0-beta.5"
+    api "com.azure.android:azure-core-rest:1.0.0-beta.5"
+    api "com.azure.android:azure-core-http-okhttp:1.0.0-beta.5"
+    api "com.azure.android:azure-communication-chat:1.0.0-beta.8"
+    // api project(":sdk:communication:azure-communication-chat")
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.1.0'
