@@ -58,7 +58,6 @@ dependencies {
     api "com.azure.android:azure-core-rest:1.0.0-beta.5"
     api "com.azure.android:azure-core-http-okhttp:1.0.0-beta.5"
     api "com.azure.android:azure-communication-chat:1.0.0-beta.8"
-    // api project(":sdk:communication:azure-communication-chat")
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.1.0'
