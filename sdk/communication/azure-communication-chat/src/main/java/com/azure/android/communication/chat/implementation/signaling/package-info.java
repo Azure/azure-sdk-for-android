@@ -3,5 +3,5 @@
 // license information.
 //
 
-/** Package containing the classes for Chat events classes */
-package com.azure.android.communication.chat.signaling.chatevents;
+/** Package containing the classes for Signaling. Real time notification service. */
+package com.azure.android.communication.chat.implementation.signaling;

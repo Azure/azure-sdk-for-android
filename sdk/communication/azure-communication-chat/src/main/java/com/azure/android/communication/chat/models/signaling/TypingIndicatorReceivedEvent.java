@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
 /**
  * Event for a received typing indicator when a chat participant is typing.
@@ -18,7 +18,6 @@ public class TypingIndicatorReceivedEvent extends ChatUserEvent {
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     private String receivedOn;
-
 
     /**
      * Gets Version of the message..

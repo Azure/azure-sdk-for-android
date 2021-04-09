@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
-import com.azure.android.communication.chat.signaling.properties.ChatParticipant;
-import com.azure.android.communication.chat.signaling.properties.ChatThreadProperties;
+import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
 
 /**
  * Event for an updated chat thread.
@@ -26,7 +26,6 @@ public class ChatThreadPropertiesUpdatedEvent extends ChatThreadEvent {
      * The information of the user that updated the chat thread.
      */
     private ChatParticipant updatedBy;
-
 
     /**
      * Sets new The timestamp when the thread was updated. The timestamp is in ISO8601 format:

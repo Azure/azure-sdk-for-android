@@ -22,7 +22,8 @@ import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
-import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
+import com.azure.android.communication.chat.models.signaling.BaseEvent;
+import com.azure.android.communication.chat.models.signaling.ChatThreadCreatedEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
@@ -42,8 +43,8 @@ import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
-import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatMessageReceived;
-import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatThreadCreated;
+import static com.azure.android.communication.chat.models.signaling.ChatEventId.chatMessageReceived;
+import static com.azure.android.communication.chat.models.signaling.ChatEventId.chatThreadCreated;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -152,8 +153,9 @@ public class MainActivity extends AppCompatActivity {
         chatAsyncClient.on(chatThreadCreated, "testListenerForThreadCreation", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
+            ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message received! Content is %s.", payload);
+            System.out.printf("Thread created! Content is %s.", event);
             Log.i(TAG, payload.toString());
         });
 

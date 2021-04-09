@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
-import com.azure.android.communication.chat.signaling.properties.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatParticipant;
 
 /**
  * Event for an updated chat thread.
@@ -20,7 +20,6 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
      * The information of the user that deleted the chat thread.
      */
     private ChatParticipant deletedBy;
-
 
     /**
      * Sets new The timestamp when the thread was deleted. The timestamp is in ISO8601 format:

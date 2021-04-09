@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
 /**
  * Event for a received read receipt
@@ -16,7 +16,6 @@ public class ReadReceiptReceivedEvent extends ChatUserEvent {
      * The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ
      */
     private String readOn;
-
 
     /**
      * Sets new The id of the last read chat message..

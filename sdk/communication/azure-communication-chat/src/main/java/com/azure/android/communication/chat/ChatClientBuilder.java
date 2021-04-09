@@ -6,7 +6,7 @@ package com.azure.android.communication.chat;
 import android.content.Context;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
-import com.azure.android.communication.chat.signaling.CommunicationSignalingClient;
+import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.common.CommunicationAccessToken;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.http.HttpClient;

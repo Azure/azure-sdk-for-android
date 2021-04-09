@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
-import com.azure.android.communication.chat.signaling.properties.ChatParticipant;
-import com.azure.android.communication.chat.signaling.properties.ChatThreadProperties;
+import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
 
 import java.util.List;
 
@@ -33,7 +33,6 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
      * The information of the user that created the chat thread.
      */
     private ChatParticipant createdBy;
-
 
     /**
      * Sets new The properties of the thread..

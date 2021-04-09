@@ -1,22 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling;
+package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatMessageDeletedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatMessageEditedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatMessageReceivedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatThreadCreatedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatThreadDeletedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ChatThreadPropertiesUpdatedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ParticipantsAddedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ParticipantsRemovedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.ReadReceiptReceivedEvent;
-import com.azure.android.communication.chat.signaling.chatevents.TypingIndicatorReceivedEvent;
-import com.azure.android.communication.chat.signaling.properties.ChatEventId;
-import com.azure.android.communication.chat.signaling.properties.ChatParticipant;
-import com.azure.android.communication.chat.signaling.properties.ChatThreadProperties;
+import com.azure.android.communication.chat.models.signaling.BaseEvent;
+import com.azure.android.communication.chat.models.signaling.ChatMessageDeletedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatMessageEditedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatMessageReceivedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatThreadCreatedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatThreadDeletedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatThreadPropertiesUpdatedEvent;
+import com.azure.android.communication.chat.models.signaling.ParticipantsAddedEvent;
+import com.azure.android.communication.chat.models.signaling.ParticipantsRemovedEvent;
+import com.azure.android.communication.chat.models.signaling.ReadReceiptReceivedEvent;
+import com.azure.android.communication.chat.models.signaling.TypingIndicatorReceivedEvent;
+import com.azure.android.communication.chat.models.signaling.ChatEventId;
+import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
@@ -40,7 +40,6 @@ import java.util.Map;
 
 class TrouterUtils {
 
-    private static final String USER_PREFIX = "8:";
     private static final String ACS_USER_PREFIX = "8:acs:";
     private static final String SPOOL_USER_PREFIX = "8:spool:";
     private static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
@@ -147,7 +146,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant removedBy = new ChatParticipant();
-            removedBy.setUser(
+            removedBy.setCommunicationIdentifier(
                 getCommunicationIdentifier(
                     getJSONObject(payload, "removedBy").getString("participantId")));
             removedBy.setDisplayName(getJSONObject(payload, "removedBy").getString("displayName"));
@@ -161,7 +160,7 @@ class TrouterUtils {
                 CommunicationIdentifier communicationUser =
                     getCommunicationIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setUser(communicationUser);
+                chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
                 chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
 
@@ -185,7 +184,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant addedBy = new ChatParticipant();
-            addedBy.setUser(
+            addedBy.setCommunicationIdentifier(
                 getCommunicationIdentifier(
                     getJSONObject(payload, "addedBy").getString("participantId")));
             addedBy.setDisplayName(getJSONObject(payload, "addedBy").getString("displayName"));
@@ -199,7 +198,7 @@ class TrouterUtils {
                 CommunicationIdentifier communicationUser =
                     getCommunicationIdentifier(member.getString("participantId"));
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setUser(communicationUser);
+                chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
                 chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
 
@@ -223,7 +222,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant deletedBy = new ChatParticipant();
-            deletedBy.setUser(
+            deletedBy.setCommunicationIdentifier(
                 getCommunicationIdentifier(
                     getJSONObject(payload, "deletedBy").getString("participantId")));
             deletedBy.setDisplayName(getJSONObject(payload, "deletedBy").getString("displayName"));
@@ -247,7 +246,7 @@ class TrouterUtils {
             eventPayload.setUpdatedOn(payload.getString("editTime"));
 
             ChatParticipant updatedBy = new ChatParticipant();
-            updatedBy.setUser(
+            updatedBy.setCommunicationIdentifier(
                 getCommunicationIdentifier(
                     getJSONObject(payload, "editedBy").getString("participantId")));
             updatedBy.setDisplayName(getJSONObject(payload, "editedBy").getString("displayName"));
@@ -272,7 +271,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("threadId"));
 
             ChatParticipant createdBy = new ChatParticipant();
-            createdBy.setUser(
+            createdBy.setCommunicationIdentifier(
                 getCommunicationIdentifier(
                     getJSONObject(payload, "createdBy").getString("participantId")));
             createdBy.setDisplayName(getJSONObject(payload, "createdBy").getString("displayName"));
@@ -285,7 +284,7 @@ class TrouterUtils {
                     getCommunicationIdentifier(member.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setUser(communicationUser);
+                chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
 
                 chatParticipants.add(chatParticipant);
@@ -313,8 +312,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(
-                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
+            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
             eventPayload.setReadOn(new Date().toString());
@@ -332,8 +330,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(
-                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
+            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
             eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
             eventPayload.setVersion(payload.getString("version"));
@@ -351,8 +348,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(
-                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
+            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
 
             eventPayload.setId(payload.getString("messageId"));
@@ -374,8 +370,7 @@ class TrouterUtils {
             eventPayload.setThreadId(payload.getString("groupId"));
 
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(
-                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
+            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -396,8 +391,7 @@ class TrouterUtils {
         try {
             eventPayload.setThreadId(payload.getString("groupId"));
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(
-                addRawIdPrefixIfMissing(payload.getString("recipientId"))));
+            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
@@ -413,19 +407,10 @@ class TrouterUtils {
         return eventPayload;
     }
 
-    private static String parseShareHistoryTime(Long shareHistoryTimeEpochMilli) {
+    private static OffsetDateTime parseShareHistoryTime(Long shareHistoryTimeEpochMilli) {
         return OffsetDateTime.ofInstant(
             Instant.ofEpochMilli(shareHistoryTimeEpochMilli),
-            ZoneId.of("UTC"))
-            .toString();
-    }
-
-    private static String addRawIdPrefixIfMissing(String rawId) {
-        if (rawId.startsWith(USER_PREFIX)) {
-            return rawId;
-        }
-
-        return USER_PREFIX + rawId;
+            ZoneId.of("UTC"));
     }
 
     private static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {

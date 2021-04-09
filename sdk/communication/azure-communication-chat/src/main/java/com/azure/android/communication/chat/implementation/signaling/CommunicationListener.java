@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling;
+package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
-import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.communication.chat.models.signaling.BaseEvent;
+import com.azure.android.communication.chat.models.signaling.ChatEventId;
+import com.azure.android.communication.chat.models.signaling.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;

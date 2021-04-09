@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling.chatevents;
+package com.azure.android.communication.chat.models.signaling;
 
 /**
  * Event for a deleted chat message.
@@ -35,7 +35,6 @@ public class ChatMessageDeletedEvent extends ChatUserEvent {
      * `1593117207131`
      */
     private String version;
-
 
     /**
      * Sets new The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
