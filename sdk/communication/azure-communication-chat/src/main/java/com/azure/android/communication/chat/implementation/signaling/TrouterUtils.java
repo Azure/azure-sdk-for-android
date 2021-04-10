@@ -241,7 +241,8 @@ class TrouterUtils {
         ChatThreadPropertiesUpdatedEvent eventPayload = new ChatThreadPropertiesUpdatedEvent();
 
         try {
-            eventPayload.setThreadId(payload.getString("threadId"));
+            String threadId = payload.getString("threadId");
+            eventPayload.setThreadId(threadId);
 
             eventPayload.setUpdatedOn(payload.getString("editTime"));
 
@@ -255,7 +256,9 @@ class TrouterUtils {
             eventPayload.setVersion(payload.getString("version"));
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.setTopic(getJSONObject(payload, "properties").getString("topic"));
+            chatThreadProperties
+                .setId(threadId)
+                .setTopic(getJSONObject(payload, "properties").getString("topic"));
             eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -268,12 +271,13 @@ class TrouterUtils {
         ChatThreadCreatedEvent eventPayload = new ChatThreadCreatedEvent();
 
         try {
-            eventPayload.setThreadId(payload.getString("threadId"));
+            String threadId = payload.getString("threadId");
+            eventPayload.setThreadId(threadId);
 
             ChatParticipant createdBy = new ChatParticipant();
-            createdBy.setCommunicationIdentifier(
-                getCommunicationIdentifier(
-                    getJSONObject(payload, "createdBy").getString("participantId")));
+            CommunicationIdentifier createdByCommunicationIdentifier = getCommunicationIdentifier(
+                getJSONObject(payload, "createdBy").getString("participantId"));
+            createdBy.setCommunicationIdentifier(createdByCommunicationIdentifier);
             createdBy.setDisplayName(getJSONObject(payload, "createdBy").getString("displayName"));
 
             List<ChatParticipant> chatParticipants = new ArrayList<>();
@@ -290,13 +294,18 @@ class TrouterUtils {
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.setCreatedOn(payload.getString("createTime"));
+            String createTimeString = payload.getString("createTime");
+            eventPayload.setCreatedOn(createTimeString);
             eventPayload.setCreatedBy(createdBy);
             eventPayload.setVersion(payload.getString("version"));
             eventPayload.setParticipants(chatParticipants);
 
             ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties.setTopic(getJSONObject(payload, "properties").getString("topic"));
+            chatThreadProperties
+                .setId(threadId)
+                .setTopic(getJSONObject(payload, "properties").getString("topic"))
+                .setCreatedByCommunicationIdentifier(createdByCommunicationIdentifier)
+                .setCreatedOn(OffsetDateTime.ofInstant(Instant.parse(createTimeString), ZoneId.of("UTC")));
             eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
