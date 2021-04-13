@@ -154,9 +154,9 @@ ChatThreadClient chatThreadClient = chatClient.getChatThreadClient(chatThreadId)
 
 The `getProperties` method retrieves properties of a thread from the service.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L97-L98 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L98-L98 -->
 ```Java
-ChatThreadProperties chatThreadProperties = chatClient.getProperties();
+ChatThreadProperties chatThreadProperties = chatThreadClient.getProperties();
 ```
 
 #### Update a chat thread topic
@@ -346,7 +346,6 @@ Use `getReadReceiptsFirstPage` and `getReadReceiptsNextPage` to retrieve a paged
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L270-L277 -->
 ```Java
-
 Page<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.getReadReceiptsFirstPage();
 List<ChatMessageReadReceipt> chatMessageReadReceipts = readReceiptsResponse.getElements();
 String nextLink = readReceiptsResponse.getContinuationToken();

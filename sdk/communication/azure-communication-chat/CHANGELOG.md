@@ -3,7 +3,7 @@
 ### Breaking Changes
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`
-- Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.signaling.*`
+- Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.*`
 
 ## 1.0.0-beta.8 (2021-03-29)
 ### Breaking Changes
