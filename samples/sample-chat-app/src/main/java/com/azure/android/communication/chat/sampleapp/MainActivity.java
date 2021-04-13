@@ -22,8 +22,8 @@ import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
-import com.azure.android.communication.chat.models.signaling.BaseEvent;
-import com.azure.android.communication.chat.models.signaling.ChatThreadCreatedEvent;
+import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
@@ -43,8 +43,8 @@ import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
-import static com.azure.android.communication.chat.models.signaling.ChatEventId.chatMessageReceived;
-import static com.azure.android.communication.chat.models.signaling.ChatEventId.chatThreadCreated;
+import static com.azure.android.communication.chat.models.ChatEventId.chatMessageReceived;
+import static com.azure.android.communication.chat.models.ChatEventId.chatThreadCreated;
 
 
 public class MainActivity extends AppCompatActivity {

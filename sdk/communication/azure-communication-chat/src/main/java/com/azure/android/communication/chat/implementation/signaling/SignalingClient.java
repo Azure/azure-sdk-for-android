@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.signaling.ChatEventId;
-import com.azure.android.communication.chat.models.signaling.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.models.ChatEventId;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 
 /**
  * The signaling client interface

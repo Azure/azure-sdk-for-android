@@ -5,8 +5,8 @@ package com.azure.android.communication.chat.implementation.signaling;
 
 import android.content.Context;
 
-import com.azure.android.communication.chat.models.signaling.ChatEventId;
-import com.azure.android.communication.chat.models.signaling.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.models.ChatEventId;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;

@@ -3,18 +3,18 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.signaling.BaseEvent;
-import com.azure.android.communication.chat.models.signaling.ChatMessageDeletedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatMessageEditedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatMessageReceivedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatThreadCreatedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatThreadDeletedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatThreadPropertiesUpdatedEvent;
-import com.azure.android.communication.chat.models.signaling.ParticipantsAddedEvent;
-import com.azure.android.communication.chat.models.signaling.ParticipantsRemovedEvent;
-import com.azure.android.communication.chat.models.signaling.ReadReceiptReceivedEvent;
-import com.azure.android.communication.chat.models.signaling.TypingIndicatorReceivedEvent;
-import com.azure.android.communication.chat.models.signaling.ChatEventId;
+import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
+import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
+import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
+import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
+import com.azure.android.communication.chat.models.ChatThreadDeletedEvent;
+import com.azure.android.communication.chat.models.ChatThreadPropertiesUpdatedEvent;
+import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
+import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
+import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
+import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
+import com.azure.android.communication.chat.models.ChatEventId;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;

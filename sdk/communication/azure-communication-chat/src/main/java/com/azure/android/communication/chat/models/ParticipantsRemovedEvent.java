@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.models.signaling;
-
-import com.azure.android.communication.chat.models.ChatParticipant;
+package com.azure.android.communication.chat.models;
 
 import java.util.List;
 
