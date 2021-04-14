@@ -1,6 +1,5 @@
 package com.azure.azure_communication_chat_samples;
 
-import com.azure.android.communication.chat.BuildConfig;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.models.ChatParticipant;
