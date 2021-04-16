@@ -9,7 +9,12 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.policy.CookiePolicy;
 import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.http.policy.UserAgentPolicy;
+import com.azure.android.core.rest.Callback;
+import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.rest.Response;
 import com.azure.android.core.serde.jackson.JacksonSerder;
+import java9.util.concurrent.CompletableFuture;
+import java9.util.function.Function;
 
 /** Initializes a new instance of the AzureCommunicationChatService type. */
 public final class AzureCommunicationChatServiceImpl {
