@@ -129,4 +129,36 @@ public final class AzureCommunicationChatServiceImpl {
         this.chatThreads = new ChatThreadImpl(this);
         this.chats = new ChatImpl(this);
     }
+
+    private static final class ResponseCompletableFuture<T> extends CompletableFuture<Response<T>>
+            implements Callback<Response<T>> {
+        @Override
+        public void onSuccess(Response<T> response) {
+            this.complete(response);
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            this.completeExceptionally(error);
+        }
+    }
+
+    private static final class PagedResponseCompletableFuture<P, T> extends CompletableFuture<PagedResponse<T>>
+            implements Callback<Response<P>> {
+        private final Function<Response<P>, PagedResponse<T>> converter;
+
+        PagedResponseCompletableFuture(Function<Response<P>, PagedResponse<T>> converter) {
+            this.converter = converter;
+        }
+
+        @Override
+        public void onSuccess(Response<P> response) {
+            this.complete(this.converter.apply(response));
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            this.completeExceptionally(error);
+        }
+    }
 }
