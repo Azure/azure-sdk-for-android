@@ -4,7 +4,6 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
-import com.azure.android.communication.chat.implementation.ChatImpl;
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
