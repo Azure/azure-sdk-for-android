@@ -20,7 +20,7 @@ This package contains common code for Azure Communication Service libraries.
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
-The current version of this library is **1.0.0-beta.8**.
+The current version of this library is **1.0.0**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -38,13 +38,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-common:1.0.0-beta.8"
+    implementation "com.azure.android:azure-communication-common:1.0.0"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-common:1.0.0-beta.8")
+    implementation("com.azure.android:azure-communication-common:1.0.0")
 }
 ```
 
@@ -55,7 +55,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-common</artifactId>
-  <version>1.0.0-beta.8</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 
