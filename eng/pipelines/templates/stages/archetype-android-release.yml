@@ -65,6 +65,8 @@ stages:
               runOnce:
                 deploy:
                   steps:
+                    - checkout: self
+                    - template: /eng/common/pipelines/templates/steps/retain-run.yml
                     - checkout: azure-sdk-build-tools
                       path: azure-sdk-build-tools
                     - pwsh: |
