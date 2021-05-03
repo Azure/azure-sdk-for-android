@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * The base event of chat events
  */
@@ -10,6 +12,7 @@ public abstract class BaseEvent {
     /**
      * Thread Id of the event.
      */
+    @JsonProperty(value = "threadId")
     private String threadId;
 
     /**

@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Event for an updated chat thread.
  * All chat participants receive this event, including the original sender
@@ -12,11 +14,13 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
      * The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "deletedOn")
     private String deletedOn;
 
     /**
      * The information of the user that deleted the chat thread.
      */
+    @JsonProperty(value = "deletedBy")
     private ChatParticipant deletedBy;
 
     /**

@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Event for an updated chat thread.
  * All chat participants receive this event, including the original sender
@@ -11,17 +13,20 @@ public class ChatThreadPropertiesUpdatedEvent extends ChatThreadEvent {
     /**
      * The properties of the thread.
      */
+    @JsonProperty(value = "properties")
     private ChatThreadProperties properties;
 
     /**
      * The timestamp when the thread was updated. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "updatedOn")
     private String updatedOn;
 
     /**
      * The information of the user that updated the chat thread.
      */
+    @JsonProperty(value = "updatedBy")
     private ChatParticipant updatedBy;
 
     /**

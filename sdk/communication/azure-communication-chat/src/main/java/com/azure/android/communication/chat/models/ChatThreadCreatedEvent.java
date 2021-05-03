@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -14,21 +16,25 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
      * The timestamp when the thread was created. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "createdOn")
     private String createdOn;
 
     /**
      * The properties of the thread.
      */
+    @JsonProperty(value = "properties")
     private ChatThreadProperties properties;
 
     /**
      * The list of participants on the thread.
      */
+    @JsonProperty(value = "participants")
     private List<ChatParticipant> participants;
 
     /**
      * The information of the user that created the chat thread.
      */
+    @JsonProperty(value = "createdBy")
     private ChatParticipant createdBy;
 
     /**

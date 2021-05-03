@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Event for a received typing indicator when a chat participant is typing.
  * All chat participants receive this event, including the original sender
@@ -11,12 +13,14 @@ public class TypingIndicatorReceivedEvent extends ChatUserEvent {
     /**
      * Version of the message.
      */
+    @JsonProperty(value = "version")
     private String version;
 
     /**
      * The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "receivedOn")
     private String receivedOn;
 
     /**

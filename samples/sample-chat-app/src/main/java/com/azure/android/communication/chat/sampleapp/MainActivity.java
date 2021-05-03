@@ -23,7 +23,6 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.BaseEvent;
-import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
@@ -31,11 +30,14 @@ import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.serde.jackson.JacksonSerder;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.Context;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.threeten.bp.OffsetDateTime;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -161,85 +163,126 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Register a test listener");
+        JacksonSerder jacksonSerder = JacksonSerder.createDefault();
 
         chatAsyncClient.on(chatMessageReceived, "chatMessageReceived", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message received! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Message created! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(chatMessageEdited, "chatMessageEdited", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message edited! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Message edited! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(chatMessageDeleted, "chatMessageDeleted", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message deleted! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Message deleted! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(typingIndicatorReceived, "typingIndicatorReceived", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Typing indicator received! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Typing indicator received! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(readReceiptReceived, "readReceiptReceived", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Read receipt received! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Read receipt received! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(chatThreadCreated, "chatThreadCreated", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Chat thread created! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Chat thread created! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(chatThreadDeleted, "chatThreadDeleted", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Chat thread deleted! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Chat thread deleted! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(chatThreadPropertiesUpdated, "chatThreadPropertiesUpdated", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Chat thread properties updated! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Chat thread properties updated! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(participantsAdded, "participantsAdded", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Participants added! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Participants added! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
 
         chatAsyncClient.on(participantsRemoved, "participantsRemoved", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Participants removed! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            try {
+                String jsonStr = jacksonSerder.serialize(payload, SerdeEncoding.JSON);
+                Log.i(TAG, "Participants removed! Content is " + jsonStr + ".");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         });
     }
 

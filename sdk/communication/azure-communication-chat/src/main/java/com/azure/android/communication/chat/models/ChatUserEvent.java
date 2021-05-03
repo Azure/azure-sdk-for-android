@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.communication.common.CommunicationIdentifier;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Base class for chat event
@@ -13,11 +14,13 @@ public abstract class ChatUserEvent extends BaseEvent {
     /**
      * The Id of the event sender.
      */
+    @JsonProperty(value = "sender")
     private CommunicationIdentifier sender;
 
     /**
      * The Id of the event recipient.
      */
+    @JsonProperty(value = "recipient")
     private CommunicationIdentifier recipient;
 
     /**

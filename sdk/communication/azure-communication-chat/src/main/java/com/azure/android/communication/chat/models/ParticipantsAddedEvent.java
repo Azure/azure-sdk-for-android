@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -14,16 +16,19 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
      * The timestamp when the member was added. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "addedOn")
     private String addedOn;
 
     /**
      * The participants added to the thread.
      */
+    @JsonProperty(value = "participantsAdded")
     private List<ChatParticipant> participantsAdded;
 
     /**
      * The information of the user that added the chat participants.
      */
+    @JsonProperty(value = "addedBy")
     private ChatParticipant addedBy;
 
     /**

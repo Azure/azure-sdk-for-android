@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -14,16 +16,19 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
      * The timestamp when the member was removed. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
+    @JsonProperty(value = "removedOn")
     private String removedOn;
 
     /**
      * The participants removed from the thread.
      */
+    @JsonProperty(value = "participantsRemoved")
     private List<ChatParticipant> participantsRemoved;
 
     /**
      * The information of the user that removed the chat participants.
      */
+    @JsonProperty(value = "removedBy")
     private ChatParticipant removedBy;
 
     /**

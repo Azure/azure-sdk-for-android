@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Event for a received read receipt
  */
@@ -10,11 +12,13 @@ public class ReadReceiptReceivedEvent extends ChatUserEvent {
     /**
      * The id of the last read chat message.
      */
+    @JsonProperty(value = "chatMessageId")
     private String chatMessageId;
 
     /**
      * The timestamp when the message was read. The timestamp is in ISO8601 format: yyyy-MM-ddTHH:mm:ssZ
      */
+    @JsonProperty(value = "readOn")
     private String readOn;
 
     /**

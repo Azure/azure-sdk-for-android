@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Chat thread event
  */
@@ -13,6 +15,7 @@ public abstract class ChatThreadEvent extends BaseEvent {
      * Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`
      */
+    @JsonProperty(value = "version")
     private String version;
 
     /**
