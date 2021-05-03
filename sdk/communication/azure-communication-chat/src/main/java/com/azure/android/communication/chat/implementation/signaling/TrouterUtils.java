@@ -76,7 +76,7 @@ class TrouterUtils {
         }
 
         try {
-            if (genericPayload == null || genericPayload.getInt("_eventId") != eventId) {
+            if (genericPayload == null || genericPayload.getInt("eventId") != eventId) {
                 return null;
             }
         } catch (JSONException e) {

@@ -26,8 +26,9 @@ import com.azure.android.communication.chat.models.BaseEvent;
 import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
-import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
 import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
+import com.azure.android.core.http.policy.HttpLogDetailLevel;
+import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.util.Context;
@@ -44,7 +45,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
 import static com.azure.android.communication.chat.models.ChatEventId.chatMessageReceived;
+import static com.azure.android.communication.chat.models.ChatEventId.chatMessageEdited;
+import static com.azure.android.communication.chat.models.ChatEventId.chatMessageDeleted;
+import static com.azure.android.communication.chat.models.ChatEventId.typingIndicatorReceived;
+import static com.azure.android.communication.chat.models.ChatEventId.readReceiptReceived;
 import static com.azure.android.communication.chat.models.ChatEventId.chatThreadCreated;
+import static com.azure.android.communication.chat.models.ChatEventId.chatThreadPropertiesUpdated;
+import static com.azure.android.communication.chat.models.ChatEventId.chatThreadDeleted;
+import static com.azure.android.communication.chat.models.ChatEventId.participantsAdded;
+import static com.azure.android.communication.chat.models.ChatEventId.participantsRemoved;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -54,13 +63,13 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "<first-user-id>";
-    private String secondUserId = "<second-user-id>";
+    private String firstUserId = "";
+    private String secondUserId = "";
     // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "<first-user-access-token>";
+    private final String firstUserAccessToken = "";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "https://<acs-account-name>.communication.azure.com";
+    private final String endpoint = "";
     private final String listenerId = "testListener";
     private final String sdkVersion = "1.0.0-beta.8";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
@@ -84,8 +93,10 @@ public class MainActivity extends AppCompatActivity {
                 .credentialPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
                     callback.onSuccess(new AccessToken(firstUserAccessToken, OffsetDateTime.now().plusDays(1)))))
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
+                .httpLogOptions(new HttpLogOptions()
+                    .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
+                    .addAllowedHeaderName("MS-CV"))
                 .realtimeNotificationParams(getApplicationContext(), firstUserAccessToken)
-                .httpClient(new OkHttpAsyncClientProvider().createInstance())
                 .buildAsyncClient();
 
             Log.d(TAG, "Created ChatAsyncClient");
@@ -150,20 +161,84 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Register a test listener");
-        chatAsyncClient.on(chatThreadCreated, "testListenerForThreadCreation", (BaseEvent payload) -> {
-            eventHandlerCalled++;
 
-            ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
-            Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Thread created! Content is %s.", event);
-            Log.i(TAG, payload.toString());
-        });
-
-        chatAsyncClient.on(chatMessageReceived, listenerId, (BaseEvent payload) -> {
+        chatAsyncClient.on(chatMessageReceived, "chatMessageReceived", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             System.out.printf("Message received! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(chatMessageEdited, "chatMessageEdited", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Message edited! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(chatMessageDeleted, "chatMessageDeleted", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Message deleted! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(typingIndicatorReceived, "typingIndicatorReceived", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Typing indicator received! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(readReceiptReceived, "readReceiptReceived", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Read receipt received! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(chatThreadCreated, "chatThreadCreated", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Chat thread created! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(chatThreadDeleted, "chatThreadDeleted", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Chat thread deleted! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(chatThreadPropertiesUpdated, "chatThreadPropertiesUpdated", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Chat thread properties updated! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(participantsAdded, "participantsAdded", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Participants added! Content is %s.", payload);
+            Log.i(TAG, payload.toString());
+        });
+
+        chatAsyncClient.on(participantsRemoved, "participantsRemoved", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            System.out.printf("Participants removed! Content is %s.", payload);
             Log.i(TAG, payload.toString());
         });
     }

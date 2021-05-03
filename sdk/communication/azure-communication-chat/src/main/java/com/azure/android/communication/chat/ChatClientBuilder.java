@@ -190,9 +190,6 @@ public final class ChatClientBuilder {
                         new NullPointerException(
                             "Either CommunicationTokenCredential or CredentialPolicy is required."));
             }
-            if (this.httpClient == null) {
-                throw logger.logExceptionAsError(new NullPointerException("HttpClient is required."));
-            }
 
             if (context != null && userToken != null) {
                 communicationSignalingClient = new CommunicationSignalingClient(userToken, context);
