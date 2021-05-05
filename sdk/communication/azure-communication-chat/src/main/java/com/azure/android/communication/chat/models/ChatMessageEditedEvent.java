@@ -5,11 +5,13 @@ package com.azure.android.communication.chat.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.threeten.bp.OffsetDateTime;
+
 /**
  * Event for a edited chat message.
- * All chat participants receive this event, including the original sender
+ * All chat participants receive this event, including the original sender.
  */
-public class ChatMessageEditedEvent extends ChatUserEvent {
+public final class ChatMessageEditedEvent extends ChatUserEvent {
     /**
      * Content of the edited message.
      */
@@ -17,11 +19,11 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
     private String content;
 
     /**
-     * The timestamp when the message was edited. The timestamp is in ISO8601 format:
+     * The timestamp when the message was edited. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "editedOn")
-    private String editedOn;
+    private OffsetDateTime editedOn;
 
     /**
      * The Id of the message. This Id is server generated.
@@ -36,11 +38,11 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
     private String senderDisplayName;
 
     /**
-     * The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
+     * The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "createdOn")
-    private String createdOn;
+    private OffsetDateTime createdOn;
 
     /**
      * Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
@@ -50,45 +52,52 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
     private String version;
 
     /**
-     * Gets The timestamp when the message was edited. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * Sets new Content of the edited message.
      *
-     * @return Value of The timestamp when the message was edited. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * @param content New value of Content of the edited message.
      */
-    public String getEditedOn() {
-        return editedOn;
+    public void setContent(String content) {
+        this.content = content;
     }
 
     /**
-     * Gets Content of the edited message..
+     * Sets new The timestamp when the message was edited. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @return Value of Content of the edited message..
+     * @param editedOn New value of The timestamp when the message was edited. The timestamp is in RFC3339 format:
+     *                 `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public String getContent() {
-        return content;
-    }
-
-    /**
-     * Gets The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
-     *
-     * @return Value of The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
-     */
-    public String getCreatedOn() {
-        return createdOn;
-    }
-
-    /**
-     * Sets new The timestamp when the message was edited. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
-     *
-     * @param editedOn New value of The timestamp when the message was edited. The timestamp is in ISO8601 format:
-     *                 `yyyy-MM-ddTHH:mm:ssZ`..
-     */
-    public void setEditedOn(String editedOn) {
+    public void setEditedOn(OffsetDateTime editedOn) {
         this.editedOn = editedOn;
+    }
+
+    /**
+     * Sets new The Id of the message. This Id is server generated.
+     *
+     * @param id New value of The Id of the message. This Id is server generated.
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Sets new The display name of the event sender.
+     *
+     * @param senderDisplayName New value of The display name of the event sender.
+     */
+    public void setSenderDisplayName(String senderDisplayName) {
+        this.senderDisplayName = senderDisplayName;
+    }
+
+    /**
+     * Sets new The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     *
+     * @param createdOn New value of The timestamp when the message arrived at the server.
+     *                  The timestamp is in RFC3339 format:  `yyyy-MM-ddTHH:mm:ssZ`.
+     */
+    public void setCreatedOn(OffsetDateTime createdOn) {
+        this.createdOn = createdOn;
     }
 
     /**
@@ -103,59 +112,52 @@ public class ChatMessageEditedEvent extends ChatUserEvent {
     }
 
     /**
-     * Sets new The Id of the message. This Id is server generated..
+     * Gets Content of the edited message.
      *
-     * @param id New value of The Id of the message. This Id is server generated..
+     * @return Value of Content of the edited message.
      */
-    public void setId(String id) {
-        this.id = id;
+    public String getContent() {
+        return content;
     }
 
     /**
-     * Sets new The display name of the event sender..
+     * Gets The timestamp when the message was edited. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @param senderDisplayName New value of The display name of the event sender..
+     * @return Value of The timestamp when the message was edited. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public void setSenderDisplayName(String senderDisplayName) {
-        this.senderDisplayName = senderDisplayName;
+    public OffsetDateTime getEditedOn() {
+        return editedOn;
     }
 
     /**
-     * Gets The Id of the message. This Id is server generated..
+     * Gets The Id of the message. This Id is server generated.
      *
-     * @return Value of The Id of the message. This Id is server generated..
+     * @return Value of The Id of the message. This Id is server generated.
      */
     public String getId() {
         return id;
     }
 
     /**
-     * Sets new The timestamp when the message arrived at the server. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * Gets The display name of the event sender.
      *
-     * @param createdOn New value of The timestamp when the message arrived at the server.
-     *                  The timestamp is in ISO8601 format:  `yyyy-MM-ddTHH:mm:ssZ`..
-     */
-    public void setCreatedOn(String createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    /**
-     * Gets The display name of the event sender..
-     *
-     * @return Value of The display name of the event sender..
+     * @return Value of The display name of the event sender.
      */
     public String getSenderDisplayName() {
         return senderDisplayName;
     }
 
     /**
-     * Sets new Content of the edited message..
+     * Gets The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @param content New value of Content of the edited message..
+     * @return Value of The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public void setContent(String content) {
-        this.content = content;
+    public OffsetDateTime getCreatedOn() {
+        return createdOn;
     }
 
     /**

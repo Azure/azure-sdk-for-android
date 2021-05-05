@@ -16,18 +16,18 @@ public abstract class BaseEvent {
     private String threadId;
 
     /**
-     * Gets Thread Id of the event..
+     * Gets Thread Id of the event.
      *
-     * @return Value of Thread Id of the event..
+     * @return Value of Thread Id of the event.
      */
     public String getThreadId() {
         return threadId;
     }
 
     /**
-     * Sets new Thread Id of the event..
+     * Sets new Thread Id of the event.
      *
-     * @param threadId New value of Thread Id of the event..
+     * @param threadId New value of Thread Id of the event.
      */
     public void setThreadId(String threadId) {
         this.threadId = threadId;

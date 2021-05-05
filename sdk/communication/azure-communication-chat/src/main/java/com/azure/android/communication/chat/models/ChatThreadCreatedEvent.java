@@ -5,19 +5,21 @@ package com.azure.android.communication.chat.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.threeten.bp.OffsetDateTime;
+
 import java.util.List;
 
 /**
  * Event for a created chat thread.
- * All chat participants receive this event, including the original sender
+ * All chat participants receive this event, including the original sender.
  */
 public class ChatThreadCreatedEvent extends ChatThreadEvent {
     /**
-     * The timestamp when the thread was created. The timestamp is in ISO8601 format:
+     * The timestamp when the thread was created. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "createdOn")
-    private String createdOn;
+    private OffsetDateTime createdOn;
 
     /**
      * The properties of the thread.
@@ -38,76 +40,76 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
     private ChatParticipant createdBy;
 
     /**
-     * Sets new The properties of the thread..
+     * Gets The timestamp when the thread was created. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @param properties New value of The properties of the thread..
+     * @return Value of The timestamp when the thread was created. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public void setProperties(ChatThreadProperties properties) {
-        this.properties = properties;
+    public OffsetDateTime getCreatedOn() {
+        return createdOn;
     }
 
     /**
-     * Gets The information of the user that created the chat thread..
+     * Gets The properties of the thread.
      *
-     * @return Value of The information of the user that created the chat thread..
-     */
-    public ChatParticipant getCreatedBy() {
-        return createdBy;
-    }
-
-    /**
-     * Sets new The timestamp when the thread was created. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
-     *
-     * @param createdOn New value of The timestamp when the thread was created. The timestamp is in ISO8601 format:
-     *                  `yyyy-MM-ddTHH:mm:ssZ`..
-     */
-    public void setCreatedOn(String createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    /**
-     * Gets The properties of the thread..
-     *
-     * @return Value of The properties of the thread..
+     * @return Value of The properties of the thread.
      */
     public ChatThreadProperties getProperties() {
         return properties;
     }
 
     /**
-     * Gets The timestamp when the thread was created. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * Gets The list of participants on the thread.
      *
-     * @return Value of The timestamp when the thread was created. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
-     */
-    public String getCreatedOn() {
-        return createdOn;
-    }
-
-    /**
-     * Gets The list of participants on the thread..
-     *
-     * @return Value of The list of participants on the thread..
+     * @return Value of The list of participants on the thread.
      */
     public List<ChatParticipant> getParticipants() {
         return participants;
     }
 
     /**
-     * Sets new The list of participants on the thread..
+     * Gets The information of the user that created the chat thread.
      *
-     * @param participants New value of The list of participants on the thread..
+     * @return Value of The information of the user that created the chat thread.
+     */
+    public ChatParticipant getCreatedBy() {
+        return createdBy;
+    }
+
+    /**
+     * Sets new The timestamp when the thread was created. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
+     *
+     * @param createdOn New value of The timestamp when the thread was created. The timestamp is in RFC3339 format:
+     *                  `yyyy-MM-ddTHH:mm:ssZ`.
+     */
+    public void setCreatedOn(OffsetDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    /**
+     * Sets new The properties of the thread.
+     *
+     * @param properties New value of The properties of the thread.
+     */
+    public void setProperties(ChatThreadProperties properties) {
+        this.properties = properties;
+    }
+
+    /**
+     * Sets new The list of participants on the thread.
+     *
+     * @param participants New value of The list of participants on the thread.
      */
     public void setParticipants(List<ChatParticipant> participants) {
         this.participants = participants;
     }
 
     /**
-     * Sets new The information of the user that created the chat thread..
+     * Sets new The information of the user that created the chat thread.
      *
-     * @param createdBy New value of The information of the user that created the chat thread..
+     * @param createdBy New value of The information of the user that created the chat thread.
      */
     public void setCreatedBy(ChatParticipant createdBy) {
         this.createdBy = createdBy;

@@ -7,6 +7,7 @@ import com.azure.android.communication.chat.models.BaseEvent;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
+import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
 import com.azure.android.communication.chat.models.ChatThreadDeletedEvent;
 import com.azure.android.communication.chat.models.ChatThreadPropertiesUpdatedEvent;
@@ -14,7 +15,7 @@ import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
 import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
-import com.azure.android.communication.chat.models.ChatEventId;
+import com.azure.android.communication.chat.models.ChatEventKind;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;
@@ -33,7 +34,6 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,24 +52,24 @@ class TrouterUtils {
     /**
      * Mapping chat event id to trouter event id code
      */
-    static final Map<ChatEventId, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventId, Integer>() {{
-            put(ChatEventId.chatMessageReceived, 200);
-            put(ChatEventId.typingIndicatorReceived, 245);
-            put(ChatEventId.readReceiptReceived, 246);
-            put(ChatEventId.chatMessageEdited, 247);
-            put(ChatEventId.chatMessageDeleted, 248);
-            put(ChatEventId.chatThreadCreated, 257);
-            put(ChatEventId.chatThreadPropertiesUpdated, 258);
-            put(ChatEventId.chatThreadDeleted, 259);
-            put(ChatEventId.participantsAdded, 260);
-            put(ChatEventId.participantsRemoved, 261);
+    static final Map<ChatEventKind, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventKind, Integer>() {{
+            put(ChatEventKind.CHAT_MESSAGE_RECEIVED, 200);
+            put(ChatEventKind.TYPING_INDICATOR_RECEIVED, 245);
+            put(ChatEventKind.READ_RECEIPT_RECEIVED, 246);
+            put(ChatEventKind.CHAT_MESSAGE_EDITED, 247);
+            put(ChatEventKind.CHAT_MESSAGE_DELETED, 248);
+            put(ChatEventKind.CHAT_THREAD_CREATED, 257);
+            put(ChatEventKind.CHAT_THREAD_PROPERTIES_UPDATED, 258);
+            put(ChatEventKind.CHAT_THREAD_DELETED, 259);
+            put(ChatEventKind.PARTICIPANTS_ADDED, 260);
+            put(ChatEventKind.PARTICIPANTS_REMOVED, 261);
         }};
 
-    public static BaseEvent toMessageHandler(ChatEventId chatEventId, String responseBody) {
+    public static BaseEvent toMessageHandler(ChatEventKind chatEventKind, String responseBody) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
-            eventId = EVENT_IDS_MAPPING.get(chatEventId);
+            eventId = EVENT_IDS_MAPPING.get(chatEventKind);
             genericPayload = new JSONObject(responseBody);
         } catch (Exception e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -83,30 +83,30 @@ class TrouterUtils {
             CLIENT_LOGGER.error(e.getMessage());
         }
 
-        return toEventPayload(chatEventId, genericPayload);
+        return toEventPayload(chatEventKind, genericPayload);
     }
 
-    public static BaseEvent toEventPayload(ChatEventId eventId, JSONObject payload) {
+    public static BaseEvent toEventPayload(ChatEventKind eventId, JSONObject payload) {
         switch (eventId) {
-            case chatMessageReceived:
+            case CHAT_MESSAGE_RECEIVED:
                 return getChatMessageReceived(payload);
-            case typingIndicatorReceived:
+            case TYPING_INDICATOR_RECEIVED:
                 return getTypingIndicatorReceived(payload);
-            case readReceiptReceived:
+            case READ_RECEIPT_RECEIVED:
                 return getReadReceiptReceived(payload);
-            case chatMessageEdited:
+            case CHAT_MESSAGE_EDITED:
                 return getChatMessageEdited(payload);
-            case chatMessageDeleted:
+            case CHAT_MESSAGE_DELETED:
                 return getChatMessageDeleted(payload);
-            case chatThreadCreated:
+            case CHAT_THREAD_CREATED:
                 return getChatThreadCreated(payload);
-            case chatThreadPropertiesUpdated:
+            case CHAT_THREAD_PROPERTIES_UPDATED:
                 return getChatThreadPropertiesUpdated(payload);
-            case chatThreadDeleted:
+            case CHAT_THREAD_DELETED:
                 return getChatThreadDeleted(payload);
-            case participantsAdded:
+            case PARTICIPANTS_ADDED:
                 return getParticipantsAdded(payload);
-            case participantsRemoved:
+            case PARTICIPANTS_REMOVED:
                 return getParticipantsRemoved(payload);
             default:
                 return null;
@@ -162,12 +162,12 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
+                chatParticipant.setShareHistoryTime(parseEpochTime(member.getLong("shareHistoryTime")));
 
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.setRemovedOn(payload.getString("time"));
+            eventPayload.setRemovedOn(parseTimeStamp(payload.getString("time")));
             eventPayload.setVersion(payload.getString("version"));
             eventPayload.setParticipantsRemoved(chatParticipants);
         } catch (JSONException e) {
@@ -200,12 +200,12 @@ class TrouterUtils {
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(parseShareHistoryTime(member.getLong("shareHistoryTime")));
+                chatParticipant.setShareHistoryTime(parseEpochTime(member.getLong("shareHistoryTime")));
 
                 chatParticipants.add(chatParticipant);
             }
 
-            eventPayload.setAddedOn(payload.getString("time"));
+            eventPayload.setAddedOn(parseTimeStamp(payload.getString("time")));
             eventPayload.setVersion(payload.getString("version"));
             eventPayload.setParticipantsAdded(chatParticipants);
         } catch (JSONException e) {
@@ -228,7 +228,7 @@ class TrouterUtils {
             deletedBy.setDisplayName(getJSONObject(payload, "deletedBy").getString("displayName"));
             eventPayload.setDeletedBy(deletedBy);
 
-            eventPayload.setDeletedOn(payload.getString("deleteTime"));
+            eventPayload.setDeletedOn(parseTimeStamp(payload.getString("deleteTime")));
             eventPayload.setVersion(payload.getString("version"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -244,7 +244,7 @@ class TrouterUtils {
             String threadId = payload.getString("threadId");
             eventPayload.setThreadId(threadId);
 
-            eventPayload.setUpdatedOn(payload.getString("editTime"));
+            eventPayload.setUpdatedOn(parseTimeStamp(payload.getString("editTime")));
 
             ChatParticipant updatedBy = new ChatParticipant();
             updatedBy.setCommunicationIdentifier(
@@ -294,8 +294,8 @@ class TrouterUtils {
                 chatParticipants.add(chatParticipant);
             }
 
-            String createTimeString = payload.getString("createTime");
-            eventPayload.setCreatedOn(createTimeString);
+            OffsetDateTime createTime = parseTimeStamp(payload.getString("createTime"));
+            eventPayload.setCreatedOn(createTime);
             eventPayload.setCreatedBy(createdBy);
             eventPayload.setVersion(payload.getString("version"));
             eventPayload.setParticipants(chatParticipants);
@@ -305,7 +305,7 @@ class TrouterUtils {
                 .setId(threadId)
                 .setTopic(getJSONObject(payload, "properties").getString("topic"))
                 .setCreatedByCommunicationIdentifier(createdByCommunicationIdentifier)
-                .setCreatedOn(OffsetDateTime.ofInstant(Instant.parse(createTimeString), ZoneId.of("UTC")));
+                .setCreatedOn(createTime);
             eventPayload.setProperties(chatThreadProperties);
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -324,7 +324,9 @@ class TrouterUtils {
             eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
             eventPayload.setChatMessageId(payload.getString("messageId"));
-            eventPayload.setReadOn(new Date().toString());
+
+            String consumptionHorizon = payload.getString("consumptionhorizon");
+            eventPayload.setReadOn(extractReadTimeFromConsumptionHorizon(consumptionHorizon));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -341,7 +343,7 @@ class TrouterUtils {
             eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
             eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
 
-            eventPayload.setReceivedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setReceivedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
             eventPayload.setVersion(payload.getString("version"));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
@@ -362,9 +364,9 @@ class TrouterUtils {
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
             eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setDeletedOn(payload.getString("deletetime"));
+            eventPayload.setDeletedOn(parseTimeStamp(payload.getString("deletetime")));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -383,10 +385,10 @@ class TrouterUtils {
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
             eventPayload.setVersion(payload.getString("version"));
             eventPayload.setContent(payload.getString("messageBody"));
-            eventPayload.setEditedOn(payload.getString("edittime"));
+            eventPayload.setEditedOn(parseTimeStamp(payload.getString("edittime")));
         } catch (JSONException e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -404,9 +406,9 @@ class TrouterUtils {
 
             eventPayload.setId(payload.getString("messageId"));
             eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(payload.getString("originalArrivalTime"));
+            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
             eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setType(payload.getString("messageType"));
+            eventPayload.setType(parseChatMessageType(payload.getString("messageType")));
             eventPayload.setContent(payload.getString("messageBody"));
             eventPayload.setPriority(payload.getString("priority"));
         } catch (JSONException e) {
@@ -416,10 +418,34 @@ class TrouterUtils {
         return eventPayload;
     }
 
-    private static OffsetDateTime parseShareHistoryTime(Long shareHistoryTimeEpochMilli) {
+    private static OffsetDateTime parseEpochTime(Long epochMilli) {
         return OffsetDateTime.ofInstant(
-            Instant.ofEpochMilli(shareHistoryTimeEpochMilli),
+            Instant.ofEpochMilli(epochMilli),
             ZoneId.of("UTC"));
+    }
+
+    private static OffsetDateTime parseTimeStamp(String timeStamp) {
+        return OffsetDateTime.ofInstant(
+            Instant.parse(timeStamp),
+            ZoneId.of("UTC"));
+    }
+
+    private static OffsetDateTime extractReadTimeFromConsumptionHorizon(String consumptionHorizon) {
+        String readTimeString = consumptionHorizon.split(";")[1];
+        return parseEpochTime(Long.parseLong(readTimeString));
+    }
+
+    private static ChatMessageType parseChatMessageType(String rawType) {
+        if (rawType.equalsIgnoreCase("Text")) {
+            return ChatMessageType.TEXT;
+        }
+
+        if (rawType.equalsIgnoreCase("RichText/Html")) {
+            return ChatMessageType.HTML;
+        }
+
+        // Return TEXT if fail to parse
+        return ChatMessageType.TEXT;
     }
 
     private static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {

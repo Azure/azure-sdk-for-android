@@ -5,7 +5,7 @@ package com.azure.android.communication.chat.implementation.signaling;
 
 import android.content.Context;
 
-import com.azure.android.communication.chat.models.ChatEventId;
+import com.azure.android.communication.chat.models.ChatEventKind;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
@@ -119,39 +119,39 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void on(ChatEventId chatEventId, String listenerId, RealTimeNotificationCallback listener) {
-        CommunicationListener communicationListener = new CommunicationListener(chatEventId, listener);
+    public void on(ChatEventKind chatEventKind, String listenerId, RealTimeNotificationCallback listener) {
+        CommunicationListener communicationListener = new CommunicationListener(chatEventKind, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
         if (!trouterListeners.containsKey(listenerId)) {
-            switch (chatEventId) {
-                case chatMessageReceived:
+            switch (chatEventKind) {
+                case CHAT_MESSAGE_RECEIVED:
                     trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
                     break;
-                case typingIndicatorReceived:
+                case TYPING_INDICATOR_RECEIVED:
                     trouter.registerListener(communicationListener, "/typingIndicatorReceived", loggingName);
                     break;
-                case readReceiptReceived:
+                case READ_RECEIPT_RECEIVED:
                     trouter.registerListener(communicationListener, "/readReceiptReceived", loggingName);
                     break;
-                case chatMessageEdited:
+                case CHAT_MESSAGE_EDITED:
                     trouter.registerListener(communicationListener, "/chatMessageEdited", loggingName);
                     break;
-                case chatMessageDeleted:
+                case CHAT_MESSAGE_DELETED:
                     trouter.registerListener(communicationListener, "/chatMessageDeleted", loggingName);
                     break;
-                case chatThreadCreated:
+                case CHAT_THREAD_CREATED:
                     trouter.registerListener(communicationListener, "/chatThreadCreated", loggingName);
                     break;
-                case chatThreadPropertiesUpdated:
+                case CHAT_THREAD_PROPERTIES_UPDATED:
                     trouter.registerListener(communicationListener, "/chatThreadPropertiesUpdated", loggingName);
                     break;
-                case chatThreadDeleted:
+                case CHAT_THREAD_DELETED:
                     trouter.registerListener(communicationListener, "/chatThreadDeleted", loggingName);
                     break;
-                case participantsAdded:
+                case PARTICIPANTS_ADDED:
                     trouter.registerListener(communicationListener, "/participantsAdded", loggingName);
                     break;
-                case participantsRemoved:
+                case PARTICIPANTS_REMOVED:
                     trouter.registerListener(communicationListener, "/participantsRemoved", loggingName);
                     break;
                 default:
@@ -162,7 +162,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void off(ChatEventId chatEventId, String listenerId) {
+    public void off(ChatEventKind chatEventKind, String listenerId) {
         if (trouterListeners.containsKey(listenerId)) {
             trouter.unregisterListener(trouterListeners.get(listenerId));
             trouterListeners.remove(listenerId);

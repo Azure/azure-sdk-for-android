@@ -5,17 +5,19 @@ package com.azure.android.communication.chat.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.threeten.bp.OffsetDateTime;
+
 /**
  * Event for an updated chat thread.
- * All chat participants receive this event, including the original sender
+ * All chat participants receive this event, including the original sender.
  */
 public class ChatThreadDeletedEvent extends ChatThreadEvent {
     /**
-     * The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
+     * The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "deletedOn")
-    private String deletedOn;
+    private OffsetDateTime deletedOn;
 
     /**
      * The information of the user that deleted the chat thread.
@@ -24,42 +26,42 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
     private ChatParticipant deletedBy;
 
     /**
-     * Sets new The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * Gets The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @param deletedOn New value of The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
-     *                  `yyyy-MM-ddTHH:mm:ssZ`..
+     * @return Value of The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public void setDeletedOn(String deletedOn) {
-        this.deletedOn = deletedOn;
+    public OffsetDateTime getDeletedOn() {
+        return deletedOn;
     }
 
     /**
-     * Gets The information of the user that deleted the chat thread..
+     * Gets The information of the user that deleted the chat thread.
      *
-     * @return Value of The information of the user that deleted the chat thread..
+     * @return Value of The information of the user that deleted the chat thread.
      */
     public ChatParticipant getDeletedBy() {
         return deletedBy;
     }
 
     /**
-     * Sets new The information of the user that deleted the chat thread..
+     * Sets new The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      *
-     * @param deletedBy New value of The information of the user that deleted the chat thread..
+     * @param deletedOn New value of The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
+     *                  `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    public void setDeletedBy(ChatParticipant deletedBy) {
-        this.deletedBy = deletedBy;
+    public void setDeletedOn(OffsetDateTime deletedOn) {
+        this.deletedOn = deletedOn;
     }
 
     /**
-     * Gets The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * Sets new The information of the user that deleted the chat thread.
      *
-     * @return Value of The timestamp when the thread was deleted. The timestamp is in ISO8601 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`..
+     * @param deletedBy New value of The information of the user that deleted the chat thread.
      */
-    public String getDeletedOn() {
-        return deletedOn;
+    public void setDeletedBy(ChatParticipant deletedBy) {
+        this.deletedBy = deletedBy;
     }
 }
