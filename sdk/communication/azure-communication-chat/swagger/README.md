@@ -7,10 +7,6 @@ To build the SDK for Chat Client, simply Install AutoRest and in this folder, ru
 
 ### Setup
 ```ps
-Fork and clone https://github.com/Azure/autorest.java
-git checkout v4
-git submodule update --init --recursive
-mvn package -Dlocal
 npm install
 npm install -g autorest
 ```
@@ -20,14 +16,21 @@ npm install -g autorest
 There is one swagger for Chat management APIs. 
 
 ```ps
-cd <swagger-folder>
-autorest README.md --java --v4 --use=@autorest/java@4.0.2
+> cd <swagger-folder>
+> autorest README.md --java  --android --v4 --use=@autorest/java@4.0.26
 ```
 
 ## Update generated files for chat service
 To update generated files for chat service, run the following command
 
-> autorest README.md --java --v4 --use=@autorest/java@4.0.11
+> autorest README.md --java --android --v4 --use=@autorest/java@4.0.26
+
+Rename generated ChatsImpl class to ChatImpl;
+Rename generated ChatThreadsImpl to ChatThreadImpl;
+Modify AzureCommunicationChatServiceImpl
+    Modify method getChats name to getChatClient
+    Modify method getChatThreads name to getChatThreadClient
+Restore file chat/models/ChatMessageType.java
 
 ### Code generation settings
 ``` yaml
