@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
@@ -22,11 +23,21 @@ public final class TypingIndicatorReceivedEvent extends ChatUserEvent {
      * The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "receivedOn")
+    @JsonProperty(value = "originalArrivalTime")
     private OffsetDateTime receivedOn;
 
+    static {
+        EventAccessorHelper.setTypingIndicatorReceivedEventAccessor(event -> {
+            TypingIndicatorReceivedEvent typingIndicatorReceivedEvent = (TypingIndicatorReceivedEvent) event;
+            typingIndicatorReceivedEvent
+                .setSender()
+                .setRecipient()
+                .setThreadId();
+        });
+    }
+
     /**
-     * Gets Version of the message.
+     * Gets version of the message.
      *
      * @return Value of Version of the message.
      */
@@ -35,7 +46,7 @@ public final class TypingIndicatorReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
+     * Gets the timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @return Value of The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
@@ -43,25 +54,5 @@ public final class TypingIndicatorReceivedEvent extends ChatUserEvent {
      */
     public OffsetDateTime getReceivedOn() {
         return receivedOn;
-    }
-
-    /**
-     * Sets new Version of the message.
-     *
-     * @param version New value of Version of the message.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * Sets new The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
-     * @param receivedOn New value of The timestamp when the message arrived at the server.
-     *                   The timestamp is in RFC3339 format:  `yyyy-MM-ddTHH:mm:ssZ`.
-     */
-    public void setReceivedOn(OffsetDateTime receivedOn) {
-        this.receivedOn = receivedOn;
     }
 }

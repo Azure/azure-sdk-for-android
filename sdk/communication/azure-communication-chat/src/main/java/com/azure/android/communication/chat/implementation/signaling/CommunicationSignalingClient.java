@@ -5,7 +5,7 @@ package com.azure.android.communication.chat.implementation.signaling;
 
 import android.content.Context;
 
-import com.azure.android.communication.chat.models.ChatEventKind;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
@@ -119,11 +119,11 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void on(ChatEventKind chatEventKind, String listenerId, RealTimeNotificationCallback listener) {
-        CommunicationListener communicationListener = new CommunicationListener(chatEventKind, listener);
+    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+        CommunicationListener communicationListener = new CommunicationListener(chatEventType, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
         if (!trouterListeners.containsKey(listenerId)) {
-            switch (chatEventKind) {
+            switch (chatEventType) {
                 case CHAT_MESSAGE_RECEIVED:
                     trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
                     break;
@@ -162,7 +162,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void off(ChatEventKind chatEventKind, String listenerId) {
+    public void off(ChatEventType chatEventType, String listenerId) {
         if (trouterListeners.containsKey(listenerId)) {
             trouter.unregisterListener(trouterListeners.get(listenerId));
             trouterListeners.remove(listenerId);

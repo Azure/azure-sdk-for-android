@@ -16,6 +16,12 @@ public abstract class BaseEvent {
     private String threadId;
 
     /**
+     * Thread Id of the event. Named as groupId in notification payload for message events.
+     */
+    @JsonProperty(value = "groupId", access = JsonProperty.Access.WRITE_ONLY)
+    private String groupId;
+
+    /**
      * Gets Thread Id of the event.
      *
      * @return Value of Thread Id of the event.
@@ -25,11 +31,10 @@ public abstract class BaseEvent {
     }
 
     /**
-     * Sets new Thread Id of the event.
-     *
-     * @param threadId New value of Thread Id of the event.
+     * Sets Thread Id of the event.
      */
-    public void setThreadId(String threadId) {
-        this.threadId = threadId;
+    BaseEvent setThreadId() {
+        this.threadId = groupId;
+        return this;
     }
 }

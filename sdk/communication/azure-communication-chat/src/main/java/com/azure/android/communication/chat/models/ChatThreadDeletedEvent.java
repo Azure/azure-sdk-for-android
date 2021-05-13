@@ -3,8 +3,13 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.threeten.bp.OffsetDateTime;
 
 /**
@@ -16,17 +21,29 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
      * The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "deletedOn")
+    @JsonProperty(value = "deleteTime")
     private OffsetDateTime deletedOn;
 
     /**
      * The information of the user that deleted the chat thread.
      */
-    @JsonProperty(value = "deletedBy")
     private ChatParticipant deletedBy;
 
     /**
-     * Gets The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
+     * The user that deleted the chat thread. A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "deletedBy", access = JsonProperty.Access.WRITE_ONLY)
+    private String deletedByJsonString;
+
+    static {
+        EventAccessorHelper.setChatThreadDeletedEventAccessor(event -> {
+            ChatThreadDeletedEvent chatThreadDeletedEvent = (ChatThreadDeletedEvent) event;
+            chatThreadDeletedEvent.setDeletedBy();
+        });
+    }
+
+    /**
+     * Gets the timestamp when the thread was deleted. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @return Value of The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
@@ -37,7 +54,7 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Gets The information of the user that deleted the chat thread.
+     * Gets the information of the user that deleted the chat thread.
      *
      * @return Value of The information of the user that deleted the chat thread.
      */
@@ -46,22 +63,23 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Sets new The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
-     * @param deletedOn New value of The timestamp when the thread was deleted. The timestamp is in RFC3339 format:
-     *                  `yyyy-MM-ddTHH:mm:ssZ`.
+     * Sets the deletedBy of the thread.
      */
-    public void setDeletedOn(OffsetDateTime deletedOn) {
-        this.deletedOn = deletedOn;
-    }
+    ChatThreadDeletedEvent setDeletedBy() {
+        this.deletedBy = new ChatParticipant();
 
-    /**
-     * Sets new The information of the user that deleted the chat thread.
-     *
-     * @param deletedBy New value of The information of the user that deleted the chat thread.
-     */
-    public void setDeletedBy(ChatParticipant deletedBy) {
-        this.deletedBy = deletedBy;
+        try {
+            JSONObject deletedByJsonObject = new JSONObject(this.deletedByJsonString);
+            CommunicationIdentifier deletedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
+                deletedByJsonObject.getString("participantId"));
+
+            this.deletedBy
+                .setCommunicationIdentifier(deletedByCommunicationIdentifier)
+                .setDisplayName(deletedByJsonObject.getString("displayName"));
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 }

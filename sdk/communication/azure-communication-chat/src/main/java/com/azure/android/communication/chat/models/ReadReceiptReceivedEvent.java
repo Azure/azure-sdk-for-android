@@ -3,8 +3,12 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.threeten.bp.OffsetDateTime;
 
 /**
@@ -14,7 +18,7 @@ public final class ReadReceiptReceivedEvent extends ChatUserEvent {
     /**
      * The id of the last read chat message.
      */
-    @JsonProperty(value = "chatMessageId")
+    @JsonProperty(value = "messageId")
     private String chatMessageId;
 
     /**
@@ -24,7 +28,25 @@ public final class ReadReceiptReceivedEvent extends ChatUserEvent {
     private OffsetDateTime readOn;
 
     /**
-     * Gets The id of the last read chat message.
+     * The message body which contains consumption horizon for the read receipt.
+     * A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "messageBody", access = JsonProperty.Access.WRITE_ONLY)
+    private String messageBody;
+
+    static {
+        EventAccessorHelper.setReadReceiptReceivedEventAccessor(event -> {
+            ReadReceiptReceivedEvent readReceiptReceivedEvent = (ReadReceiptReceivedEvent) event;
+            readReceiptReceivedEvent
+                .setReadOn()
+                .setSender()
+                .setRecipient()
+                .setThreadId();
+        });
+    }
+
+    /**
+     * Gets the id of the last read chat message.
      *
      * @return Value of The id of the last read chat message.
      */
@@ -33,7 +55,7 @@ public final class ReadReceiptReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets The timestamp when the message was read. The timestamp is in RFC3339 format: yyyy-MM-ddTHH:mm:ssZ.
+     * Gets the timestamp when the message was read. The timestamp is in RFC3339 format: yyyy-MM-ddTHH:mm:ssZ.
      *
      * @return Value of The timestamp when the message was read.
      *         The timestamp is in RFC3339 format: yyyy-MM-ddTHH:mm:ssZ.
@@ -43,21 +65,18 @@ public final class ReadReceiptReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Sets new The id of the last read chat message.
-     *
-     * @param chatMessageId New value of The id of the last read chat message.
+     * Sets the timestamp when the message was read.
      */
-    public void setChatMessageId(String chatMessageId) {
-        this.chatMessageId = chatMessageId;
-    }
+    ReadReceiptReceivedEvent setReadOn() {
+        try {
+            JSONObject messageBodyJsonObject = new JSONObject(this.messageBody);
+            this.readOn = TrouterUtils.extractReadTimeFromConsumptionHorizon(
+                messageBodyJsonObject.getString("consumptionhorizon"));
 
-    /**
-     * Sets new The timestamp when the message was read. The timestamp is in RFC3339 format: yyyy-MM-ddTHH:mm:ssZ.
-     *
-     * @param readOn New value of The timestamp when the message was read.
-     *               The timestamp is in RFC3339 format: yyyy-MM-ddTHH:mm:ssZ.
-     */
-    public void setReadOn(OffsetDateTime readOn) {
-        this.readOn = readOn;
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 }

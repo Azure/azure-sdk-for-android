@@ -3,10 +3,17 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.threeten.bp.OffsetDateTime;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,23 +25,42 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
      * The timestamp when the member was removed. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "removedOn")
+    @JsonProperty(value = "time")
     private OffsetDateTime removedOn;
 
     /**
      * The information of the user that removed the chat participants.
      */
-    @JsonProperty(value = "removedBy")
     private ChatParticipant removedBy;
+
+    /**
+     * The user that removed the chat participants. A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "removedBy", access = JsonProperty.Access.WRITE_ONLY)
+    private String removedByJsonString;
 
     /**
      * The participants removed from the thread.
      */
-    @JsonProperty(value = "participantsRemoved")
     private List<ChatParticipant> participantsRemoved;
 
     /**
-     * Gets The timestamp when the member was removed. The timestamp is in RFC3339 format:
+     * The list of participants removed from the thread. A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "participantsRemoved", access = JsonProperty.Access.WRITE_ONLY)
+    private String participantsRemovedJsonString;
+
+    static {
+        EventAccessorHelper.setParticipantsRemovedEventAccessor(event -> {
+            ParticipantsRemovedEvent participantsRemovedEvent = (ParticipantsRemovedEvent) event;
+            participantsRemovedEvent
+                .setRemovedBy()
+                .setParticipantsRemoved();
+        });
+    }
+
+    /**
+     * Gets the timestamp when the member was removed. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @return Value of The timestamp when the member was removed. The timestamp is in RFC3339 format:
@@ -45,7 +71,7 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Gets The information of the user that removed the chat participants.
+     * Gets the information of the user that removed the chat participants.
      *
      * @return Value of The information of the user that removed the chat participants.
      */
@@ -54,7 +80,7 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Gets The participants removed from the thread.
+     * Gets the participants removed from the thread.
      *
      * @return Value of The participants removed from the thread.
      */
@@ -63,31 +89,51 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Sets new The timestamp when the member was removed. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
-     * @param removedOn New value of The timestamp when the member was removed. The timestamp is in RFC3339 format:
-     *                  `yyyy-MM-ddTHH:mm:ssZ`.
+     * Sets the removedBy of the thread.
      */
-    public void setRemovedOn(OffsetDateTime removedOn) {
-        this.removedOn = removedOn;
+    ParticipantsRemovedEvent setRemovedBy() {
+        this.removedBy = new ChatParticipant();
+
+        try {
+            JSONObject removedByJsonObject = new JSONObject(this.removedByJsonString);
+            CommunicationIdentifier removedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
+                removedByJsonObject.getString("participantId"));
+
+            this.removedBy
+                .setCommunicationIdentifier(removedByCommunicationIdentifier)
+                .setDisplayName(removedByJsonObject.getString("displayName"));
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 
     /**
-     * Sets new The information of the user that removed the chat participants.
-     *
-     * @param removedBy New value of The information of the user that removed the chat participants.
+     * Sets the participants removed from the thread.
      */
-    public void setRemovedBy(ChatParticipant removedBy) {
-        this.removedBy = removedBy;
-    }
+    ParticipantsRemovedEvent setParticipantsRemoved() {
+        this.participantsRemoved = new ArrayList<>();
 
-    /**
-     * Sets new The participants removed from the thread.
-     *
-     * @param participantsRemoved New value of The participants removed from the thread.
-     */
-    public void setParticipantsRemoved(List<ChatParticipant> participantsRemoved) {
-        this.participantsRemoved = participantsRemoved;
+        try {
+            JSONArray participantsRemovedJsonArray = new JSONArray(this.participantsRemovedJsonString);
+            for (int i = 0; i < participantsRemovedJsonArray.length(); i++) {
+                JSONObject participant = participantsRemovedJsonArray.getJSONObject(i);
+                CommunicationIdentifier communicationUser = TrouterUtils.getCommunicationIdentifier(
+                    participant.getString("participantId"));
+
+                ChatParticipant chatParticipant = new ChatParticipant();
+                chatParticipant.setCommunicationIdentifier(communicationUser);
+                chatParticipant.setDisplayName(participant.getString("displayName"));
+                chatParticipant.setShareHistoryTime(
+                    TrouterUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
+
+                this.participantsRemoved.add(chatParticipant);
+            }
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 }

@@ -15,9 +15,7 @@ import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
 import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
-import com.azure.android.communication.chat.models.ChatEventKind;
-import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThreadProperties;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
@@ -25,6 +23,8 @@ import com.azure.android.communication.common.MicrosoftTeamsUserIdentifier;
 import com.azure.android.communication.common.PhoneNumberIdentifier;
 import com.azure.android.communication.common.UnknownIdentifier;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.serde.jackson.JacksonSerder;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,12 +33,12 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
-class TrouterUtils {
+public final class TrouterUtils {
 
     private static final String ACS_USER_PREFIX = "8:acs:";
     private static final String SPOOL_USER_PREFIX = "8:spool:";
@@ -49,28 +49,31 @@ class TrouterUtils {
     private static final String PHONE_NUMBER_PREFIX = "4:";
 
     private static final ClientLogger CLIENT_LOGGER = new ClientLogger(TrouterUtils.class);
+    private static final JacksonSerder JACKSON_SERDER = JacksonSerder.createDefault();
+    private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
+
     /**
      * Mapping chat event id to trouter event id code
      */
-    static final Map<ChatEventKind, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventKind, Integer>() {{
-            put(ChatEventKind.CHAT_MESSAGE_RECEIVED, 200);
-            put(ChatEventKind.TYPING_INDICATOR_RECEIVED, 245);
-            put(ChatEventKind.READ_RECEIPT_RECEIVED, 246);
-            put(ChatEventKind.CHAT_MESSAGE_EDITED, 247);
-            put(ChatEventKind.CHAT_MESSAGE_DELETED, 248);
-            put(ChatEventKind.CHAT_THREAD_CREATED, 257);
-            put(ChatEventKind.CHAT_THREAD_PROPERTIES_UPDATED, 258);
-            put(ChatEventKind.CHAT_THREAD_DELETED, 259);
-            put(ChatEventKind.PARTICIPANTS_ADDED, 260);
-            put(ChatEventKind.PARTICIPANTS_REMOVED, 261);
+    static final Map<ChatEventType, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventType, Integer>() {{
+            put(ChatEventType.CHAT_MESSAGE_RECEIVED, 200);
+            put(ChatEventType.TYPING_INDICATOR_RECEIVED, 245);
+            put(ChatEventType.READ_RECEIPT_RECEIVED, 246);
+            put(ChatEventType.CHAT_MESSAGE_EDITED, 247);
+            put(ChatEventType.CHAT_MESSAGE_DELETED, 248);
+            put(ChatEventType.CHAT_THREAD_CREATED, 257);
+            put(ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED, 258);
+            put(ChatEventType.CHAT_THREAD_DELETED, 259);
+            put(ChatEventType.PARTICIPANTS_ADDED, 260);
+            put(ChatEventType.PARTICIPANTS_REMOVED, 261);
         }};
 
-    public static BaseEvent toMessageHandler(ChatEventKind chatEventKind, String responseBody) {
+    public static BaseEvent parsePayload(ChatEventType chatEventType, String body) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
-            eventId = EVENT_IDS_MAPPING.get(chatEventKind);
-            genericPayload = new JSONObject(responseBody);
+            eventId = EVENT_IDS_MAPPING.get(chatEventType);
+            genericPayload = new JSONObject(body);
         } catch (Exception e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
@@ -83,31 +86,31 @@ class TrouterUtils {
             CLIENT_LOGGER.error(e.getMessage());
         }
 
-        return toEventPayload(chatEventKind, genericPayload);
+        return toEventPayload(chatEventType, body);
     }
 
-    public static BaseEvent toEventPayload(ChatEventKind eventId, JSONObject payload) {
+    public static BaseEvent toEventPayload(ChatEventType eventId, String body) {
         switch (eventId) {
             case CHAT_MESSAGE_RECEIVED:
-                return getChatMessageReceived(payload);
+                return getChatMessageReceived(body);
             case TYPING_INDICATOR_RECEIVED:
-                return getTypingIndicatorReceived(payload);
+                return getTypingIndicatorReceived(body);
             case READ_RECEIPT_RECEIVED:
-                return getReadReceiptReceived(payload);
+                return getReadReceiptReceived(body);
             case CHAT_MESSAGE_EDITED:
-                return getChatMessageEdited(payload);
+                return getChatMessageEdited(body);
             case CHAT_MESSAGE_DELETED:
-                return getChatMessageDeleted(payload);
+                return getChatMessageDeleted(body);
             case CHAT_THREAD_CREATED:
-                return getChatThreadCreated(payload);
+                return getChatThreadCreated(body);
             case CHAT_THREAD_PROPERTIES_UPDATED:
-                return getChatThreadPropertiesUpdated(payload);
+                return getChatThreadPropertiesUpdated(body);
             case CHAT_THREAD_DELETED:
-                return getChatThreadDeleted(payload);
+                return getChatThreadDeleted(body);
             case PARTICIPANTS_ADDED:
-                return getParticipantsAdded(payload);
+                return getParticipantsAdded(body);
             case PARTICIPANTS_REMOVED:
-                return getParticipantsRemoved(payload);
+                return getParticipantsRemoved(body);
             default:
                 return null;
         }
@@ -139,303 +142,12 @@ class TrouterUtils {
         }
     }
 
-    private static BaseEvent getParticipantsRemoved(JSONObject payload) {
-        ParticipantsRemovedEvent eventPayload = new ParticipantsRemovedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("threadId"));
-
-            ChatParticipant removedBy = new ChatParticipant();
-            removedBy.setCommunicationIdentifier(
-                getCommunicationIdentifier(
-                    getJSONObject(payload, "removedBy").getString("participantId")));
-            removedBy.setDisplayName(getJSONObject(payload, "removedBy").getString("displayName"));
-            eventPayload.setRemovedBy(removedBy);
-
-            List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = getJSONArray(payload, "participantsRemoved");
-            for (int i = 0; i < members.length(); i++) {
-                JSONObject member = members.getJSONObject(i);
-
-                CommunicationIdentifier communicationUser =
-                    getCommunicationIdentifier(member.getString("participantId"));
-                ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setCommunicationIdentifier(communicationUser);
-                chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(parseEpochTime(member.getLong("shareHistoryTime")));
-
-                chatParticipants.add(chatParticipant);
-            }
-
-            eventPayload.setRemovedOn(parseTimeStamp(payload.getString("time")));
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setParticipantsRemoved(chatParticipants);
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getParticipantsAdded(JSONObject payload) {
-        ParticipantsAddedEvent eventPayload = new ParticipantsAddedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("threadId"));
-
-            ChatParticipant addedBy = new ChatParticipant();
-            addedBy.setCommunicationIdentifier(
-                getCommunicationIdentifier(
-                    getJSONObject(payload, "addedBy").getString("participantId")));
-            addedBy.setDisplayName(getJSONObject(payload, "addedBy").getString("displayName"));
-            eventPayload.setAddedBy(addedBy);
-
-            List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = getJSONArray(payload, "participantsAdded");
-            for (int i = 0; i < members.length(); i++) {
-                JSONObject member = members.getJSONObject(i);
-
-                CommunicationIdentifier communicationUser =
-                    getCommunicationIdentifier(member.getString("participantId"));
-                ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setCommunicationIdentifier(communicationUser);
-                chatParticipant.setDisplayName(member.getString("displayName"));
-                chatParticipant.setShareHistoryTime(parseEpochTime(member.getLong("shareHistoryTime")));
-
-                chatParticipants.add(chatParticipant);
-            }
-
-            eventPayload.setAddedOn(parseTimeStamp(payload.getString("time")));
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setParticipantsAdded(chatParticipants);
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatThreadDeleted(JSONObject payload) {
-        ChatThreadDeletedEvent eventPayload = new ChatThreadDeletedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("threadId"));
-
-            ChatParticipant deletedBy = new ChatParticipant();
-            deletedBy.setCommunicationIdentifier(
-                getCommunicationIdentifier(
-                    getJSONObject(payload, "deletedBy").getString("participantId")));
-            deletedBy.setDisplayName(getJSONObject(payload, "deletedBy").getString("displayName"));
-            eventPayload.setDeletedBy(deletedBy);
-
-            eventPayload.setDeletedOn(parseTimeStamp(payload.getString("deleteTime")));
-            eventPayload.setVersion(payload.getString("version"));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatThreadPropertiesUpdated(JSONObject payload) {
-        ChatThreadPropertiesUpdatedEvent eventPayload = new ChatThreadPropertiesUpdatedEvent();
-
-        try {
-            String threadId = payload.getString("threadId");
-            eventPayload.setThreadId(threadId);
-
-            eventPayload.setUpdatedOn(parseTimeStamp(payload.getString("editTime")));
-
-            ChatParticipant updatedBy = new ChatParticipant();
-            updatedBy.setCommunicationIdentifier(
-                getCommunicationIdentifier(
-                    getJSONObject(payload, "editedBy").getString("participantId")));
-            updatedBy.setDisplayName(getJSONObject(payload, "editedBy").getString("displayName"));
-            eventPayload.setUpdatedBy(updatedBy);
-
-            eventPayload.setVersion(payload.getString("version"));
-
-            ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties
-                .setId(threadId)
-                .setTopic(getJSONObject(payload, "properties").getString("topic"));
-            eventPayload.setProperties(chatThreadProperties);
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatThreadCreated(JSONObject payload) {
-        ChatThreadCreatedEvent eventPayload = new ChatThreadCreatedEvent();
-
-        try {
-            String threadId = payload.getString("threadId");
-            eventPayload.setThreadId(threadId);
-
-            ChatParticipant createdBy = new ChatParticipant();
-            CommunicationIdentifier createdByCommunicationIdentifier = getCommunicationIdentifier(
-                getJSONObject(payload, "createdBy").getString("participantId"));
-            createdBy.setCommunicationIdentifier(createdByCommunicationIdentifier);
-            createdBy.setDisplayName(getJSONObject(payload, "createdBy").getString("displayName"));
-
-            List<ChatParticipant> chatParticipants = new ArrayList<>();
-            JSONArray members = getJSONArray(payload, "members");
-            for (int i = 0; i < members.length(); i++) {
-                JSONObject member = members.getJSONObject(i);
-                CommunicationIdentifier communicationUser =
-                    getCommunicationIdentifier(member.getString("participantId"));
-
-                ChatParticipant chatParticipant = new ChatParticipant();
-                chatParticipant.setCommunicationIdentifier(communicationUser);
-                chatParticipant.setDisplayName(member.getString("displayName"));
-
-                chatParticipants.add(chatParticipant);
-            }
-
-            OffsetDateTime createTime = parseTimeStamp(payload.getString("createTime"));
-            eventPayload.setCreatedOn(createTime);
-            eventPayload.setCreatedBy(createdBy);
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setParticipants(chatParticipants);
-
-            ChatThreadProperties chatThreadProperties = new ChatThreadProperties();
-            chatThreadProperties
-                .setId(threadId)
-                .setTopic(getJSONObject(payload, "properties").getString("topic"))
-                .setCreatedByCommunicationIdentifier(createdByCommunicationIdentifier)
-                .setCreatedOn(createTime);
-            eventPayload.setProperties(chatThreadProperties);
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getReadReceiptReceived(JSONObject payload) {
-        ReadReceiptReceivedEvent eventPayload = new ReadReceiptReceivedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("groupId"));
-
-            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
-
-            eventPayload.setChatMessageId(payload.getString("messageId"));
-
-            String consumptionHorizon = payload.getString("consumptionhorizon");
-            eventPayload.setReadOn(extractReadTimeFromConsumptionHorizon(consumptionHorizon));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getTypingIndicatorReceived(JSONObject payload) {
-        TypingIndicatorReceivedEvent eventPayload = new TypingIndicatorReceivedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("groupId"));
-
-            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
-
-            eventPayload.setReceivedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
-            eventPayload.setVersion(payload.getString("version"));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatMessageDeleted(JSONObject payload) {
-        ChatMessageDeletedEvent eventPayload = new ChatMessageDeletedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("groupId"));
-
-            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
-
-
-            eventPayload.setId(payload.getString("messageId"));
-            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setDeletedOn(parseTimeStamp(payload.getString("deletetime")));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatMessageEdited(JSONObject payload) {
-        ChatMessageEditedEvent eventPayload = new ChatMessageEditedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("groupId"));
-
-            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
-
-            eventPayload.setId(payload.getString("messageId"));
-            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setContent(payload.getString("messageBody"));
-            eventPayload.setEditedOn(parseTimeStamp(payload.getString("edittime")));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static BaseEvent getChatMessageReceived(JSONObject payload) {
-        ChatMessageReceivedEvent eventPayload = new ChatMessageReceivedEvent();
-
-        try {
-            eventPayload.setThreadId(payload.getString("groupId"));
-            eventPayload.setSender(getCommunicationIdentifier(payload.getString("senderId")));
-            eventPayload.setRecipient(getCommunicationIdentifier(payload.getString("recipientMri")));
-
-            eventPayload.setId(payload.getString("messageId"));
-            eventPayload.setSenderDisplayName(payload.getString("senderDisplayName"));
-            eventPayload.setCreatedOn(parseTimeStamp(payload.getString("originalArrivalTime")));
-            eventPayload.setVersion(payload.getString("version"));
-            eventPayload.setType(parseChatMessageType(payload.getString("messageType")));
-            eventPayload.setContent(payload.getString("messageBody"));
-            eventPayload.setPriority(payload.getString("priority"));
-        } catch (JSONException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        }
-
-        return eventPayload;
-    }
-
-    private static OffsetDateTime parseEpochTime(Long epochMilli) {
-        return OffsetDateTime.ofInstant(
-            Instant.ofEpochMilli(epochMilli),
-            ZoneId.of("UTC"));
-    }
-
-    private static OffsetDateTime parseTimeStamp(String timeStamp) {
-        return OffsetDateTime.ofInstant(
-            Instant.parse(timeStamp),
-            ZoneId.of("UTC"));
-    }
-
-    private static OffsetDateTime extractReadTimeFromConsumptionHorizon(String consumptionHorizon) {
+    public static OffsetDateTime extractReadTimeFromConsumptionHorizon(String consumptionHorizon) {
         String readTimeString = consumptionHorizon.split(";")[1];
         return parseEpochTime(Long.parseLong(readTimeString));
     }
 
-    private static ChatMessageType parseChatMessageType(String rawType) {
+    public static ChatMessageType parseChatMessageType(String rawType) {
         if (rawType.equalsIgnoreCase("Text")) {
             return ChatMessageType.TEXT;
         }
@@ -448,11 +160,147 @@ class TrouterUtils {
         return ChatMessageType.TEXT;
     }
 
-    private static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {
+    public static OffsetDateTime parseEpochTime(Long epochMilli) {
+        return OffsetDateTime.ofInstant(
+            Instant.ofEpochMilli(epochMilli),
+            ZoneId.of("UTC"));
+    }
+
+    public static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {
         return new JSONObject(payload.getString(property));
     }
 
-    private static JSONArray getJSONArray(JSONObject payload, String property) throws JSONException {
+    public static JSONArray getJSONArray(JSONObject payload, String property) throws JSONException {
         return new JSONArray(payload.getString(property));
+    }
+
+    private static BaseEvent getParticipantsRemoved(String body) {
+        try {
+            ParticipantsRemovedEvent participantsRemovedEvent = JACKSON_SERDER.deserialize(body,
+                ParticipantsRemovedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setParticipantsRemovedEvent(participantsRemovedEvent);
+            return participantsRemovedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getParticipantsAdded(String body) {
+        try {
+            ParticipantsAddedEvent participantsAddedEvent = JACKSON_SERDER.deserialize(body,
+                ParticipantsAddedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setParticipantsAddedEvent(participantsAddedEvent);
+            return participantsAddedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatThreadDeleted(String body) {
+        try {
+            ChatThreadDeletedEvent chatThreadDeletedEvent = JACKSON_SERDER.deserialize(body,
+                ChatThreadDeletedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatThreadDeletedEvent(chatThreadDeletedEvent);
+            return chatThreadDeletedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatThreadPropertiesUpdated(String body) {
+        try {
+            ChatThreadPropertiesUpdatedEvent chatThreadPropertiesUpdatedEvent = JACKSON_SERDER.deserialize(body,
+                ChatThreadPropertiesUpdatedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatThreadPropertiesUpdatedEvent(chatThreadPropertiesUpdatedEvent);
+            return chatThreadPropertiesUpdatedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatThreadCreated(String body) {
+        try {
+            ChatThreadCreatedEvent chatThreadCreatedEvent = JACKSON_SERDER.deserialize(body,
+                ChatThreadCreatedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatThreadCreatedEvent(chatThreadCreatedEvent);
+            return chatThreadCreatedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getReadReceiptReceived(String body) {
+        try {
+            ReadReceiptReceivedEvent readReceiptReceivedEvent = JACKSON_SERDER.deserialize(body,
+                ReadReceiptReceivedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setReadReceiptReceivedEvent(readReceiptReceivedEvent);
+            return readReceiptReceivedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getTypingIndicatorReceived(String body) {
+        try {
+            TypingIndicatorReceivedEvent typingIndicatorReceivedEvent = JACKSON_SERDER.deserialize(body,
+                TypingIndicatorReceivedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setTypingIndicatorReceivedEvent(typingIndicatorReceivedEvent);
+            return typingIndicatorReceivedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatMessageDeleted(String body) {
+        try {
+            ChatMessageDeletedEvent chatMessageDeletedEvent = JACKSON_SERDER.deserialize(body,
+                ChatMessageDeletedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatMessageDeletedEvent(chatMessageDeletedEvent);
+            return chatMessageDeletedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatMessageEdited(String body) {
+        try {
+            ChatMessageEditedEvent chatMessageEditedEvent = JACKSON_SERDER.deserialize(body,
+                ChatMessageEditedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatMessageEditedEvent(chatMessageEditedEvent);
+            return chatMessageEditedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
+    }
+
+    private static BaseEvent getChatMessageReceived(String body) {
+        try {
+            ChatMessageReceivedEvent chatMessageReceivedEvent = JACKSON_SERDER.deserialize(body,
+                ChatMessageReceivedEvent.class,
+                SerdeEncoding.JSON);
+            EventAccessorHelper.setChatMessageReceivedEvent(chatMessageReceivedEvent);
+            return chatMessageReceivedEvent;
+        } catch (IOException e) {
+            CLIENT_LOGGER.error(e.getMessage());
+            return null;
+        }
     }
 }

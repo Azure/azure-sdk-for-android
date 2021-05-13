@@ -6,7 +6,7 @@ package com.azure.android.communication.chat.models;
 /**
  * Defines values for chat event.
  */
-public enum ChatEventKind {
+public enum ChatEventType {
     CHAT_MESSAGE_RECEIVED,
     CHAT_MESSAGE_EDITED,
     CHAT_MESSAGE_DELETED,

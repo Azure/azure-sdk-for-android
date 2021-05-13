@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.ChatEventKind;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 
 /**
@@ -28,16 +28,16 @@ public interface SignalingClient {
 
     /**
      * Listen to Chat events.
-     * @param chatEventKind the chat event kind
+     * @param chatEventType the chat event kind
      * @param listenerId a listener id that is used to identify the listner
      * @param listener the listener callback function
      */
-    void on(ChatEventKind chatEventKind, String listenerId, RealTimeNotificationCallback listener);
+    void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener);
 
     /**
      * Stop listening to Chat events.
-     * @param chatEventKind the chat event kind
+     * @param chatEventType the chat event kind
      * @param listenerId the listener id that is to off
      */
-    void off(ChatEventKind chatEventKind, String listenerId);
+    void off(ChatEventType chatEventType, String listenerId);
 }

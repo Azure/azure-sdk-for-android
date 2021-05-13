@@ -17,7 +17,7 @@ public abstract class ChatThreadEvent extends BaseEvent {
     private String version;
 
     /**
-     * Gets Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
+     * Gets version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`.
      *
      * @return Value of Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
@@ -25,16 +25,5 @@ public abstract class ChatThreadEvent extends BaseEvent {
      */
     public String getVersion() {
         return version;
-    }
-
-    /**
-     * Sets new Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
-     * `1593117207131`.
-     *
-     * @param version New value of Version of the thread.
-     *                This version is an epoch time in a numeric unsigned Int64 format: `1593117207131`.
-     */
-    public void setVersion(String version) {
-        this.version = version;
     }
 }

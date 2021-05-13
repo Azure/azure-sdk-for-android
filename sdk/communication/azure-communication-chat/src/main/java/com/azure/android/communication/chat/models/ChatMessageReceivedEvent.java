@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
@@ -19,9 +21,15 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     private ChatMessageType type;
 
     /**
+     * Original type string of the chat message. A string property in notification payload.
+     */
+    @JsonProperty(value = "messageType", access = JsonProperty.Access.WRITE_ONLY)
+    private String messageType;
+
+    /**
      * Content of the message.
      */
-    @JsonProperty(value = "content")
+    @JsonProperty(value = "messageBody")
     private String content;
 
     /**
@@ -33,7 +41,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     /**
      * The Id of the message. This Id is server generated.
      */
-    @JsonProperty(value = "id")
+    @JsonProperty(value = "messageId")
     private String id;
 
     /**
@@ -46,7 +54,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
      * The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "createdOn")
+    @JsonProperty(value = "originalArrivalTime")
     private OffsetDateTime createdOn;
 
     /**
@@ -56,8 +64,19 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     @JsonProperty(value = "version")
     private String version;
 
+    static {
+        EventAccessorHelper.setChatMessageReceivedEventAccessor(event -> {
+            ChatMessageReceivedEvent chatMessageReceivedEvent = (ChatMessageReceivedEvent) event;
+            chatMessageReceivedEvent
+                .setType()
+                .setSender()
+                .setRecipient()
+                .setThreadId();
+        });
+    }
+
     /**
-     * Gets Type of the chat message.
+     * Gets type of the chat message.
      *
      * @return Value of Type of the chat message.
      */
@@ -66,7 +85,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets Content of the message.
+     * Gets content of the message.
      *
      * @return Value of Content of the message.
      */
@@ -75,7 +94,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets Priority of the message. Possible values include: 'Normal', 'High'.
+     * Gets priority of the message. Possible values include: 'Normal', 'High'.
      *
      * @return Value of Priority of the message. Possible values include: 'Normal', 'High'.
      */
@@ -84,7 +103,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets The Id of the message. This Id is server generated.
+     * Gets the Id of the message. This Id is server generated.
      *
      * @return Value of The Id of the message. This Id is server generated.
      */
@@ -93,7 +112,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets The display name of the event sender.
+     * Gets the display name of the event sender.
      *
      * @return Value of The display name of the event sender.
      */
@@ -102,7 +121,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
+     * Gets the timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @return Value of The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
@@ -113,7 +132,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
-     * Gets Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
+     * Gets version of the message. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`.
      *
      * @return Value of Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
@@ -125,68 +144,9 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
 
     /**
      * Sets new Type of the chat message.
-     *
-     * @param type New value of Type of the chat message.
      */
-    public void setType(ChatMessageType type) {
-        this.type = type;
-    }
-
-    /**
-     * Sets new Content of the message.
-     *
-     * @param content New value of Content of the message.
-     */
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    /**
-     * Sets new Priority of the message. Possible values include: 'Normal', 'High'.
-     *
-     * @param priority New value of Priority of the message. Possible values include: 'Normal', 'High'.
-     */
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    /**
-     * Sets new The Id of the message. This Id is server generated.
-     *
-     * @param id New value of The Id of the message. This Id is server generated.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * Sets new The display name of the event sender.
-     *
-     * @param senderDisplayName New value of The display name of the event sender.
-     */
-    public void setSenderDisplayName(String senderDisplayName) {
-        this.senderDisplayName = senderDisplayName;
-    }
-
-    /**
-     * Sets new The timestamp when the message arrived at the server. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
-     * @param createdOn New value of The timestamp when the message arrived at the server.
-     *                  The timestamp is in RFC3339 format:  `yyyy-MM-ddTHH:mm:ssZ`.
-     */
-    public void setCreatedOn(OffsetDateTime createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    /**
-     * Sets new Version of the message. This version is an epoch time in a numeric unsigned Int64 format:
-     * `1593117207131`.
-     *
-     * @param version New value of Version of the message.
-     *                This version is an epoch time in a numeric unsigned Int64 format:  `1593117207131`.
-     */
-    public void setVersion(String version) {
-        this.version = version;
+    private ChatMessageReceivedEvent setType() {
+        this.type = TrouterUtils.parseChatMessageType(this.messageType);
+        return this;
     }
 }

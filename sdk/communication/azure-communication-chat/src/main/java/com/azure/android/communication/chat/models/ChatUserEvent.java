@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,6 +11,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Base class for chat event
  */
 public abstract class ChatUserEvent extends BaseEvent {
+    /**
+     * The Id of the event sender. A string property in notification payload.
+     */
+    @JsonProperty(value = "senderId", access = JsonProperty.Access.WRITE_ONLY)
+    private String senderId;
+
+    /**
+     * The Id of the event recipient. A string property in notification payload.
+     */
+    @JsonProperty(value = "recipientMri", access = JsonProperty.Access.WRITE_ONLY)
+    private String recipientId;
+
     /**
      * The Id of the event sender.
      */
@@ -23,7 +36,7 @@ public abstract class ChatUserEvent extends BaseEvent {
     private CommunicationIdentifier recipient;
 
     /**
-     * Gets The Id of the event sender.
+     * Gets the Id of the event sender.
      *
      * @return Value of The Id of the event sender.
      */
@@ -32,7 +45,7 @@ public abstract class ChatUserEvent extends BaseEvent {
     }
 
     /**
-     * Gets The Id of the event recipient.
+     * Gets the Id of the event recipient.
      *
      * @return Value of The Id of the event recipient.
      */
@@ -41,20 +54,18 @@ public abstract class ChatUserEvent extends BaseEvent {
     }
 
     /**
-     * Sets new The Id of the event sender.
-     *
-     * @param sender New value of The Id of the event sender.
+     * Sets the Id of the event sender.
      */
-    public void setSender(CommunicationIdentifier sender) {
-        this.sender = sender;
+    ChatUserEvent setSender() {
+        this.sender = TrouterUtils.getCommunicationIdentifier(senderId);
+        return this;
     }
 
     /**
-     * Sets new The Id of the event recipient.
-     *
-     * @param recipient New value of The Id of the event recipient.
+     * Sets the Id of the event recipient.
      */
-    public void setRecipient(CommunicationIdentifier recipient) {
-        this.recipient = recipient;
+    ChatUserEvent setRecipient() {
+        this.recipient = TrouterUtils.getCommunicationIdentifier(recipientId);
+        return this;
     }
 }

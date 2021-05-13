@@ -3,10 +3,17 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.threeten.bp.OffsetDateTime;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,23 +25,42 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
      * The timestamp when the member was added. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "addedOn")
+    @JsonProperty(value = "time")
     private OffsetDateTime addedOn;
 
     /**
      * The information of the user that added the chat participants.
      */
-    @JsonProperty(value = "addedBy")
     private ChatParticipant addedBy;
+
+    /**
+     * The user that added the chat participants. A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "addedBy", access = JsonProperty.Access.WRITE_ONLY)
+    private String addedByJsonString;
 
     /**
      * The participants added to the thread.
      */
-    @JsonProperty(value = "participantsAdded")
     private List<ChatParticipant> participantsAdded;
 
     /**
-     * Gets The timestamp when the member was added. The timestamp is in RFC3339 format:
+     * The list of participants added to the thread. A serialized JSON string property in notification payload.
+     */
+    @JsonProperty(value = "participantsAdded", access = JsonProperty.Access.WRITE_ONLY)
+    private String participantsAddedJsonString;
+
+    static {
+        EventAccessorHelper.setParticipantsAddedEventAccessor(event -> {
+            ParticipantsAddedEvent participantsAddedEvent = (ParticipantsAddedEvent) event;
+            participantsAddedEvent
+                .setAddedBy()
+                .setParticipantsAdded();
+        });
+    }
+
+    /**
+     * Gets the timestamp when the member was added. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      *
      * @return Value of The timestamp when the member was added. The timestamp is in RFC3339 format:
@@ -45,7 +71,7 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Gets The information of the user that added the chat participants.
+     * Gets the information of the user that added the chat participants.
      *
      * @return Value of The information of the user that added the chat participants.
      */
@@ -54,7 +80,7 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Gets The participants added to the thread.
+     * Gets the participants added to the thread.
      *
      * @return Value of The participants added to the thread.
      */
@@ -63,31 +89,51 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
     }
 
     /**
-     * Sets new The timestamp when the member was added. The timestamp is in RFC3339 format:
-     * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
-     * @param addedOn New value of The timestamp when the member was added. The timestamp is in RFC3339 format:
-     *                `yyyy-MM-ddTHH:mm:ssZ`.
+     * Sets the addedBy of the thread.
      */
-    public void setAddedOn(OffsetDateTime addedOn) {
-        this.addedOn = addedOn;
+    ParticipantsAddedEvent setAddedBy() {
+        this.addedBy = new ChatParticipant();
+
+        try {
+            JSONObject addedByJsonObject = new JSONObject(this.addedByJsonString);
+            CommunicationIdentifier addedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
+                addedByJsonObject.getString("participantId"));
+
+            this.addedBy
+                .setCommunicationIdentifier(addedByCommunicationIdentifier)
+                .setDisplayName(addedByJsonObject.getString("displayName"));
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 
     /**
-     * Sets new The information of the user that added the chat participants.
-     *
-     * @param addedBy New value of The information of the user that added the chat participants.
+     * Sets the participants added to the thread.
      */
-    public void setAddedBy(ChatParticipant addedBy) {
-        this.addedBy = addedBy;
-    }
+    ParticipantsAddedEvent setParticipantsAdded() {
+        this.participantsAdded = new ArrayList<>();
 
-    /**
-     * Sets new The participants added to the thread.
-     *
-     * @param participantsAdded New value of The participants added to the thread.
-     */
-    public void setParticipantsAdded(List<ChatParticipant> participantsAdded) {
-        this.participantsAdded = participantsAdded;
+        try {
+            JSONArray participantsAddedJsonArray = new JSONArray(this.participantsAddedJsonString);
+            for (int i = 0; i < participantsAddedJsonArray.length(); i++) {
+                JSONObject participant = participantsAddedJsonArray.getJSONObject(i);
+                CommunicationIdentifier communicationUser = TrouterUtils.getCommunicationIdentifier(
+                    participant.getString("participantId"));
+
+                ChatParticipant chatParticipant = new ChatParticipant();
+                chatParticipant.setCommunicationIdentifier(communicationUser);
+                chatParticipant.setDisplayName(participant.getString("displayName"));
+                chatParticipant.setShareHistoryTime(
+                    TrouterUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
+
+                this.participantsAdded.add(chatParticipant);
+            }
+        } catch (JSONException e) {
+            return this;
+        }
+
+        return this;
     }
 }

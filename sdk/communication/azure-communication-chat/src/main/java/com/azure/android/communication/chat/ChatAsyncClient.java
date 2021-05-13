@@ -8,7 +8,7 @@ import com.azure.android.communication.chat.implementation.ChatImpl;
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
-import com.azure.android.communication.chat.models.ChatEventKind;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -303,11 +303,11 @@ public final class ChatAsyncClient {
 
     /**
      * Listen to a chat event.
-     * @param chatEventKind the chat event kind
+     * @param chatEventType the chat event kind
      * @param listenerId a listener id that is used to identify the listner
      * @param listener the listener callback function
      */
-    public void on(ChatEventKind chatEventKind, String listenerId, RealTimeNotificationCallback listener) {
+    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
@@ -318,20 +318,20 @@ public final class ChatAsyncClient {
             ));
         }
 
-        this.signalingClient.on(chatEventKind, listenerId, listener);
+        this.signalingClient.on(chatEventType, listenerId, listener);
     }
 
     /**
      * Stop listening to a chat event.
-     * @param chatEventKind the chat event kind
+     * @param chatEventType the chat event kind
      * @param listenerId the listener id that is to off
      */
-    public void off(ChatEventKind chatEventKind, String listenerId) {
+    public void off(ChatEventType chatEventType, String listenerId) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
 
-        this.signalingClient.off(chatEventKind, listenerId);
+        this.signalingClient.off(chatEventType, listenerId);
     }
 
     static class PageImpl<T> implements Page<T> {
