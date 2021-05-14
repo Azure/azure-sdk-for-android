@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling;
+package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
-import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatEventType;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;
@@ -14,11 +15,11 @@ import com.microsoft.trouterclient.ITrouterResponse;
 final class CommunicationListener implements ITrouterListener {
 
     private final ClientLogger logger;
-    private final ChatEventId chatEventId;
+    private final ChatEventType chatEventType;
     private final RealTimeNotificationCallback listenerFromConsumer;
 
-    CommunicationListener(ChatEventId chatEventId, RealTimeNotificationCallback listener) {
-        this.chatEventId = chatEventId;
+    CommunicationListener(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        this.chatEventType = chatEventType;
         this.listenerFromConsumer = listener;
         this.logger = new ClientLogger(this.getClass());
     }
@@ -43,7 +44,7 @@ final class CommunicationListener implements ITrouterListener {
             + iTrouterRequest.getBody();
         logger.info(msg);
         // convert payload to chat event here
-        BaseEvent chatEvent = TrouterUtils.toMessageHandler(chatEventId, iTrouterRequest.getBody());
+        BaseEvent chatEvent = TrouterUtils.parsePayload(chatEventType, iTrouterRequest.getBody());
         if (chatEvent != null) {
             listenerFromConsumer.onChatEvent(chatEvent);
         }

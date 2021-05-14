@@ -194,10 +194,6 @@ public final class ChatThreadClientBuilder {
                         "Either 'communicationTokenCredential' or 'credentialPolicy' is required."));
             }
 
-            if (this.httpClient == null) {
-                throw logger.logExceptionAsError(new NullPointerException("'httpClient' is required."));
-            }
-
             final HttpPipelinePolicy authorizationPolicy;
             if (this.communicationTokenCredential != null) {
                 authorizationPolicy = chain -> {

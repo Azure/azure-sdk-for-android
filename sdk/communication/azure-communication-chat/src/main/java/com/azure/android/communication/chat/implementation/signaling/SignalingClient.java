@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.signaling;
+package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.communication.chat.models.ChatEventType;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 
 /**
  * The signaling client interface
@@ -27,16 +28,16 @@ public interface SignalingClient {
 
     /**
      * Listen to Chat events.
-     * @param chatEventId the chat event id
+     * @param chatEventType the chat event kind
      * @param listenerId a listener id that is used to identify the listner
      * @param listener the listener callback function
      */
-    void on(ChatEventId chatEventId, String listenerId, RealTimeNotificationCallback listener);
+    void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener);
 
     /**
      * Stop listening to Chat events.
-     * @param chatEventId the chat event id
+     * @param chatEventType the chat event kind
      * @param listenerId the listener id that is to off
      */
-    void off(ChatEventId chatEventId, String listenerId);
+    void off(ChatEventType chatEventType, String listenerId);
 }

@@ -13,27 +13,41 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
+import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
+import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
+import com.azure.android.communication.chat.models.ChatThreadDeletedEvent;
 import com.azure.android.communication.chat.models.ChatThreadProperties;
+import com.azure.android.communication.chat.models.ChatThreadPropertiesUpdatedEvent;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
+import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
+import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
+import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
-import com.azure.android.communication.chat.signaling.chatevents.BaseEvent;
+import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.credential.AccessToken;
-import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
 import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
+import com.azure.android.core.http.policy.HttpLogDetailLevel;
+import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.serde.jackson.JacksonSerder;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.Context;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.threeten.bp.OffsetDateTime;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +56,16 @@ import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 
-import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatMessageReceived;
-import static com.azure.android.communication.chat.signaling.properties.ChatEventId.chatThreadCreated;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_DELETED;
+import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
+import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_CREATED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
+import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
+import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -53,13 +75,13 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "<first-user-id>";
-    private String secondUserId = "<second-user-id>";
+    private String firstUserId = "";
+    private String secondUserId = "";
     // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "<first-user-access-token>";
+    private final String firstUserAccessToken = "";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "https://<acs-account-name>.communication.azure.com";
+    private final String endpoint = "";
     private final String listenerId = "testListener";
     private final String sdkVersion = "1.0.0-beta.8";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
@@ -83,8 +105,10 @@ public class MainActivity extends AppCompatActivity {
                 .credentialPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
                     callback.onSuccess(new AccessToken(firstUserAccessToken, OffsetDateTime.now().plusDays(1)))))
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
+                .httpLogOptions(new HttpLogOptions()
+                    .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
+                    .addAllowedHeaderName("MS-CV"))
                 .realtimeNotificationParams(getApplicationContext(), firstUserAccessToken)
-                .httpClient(new OkHttpAsyncClientProvider().createInstance())
                 .buildAsyncClient();
 
             Log.d(TAG, "Created ChatAsyncClient");
@@ -149,26 +173,92 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Register a test listener");
-        chatAsyncClient.on(chatThreadCreated, "testListenerForThreadCreation", (BaseEvent payload) -> {
+        JacksonSerder jacksonSerder = JacksonSerder.createDefault();
+
+        chatAsyncClient.on(CHAT_MESSAGE_RECEIVED, "chatMessageReceived", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message received! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
+            Log.i(TAG, "Message created! ThreadId: " + event.getThreadId());
         });
 
-        chatAsyncClient.on(chatMessageReceived, listenerId, (BaseEvent payload) -> {
+        chatAsyncClient.on(CHAT_MESSAGE_EDITED, "chatMessageEdited", (BaseEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
-            System.out.printf("Message received! Content is %s.", payload);
-            Log.i(TAG, payload.toString());
+            ChatMessageEditedEvent event = (ChatMessageEditedEvent) payload;
+            Log.i(TAG, "Message edited! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(CHAT_MESSAGE_DELETED, "chatMessageDeleted", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ChatMessageDeletedEvent event = (ChatMessageDeletedEvent) payload;
+            Log.i(TAG, "Message deleted! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(TYPING_INDICATOR_RECEIVED, "typingIndicatorReceived", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            TypingIndicatorReceivedEvent event = (TypingIndicatorReceivedEvent) payload;
+            Log.i(TAG, "Typing indicator received! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(READ_RECEIPT_RECEIVED, "readReceiptReceived", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ReadReceiptReceivedEvent event = (ReadReceiptReceivedEvent) payload;
+            Log.i(TAG, "Read receipt received! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(CHAT_THREAD_CREATED, "chatThreadCreated", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
+            Log.i(TAG, "Chat thread created! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(CHAT_THREAD_DELETED, "chatThreadDeleted", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ChatThreadDeletedEvent event = (ChatThreadDeletedEvent) payload;
+            Log.i(TAG, "Chat thread deleted! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(CHAT_THREAD_PROPERTIES_UPDATED, "chatThreadPropertiesUpdated", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ChatThreadPropertiesUpdatedEvent event = (ChatThreadPropertiesUpdatedEvent) payload;
+            Log.i(TAG, "Chat thread properties updated! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(PARTICIPANTS_ADDED, "participantsAdded", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ParticipantsAddedEvent event = (ParticipantsAddedEvent) payload;
+            Log.i(TAG, "Participants added! ThreadId: " + event.getThreadId());
+        });
+
+        chatAsyncClient.on(PARTICIPANTS_REMOVED, "participantsRemoved", (BaseEvent payload) -> {
+            eventHandlerCalled++;
+
+            Log.i(TAG, eventHandlerCalled + " messages handled.");
+            ParticipantsRemovedEvent event = (ParticipantsRemovedEvent) payload;
+            Log.i(TAG, "Participants removed! ThreadId: " + event.getThreadId());
         });
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
         logAndToast("Unregister a test listener");
-        chatAsyncClient.off(chatMessageReceived, listenerId);
+        chatAsyncClient.off(CHAT_MESSAGE_RECEIVED, listenerId);
     }
 
     public void sendChatMessage(View view) {

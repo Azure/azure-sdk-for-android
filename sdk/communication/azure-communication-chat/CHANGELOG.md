@@ -1,5 +1,21 @@
 # Release History
 ## 1.0.0-beta.9 (Unreleased)
+### Breaking Changes
+- Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`.
+- Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`.
+- Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.*`.
+- Changed `httpClient` to an optional component for `ChatClientBuilder`/`ChatThreadClientBuilder` to create corresponding client.
+- Changed `ChatEventId` to `ChatEventKind`.
+- Changed `ChatMessageReceivedEvent` createdOn type from `String` to `OffsetDateTime`
+- Changed `ChatMessageEditedEvent` createdOn and editedOn type from `String` to `OffsetDateTime`
+- Changed `ChatMessageDeletedEvent` createdOn and deletedOn type from `String` to `OffsetDateTime`
+- Changed `ReadReceiptReceivedEvent` readOn type from `String` to `OffsetDateTime`
+- Changed `TypingIndicatorReceivedEvent` receivedOn type from `String` to `OffsetDateTime`
+- Changed `ChatThreadCreatedEvent` createdOn type from `String` to `OffsetDateTime`
+- Changed `ChatThreadDeletedEvent` deletedOn type from `String` to `OffsetDateTime`
+- Changed `ChatThreadPropertiesUpdatedEvent` updatedOn type from `String` to `OffsetDateTime`
+- Changed `ParticipantsAddedEvent` addedOn type from `String` to `OffsetDateTime`
+- Changed `ParticipantsRemovedEvent` removedOn type from `String` to `OffsetDateTime`
 
 ## 1.0.0-beta.8 (2021-03-29)
 ### Breaking Changes
