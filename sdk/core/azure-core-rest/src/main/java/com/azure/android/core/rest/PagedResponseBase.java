@@ -34,7 +34,7 @@ public class PagedResponseBase<H, T> implements PagedResponse<T> {
      * @param page The page of content returned from the service within the response.
      * @param deserializedHeaders The headers, deserialized into an instance of type H.
      */
-    public PagedResponseBase(HttpRequest request, int statusCode, HttpHeaders headers, Page<T> page,
+    public PagedResponseBase(HttpRequest request, int statusCode, HttpHeaders headers, Page<String, T> page,
                              H deserializedHeaders) {
         this(request, statusCode, headers, page.getElements(), page.getContinuationToken(), deserializedHeaders);
     }

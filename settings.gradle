@@ -8,6 +8,7 @@ include ":sdk:core:azure-core-http"
 include ":sdk:core:azure-core-http-okhttp"
 include ":sdk:core:azure-core-http-httpurlconnection"
 include ":sdk:core:azure-core-rest"
+include ":sdk:core:azure-core-rest-cfextensions"
 include ":sdk:core:azure-core-test"
 include ":eng:code-quality-reports"
 include ':samples:sample-chat-app'
