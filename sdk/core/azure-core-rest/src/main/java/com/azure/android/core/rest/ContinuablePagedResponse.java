@@ -3,6 +3,8 @@
 
 package com.azure.android.core.rest;
 
+import com.azure.android.core.util.paging.Page;
+
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +13,7 @@ import java.util.List;
 /**
  * Response of a REST API that returns page.
  *
- * @see com.azure.android.core.rest.ContinuablePagedResponse
+ * @see com.azure.android.core.rest.PagedResponse
  *
  * @param <C> The type of the continuation token.
  * @param <T> The type of items in the page.

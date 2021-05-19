@@ -16,16 +16,16 @@ import java9.util.function.Function;
  *
  * @param <T> The type of element in the page.
  */
-public final class PagedAsyncCollection<T> extends ContinuablePagedAsyncCollection<String, T, PagedResponse<T>> {
+public final class PagedAsyncStream<T> extends ContinuablePagedAsyncStream<String, T, PagedResponse<T>> {
     /**
-     * Creates an instance of {@link PagedAsyncCollection}. The constructor takes a {@code pageRetriever}.
+     * Creates an instance of {@link PagedAsyncStream}. The constructor takes a {@code pageRetriever}.
      * The {@code pageRetriever} returns a page of {@code T} when invoked with the id of the page to retrieve.
      *
      * @param pageRetriever Function that retrieves the page.
      * @param logger The logger to log.
      */
-    public PagedAsyncCollection(Function<String, CompletableFuture<PagedResponse<T>>> pageRetriever,
-                                ClientLogger logger) {
+    public PagedAsyncStream(Function<String, CompletableFuture<PagedResponse<T>>> pageRetriever,
+                            ClientLogger logger) {
         super(pageRetriever, pageId -> pageId != null, logger);
     }
 }

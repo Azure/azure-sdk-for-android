@@ -3,7 +3,7 @@
 
 package com.azure.android.core.rest.implementation;
 
-import com.azure.android.core.rest.Page;
+import com.azure.android.core.util.paging.Page;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.util.Collections;

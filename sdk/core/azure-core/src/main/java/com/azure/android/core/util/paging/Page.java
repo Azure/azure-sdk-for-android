@@ -6,12 +6,12 @@ package com.azure.android.core.util.paging;
 import java.util.List;
 
 /**
- * Represents a page returned, this page may contain a reference to additional pages known as a continuation token.
+ * Represents a paginated REST response from the service.
  *
- * @param <C> Type of the continuation token.
- * @param <T> Type of the elements in the page.
+ * @param <C> The type of the continuation token.
+ * @param <T> Type of items in the page response.
  */
-public interface ContinuablePage<C, T> {
+public interface Page<C, T> {
     /**
      * Gets an {@link List} of elements in the page.
      *

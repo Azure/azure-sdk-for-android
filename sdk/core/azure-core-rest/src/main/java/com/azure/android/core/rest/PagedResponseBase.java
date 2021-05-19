@@ -5,16 +5,17 @@ package com.azure.android.core.rest;
 
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents an HTTP response that contains a list of items deserialized
- * into a {@link com.azure.android.core.rest.Page}.
+ * into a {@link Page}.
  *
  * @param <H> The HTTP response headers
- * @param <T> The type of items contained in the {@link com.azure.android.core.rest.Page}
+ * @param <T> The type of items contained in the {@link Page}
  * @see com.azure.android.core.rest.PagedResponse
  */
 public class PagedResponseBase<H, T> implements PagedResponse<T> {

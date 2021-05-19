@@ -24,6 +24,7 @@ import com.azure.android.core.rest.annotation.ReturnValueWireType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.implementation.ItemPage;
 import com.azure.android.core.rest.implementation.TypeUtil;
+import com.azure.android.core.util.paging.Page;
 
 import org.threeten.bp.OffsetDateTime;
 

@@ -4,9 +4,10 @@
 package com.azure.android.core.rest.cfextensions;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.Page;
+import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.PagedResponseBase;
+import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
 
 import org.junit.jupiter.api.Assertions;
@@ -28,7 +29,7 @@ import java9.util.function.Function;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
- * Tests {@link PagedAsyncCollection}.
+ * Tests {@link PagedAsyncStream}.
  */
 public class PagedAsyncCollectionTests {
     private final ClientLogger logger = new ClientLogger(PagedAsyncCollectionTests.class);
@@ -36,10 +37,10 @@ public class PagedAsyncCollectionTests {
     @Test
     public void canEnumerateAllPages() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
-        CancellationToken token = collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+        CancellationToken token = collection.byPage().forEach(new AsyncStreamHandler<PagedResponse<String>>() {
             @Override
             public void onNext(PagedResponse<String> response) {
                 Assertions.assertNotNull(response);
@@ -63,11 +64,11 @@ public class PagedAsyncCollectionTests {
     @Test
     public void canStopPageEnumeration() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];
-        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+        collection.byPage().forEach(new AsyncStreamHandler<PagedResponse<String>>() {
             private CancellationToken token;
             @Override
             public void onInit(CancellationToken cancellationToken) {
@@ -103,11 +104,11 @@ public class PagedAsyncCollectionTests {
     @Test
     public void shouldPropagateUserException() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];
-        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+        collection.byPage().forEach(new AsyncStreamHandler<PagedResponse<String>>() {
             @Override
             public void onNext(PagedResponse<String> response) {
                 Assertions.assertNotNull(response);
@@ -141,11 +142,11 @@ public class PagedAsyncCollectionTests {
     @Test
     public void shouldPropagateSdkException() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5, 3);
-        final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];
-        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+        collection.byPage().forEach(new AsyncStreamHandler<PagedResponse<String>>() {
             @Override
             public void onNext(PagedResponse<String> response) {
             }

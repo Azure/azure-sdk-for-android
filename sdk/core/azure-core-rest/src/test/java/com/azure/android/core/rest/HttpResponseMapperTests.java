@@ -23,6 +23,7 @@ import com.azure.android.core.util.Base64Url;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.core.util.UnixTime;
 import com.azure.android.core.rest.annotation.Head;
+import com.azure.android.core.util.paging.Page;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

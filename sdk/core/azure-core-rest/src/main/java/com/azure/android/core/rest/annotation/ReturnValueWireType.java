@@ -6,7 +6,7 @@ package com.azure.android.core.rest.annotation;
 import com.azure.android.core.util.Base64Url;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.core.util.UnixTime;
-import com.azure.android.core.rest.Page;
+import com.azure.android.core.util.paging.Page;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

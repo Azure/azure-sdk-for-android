@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest.cfextensions;
-
-import com.azure.android.core.util.CancellationToken;
+package com.azure.android.core.util;
 
 /**
  * A type to asynchronously deliver the signals (element, error, completion) from a stream.
