@@ -5,8 +5,10 @@ package com.azure.android.core.rest.cfextensions;
 
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.ContinuablePagedResponse;
+import com.azure.android.core.util.CancellationToken;
 
 import java.util.List;
+import java.util.concurrent.CancellationException;
 
 import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Function;
@@ -58,118 +60,129 @@ public class ContinuablePagedAsyncCollection<C, T, P extends ContinuablePagedRes
     }
 
     /**
-     * Enumerate the {@link ContinuablePagedAsyncCollection} by applying the given function for individual elements
-     * in all pages.
+     * Enumerate the {@link ContinuablePagedAsyncCollection} by signaling each page element
+     * from all pages to the {@code handler.onNext}.
      *
-     * All the elements will be enumerated as long as the function returns true and there is
-     * no error while retrieving the page (e.g. auth error, network error).
+     * All the elements will be enumerated as long as there is no cancellation requested and
+     * there is no error while retrieving the page (e.g. auth error, network error).
      *
-     * If the function returns false or throws an error then no more elements will be enumerated.
+     * The {@code CancellationToken} returned can be used to cancel the enumeration
      *
-     * The {@code CompletableFuture} returned will be completed successfully if the enumeration
-     * completes normally (collection exhausted or function returns false).
-     *
-     * The {@code CompletableFuture} returned will be completed with error if there is an error
-     * during the enumeration (element retrieval error or error thrown by function).
-     *
-     * @param onNext The function to be applied for each page element.
-     * @return CompletableFuture to signal the enumeration completion.
+     * @param handler The enumeration handler.
+     * @return CancellationToken to signal the enumeration cancel.
      */
-    public CompletableFuture<Void> forEach(Function<T, Boolean> onNext) {
-        return this.forEach(null, onNext);
+    public CancellationToken forEach(AsyncStreamHandler<T> handler) {
+        return this.forEach(null, handler);
     }
 
     /**
-     * Enumerate the {@link ContinuablePagedAsyncCollection} by applying the given function for each page element,
-     * starting from the elements in the page with the given id {@code startPageId}.
+     * Enumerate the {@link ContinuablePagedAsyncCollection} by signaling each page element to
+     * the {@code handler.onNext}, starting from the elements in the page with the given
+     * id {@code startPageId}.
      *
-     * All the elements will be enumerated as long as the function returns true and there is
-     * no error while retrieving the page (e.g. auth error, network error).
+     * All the elements will be enumerated as long as there is no cancellation requested and
+     * there is no error while retrieving the page (e.g. auth error, network error).
      *
-     * If the function returns false or throws an error then no more elements will be enumerated.
-     *
-     * The {@code CompletableFuture} returned will be completed successfully if the enumeration
-     * completes normally (collection exhausted or function returns false).
-     *
-     * The {@code CompletableFuture} returned will be completed with error if there is an error
-     * during the enumeration (element retrieval error or error thrown by function).
+     * The {@code CancellationToken} returned can be used to cancel the enumeration
      *
      * @param startPageId The id of the page to start the enumeration from.
-     * @param onNext The function to be applied for each element.
-     * @return CompletableFuture to signal the enumeration completion.
+     * @param handler The enumeration handler.
+     * @return CancellationToken to signal the enumeration cancel.
      */
-    public CompletableFuture<Void> forEach(C startPageId, Function<T, Boolean> onNext) {
-        return this.forEachPage(startPageId, response -> {
-            final List<T> items = response.getElements();
-            if (items != null) {
-                for (T item : items) {
-                    try {
-                        final boolean shouldContinue = onNext.apply(item);
-                        if (!shouldContinue) {
-                            return false;
+    public CancellationToken forEach(C startPageId, AsyncStreamHandler<T> handler) {
+        return this.forEachPage(startPageId, new AsyncStreamHandler<P>() {
+            private CancellationToken token;
+
+            @Override
+            public void onInit(CancellationToken cancellationToken) {
+                this.token = cancellationToken;
+                handler.onInit(cancellationToken);
+            }
+
+            @Override
+            public void onNext(P response) {
+                final List<T> items = response.getElements();
+                if (items != null) {
+                    for (T item : items) {
+                        if (token != null && token.isCancellationRequested()) {
+                            return;
                         }
-                    } catch (Exception ex) {
-                        if (ex instanceof RuntimeException) {
-                            // avoid double-wrapping for already unchecked exception
-                            throw logger.logExceptionAsError((RuntimeException) ex);
-                        } else {
-                            // wrap checked exception in a unchecked runtime exception
+                        try {
+                            handler.onNext(item);
+                        } catch (Exception ex) {
                             throw logger.logExceptionAsError(new RuntimeException(ex));
                         }
                     }
                 }
             }
-            return true;
+
+            @Override
+            public void onError(Throwable throwable) {
+                handler.onError(throwable);
+            }
+
+            @Override
+            public void onComplete() {
+                handler.onComplete();
+            }
         });
     }
 
     /**
-     * Enumerate the {@link ContinuablePagedAsyncCollection} by applying the given function for each page.
+     * Enumerate the {@link ContinuablePagedAsyncCollection} by signaling each page to
+     * the {@code handler.onNext}.
      *
-     * All the pages will be enumerated as long as the function returns true and there is
-     * no error while retrieving the page (e.g. auth error, network error).
+     * All the pages will be enumerated as long as there is no cancellation requested and
+     * there is no error while retrieving the page (e.g. auth error, network error).
      *
-     * If the function returns false or throws an error then no more pages will be enumerated.
+     * The {@code CancellationToken} returned can be used to cancel the enumeration
      *
-     * The {@code CompletableFuture} returned will be completed successfully if the enumeration
-     * completes normally (collection exhausted or function returns false).
-     *
-     * The {@code CompletableFuture} returned will be completed with error if there is an error
-     * during the enumeration (page retrieval error or error thrown by function).
-     *
-     * @param onNext The function to be applied for each page.
-     * @return CompletableFuture to signal the enumeration completion.
+     * @param handler The enumeration handler.
+     * @return CancellationToken to signal the enumeration cancel.
      */
-    public CompletableFuture<Void> forEachPage(Function<P, Boolean> onNext) {
-        return enumeratePages(null, onNext);
+    public CancellationToken forEachPage(AsyncStreamHandler<P> handler) {
+        return this.forEachPage(null, handler);
     }
 
     /**
-     * Enumerate the {@link ContinuablePagedAsyncCollection} by applying the given function for each page,
-     * starting from the page with the given id {@code startPageId}.
+     * Enumerate the {@link ContinuablePagedAsyncCollection} by signaling each page to
+     * the {@code handler.onNext}, starting from the page with the given id {@code startPageId}.
      *
-     * All the pages will be enumerated as long as the function returns true and there is
-     * no error while retrieving the page (e.g. auth error, network error).
+     * All the pages will be enumerated as long as there is no cancellation requested and
+     * there is no error while retrieving the page (e.g. auth error, network error).
      *
-     * If the function returns false or throws an error then no more pages will be enumerated.
-     *
-     * The {@code CompletableFuture} returned will be completed successfully if the enumeration
-     * completes normally (collection exhausted or function returns false).
-     *
-     * The {@code CompletableFuture} returned will be completed with error if there is an error
-     * during the enumeration (page retrieval error or error thrown by function).
+     * The {@code CancellationToken} returned can be used to cancel the enumeration
      *
      * @param startPageId The id of the page to start the enumeration from.
-     * @param onNext The function to be applied for each page.
-     * @return CompletableFuture to signal the enumeration completion.
+     * @param handler The enumeration handler.
+     * @return CancellationToken to signal the enumeration cancel.
      */
-    public CompletableFuture<Void> forEachPage(C startPageId,
-                                               Function<P, Boolean> onNext) {
-        return enumeratePages(startPageId, onNext);
+    public CancellationToken forEachPage(C startPageId,
+                                         AsyncStreamHandler<P> handler) {
+        final CancellationToken token = new CancellationToken();
+        handler.onInit(token);
+        if (token.isCancellationRequested()) {
+            handler.onError(new CancellationException());
+            return token;
+        }
+
+        final CompletableFuture<Void> completableFuture = enumeratePages(startPageId, token, handler);
+        token.registerOnCancel(() -> {
+            completableFuture.cancel(true);
+        });
+        completableFuture.whenCompleteAsync((ignored, throwable) -> {
+            if (throwable != null) {
+                handler.onError(throwable);
+            } else {
+                handler.onComplete();
+            }
+        });
+        return token;
     }
 
     private CompletableFuture<Void> enumeratePages(C pageId,
-                                                   Function<P, Boolean> onNext) {
+                                                   CancellationToken token,
+                                                   AsyncStreamHandler<P> handler) {
         return this.getPage(pageId).handleAsync((pagedResponse, throwable) -> {
             if (throwable != null) {
                 if (throwable instanceof RuntimeException) {
@@ -182,10 +195,7 @@ public class ContinuablePagedAsyncCollection<C, T, P extends ContinuablePagedRes
             }
 
             try {
-                final boolean shouldContinue = onNext.apply(pagedResponse);
-                if (!shouldContinue) {
-                    return null;
-                }
+                handler.onNext(pagedResponse);
             } catch (Exception ex) {
                 if (ex instanceof RuntimeException) {
                     // avoid double-wrapping for already unchecked exception
@@ -200,8 +210,13 @@ public class ContinuablePagedAsyncCollection<C, T, P extends ContinuablePagedRes
             return continuationPredicate.test(nextPageId) ? nextPageId : null;
 
         }).thenCompose(nextPageId -> {
-            return nextPageId != null
-                ? this.enumeratePages(nextPageId, onNext) : CompletableFuture.completedFuture(null);
+            if (token.isCancellationRequested()) {
+                return CompletableFuture.failedFuture(new CancellationException());
+            } else {
+                return nextPageId != null
+                    ? this.enumeratePages(nextPageId, token, handler)
+                    : CompletableFuture.completedFuture(null);
+            }
         });
     }
 }

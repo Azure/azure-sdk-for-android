@@ -7,6 +7,7 @@ import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Page;
 import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.PagedResponseBase;
+import com.azure.android.core.util.CancellationToken;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,11 +17,15 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Function;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Tests {@link PagedAsyncCollection}.
@@ -29,34 +34,70 @@ public class PagedAsyncCollectionTests {
     private final ClientLogger logger = new ClientLogger(PagedAsyncCollectionTests.class);
 
     @Test
-    public void canEnumerateAllPages() throws ExecutionException, InterruptedException {
+    public void canEnumerateAllPages() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
         final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
 
-        CompletableFuture<Void> completableFuture = collection.forEachPage(response -> {
-            Assertions.assertNotNull(response);
-            return true;
+        CountDownLatch latch = new CountDownLatch(1);
+        CancellationToken token = collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+            @Override
+            public void onNext(PagedResponse<String> response) {
+                Assertions.assertNotNull(response);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
         });
 
-        completableFuture.get();
+        awaitOnLatch(latch, "canEnumerateAllPages");
         Assertions.assertEquals(5, pageRetriever.getCallCount());
     }
 
     @Test
-    public void canStopPageEnumeration() throws ExecutionException, InterruptedException {
+    public void canStopPageEnumeration() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
         final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
 
-        CompletableFuture<Void> completableFuture = collection.forEachPage(response -> {
-            Assertions.assertNotNull(response);
-            if (response.getContinuationToken().equalsIgnoreCase("3")) {
-                return false;
+        CountDownLatch latch = new CountDownLatch(1);
+        Throwable [] error = new Throwable[1];
+        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+            private CancellationToken token;
+            @Override
+            public void onInit(CancellationToken cancellationToken) {
+                this.token = cancellationToken;
             }
-            return true;
+
+            @Override
+            public void onNext(PagedResponse<String> response) {
+                Assertions.assertNotNull(response);
+                if (response.getContinuationToken().equalsIgnoreCase("3")) {
+                    token.cancel();
+                }
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                error[0] = throwable;
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
         });
 
-        completableFuture.get();
+        awaitOnLatch(latch, "canStopPageEnumeration");
         Assertions.assertEquals(3, pageRetriever.getCallCount());
+        Assertions.assertNotNull(error[0]);
+        Assertions.assertTrue(error[0] instanceof CancellationException);
     }
 
     @Test
@@ -64,21 +105,36 @@ public class PagedAsyncCollectionTests {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
         final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
 
-        CompletableFuture<Void> completableFuture = collection.forEachPage(response -> {
-            Assertions.assertNotNull(response);
-            if (response.getContinuationToken().equalsIgnoreCase("3")) {
-                throw new RuntimeException("user-error");
+        CountDownLatch latch = new CountDownLatch(1);
+        Throwable [] error = new Throwable[1];
+        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+            @Override
+            public void onNext(PagedResponse<String> response) {
+                Assertions.assertNotNull(response);
+                if (response.getContinuationToken().equalsIgnoreCase("3")) {
+                    throw new RuntimeException("user-error");
+                }
             }
-            return true;
+
+            @Override
+            public void onError(Throwable throwable) {
+                error[0] = throwable;
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
         });
 
-        Throwable exception = Assertions.assertThrows(ExecutionException.class, () -> completableFuture.get());
+        awaitOnLatch(latch, "shouldPropagateUserException");
 
-        Assertions.assertNotNull(exception);
-        Assertions.assertNotNull(exception.getCause());
-        Assertions.assertTrue(exception.getCause() instanceof RuntimeException);
-        Assertions.assertNotNull(exception.getCause().getMessage());
-        Assertions.assertTrue(exception.getCause().getMessage().equalsIgnoreCase("user-error"));
+        Assertions.assertNotNull(error[0]);
+        Assertions.assertNotNull(error[0].getCause());
+        Assertions.assertTrue(error[0].getCause() instanceof RuntimeException);
+        Assertions.assertNotNull(error[0].getCause().getMessage());
+        Assertions.assertTrue(error[0].getCause().getMessage().equalsIgnoreCase("user-error"));
         Assertions.assertEquals(3, pageRetriever.getCallCount());
     }
 
@@ -87,17 +143,39 @@ public class PagedAsyncCollectionTests {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5, 3);
         final PagedAsyncCollection<String> collection = new PagedAsyncCollection<>(pageRetriever, this.logger);
 
-        CompletableFuture<Void> completableFuture = collection.forEachPage(response -> {
-            Assertions.assertNotNull(response);
-            return true;
+        CountDownLatch latch = new CountDownLatch(1);
+        Throwable [] error = new Throwable[1];
+        collection.forEachPage(new AsyncStreamHandler<PagedResponse<String>>() {
+            @Override
+            public void onNext(PagedResponse<String> response) {
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                error[0] = throwable;
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
         });
 
-        Throwable exception = Assertions.assertThrows(ExecutionException.class, () -> completableFuture.get());
+        awaitOnLatch(latch, "shouldPropagateSdkException");
 
-        Assertions.assertNotNull(exception);
-        Assertions.assertNotNull(exception.getCause());
-        Assertions.assertTrue(exception.getCause() instanceof UncheckedIOException);
+        Assertions.assertNotNull(error[0]);
+        Assertions.assertNotNull(error[0].getCause());
+        Assertions.assertTrue(error[0].getCause() instanceof UncheckedIOException);
         Assertions.assertEquals(4, pageRetriever.getCallCount());
+    }
+
+    private static void awaitOnLatch(CountDownLatch latch, String method) {
+        try {
+            latch.await(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            assertFalse(true, method + " didn't produce any result.");
+        }
     }
 
     private static final class StringPageRetriever
@@ -177,4 +255,6 @@ public class PagedAsyncCollectionTests {
             return Collections.unmodifiableList(elements);
         }
     }
+
+
 }
