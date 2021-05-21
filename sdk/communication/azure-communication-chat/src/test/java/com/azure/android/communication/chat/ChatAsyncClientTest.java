@@ -12,19 +12,26 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Response;
+import com.azure.android.core.rest.util.paging.PagedAsyncStream;
 import com.azure.android.core.rest.util.paging.PagedResponse;
+import com.azure.android.core.util.AsyncStreamHandler;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import java9.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -404,28 +411,54 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         assertNotNull(result2.getChatThreadProperties());
         assertNotNull(result2.getChatThreadProperties().getId());
 
-        CompletableFuture<PagedResponse<ChatThreadItem>> completableFuture
-            = this.client.getChatThreadsFirstPageWithResponse(new ListChatThreadsOptions(), null);
 
-        String nextLink;
+        PagedAsyncStream<ChatThreadItem> chatAsyncStream
+            = this.client.listChatThreads(new ListChatThreadsOptions(), null);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        AtomicBoolean gotNullResponse = new AtomicBoolean();
+        AtomicBoolean gotNullList = new AtomicBoolean();
         List<ChatThreadItem> returnedThreads = new ArrayList<ChatThreadItem>();
-        do {
-            PagedResponse<ChatThreadItem> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatThreadItem> threadsInPage = response.getValue();
-            assertNotNull(threadsInPage);
-            for (ChatThreadItem thread : threadsInPage) {
-                returnedThreads.add(thread);
+
+        chatAsyncStream.byPage().forEach(new AsyncStreamHandler<PagedResponse<ChatThreadItem>>() {
+
+            @Override
+            public void onNext(PagedResponse<ChatThreadItem> response) {
+                if (!gotNullResponse.get()) {
+                    gotNullResponse.set(response == null);
+                }
+                if (response != null) {
+                    List<ChatThreadItem> threadsInPage = response.getValue();
+                    if (!gotNullList.get()) {
+                        gotNullResponse.set(threadsInPage == null);
+                    }
+                    if (threadsInPage != null) {
+                        for (ChatThreadItem thread : threadsInPage) {
+                            returnedThreads.add(thread);
+                        }
+                    }
+                }
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.client.getChatThreadsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
 
-// REVISIT: Unreliable assert
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+
+        awaitOnLatch(latch, "canListChatThreads");
+
+        Assertions.assertFalse(gotNullResponse.get());
+        Assertions.assertFalse(gotNullList.get());
+
+        // REVISIT: Unreliable assert
         // assertTrue(returnedThreads.size() > 0);
     }
 
@@ -455,28 +488,62 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         assertNotNull(result2.getChatThreadProperties());
         assertNotNull(result2.getChatThreadProperties().getId());
 
-        CompletableFuture<PagedResponse<ChatThreadItem>> completableFuture
-            = this.client.getChatThreadsFirstPageWithResponse(new ListChatThreadsOptions().setMaxPageSize(2), null);
+        PagedAsyncStream<ChatThreadItem> chatAsyncStream
+            = this.client.listChatThreads(new ListChatThreadsOptions().setMaxPageSize(2), null);
 
-        String nextLink;
+        CountDownLatch latch = new CountDownLatch(1);
+
+        AtomicBoolean gotNullResponse = new AtomicBoolean();
+        AtomicBoolean gotNullList = new AtomicBoolean();
         List<ChatThreadItem> returnedThreads = new ArrayList<ChatThreadItem>();
-        do {
-            PagedResponse<ChatThreadItem> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatThreadItem> threadsInPage = response.getValue();
-            assertNotNull(threadsInPage);
-            for (ChatThreadItem thread : threadsInPage) {
-                returnedThreads.add(thread);
+
+        chatAsyncStream.byPage().forEach(new AsyncStreamHandler<PagedResponse<ChatThreadItem>>() {
+
+            @Override
+            public void onNext(PagedResponse<ChatThreadItem> response) {
+                if (!gotNullResponse.get()) {
+                    gotNullResponse.set(response == null);
+                }
+                if (response != null) {
+                    List<ChatThreadItem> threadsInPage = response.getValue();
+                    if (!gotNullList.get()) {
+                        gotNullResponse.set(threadsInPage == null);
+                    }
+                    if (threadsInPage != null) {
+                        for (ChatThreadItem thread : threadsInPage) {
+                            returnedThreads.add(thread);
+                        }
+                    }
+                }
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.client.getChatThreadsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
 
-// REVISIT: Unreliable assert
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+
+        awaitOnLatch(latch, "canListChatThreads");
+
+        Assertions.assertFalse(gotNullResponse.get());
+        Assertions.assertFalse(gotNullList.get());
+
+        // REVISIT: Unreliable assert
         // assertTrue(returnedThreads.size() > 0);
+    }
+
+    private static void awaitOnLatch(CountDownLatch latch, String method) {
+        long timeoutInSec = 2;
+        try {
+            latch.await(timeoutInSec, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            assertFalse(true, method + " didn't complete within " + timeoutInSec + " minutes");
+        }
     }
 }
