@@ -15,7 +15,7 @@ public class PagedIterable<T> extends ContinuablePagedIterable<String, T, PagedR
      *
      * @param pageRetriever The page retriever.
      */
-    public PagedIterable(PageRetriever<String, PagedResponse<T>> pageRetriever) {
+    public PagedIterable(Function<String, PagedResponse<T>> pageRetriever) {
         super(pageRetriever, pageId -> pageId != null);
     }
 }

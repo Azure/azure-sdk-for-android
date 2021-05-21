@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
  * @param <P> The type of pages contained in this {@link ContinuablePagedIterable}.
  */
 public class ContinuablePagedIterable<C, T, P extends ContinuablePagedResponse<C, T>> implements Iterable<T> {
-    private final PageRetriever<C, P> pageRetriever;
+    private final Function<C, P> pageRetriever;
     private final PagingContinuationPredicate<C> continuationPredicate;
 
     /**
@@ -26,7 +26,7 @@ public class ContinuablePagedIterable<C, T, P extends ContinuablePagedResponse<C
      * @param pageRetriever The page retriever.
      * @param continuationPredicate A predicate which determines if paging should continue.
      */
-    public ContinuablePagedIterable(PageRetriever<C, P> pageRetriever,
+    public ContinuablePagedIterable(Function<C, P> pageRetriever,
                                     PagingContinuationPredicate<C> continuationPredicate) {
         this.pageRetriever = pageRetriever;
         this.continuationPredicate = continuationPredicate;
@@ -71,11 +71,11 @@ public class ContinuablePagedIterable<C, T, P extends ContinuablePagedResponse<C
     private static final class PagedResponseIterable<C, T, P extends ContinuablePagedResponse<C, T>>
         implements Iterable<T> {
 
-        private final PageRetriever<String, PagedResponse<T>> pageRetriever;
+        private final Function<String, PagedResponse<T>> pageRetriever;
         private C nextPageId;
         private final PagingContinuationPredicate<C> continuationPredicate;
 
-        PagedResponseIterable(PageRetriever<String, PagedResponse<T>> pageRetriever,
+        PagedResponseIterable(Function<String, PagedResponse<T>> pageRetriever,
                               C startPageId,
                               PagingContinuationPredicate<C> continuationPredicate) {
             this.pageRetriever = pageRetriever;
@@ -90,12 +90,12 @@ public class ContinuablePagedIterable<C, T, P extends ContinuablePagedResponse<C
 
         private static final class PagedResponseIterator<C, T, P extends ContinuablePagedResponse<C, T>>
             implements Iterator<P> {
-            private final PageRetriever<C, P> pageRetriever;
+            private final Function<C, P> pageRetriever;
             private C nextPageId;
             private final PagingContinuationPredicate<C> continuationPredicate;
             private boolean isExhausted;
 
-            PagedResponseIterator(PageRetriever<C, P> pageRetriever,
+            PagedResponseIterator(Function<C, P> pageRetriever,
                                   C startPageId,
                                   PagingContinuationPredicate<C> continuationPredicate) {
                 this.pageRetriever = pageRetriever;

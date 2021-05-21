@@ -1,18 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest.cfextensions;
+package com.azure.android.core.rest;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.ContinuablePagedResponse;
 import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.paging.PagedAsyncStreamCore;
 
 import java.util.List;
-
-import java9.util.function.Function;
 
 /**
  * ContinuablePagedAsyncCollection provides the ability to operate on paginated REST responses of type
@@ -60,12 +57,12 @@ public class ContinuablePagedAsyncStream<C, T, P extends ContinuablePagedRespons
 
     @Override
     public AsyncStream<P> byPage() {
-        return this.streamRetriever.apply(null);
+        return this.streamRetriever.get(null);
     }
 
     @Override
     public AsyncStream<P> byPage(C startPageId) {
-        return this.streamRetriever.apply(startPageId);
+        return this.streamRetriever.get(startPageId);
     }
 
     @Override

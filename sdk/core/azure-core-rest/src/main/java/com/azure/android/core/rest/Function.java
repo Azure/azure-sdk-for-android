@@ -10,7 +10,7 @@ package com.azure.android.core.rest;
  * @param <P> the page type
  */
 @FunctionalInterface
-public interface PageRetriever<C, P> {
+public interface Function<C, P> {
     /**
      * Retrieves one or more pages starting from the page identified by the given continuation token.
      *

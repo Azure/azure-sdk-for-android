@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest.cfextensions;
+package com.azure.android.core.rest;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.util.AsyncStream;
-
-import java9.util.function.Function;
 
 /**
  * PagedAsyncCollection provides the ability to operate on paginated REST responses of type {@link PagedResponse}

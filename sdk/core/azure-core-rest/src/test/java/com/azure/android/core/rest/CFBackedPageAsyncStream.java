@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest.cfextensions;
+package com.azure.android.core.rest;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.ContinuablePagedResponse;
 import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
