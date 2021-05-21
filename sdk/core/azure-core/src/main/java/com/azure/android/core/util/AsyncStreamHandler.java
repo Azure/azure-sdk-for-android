@@ -4,7 +4,7 @@
 package com.azure.android.core.util;
 
 /**
- * A type to asynchronously deliver the signals (element, error, completion) from a stream.
+ * A type to asynchronously deliver the signals (element, error, completion) from a {@link AsyncStream}.
  *
  * @param <T> The type of the stream element.
  */
@@ -14,7 +14,7 @@ public interface AsyncStreamHandler<T> {
      * Invoked before initiating element retrieval from the stream.
      *
      * @param cancellationToken The token to cancel the steam from producing
-     *                         and delivering elements to {@code onNext(e)}.
+     *     and delivering elements to {@code onNext(e)}.
      */
     default void onInit(CancellationToken cancellationToken) {
     }
@@ -27,7 +27,7 @@ public interface AsyncStreamHandler<T> {
     void onNext(T e);
 
     /**
-     * A terminal signal indicating the stream terminated due to an error.
+     * A terminal signal indicating that the stream terminated due to an error.
      *
      * @param throwable the error signaled.
      */
@@ -35,7 +35,7 @@ public interface AsyncStreamHandler<T> {
     }
 
     /**
-     * A terminal signal indicating the stream terminated successfully.
+     * A terminal signal indicating that the stream terminated successfully.
      */
     default void onComplete() {
     }

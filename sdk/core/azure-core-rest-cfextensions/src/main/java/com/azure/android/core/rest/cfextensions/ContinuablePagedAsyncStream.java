@@ -11,11 +11,8 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.paging.PagedAsyncStreamCore;
 
 import java.util.List;
-import java.util.concurrent.CancellationException;
 
-import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Function;
-import java9.util.function.Predicate;
 
 /**
  * ContinuablePagedAsyncCollection provides the ability to operate on paginated REST responses of type
@@ -29,38 +26,19 @@ import java9.util.function.Predicate;
  */
 public class ContinuablePagedAsyncStream<C, T, P extends ContinuablePagedResponse<C, T>>
     implements PagedAsyncStreamCore<C, T, P> {
-    private final Function<C, CompletableFuture<P>> pageRetriever;
-    private final Predicate<C> continuationPredicate;
+    private final Function<C, AsyncStream<P>> streamRetriever;
     private final ClientLogger logger;
 
     /**
-     * Creates an instance of {@link ContinuablePagedAsyncStream}. The constructor takes a {@code pageRetriever}.
-     * The {@code pageRetriever} returns a page of {@code T} when invoked with the id of the page to retrieve.
+     * Creates an instance of {@link ContinuablePagedAsyncStream}.
      *
-     * @param pageRetriever The function to retrieve pages.
-     * @param continuationPredicate The predicate to check whether to continue the paging.
+     * @param streamRetriever The function to retrieve page stream backing this stream.
      * @param logger The logger to log.
      */
-    public ContinuablePagedAsyncStream(Function<C, CompletableFuture<P>> pageRetriever,
-                                       Predicate<C> continuationPredicate,
+    public ContinuablePagedAsyncStream(Function<C, AsyncStream<P>> streamRetriever,
                                        ClientLogger logger) {
-        this.pageRetriever = pageRetriever;
-        this.continuationPredicate = continuationPredicate;
+        this.streamRetriever = streamRetriever;
         this.logger = logger;
-    }
-
-    /**
-     * Retrieve a page with given id {@code pageId}. A {@code null} value for {@code pageId} indicate the initial page.
-     *
-     * @param pageId The id of the page.
-     * @return A CompletableFuture with the page retrieved or any error during the page retrieval.
-     */
-    public CompletableFuture<P> getPage(C pageId) {
-        try {
-            return this.pageRetriever.apply(pageId);
-        } catch (Exception ex) {
-            return CompletableFuture.failedFuture(ex);
-        }
     }
 
     /**
@@ -82,12 +60,12 @@ public class ContinuablePagedAsyncStream<C, T, P extends ContinuablePagedRespons
 
     @Override
     public AsyncStream<P> byPage() {
-        return new PageAsyncStream<>(this.pageRetriever, this.continuationPredicate, null, this.logger);
+        return this.streamRetriever.apply(null);
     }
 
     @Override
     public AsyncStream<P> byPage(C startPageId) {
-        return new PageAsyncStream<>(this.pageRetriever, this.continuationPredicate, startPageId, this.logger);
+        return this.streamRetriever.apply(startPageId);
     }
 
     @Override
@@ -95,7 +73,7 @@ public class ContinuablePagedAsyncStream<C, T, P extends ContinuablePagedRespons
         return new PageElementAsyncStream<>(this.byPage(startPageId), this.logger);
     }
 
-    // util types internal to the class.
+    // AsyncStream that produce elements by flattening pages in another AsyncStream.
 
     private static final class PageElementAsyncStream<C, T, P extends ContinuablePagedResponse<C, T>>
         implements AsyncStream<T> {
@@ -143,87 +121,6 @@ public class ContinuablePagedAsyncStream<C, T, P extends ContinuablePagedRespons
                 @Override
                 public void onComplete() {
                     handler.onComplete();
-                }
-            });
-        }
-    }
-
-    private static final class PageAsyncStream<C, T, P extends ContinuablePagedResponse<C, T>>
-        implements AsyncStream<P> {
-        private final Function<C, CompletableFuture<P>> pageRetriever;
-        private final Predicate<C> continuationPredicate;
-        private final C startPageId;
-        private final ClientLogger logger;
-
-        PageAsyncStream(Function<C, CompletableFuture<P>> pageRetriever,
-                        Predicate<C> continuationPredicate,
-                        C startPageId,
-                        ClientLogger logger) {
-            this.pageRetriever = pageRetriever;
-            this.continuationPredicate = continuationPredicate;
-            this.startPageId = startPageId;
-            this.logger = logger;
-        }
-
-        @Override
-        public CancellationToken forEach(AsyncStreamHandler<P> handler) {
-            final CancellationToken token = new CancellationToken();
-            handler.onInit(token);
-            if (token.isCancellationRequested()) {
-                handler.onError(new CancellationException());
-                return token;
-            }
-
-            final CompletableFuture<Void> completableFuture = this.enumeratePages(startPageId, token, handler);
-            token.registerOnCancel(() -> {
-                completableFuture.cancel(true);
-            });
-            completableFuture.whenCompleteAsync((ignored, throwable) -> {
-                if (throwable != null) {
-                    handler.onError(throwable);
-                } else {
-                    handler.onComplete();
-                }
-            });
-            return token;
-        }
-
-        private CompletableFuture<Void> enumeratePages(C pageId,
-                                                       CancellationToken token,
-                                                       AsyncStreamHandler<P> handler) {
-            return this.pageRetriever.apply(pageId).handleAsync((pagedResponse, throwable) -> {
-                if (throwable != null) {
-                    if (throwable instanceof RuntimeException) {
-                        // avoid double-wrapping for already unchecked exception
-                        throw logger.logExceptionAsError((RuntimeException) throwable);
-                    } else {
-                        // wrap checked exception in a unchecked runtime exception
-                        throw logger.logExceptionAsError(new RuntimeException(throwable));
-                    }
-                }
-
-                try {
-                    handler.onNext(pagedResponse);
-                } catch (Exception ex) {
-                    if (ex instanceof RuntimeException) {
-                        // avoid double-wrapping for already unchecked exception
-                        throw logger.logExceptionAsError((RuntimeException) ex);
-                    } else {
-                        // wrap checked exception in a unchecked runtime exception
-                        throw logger.logExceptionAsError(new RuntimeException(ex));
-                    }
-                }
-
-                final C nextPageId = pagedResponse.getContinuationToken();
-                return continuationPredicate.test(nextPageId) ? nextPageId : null;
-
-            }).thenCompose(nextPageId -> {
-                if (token.isCancellationRequested()) {
-                    return CompletableFuture.failedFuture(new CancellationException());
-                } else {
-                    return nextPageId != null
-                        ? this.enumeratePages(nextPageId, token, handler)
-                        : CompletableFuture.completedFuture(null);
                 }
             });
         }

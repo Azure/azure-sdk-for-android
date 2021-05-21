@@ -10,15 +10,13 @@ package com.azure.android.core.util;
  */
 public interface AsyncStream<T> {
     /**
-     * Enumerate the {@link AsyncStream} by signaling each to the {@code handler.onNext}.
+     * Enumerate the {@link AsyncStream} by signaling each element to the {@code handler.onNext}.
      *
      * All the elements will be enumerated as long as there is no cancellation requested and
      * there is no error while retrieving the element (e.g. auth error, network error).
      *
-     * The {@code CancellationToken} returned can be used to cancel the enumeration
-     *
-     * @param handler The enumeration handler.
-     * @return CancellationToken to signal the enumeration cancel.
+     * @param handler The handler to receive result of enumeration.
+     * @return CancellationToken to request the cancellation of enumeration.
      */
     CancellationToken forEach(AsyncStreamHandler<T> handler);
 }

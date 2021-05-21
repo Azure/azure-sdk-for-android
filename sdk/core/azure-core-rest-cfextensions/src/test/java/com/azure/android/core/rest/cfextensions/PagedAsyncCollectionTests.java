@@ -37,7 +37,14 @@ public class PagedAsyncCollectionTests {
     @Test
     public void canEnumerateAllPages() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
+        //
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageId -> {
+            final CFBackedPageAsyncStream backingStream = new CFBackedPageAsyncStream<>(pageRetriever,
+                continuationToken -> continuationToken != null,
+                pageId,
+                logger);
+            return backingStream;
+        }, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         CancellationToken token = collection.byPage().forEach(new AsyncStreamHandler<PagedResponse<String>>() {
@@ -64,7 +71,14 @@ public class PagedAsyncCollectionTests {
     @Test
     public void canStopPageEnumeration() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
+        //
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageId -> {
+            final CFBackedPageAsyncStream backingStream = new CFBackedPageAsyncStream<>(pageRetriever,
+                continuationToken -> continuationToken != null,
+                pageId,
+                logger);
+            return backingStream;
+        }, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];
@@ -104,7 +118,14 @@ public class PagedAsyncCollectionTests {
     @Test
     public void shouldPropagateUserException() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5);
-        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
+        //
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageId -> {
+            final CFBackedPageAsyncStream backingStream = new CFBackedPageAsyncStream<>(pageRetriever,
+                continuationToken -> continuationToken != null,
+                pageId,
+                logger);
+            return backingStream;
+        }, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];
@@ -142,7 +163,14 @@ public class PagedAsyncCollectionTests {
     @Test
     public void shouldPropagateSdkException() {
         final StringPageRetriever pageRetriever = new StringPageRetriever(3, 5, 3);
-        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageRetriever, this.logger);
+        //
+        final PagedAsyncStream<String> collection = new PagedAsyncStream<>(pageId -> {
+            final CFBackedPageAsyncStream backingStream = new CFBackedPageAsyncStream<>(pageRetriever,
+                continuationToken -> continuationToken != null,
+                pageId,
+                logger);
+            return backingStream;
+        }, this.logger);
 
         CountDownLatch latch = new CountDownLatch(1);
         Throwable [] error = new Throwable[1];

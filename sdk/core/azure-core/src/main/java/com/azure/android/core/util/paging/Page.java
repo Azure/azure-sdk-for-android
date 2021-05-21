@@ -6,7 +6,7 @@ package com.azure.android.core.util.paging;
 import java.util.List;
 
 /**
- * Represents a paginated REST response from the service.
+ * Represents a paginated response from the service.
  *
  * @param <C> The type of the continuation token.
  * @param <T> Type of items in the page response.
@@ -22,7 +22,7 @@ public interface Page<C, T> {
     /**
      * Gets the reference to the next page.
      *
-     * @return The next page reference or {@code null} if there isn't a next page.
+     * @return The token to retrieve next page.
      */
     C getContinuationToken();
 }
