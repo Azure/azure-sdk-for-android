@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest;
+package com.azure.android.core.rest.util.paging;
 
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @param <H> The HTTP response headers
  * @param <T> The type of items contained in the {@link Page}
- * @see com.azure.android.core.rest.PagedResponse
+ * @see PagedResponse
  */
 public class PagedResponseBase<H, T> implements PagedResponse<T> {
     private final HttpRequest request;
