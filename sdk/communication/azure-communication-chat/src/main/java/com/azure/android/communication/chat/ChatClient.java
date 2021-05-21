@@ -7,8 +7,8 @@ import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
-import com.azure.android.communication.chat.signaling.RealTimeNotificationCallback;
-import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.SimpleResponse;
@@ -179,21 +179,21 @@ public final class ChatClient {
 
     /**
      * Listen to a chat event.
-     * @param chatEventId the chat event id
+     * @param chatEventType the chat event kind
      * @param listenerId the listener id that is used to identify a listener
      * @param listener the listener callback function
      */
-    public void on(ChatEventId chatEventId, String listenerId, RealTimeNotificationCallback listener) {
-        this.client.on(chatEventId, listenerId, listener);
+    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+        this.client.on(chatEventType, listenerId, listener);
     }
 
     /**
      * Stop listening to a chat event.
-     * @param chatEventId the chat event id
+     * @param chatEventType the chat event kind
      * @param listenerId the listener id that is to off
      */
-    public void off(ChatEventId chatEventId, String listenerId) {
-        client.off(chatEventId, listenerId);
+    public void off(ChatEventType chatEventType, String listenerId) {
+        client.off(chatEventType, listenerId);
     }
 
     private <T> T block(CompletableFuture<T> completableFuture) {

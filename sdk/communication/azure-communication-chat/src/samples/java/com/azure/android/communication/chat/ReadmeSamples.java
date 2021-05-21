@@ -93,9 +93,9 @@ public class ReadmeSamples {
      */
     public void getChatThread() {
         ChatClient chatClient = createChatClient();
-
         String chatThreadId = "Id";
-        ChatThread chatThread = chatClient.getChatThread(chatThreadId);
+        ChatThreadClient chatThreadClient = chatClient.getChatThreadClient(chatThreadId);
+        ChatThreadProperties chatThreadProperties = chatThreadClient.getProperties();
     }
 
     /**
@@ -145,7 +145,7 @@ public class ReadmeSamples {
             .setSenderDisplayName("Sender Display Name");
 
 
-        String chatMessageId = chatThreadClient.sendMessage(sendChatMessageOptions);
+        String chatMessageId = chatThreadClient.sendMessage(sendChatMessageOptions).getId();
     }
 
     /**
@@ -164,14 +164,14 @@ public class ReadmeSamples {
     public void getChatMessages() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        PagedIterable<ChatMessage> chatMessagesResponse = chatThreadClient.listMessages();
-        chatMessagesResponse.iterableByPage().forEach(resp -> {
-            System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-                resp.getRequest().getUrl(), resp.getStatusCode());
-            resp.getItems().forEach(message -> {
-                System.out.printf("Message id is %s.", message.getId());
-            });
-        });
+        Page<ChatMessage> chatMessagesResponse = chatThreadClient.getMessagesFirstPage();
+        List<ChatMessage> chatMessages = chatMessagesResponse.getElements();
+        String nextLink = chatMessagesResponse.getContinuationToken();
+        while (nextLink != null) {
+            chatMessagesResponse = chatThreadClient.getMessagesNextPage(nextLink);
+            chatMessages = chatMessagesResponse.getElements();
+            nextLink = chatMessagesResponse.getContinuationToken();
+        }
     }
 
     /**
@@ -203,14 +203,14 @@ public class ReadmeSamples {
     public void listChatParticipants() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        PagedIterable<ChatParticipant> chatParticipantsResponse = chatThreadClient.listParticipants();
-        chatParticipantsResponse.iterableByPage().forEach(resp -> {
-            System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-                resp.getRequest().getUrl(), resp.getStatusCode());
-            resp.getItems().forEach(chatParticipant -> {
-                System.out.printf("Participant id is %s.", ((CommunicationUserIdentifier) chatParticipant.getCommunicationIdentifier()).getId());
-            });
-        });
+        Page<ChatParticipant> chatParticipantsResponse = chatThreadClient.getParticipantsFirstPage();
+        List<ChatParticipant> chatParticipants = chatParticipantsResponse.getElements();
+        String nextLink = chatParticipantsResponse.getContinuationToken();
+        while (nextLink != null) {
+            chatParticipantsResponse = chatThreadClient.getParticipantsNextPage(nextLink);
+            chatParticipants = chatParticipantsResponse.getElements();
+            nextLink = chatParticipantsResponse.getContinuationToken();
+        }
     }
 
     /**
@@ -246,9 +246,9 @@ public class ReadmeSamples {
     public void removeChatParticipant() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        CommunicationUserIdentifier user = new CommunicationUserIdentifier("Id");
+        CommunicationUserIdentifier identifier = new CommunicationUserIdentifier("Id");
 
-        chatThreadClient.removeParticipant(user);
+        chatThreadClient.removeParticipant(identifier);
     }
 
     /**
@@ -267,14 +267,14 @@ public class ReadmeSamples {
     public void listReadReceipts() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        PagedIterable<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.listReadReceipts();
-        readReceiptsResponse.iterableByPage().forEach(resp -> {
-            System.out.printf("Response headers are %s. Url %s  and status code %d %n", resp.getHeaders(),
-                resp.getRequest().getUrl(), resp.getStatusCode());
-            resp.getItems().forEach(readReceipt -> {
-                System.out.printf("Read message id is %s.", readReceipt.getChatMessageId());
-            });
-        });
+        Page<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.getReadReceiptsFirstPage();
+        List<ChatMessageReadReceipt> chatMessageReadReceipts = readReceiptsResponse.getElements();
+        String nextLink = readReceiptsResponse.getContinuationToken();
+        while (nextLink != null) {
+            readReceiptsResponse = chatThreadClient.getReadReceiptsNextPage(nextLink);
+            chatMessageReadReceipts = readReceiptsResponse.getElements();
+            nextLink = readReceiptsResponse.getContinuationToken();
+        }
     }
 
     /**
