@@ -17,13 +17,13 @@ import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.Page;
-import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.annotation.ReturnType;
 import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.Context;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.concurrent.ExecutionException;
 
@@ -182,7 +182,7 @@ public final class ChatThreadClient {
      * @return the list of the thread participants in the first page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatParticipant> getParticipantsFirstPage() {
+    public Page<String, ChatParticipant> getParticipantsFirstPage() {
         return block(this.client.getParticipantsFirstPage());
     }
 
@@ -195,7 +195,7 @@ public final class ChatThreadClient {
      * @return the list of the thread participants in the first page.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatParticipant> getParticipantsFirstPage(
+    public Page<String, ChatParticipant> getParticipantsFirstPage(
         ListParticipantsOptions listParticipantsOptions,
         Context context) {
         return block(this.client.getParticipantsFirstPage(listParticipantsOptions, context)
@@ -226,7 +226,7 @@ public final class ChatThreadClient {
      * @return the page containing list of thread participants.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatParticipant> getParticipantsNextPage(String nextLink) {
+    public Page<String, ChatParticipant> getParticipantsNextPage(String nextLink) {
         return block(this.client.getParticipantsNextPage(nextLink));
     }
 
@@ -299,7 +299,7 @@ public final class ChatThreadClient {
      * @return the list of thread messages.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessage> getMessagesFirstPage() {
+    public Page<String, ChatMessage> getMessagesFirstPage() {
         return block(this.client.getMessagesFirstPage());
     }
 
@@ -312,7 +312,7 @@ public final class ChatThreadClient {
      * @return the list of thread messages.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessage> getMessagesFirstPage(ListChatMessagesOptions listChatMessagesOptions,
+    public Page<String, ChatMessage> getMessagesFirstPage(ListChatMessagesOptions listChatMessagesOptions,
         Context context) {
         return block(this.client.getMessagesFirstPage(listChatMessagesOptions, context)
             .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
@@ -341,7 +341,7 @@ public final class ChatThreadClient {
      * @return the list of thread messages.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessage> getMessagesNextPage(String nextLink) {
+    public Page<String, ChatMessage> getMessagesNextPage(String nextLink) {
         return block(this.client.getMessagesNextPage(nextLink));
     }
 
@@ -458,7 +458,7 @@ public final class ChatThreadClient {
      * @return the list of thread read receipts.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessageReadReceipt> getReadReceiptsFirstPage() {
+    public Page<String, ChatMessageReadReceipt> getReadReceiptsFirstPage() {
         return block(this.client.getReadReceiptsFirstPage());
     }
 
@@ -471,7 +471,7 @@ public final class ChatThreadClient {
      * @return the list of thread read receipts.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessageReadReceipt> getReadReceiptsFirstPage(ListReadReceiptOptions listReadReceiptOptions,
+    public Page<String, ChatMessageReadReceipt> getReadReceiptsFirstPage(ListReadReceiptOptions listReadReceiptOptions,
                                                                  Context context) {
         return block(this.client.getReadReceiptsFirstPage(listReadReceiptOptions, context)
             .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
@@ -501,7 +501,7 @@ public final class ChatThreadClient {
      * @return the list of thread read receipts.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatMessageReadReceipt> getReadReceiptsNextPage(String nextLink) {
+    public Page<String, ChatMessageReadReceipt> getReadReceiptsNextPage(String nextLink) {
         return block(this.client.getReadReceiptsNextPage(nextLink));
     }
 

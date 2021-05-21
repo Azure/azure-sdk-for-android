@@ -28,7 +28,7 @@ import com.azure.android.core.credential.AccessToken;
 import com.azure.android.core.http.okhttp.OkHttpAsyncClientProvider;
 import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.android.core.http.policy.UserAgentPolicy;
-import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.Context;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 

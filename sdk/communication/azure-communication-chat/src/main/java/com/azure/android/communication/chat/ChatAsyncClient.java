@@ -16,14 +16,14 @@ import com.azure.android.communication.chat.signaling.RealTimeNotificationCallba
 import com.azure.android.communication.chat.signaling.SignalingClient;
 import com.azure.android.communication.chat.signaling.properties.ChatEventId;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.Page;
-import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.SimpleResponse;
 import com.azure.android.core.rest.annotation.ReturnType;
 import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.Context;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.List;
 
@@ -123,7 +123,7 @@ public final class ChatAsyncClient {
      * @return the {@link CompletableFuture} that emits the first page of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<ChatThreadItem>> getChatThreadsFirstPage() {
+    public CompletableFuture<Page<String, ChatThreadItem>> getChatThreadsFirstPage() {
         ListChatThreadsOptions listThreadsOptions = new ListChatThreadsOptions();
         return this.getChatThreadsFirstPage(listThreadsOptions, null)
             .thenApply(response ->  new PageImpl<>(response.getValue(), response.getContinuationToken()));
@@ -137,7 +137,8 @@ public final class ChatAsyncClient {
      * @return the {@link CompletableFuture} that emits the first page of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<ChatThreadItem>> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions) {
+    public CompletableFuture<Page<String, ChatThreadItem>> getChatThreadsFirstPage(
+        ListChatThreadsOptions listThreadsOptions) {
         if (listThreadsOptions == null) {
             return CompletableFuture.failedFuture(new NullPointerException("listThreadsOptions is required."));
         }
@@ -188,7 +189,7 @@ public final class ChatAsyncClient {
      * @return the {@link CompletableFuture} that emits a page of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<ChatThreadItem>> getChatThreadsNextPage(String nextLink) {
+    public CompletableFuture<Page<String, ChatThreadItem>> getChatThreadsNextPage(String nextLink) {
         return this.getChatThreadsNextPage(nextLink, null)
             .thenApply(response -> new PageImpl<>(response.getValue(), response.getContinuationToken()));
     }
@@ -334,7 +335,7 @@ public final class ChatAsyncClient {
         this.signalingClient.off(chatEventId, listenerId);
     }
 
-    static class PageImpl<T> implements Page<T> {
+    static class PageImpl<T> implements Page<String, T> {
         private final List<T> items;
         private final String continuationToken;
 

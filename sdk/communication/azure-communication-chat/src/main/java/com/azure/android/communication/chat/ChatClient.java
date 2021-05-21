@@ -10,14 +10,14 @@ import com.azure.android.communication.chat.models.ListChatThreadsOptions;
 import com.azure.android.communication.chat.signaling.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.signaling.properties.ChatEventId;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.Page;
-import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.SimpleResponse;
 import com.azure.android.core.rest.annotation.ReturnType;
 import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.Context;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.concurrent.ExecutionException;
 
@@ -110,7 +110,7 @@ public final class ChatClient {
      * @return the first page with list of Chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatThreadItem> getChatThreadsFirstPage() {
+    public Page<String, ChatThreadItem> getChatThreadsFirstPage() {
         return block(this.client.getChatThreadsFirstPage());
     }
 
@@ -123,7 +123,8 @@ public final class ChatClient {
      * @return @return the first page with list of Chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatThreadItem> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions, Context context) {
+    public Page<String, ChatThreadItem> getChatThreadsFirstPage(ListChatThreadsOptions listThreadsOptions,
+                                                                Context context) {
         return block(this.client.getChatThreadsFirstPage(listThreadsOptions, context)
             .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
                 response.getContinuationToken())));
@@ -152,7 +153,7 @@ public final class ChatClient {
      * @return the page with the list of Chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<ChatThreadItem> getChatThreadsNextPage(String nextLink) {
+    public Page<String, ChatThreadItem> getChatThreadsNextPage(String nextLink) {
         return block(this.client.getChatThreadsNextPage(nextLink));
     }
 

@@ -12,8 +12,8 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.rest.PagedResponse;
 import com.azure.android.core.rest.Response;
+import com.azure.android.core.rest.util.paging.PagedResponse;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
