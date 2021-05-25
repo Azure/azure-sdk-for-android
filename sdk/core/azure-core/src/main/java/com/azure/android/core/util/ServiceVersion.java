@@ -4,7 +4,7 @@
 package com.azure.android.core.util;
 
 /**
- * A generic interface for sending HTTP requests using the provided service version.
+ * A generic interface for sending service requests using the provided service version.
  */
 public interface ServiceVersion {
     /**
