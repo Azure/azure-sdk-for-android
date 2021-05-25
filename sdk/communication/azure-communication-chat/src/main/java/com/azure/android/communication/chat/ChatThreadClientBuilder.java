@@ -243,8 +243,8 @@ public final class ChatThreadClientBuilder {
 
         AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder()
             .apiVersion((this.serviceVersion == null)
-                ? ChatServiceVersion.getLatest().toString()
-                : this.serviceVersion.toString())
+                ? ChatServiceVersion.getLatest().getVersion()
+                : this.serviceVersion.getVersion())
             .endpoint(this.endpoint)
             .pipeline(pipeline);
 
