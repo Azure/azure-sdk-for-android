@@ -528,7 +528,6 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
             }
         });
 
-
         awaitOnLatch(latch, "canListChatThreads");
 
         Assertions.assertFalse(gotNullResponse.get());
@@ -536,14 +535,5 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
 
         // REVISIT: Unreliable assert
         // assertTrue(returnedThreads.size() > 0);
-    }
-
-    private static void awaitOnLatch(CountDownLatch latch, String method) {
-        long timeoutInSec = 2;
-        try {
-            latch.await(timeoutInSec, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            assertFalse(true, method + " didn't complete within " + timeoutInSec + " minutes");
-        }
     }
 }

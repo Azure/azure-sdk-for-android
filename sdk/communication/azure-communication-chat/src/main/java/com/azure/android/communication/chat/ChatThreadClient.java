@@ -21,9 +21,10 @@ import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.annotation.ReturnType;
 import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.util.paging.PagedIterable;
 import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.Context;
-import com.azure.android.core.util.paging.Page;
+import com.azure.android.core.util.Function;
 
 import java.util.concurrent.ExecutionException;
 
@@ -177,30 +178,35 @@ public final class ChatThreadClient {
 
 
     /**
-     * Gets the list of the thread participants in the first page.
+     * Gets the list of the thread participants.
      *
-     * @return the list of the thread participants in the first page.
+     * @return the list of the thread participants.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatParticipant> getParticipantsFirstPage() {
-        return block(this.client.getParticipantsFirstPage());
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatParticipant> listParticipants() {
+        return this.listParticipants(new ListParticipantsOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of the thread participants in the first page.
+     * Gets the list of the thread participants.
      *
      * @param listParticipantsOptions the list options.
      * @param context the context to associate with this operation.
      *
-     * @return the list of the thread participants in the first page.
+     * @return the list of the thread participants.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatParticipant> getParticipantsFirstPage(
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatParticipant> listParticipants(
         ListParticipantsOptions listParticipantsOptions,
         Context context) {
-        return block(this.client.getParticipantsFirstPage(listParticipantsOptions, context)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken())));
+        final Function<String, PagedResponse<ChatParticipant>> pageRetriever = (String pageId) -> {
+            if (pageId == null) {
+                return this.getParticipantsFirstPageWithResponse(listParticipantsOptions, context);
+            } else {
+                return this.getParticipantsNextPageWithResponse(pageId, context);
+            }
+        };
+        return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
     }
 
     /**
@@ -211,23 +217,10 @@ public final class ChatThreadClient {
      *
      * @return the list of the thread participants in the first page.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatParticipant> getParticipantsFirstPageWithResponse(
+    private PagedResponse<ChatParticipant> getParticipantsFirstPageWithResponse(
         ListParticipantsOptions listParticipantsOptions,
         Context context) {
         return block(this.client.getParticipantsFirstPage(listParticipantsOptions, context));
-    }
-
-    /**
-     * Gets the page with given id containing list of thread participants.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the page containing list of thread participants.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatParticipant> getParticipantsNextPage(String nextLink) {
-        return block(this.client.getParticipantsNextPage(nextLink));
     }
 
     /**
@@ -238,8 +231,7 @@ public final class ChatThreadClient {
      *
      * @return the response containing the list of thread participants in the first page.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatParticipant> getParticipantsNextPageWithResponse(String nextLink,
+    private PagedResponse<ChatParticipant> getParticipantsNextPageWithResponse(String nextLink,
                                                                               Context context) {
         return block(this.client.getParticipantsNextPage(nextLink, context));
     }
@@ -294,29 +286,34 @@ public final class ChatThreadClient {
     }
 
     /**
-     * Gets the list of thread messages in the first page.
+     * Gets the list of thread messages.
      *
      * @return the list of thread messages.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessage> getMessagesFirstPage() {
-        return block(this.client.getMessagesFirstPage());
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatMessage> listMessages() {
+        return this.listMessages(new ListChatMessagesOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of thread messages in the first page.
+     * Gets the list of thread messages.
      *
      * @param listChatMessagesOptions the list options.
      * @param context the context to associate with this operation.
      *
      * @return the list of thread messages.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessage> getMessagesFirstPage(ListChatMessagesOptions listChatMessagesOptions,
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatMessage> listMessages(ListChatMessagesOptions listChatMessagesOptions,
         Context context) {
-        return block(this.client.getMessagesFirstPage(listChatMessagesOptions, context)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken())));
+        final Function<String, PagedResponse<ChatMessage>> pageRetriever = (String pageId) -> {
+            if (pageId == null) {
+                return this.getMessagesFirstPageWithResponse(listChatMessagesOptions, context);
+            } else {
+                return this.getMessagesNextPageWithResponse(pageId, context);
+            }
+        };
+        return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
     }
 
     /**
@@ -327,24 +324,10 @@ public final class ChatThreadClient {
      *
      * @return the response containing the list of thread messages.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatMessage> getMessagesFirstPageWithResponse(ListChatMessagesOptions listMessagesOptions,
+    private PagedResponse<ChatMessage> getMessagesFirstPageWithResponse(ListChatMessagesOptions listMessagesOptions,
         Context context) {
         return block(this.client.getMessagesFirstPage(listMessagesOptions, context));
     }
-
-    /**
-     * Gets the list of thread messages in the page with the given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the list of thread messages.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessage> getMessagesNextPage(String nextLink) {
-        return block(this.client.getMessagesNextPage(nextLink));
-    }
-
 
     /**
      * Gets the list of thread messages in the page with the given id.
@@ -354,8 +337,7 @@ public final class ChatThreadClient {
      *
      * @return the response containing the list of thread messages.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatMessage> getMessagesNextPageWithResponse(String nextLink, Context context) {
+    private PagedResponse<ChatMessage> getMessagesNextPageWithResponse(String nextLink, Context context) {
         return block(this.client.getMessagesNextPage(nextLink, context));
     }
 
@@ -453,29 +435,34 @@ public final class ChatThreadClient {
     }
 
     /**
-     * Gets the list of thread read receipts in the first page.
+     * Gets the list of thread read receipts.
      *
      * @return the list of thread read receipts.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessageReadReceipt> getReadReceiptsFirstPage() {
-        return block(this.client.getReadReceiptsFirstPage());
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatMessageReadReceipt> listReadReceipts() {
+        return this.listReadReceipts(new ListReadReceiptOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of thread read receipts in the first page.
+     * Gets the list of thread read receipts.
      *
      * @param listReadReceiptOptions the list options.
      * @param context the context to associate with this operation.
      *
      * @return the list of thread read receipts.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessageReadReceipt> getReadReceiptsFirstPage(ListReadReceiptOptions listReadReceiptOptions,
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<ChatMessageReadReceipt> listReadReceipts(ListReadReceiptOptions listReadReceiptOptions,
                                                                  Context context) {
-        return block(this.client.getReadReceiptsFirstPage(listReadReceiptOptions, context)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken())));
+        final Function<String, PagedResponse<ChatMessageReadReceipt>> pageRetriever = (String pageId) -> {
+            if (pageId == null) {
+                return this.getReadReceiptsFirstPageWithResponse(listReadReceiptOptions, context);
+            } else {
+                return this.getReadReceiptsNextPageWithResponse(pageId, context);
+            }
+        };
+        return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
     }
 
     /**
@@ -486,23 +473,10 @@ public final class ChatThreadClient {
      *
      * @return the response containing the list of thread read receipts in the first page.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatMessageReadReceipt> getReadReceiptsFirstPageWithResponse(
+    private PagedResponse<ChatMessageReadReceipt> getReadReceiptsFirstPageWithResponse(
         ListReadReceiptOptions listReadReceiptOptions,
         Context context) {
         return block(this.client.getReadReceiptsFirstPage(listReadReceiptOptions, context));
-    }
-
-    /**
-     * Gets the list of thread read receipts in the page with the given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the list of thread read receipts.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Page<String, ChatMessageReadReceipt> getReadReceiptsNextPage(String nextLink) {
-        return block(this.client.getReadReceiptsNextPage(nextLink));
     }
 
     /**
@@ -513,8 +487,7 @@ public final class ChatThreadClient {
      *
      * @return the response containing the list of thread read receipts in the first page.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public PagedResponse<ChatMessageReadReceipt> getReadReceiptsNextPageWithResponse(
+    private PagedResponse<ChatMessageReadReceipt> getReadReceiptsNextPageWithResponse(
         String nextLink,
         Context context) {
         return block(this.client.getReadReceiptsNextPage(nextLink, context));

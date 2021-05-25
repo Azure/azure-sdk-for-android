@@ -26,6 +26,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class ChatClientTestBase extends TestBase {
     protected static final TestMode TEST_MODE = initializeTestMode();
@@ -172,6 +176,15 @@ public class ChatClientTestBase extends TestBase {
             }
         }
         return false;
+    }
+
+    static void awaitOnLatch(CountDownLatch latch, String method) {
+        long timeoutInSec = 2;
+        try {
+            latch.await(timeoutInSec, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            assertFalse(true, method + " didn't complete within " + timeoutInSec + " minutes");
+        }
     }
 
     private static TestMode initializeTestMode() {

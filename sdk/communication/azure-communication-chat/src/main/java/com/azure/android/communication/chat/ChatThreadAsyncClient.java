@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
+import com.azure.android.communication.chat.implementation.CFBackedPageAsyncStream;
 import com.azure.android.communication.chat.implementation.ChatThreadImpl;
 import com.azure.android.communication.chat.implementation.converters.AddChatParticipantsResultConverter;
 import com.azure.android.communication.chat.implementation.converters.AddChatParticipantsOptionsConverter;
@@ -36,10 +37,12 @@ import com.azure.android.core.rest.SimpleResponse;
 import com.azure.android.core.rest.annotation.ReturnType;
 import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
+import com.azure.android.core.rest.util.paging.PagedAsyncStream;
 import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.rest.util.paging.PagedResponseBase;
+import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.Context;
-import com.azure.android.core.util.paging.Page;
+import com.azure.android.core.util.Function;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -331,53 +334,40 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Gets the list of the thread participants in the first page.
+     * Gets the list of the thread participants.
      *
-     * @return the {@link CompletableFuture} that emits list of thread participants in the first page.
+     * @return the paged stream of participants in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatParticipant>> getParticipantsFirstPage() {
-        ListParticipantsOptions listParticipantsOptions = new ListParticipantsOptions();
-        return this.getParticipantsFirstPage(listParticipantsOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatParticipant> listParticipants() {
+        return this.listParticipants(new ListParticipantsOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of the thread participants in the first page.
-     *
-     * @param listParticipantsOptions the list options.
-     *
-     * @return the {@link CompletableFuture} that emits list of thread participants in the first page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatParticipant>> getParticipantsFirstPage(
-        ListParticipantsOptions listParticipantsOptions) {
-        if (listParticipantsOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listParticipantsOptions is required."));
-        }
-        return this.getParticipantsFirstPage(listParticipantsOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of the thread participants in the first page.
+     * Gets the list of the thread participants.
      *
      * @param listParticipantsOptions the list options.
      * @param context the context to associate with this operation.
      *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread participants
-     * in the first page.
+     * @return the paged stream of participants in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsFirstPageWithResponse(
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatParticipant> listParticipants(
         ListParticipantsOptions listParticipantsOptions,
         Context context) {
-        if (listParticipantsOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listParticipantsOptions is required."));
-        }
-        return this.getParticipantsFirstPage(listParticipantsOptions, context);
+        final Function<String, CompletableFuture<PagedResponse<ChatParticipant>>> pageRetriever = (String pageId) -> {
+            if (pageId == null) {
+                return this.getParticipantsFirstPage(listParticipantsOptions, context);
+            } else {
+                return this.getParticipantsNextPage(pageId, context);
+            }
+        };
+
+        final Function<String, AsyncStream<PagedResponse<ChatParticipant>>> streamRetriever = (String pageId) -> {
+            return new CFBackedPageAsyncStream<>(pageRetriever, id -> id != null, pageId, this.logger);
+        };
+
+        return new PagedAsyncStream<>(streamRetriever, this.logger);
     }
 
     /**
@@ -413,34 +403,6 @@ public final class ChatThreadAsyncClient {
                     response.getContinuationToken(),
                     null);
             });
-    }
-
-    /**
-     * Gets the list of the thread participants in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the {@link CompletableFuture} that emits the list of thread participants in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatParticipant>> getParticipantsNextPage(String nextLink) {
-        return this.getParticipantsNextPage(nextLink, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of the thread participants in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
-     *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread participants in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsNextPageWithResponse(String nextLink,
-                                                                                                 Context context) {
-        return this.getParticipantsNextPage(nextLink, context);
     }
 
     /**
@@ -577,53 +539,40 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Gets the list of thread messages in the first page.
+     * Gets the list of thread messages.
      *
-     * @return the {@link CompletableFuture} that emits list of thread messages in the first page.
+     * @return the paged stream of messages in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessage>> getMessagesFirstPage() {
-        ListChatMessagesOptions listMessagesOptions = new ListChatMessagesOptions();
-        return this.getMessagesFirstPage(listMessagesOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatMessage> listMessages() {
+        return this.listMessages(new ListChatMessagesOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of thread messages in the first page.
-     *
-     * @param listChatMessagesOptions the list options.
-     *
-     * @return the {@link CompletableFuture} that emits list of thread messages in the first page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessage>> getMessagesFirstPage(
-        ListChatMessagesOptions listChatMessagesOptions) {
-        if (listChatMessagesOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listChatMessagesOptions is required."));
-        }
-        return this.getMessagesFirstPage(listChatMessagesOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of thread messages in the first page.
+     * Gets the list of thread messages.
      *
      * @param listMessagesOptions the list options.
      * @param context the context to associate with this operation.
      *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread messages
-     * in the first page.
+     * @return the paged stream of messages in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatMessage>> getMessagesFirstPageWithResponse(
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatMessage> listMessages(
         ListChatMessagesOptions listMessagesOptions,
         Context context) {
-        if (listMessagesOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listChatMessagesOptions is required."));
-        }
-        return this.getMessagesFirstPage(listMessagesOptions, context);
+        final Function<String, CompletableFuture<PagedResponse<ChatMessage>>> pageRetriever = (String pageId) -> {
+            if (pageId == null) {
+                return this.getMessagesFirstPage(listMessagesOptions, context);
+            } else {
+                return this.getMessagesNextPage(pageId, context);
+            }
+        };
+
+        final Function<String, AsyncStream<PagedResponse<ChatMessage>>> streamRetriever = (String pageId) -> {
+            return new CFBackedPageAsyncStream<>(pageRetriever, id -> id != null, pageId, this.logger);
+        };
+
+        return new PagedAsyncStream<>(streamRetriever, this.logger);
     }
 
     /**
@@ -659,34 +608,6 @@ public final class ChatThreadAsyncClient {
                     response.getContinuationToken(),
                     null);
             });
-    }
-
-    /**
-     * Gets the list of the thread messages in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the {@link CompletableFuture} that emits the list of thread messages in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessage>> getMessagesNextPage(String nextLink) {
-        return this.getMessagesNextPage(nextLink, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of the thread messages in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
-     *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread messages in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatMessage>> getMessagesNextPageWithResponse(String nextLink,
-                                                                                         Context context) {
-        return this.getMessagesNextPage(nextLink, context);
     }
 
     /**
@@ -923,53 +844,42 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Gets the list of thread read receipts in the first page.
+     * Gets the list of thread read receipts.
      *
-     * @return the {@link CompletableFuture} that emits list of thread read receipts in the first page.
+     * @return the paged stream of read receipts in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessageReadReceipt>> getReadReceiptsFirstPage() {
-        ListReadReceiptOptions listReadReceiptsOptions = new ListReadReceiptOptions();
-        return this.getReadReceiptsFirstPage(listReadReceiptsOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatMessageReadReceipt> listReadReceipts() {
+        return this.listReadReceipts(new ListReadReceiptOptions(), Context.NONE);
     }
 
     /**
-     * Gets the list of thread read receipts in the first page.
-     *
-     * @param listReadReceiptOptions the list options.
-     *
-     * @return the {@link CompletableFuture} that emits list of thread read receipts in the first page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessageReadReceipt>> getReadReceiptsFirstPage(
-        ListReadReceiptOptions listReadReceiptOptions) {
-        if (listReadReceiptOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listReadReceiptOptions is required."));
-        }
-        return this.getReadReceiptsFirstPage(listReadReceiptOptions, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of thread read receipts in the first page.
+     * Gets the list of thread read receipts.
      *
      * @param listReadReceiptOptions the list options.
      * @param context the context to associate with this operation.
      *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
-     * in the first page.
+     * @return the paged stream of read receipts in the thread.
      */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsFirstPageWithResponse(
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedAsyncStream<ChatMessageReadReceipt> listReadReceipts(
         ListReadReceiptOptions listReadReceiptOptions,
         Context context) {
-        if (listReadReceiptOptions == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("listReadReceiptOptions is required."));
-        }
-        return this.getReadReceiptsFirstPage(listReadReceiptOptions, context);
+        final Function<String, CompletableFuture<PagedResponse<ChatMessageReadReceipt>>> pageRetriever =
+            (String pageId) -> {
+                if (pageId == null) {
+                    return this.getReadReceiptsFirstPage(listReadReceiptOptions, context);
+                } else {
+                    return this.getReadReceiptsNextPage(pageId, context);
+                }
+            };
+
+        final Function<String, AsyncStream<PagedResponse<ChatMessageReadReceipt>>> streamRetriever =
+            (String pageId) -> {
+                return new CFBackedPageAsyncStream<>(pageRetriever, id -> id != null, pageId, this.logger);
+            };
+
+        return new PagedAsyncStream<>(streamRetriever, this.logger);
     }
 
     /**
@@ -1005,36 +915,6 @@ public final class ChatThreadAsyncClient {
                     response.getContinuationToken(),
                     null);
             });
-    }
-
-    /**
-     * Gets the list of the thread read receipts in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     *
-     * @return the {@link CompletableFuture} that emits the list of thread read receipts in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Page<String, ChatMessageReadReceipt>> getReadReceiptsNextPage(String nextLink) {
-        return this.getReadReceiptsNextPage(nextLink, null)
-            .thenApply(response -> new ChatAsyncClient.PageImpl<>(response.getValue(),
-                response.getContinuationToken()));
-    }
-
-    /**
-     * Gets the list of the thread read receipts in the page with given id.
-     *
-     * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
-     *
-     * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
-     * in the page.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsNextPageWithResponse(
-        String nextLink,
-        Context context) {
-        return this.getReadReceiptsNextPage(nextLink, context);
     }
 
     /**

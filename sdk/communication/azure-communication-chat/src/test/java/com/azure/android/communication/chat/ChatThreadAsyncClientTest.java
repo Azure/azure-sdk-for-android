@@ -10,6 +10,7 @@ import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.ChatThreadProperties;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -25,11 +26,14 @@ import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.rest.Response;
+import com.azure.android.core.rest.util.paging.PagedAsyncStream;
 import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.test.TestMode;
 import com.azure.android.core.test.http.NoOpHttpClient;
+import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -37,7 +41,9 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import java9.util.concurrent.CompletableFuture;
 
@@ -273,28 +279,30 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         this.chatThreadClient.addParticipants(options).get();
 
+        PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
+            = this.chatThreadClient.listParticipants(new ListParticipantsOptions(), null);
 
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture
-            = this.chatThreadClient.getParticipantsFirstPageWithResponse(new ListParticipantsOptions(), null);
+        CountDownLatch latch = new CountDownLatch(1);
 
-
-        String nextLink;
         List<ChatParticipant> returnedParticipants = new ArrayList<ChatParticipant>();
-        do {
-            PagedResponse<ChatParticipant> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatParticipant> participantsInPage = response.getValue();
-            assertNotNull(participantsInPage);
-            for (ChatParticipant thread : participantsInPage) {
-                returnedParticipants.add(thread);
+        participantPagedAsyncStream.forEach(new AsyncStreamHandler<ChatParticipant>() {
+            @Override
+            public void onNext(ChatParticipant participant) {
+                returnedParticipants.add(participant);
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getParticipantsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canAddListAndRemoveMembers");
 
         assertTrue(returnedParticipants.size() > 0);
         for (ChatParticipant participant : returnedParticipants) {
@@ -336,27 +344,30 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(addResponse);
         assertEquals(201, addResponse.getStatusCode());
 
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture
-            = this.chatThreadClient.getParticipantsFirstPageWithResponse(new ListParticipantsOptions(), null);
+        PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
+            = this.chatThreadClient.listParticipants(new ListParticipantsOptions(), null);
 
+        CountDownLatch latch = new CountDownLatch(1);
 
-        String nextLink;
         List<ChatParticipant> returnedParticipants = new ArrayList<ChatParticipant>();
-        do {
-            PagedResponse<ChatParticipant> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatParticipant> participantsInPage = response.getValue();
-            assertNotNull(participantsInPage);
-            for (ChatParticipant thread : participantsInPage) {
-                returnedParticipants.add(thread);
+        participantPagedAsyncStream.forEach(new AsyncStreamHandler<ChatParticipant>() {
+            @Override
+            public void onNext(ChatParticipant participant) {
+                returnedParticipants.add(participant);
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getParticipantsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canAddListAndRemoveMembersWithResponse");
 
         assertTrue(returnedParticipants.size() > 0);
         for (ChatParticipant participant : returnedParticipants) {
@@ -435,27 +446,30 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
             .setCommunicationIdentifier(this.firstThreadMember))
             .get();
 
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture
-            = this.chatThreadClient.getParticipantsFirstPageWithResponse(new ListParticipantsOptions(), null);
+        PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
+            = this.chatThreadClient.listParticipants(new ListParticipantsOptions(), null);
 
+        CountDownLatch latch = new CountDownLatch(1);
 
-        String nextLink;
         List<ChatParticipant> returnedParticipants = new ArrayList<ChatParticipant>();
-        do {
-            PagedResponse<ChatParticipant> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatParticipant> participantsInPage = response.getValue();
-            assertNotNull(participantsInPage);
-            for (ChatParticipant thread : participantsInPage) {
-                returnedParticipants.add(thread);
+        participantPagedAsyncStream.forEach(new AsyncStreamHandler<ChatParticipant>() {
+            @Override
+            public void onNext(ChatParticipant participant) {
+                returnedParticipants.add(participant);
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getParticipantsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canAddSingleParticipant");
 
         assertTrue(returnedParticipants.size() > 0);
         for (ChatParticipant participant : returnedParticipants) {
@@ -486,26 +500,30 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertNotNull(addResponse);
         assertEquals(201, addResponse.getStatusCode());
 
-        CompletableFuture<PagedResponse<ChatParticipant>> completableFuture
-            = this.chatThreadClient.getParticipantsFirstPageWithResponse(new ListParticipantsOptions(), null);
+        PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
+            = this.chatThreadClient.listParticipants(new ListParticipantsOptions(), null);
 
-        String nextLink;
+        CountDownLatch latch = new CountDownLatch(1);
+
         List<ChatParticipant> returnedParticipants = new ArrayList<ChatParticipant>();
-        do {
-            PagedResponse<ChatParticipant> response = completableFuture.get();
-            assertNotNull(response);
-            List<ChatParticipant> participantsInPage = response.getValue();
-            assertNotNull(participantsInPage);
-            for (ChatParticipant thread : participantsInPage) {
-                returnedParticipants.add(thread);
+        participantPagedAsyncStream.forEach(new AsyncStreamHandler<ChatParticipant>() {
+            @Override
+            public void onNext(ChatParticipant participant) {
+                returnedParticipants.add(participant);
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getParticipantsNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canAddSingleParticipantWithResponse");
 
         assertTrue(returnedParticipants.size() > 0);
         for (ChatParticipant participant : returnedParticipants) {
@@ -998,31 +1016,34 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         this.chatThreadClient.sendMessage(messageRequest).get();
         this.chatThreadClient.sendMessage(messageRequest).get();
 
-         CompletableFuture<PagedResponse<ChatMessage>> completableFuture
-            = this.chatThreadClient.getMessagesFirstPageWithResponse(new ListChatMessagesOptions(), null);
+        PagedAsyncStream<ChatMessage> messagePagedAsyncStream
+            = this.chatThreadClient.listMessages(new ListChatMessagesOptions(), null);
 
-        String nextLink;
-        List<ChatMessage> returnedThreads = new ArrayList<ChatMessage>();
-        do {
-            PagedResponse<ChatMessage> response = completableFuture.get();
-            assertEquals(200, response.getStatusCode());
-            assertNotNull(response);
-            List<ChatMessage> messagesInPage = response.getValue();
-            assertNotNull(messagesInPage);
-            for (ChatMessage thread : messagesInPage) {
-                if (thread.getType().equals(ChatMessageType.TEXT)) {
-                    returnedThreads.add(thread);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        List<ChatMessage> returnedMessages = new ArrayList<ChatMessage>();
+        messagePagedAsyncStream.forEach(new AsyncStreamHandler<ChatMessage>() {
+            @Override
+            public void onNext(ChatMessage message) {
+                if (message.getType().equals(ChatMessageType.TEXT)) {
+                    returnedMessages.add(message);
                 }
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getMessagesNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
 
-        assertTrue(returnedThreads.size() > 0);
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canListMessages");
+
+        assertTrue(returnedMessages.size() > 0);
     }
 
     @ParameterizedTest
@@ -1038,31 +1059,34 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         this.chatThreadClient.sendMessage(messageRequest).get();
         this.chatThreadClient.sendMessage(messageRequest).get();
 
-        CompletableFuture<PagedResponse<ChatMessage>> completableFuture
-            = this.chatThreadClient.getMessagesFirstPageWithResponse(options, null);
+        PagedAsyncStream<ChatMessage> messagePagedAsyncStream
+            = this.chatThreadClient.listMessages(options, null);
 
-        String nextLink;
-        List<ChatMessage> returnedThreads = new ArrayList<ChatMessage>();
-        do {
-            PagedResponse<ChatMessage> response = completableFuture.get();
-            assertEquals(200, response.getStatusCode());
-            assertNotNull(response);
-            List<ChatMessage> messagesInPage = response.getValue();
-            assertNotNull(messagesInPage);
-            for (ChatMessage thread : messagesInPage) {
-                if (thread.getType().equals(ChatMessageType.TEXT)) {
-                    returnedThreads.add(thread);
+        CountDownLatch latch = new CountDownLatch(1);
+
+        List<ChatMessage> returnedMessages = new ArrayList<ChatMessage>();
+        messagePagedAsyncStream.forEach(new AsyncStreamHandler<ChatMessage>() {
+            @Override
+            public void onNext(ChatMessage message) {
+                if (message.getType().equals(ChatMessageType.TEXT)) {
+                    returnedMessages.add(message);
                 }
             }
 
-            nextLink = response.getContinuationToken();
-            if (nextLink != null) {
-                completableFuture
-                    = this.chatThreadClient.getMessagesNextPageWithResponse(nextLink, null);
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
             }
-        } while (nextLink != null);
 
-        assertTrue(returnedThreads.size() > 0);
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canListMessagesWithOptions");
+
+        assertTrue(returnedMessages.size() > 0);
     }
 
     @ParameterizedTest
@@ -1090,11 +1114,31 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void canListReadReceipts(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupMockTest();
 
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture
-            = this.chatThreadClient.getReadReceiptsFirstPageWithResponse(new ListReadReceiptOptions(), null);
+        PagedAsyncStream<ChatMessageReadReceipt> readReceiptPagedAsyncStream
+            = this.chatThreadClient.listReadReceipts(new ListReadReceiptOptions(), null);
 
-        PagedResponse<ChatMessageReadReceipt> response = completableFuture.get();
-        List<ChatMessageReadReceipt> readReceiptList = response.getValue();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        List<ChatMessageReadReceipt> readReceiptList = new ArrayList<ChatMessageReadReceipt>();
+        readReceiptPagedAsyncStream.forEach(new AsyncStreamHandler<ChatMessageReadReceipt>() {
+            @Override
+            public void onNext(ChatMessageReadReceipt readReceipt) {
+                readReceiptList.add(readReceipt);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canListReadReceipts");
+
         assertEquals(readReceiptList.size(), 2);
         assertNotNull(readReceiptList.get(0).getChatMessageId());
         assertNotNull(readReceiptList.get(0).getReadOn());
@@ -1106,11 +1150,31 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void canListReadReceiptsWithOptions(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupMockTest();
 
-        CompletableFuture<PagedResponse<ChatMessageReadReceipt>> completableFuture
-            = this.chatThreadClient.getReadReceiptsFirstPageWithResponse(new ListReadReceiptOptions(), null);
+        PagedAsyncStream<ChatMessageReadReceipt> readReceiptPagedAsyncStream
+            = this.chatThreadClient.listReadReceipts(new ListReadReceiptOptions(), null);
 
-        PagedResponse<ChatMessageReadReceipt> response = completableFuture.get();
-        List<ChatMessageReadReceipt> readReceiptList = response.getValue();
+        CountDownLatch latch = new CountDownLatch(1);
+
+        List<ChatMessageReadReceipt> readReceiptList = new ArrayList<ChatMessageReadReceipt>();
+        readReceiptPagedAsyncStream.forEach(new AsyncStreamHandler<ChatMessageReadReceipt>() {
+            @Override
+            public void onNext(ChatMessageReadReceipt readReceipt) {
+                readReceiptList.add(readReceipt);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                latch.countDown();
+            }
+
+            @Override
+            public void onComplete() {
+                latch.countDown();
+            }
+        });
+
+        awaitOnLatch(latch, "canListReadReceiptsWithOptions");
+
         assertEquals(readReceiptList.size(), 2);
         assertNotNull(readReceiptList.get(0).getChatMessageId());
         assertNotNull(readReceiptList.get(0).getReadOn());
