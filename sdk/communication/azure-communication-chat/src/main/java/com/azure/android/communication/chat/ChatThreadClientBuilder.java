@@ -41,12 +41,13 @@ public final class ChatThreadClientBuilder {
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
+    private ChatServiceVersion serviceVersion;
 
     /**
      * Set endpoint of the service
      *
      * @param endpoint url of the service
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder endpoint(String endpoint) {
         if (endpoint == null) {
@@ -60,7 +61,7 @@ public final class ChatThreadClientBuilder {
      * Set HttpClient to use
      *
      * @param httpClient HttpClient to use
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpClient(HttpClient httpClient) {
         if (httpClient == null) {
@@ -74,7 +75,7 @@ public final class ChatThreadClientBuilder {
      * Set a token credential for authorization
      *
      * @param communicationTokenCredential valid token credential as a string
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder credential(CommunicationTokenCredential communicationTokenCredential) {
         if (communicationTokenCredential == null) {
@@ -88,7 +89,7 @@ public final class ChatThreadClientBuilder {
      * Sets the {@link HttpPipelinePolicy} that attaches authorization header.
      *
      * @param credentialPolicy the credentials policy.
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder credentialPolicy(HttpPipelinePolicy credentialPolicy) {
         if (credentialPolicy == null) {
@@ -103,7 +104,7 @@ public final class ChatThreadClientBuilder {
      *
      * @param pipelinePolicy HttpPipelinePolicy objects to be applied after
      *                       AzureKeyCredentialPolicy, UserAgentPolicy, RetryPolicy, and CookiePolicy
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder addPolicy(HttpPipelinePolicy pipelinePolicy) {
         if (pipelinePolicy == null) {
@@ -117,7 +118,7 @@ public final class ChatThreadClientBuilder {
      * Sets the {@link HttpLogOptions} for service requests.
      *
      * @param logOptions The logging configuration to use when sending and receiving HTTP requests/responses.
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpLogOptions(HttpLogOptions logOptions) {
         if (logOptions == null) {
@@ -128,12 +129,30 @@ public final class ChatThreadClientBuilder {
     }
 
     /**
+     * Sets the {@link ChatServiceVersion} that is used when making API requests.
+     * <p>
+     * If a service version is not provided, the service version that will be used will be the latest known service
+     * version based on the version of the client library being used. If no service version is specified, updating to a
+     * newer version of the client library will have the result of potentially moving to a newer service version.
+     * <p>
+     * Targeting a specific service version may also mean that the service will return an error for newer APIs.
+     *
+     * @param serviceVersion {@link ChatServiceVersion} of the service to be used when making requests.
+     * @return The updated {@link ChatThreadClientBuilder} object.
+     */
+    public ChatThreadClientBuilder serviceVersion(ChatServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+
+        return this;
+    }
+
+    /**
      * Sets the {@link HttpPipeline} to use for the service client.
      *
      * If {@code pipeline} is set, all other settings are ignored, aside from {@link #endpoint(String) endpoint}.
      *
      * @param httpPipeline HttpPipeline to use for sending service requests and receiving responses.
-     * @return the updated BlobServiceClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object.
      */
     public ChatThreadClientBuilder pipeline(HttpPipeline httpPipeline) {
         this.httpPipeline = httpPipeline;
@@ -144,7 +163,7 @@ public final class ChatThreadClientBuilder {
      * Sets the ChatThreadId used to construct a client for this chat thread.
      *
      * @param chatThreadId The id of the chat thread.
-     * @return the updated ChatThreadClientBuilder object
+     * @return The updated {@link ChatThreadClientBuilder} object.
      */
     public ChatThreadClientBuilder chatThreadId(String chatThreadId) {
         this.chatThreadId = chatThreadId;
@@ -156,7 +175,7 @@ public final class ChatThreadClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @return ChatThreadClient instance
+     * @return A {@link ChatThreadClient} instance.
      */
     public ChatThreadClient buildClient() {
         return new ChatThreadClient(buildAsyncClient());
@@ -168,7 +187,7 @@ public final class ChatThreadClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @return ChatThreadAsyncClient instance
+     * @return A {@link ChatThreadAsyncClient} instance.
      */
     public ChatThreadAsyncClient buildAsyncClient() {
         if (chatThreadId == null) {
@@ -223,7 +242,10 @@ public final class ChatThreadClientBuilder {
         }
 
         AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder()
-            .endpoint(endpoint)
+            .apiVersion((this.serviceVersion == null)
+                ? ChatServiceVersion.getLatest().toString()
+                : this.serviceVersion.toString())
+            .endpoint(this.endpoint)
             .pipeline(pipeline);
 
         return clientBuilder.buildClient();
