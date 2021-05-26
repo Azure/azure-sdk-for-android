@@ -36,8 +36,8 @@ public class ChatClientTestBase extends TestBase {
 
     protected static final String ENDPOINT;
     protected static final String ACCESS_KEY;
-    protected static final String THREAD_MEMBER_1;
-    protected static final String THREAD_MEMBER_2;
+    protected static final String THREAD_PARTICIPANT_1;
+    protected static final String THREAD_PARTICIPANT_2;
 
     static {
         final String endpoint = getConfig("COMMUNICATION_SERVICE_ENDPOINT");
@@ -46,11 +46,11 @@ public class ChatClientTestBase extends TestBase {
         final String accessKey = getConfig("COMMUNICATION_SERVICE_ACCESS_KEY");
         ACCESS_KEY = accessKey != null ? accessKey : "pw==";
 
-        final String threadMember1 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_1");
-        THREAD_MEMBER_1 = threadMember1 != null ? threadMember1 : "1:acs:00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000001";
+        final String threadParticipant1 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_1");
+        THREAD_PARTICIPANT_1 = threadParticipant1 != null ? threadParticipant1 : "1:acs:00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000001";
 
-        final String threadMember2 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_2");
-        THREAD_MEMBER_2 = threadMember2 != null ? threadMember2 : "2:acs:00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000002";
+        final String threadParticipant2 = getConfig("COMMUNICATION_CHAT_THREAD_MEMBER_2");
+        THREAD_PARTICIPANT_2 = threadParticipant2 != null ? threadParticipant2 : "2:acs:00000000-0000-0000-0000-000000000000_00000000-0000-0000-0000-000000000002";
     }
 
     @Override

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import java9.util.concurrent.CompletableFuture;
@@ -42,8 +41,8 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
     private ClientLogger logger = new ClientLogger(ChatAsyncClientTest.class);
 
     private ChatAsyncClient client;
-    private CommunicationUserIdentifier firstThreadMember;
-    private CommunicationUserIdentifier secondThreadMember;
+    private CommunicationUserIdentifier firstThreadParticipant;
+    private CommunicationUserIdentifier secondThreadParticipant;
 
     @Override
     protected void beforeTest() {
@@ -57,8 +56,8 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
 
     private void setupTest(HttpClient httpClient) {
         this.client = super.getChatClientBuilder(httpClient).buildAsyncClient();
-        this.firstThreadMember = new CommunicationUserIdentifier(THREAD_MEMBER_1);
-        this.secondThreadMember = new CommunicationUserIdentifier(THREAD_MEMBER_2);
+        this.firstThreadParticipant = new CommunicationUserIdentifier(THREAD_PARTICIPANT_1);
+        this.secondThreadParticipant = new CommunicationUserIdentifier(THREAD_PARTICIPANT_2);
     }
 
     @ParameterizedTest
@@ -67,7 +66,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<CreateChatThreadResult> completableFuture
             = this.client.createChatThread(threadRequest);
@@ -85,7 +84,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture
             = this.client.createChatThreadWithResponse(threadRequest, null);
@@ -106,7 +105,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         UUID uuid = UUID.randomUUID();
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId())
+            firstThreadParticipant.getId(), secondThreadParticipant.getId())
             .setIdempotencyToken(uuid.toString());
 
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture1
@@ -154,7 +153,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest1 = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture1
             = this.client.createChatThreadWithResponse(threadRequest1, null);
@@ -171,7 +170,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
 
         // Create new CreateChatThreadOptions to get new RepeatabilityID.
         final CreateChatThreadOptions threadRequest2 = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture2
             = this.client.createChatThreadWithResponse(threadRequest2, null);
@@ -218,7 +217,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            "8:acs:invalidUserId", secondThreadMember.getId());
+            "8:acs:invalidUserId", secondThreadParticipant.getId());
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
             client.createChatThread(threadRequest).get();
@@ -239,7 +238,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            "8:acs:invalidUserId", secondThreadMember.getId());
+            "8:acs:invalidUserId", secondThreadParticipant.getId());
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
             client.createChatThreadWithResponse(threadRequest, null).get();
@@ -271,7 +270,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<CreateChatThreadResult> completableFuture1
             = this.client.createChatThread(threadRequest);
@@ -296,7 +295,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<Response<CreateChatThreadResult>> completableFuture1
             = this.client.createChatThreadWithResponse(threadRequest, null);
@@ -391,7 +390,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<CreateChatThreadResult> completableFuture1
             = this.client.createChatThread(threadRequest);
@@ -468,7 +467,7 @@ public class ChatAsyncClientTest extends ChatClientTestBase {
         setupTest(httpClient);
 
         final CreateChatThreadOptions threadRequest = createThreadOptions(
-            firstThreadMember.getId(), secondThreadMember.getId());
+            firstThreadParticipant.getId(), secondThreadParticipant.getId());
 
         CompletableFuture<CreateChatThreadResult> completableFuture1
             = this.client.createChatThread(threadRequest);
