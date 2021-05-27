@@ -11,11 +11,11 @@ import java.util.List;
 
 /**
  * A converter between {@link com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions} and
- * a collection of {@link ChatParticipant}.
+ * a {@link ChatParticipant} Iterable.
  */
 public final class AddChatParticipantsOptionsConverter {
     /**
-     * Maps from a collection of {@link ChatParticipant} to
+     * Maps from a {@link ChatParticipant} Iterable to
      * {@link com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions}.
      */
     public static com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions convert(

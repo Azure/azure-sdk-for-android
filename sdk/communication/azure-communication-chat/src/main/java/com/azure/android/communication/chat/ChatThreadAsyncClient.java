@@ -172,7 +172,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param participants Collection of participants to add.
+     * @param participants Participants to add.
      *
      * @return the {@link CompletableFuture} that signals the operation result.
      */
@@ -190,7 +190,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param participants Collection of participants to add.
+     * @param participants Participants to add.
      * @param context The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.

@@ -108,7 +108,7 @@ public final class ChatThreadClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param participants Collection of participants to add.
+     * @param participants Participants to add.
      * @return the add participants result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -119,7 +119,7 @@ public final class ChatThreadClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param participants Collection of participants to add.
+     * @param participants Participants to add.
      * @param context the context to associate with this operation.
      *
      * @return the response containing operation result.
