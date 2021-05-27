@@ -289,7 +289,7 @@ Use `addParticipants` method to add participants to the thread identified by thr
 - `displayName`, optional, is the display name for the thread participant.
 - `shareHistoryTime`, optional, is the time from which the chat history is shared with the participant. To share history since the inception of the chat thread, set this property to any date equal to, or less than the thread creation time. To share no history previous to when the member was added, set it to the current date. To share partial history, set it to the required date.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L217-L232 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L217-L230 -->
 ```Java
 List<ChatParticipant> participants = new ArrayList<ChatParticipant>();
 
@@ -304,9 +304,7 @@ ChatParticipant secondParticipant = new ChatParticipant()
 participants.add(firstParticipant);
 participants.add(secondParticipant);
 
-AddChatParticipantsOptions addChatParticipantsOptions = new AddChatParticipantsOptions()
-    .setParticipants(participants);
-chatThreadClient.addParticipants(addChatParticipantsOptions);
+chatThreadClient.addParticipants(participants);
 ```
 
 #### Remove participant
@@ -314,7 +312,7 @@ chatThreadClient.addParticipants(addChatParticipantsOptions);
 Use `removeParticipant` method to remove a participant from the chat thread identified by chatThreadId.
 `identifier` is the CommunicationIdentifier you've created.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L243-L243 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L241-L241 -->
 ```Java
 chatThreadClient.removeParticipant(identifier);
 ```
@@ -326,7 +324,7 @@ chatThreadClient.removeParticipant(identifier);
 Use `sendReadReceipt` method to post a read receipt event to a chat thread, on behalf of a user.
 `chatMessageId` is the unique ID of the chat message that was read.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L252-L253 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L250-L251 -->
 ```Java
 String chatMessageId = "Id";
 chatThreadClient.sendReadReceipt(chatMessageId);
@@ -336,7 +334,7 @@ chatThreadClient.sendReadReceipt(chatMessageId);
 
 Use `getReadReceiptsFirstPage` and `getReadReceiptsNextPage` to retrieve a paged collection containing the read receipts for a chat thread.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L262-L265 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L260-L263 -->
 ```Java
 PagedIterable<ChatMessageReadReceipt> readReceipts = chatThreadClient.listReadReceipts();
 readReceipts.forEach(readReceipt -> {
@@ -350,7 +348,7 @@ readReceipts.forEach(readReceipt -> {
 
 Use `sendTypingNotification` method to post a typing notification event to a chat thread, on behalf of a user.
 
-<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L274-L274 -->
+<!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L272-L272 -->
 ```Java
 chatThreadClient.sendTypingNotification();
 ```

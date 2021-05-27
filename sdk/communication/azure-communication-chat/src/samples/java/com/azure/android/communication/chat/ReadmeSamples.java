@@ -227,9 +227,7 @@ public class ReadmeSamples {
         participants.add(firstParticipant);
         participants.add(secondParticipant);
 
-        AddChatParticipantsOptions addChatParticipantsOptions = new AddChatParticipantsOptions()
-            .setParticipants(participants);
-        chatThreadClient.addParticipants(addChatParticipantsOptions);
+        chatThreadClient.addParticipants(participants);
     }
 
     /**
