@@ -10,8 +10,6 @@ import com.azure.android.communication.chat.implementation.models.CreateChatThre
 import com.azure.android.communication.chat.implementation.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.core.rest.Callback;
-import com.azure.android.core.rest.PagedResponse;
-import com.azure.android.core.rest.PagedResponseBase;
 import com.azure.android.core.rest.Response;
 import com.azure.android.core.rest.RestProxy;
 import com.azure.android.core.rest.annotation.BodyParam;
@@ -29,6 +27,8 @@ import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
+import com.azure.android.core.rest.util.paging.PagedResponse;
+import com.azure.android.core.rest.util.paging.PagedResponseBase;
 import com.azure.android.core.util.Context;
 import java.util.concurrent.ExecutionException;
 import java9.util.concurrent.CompletableFuture;

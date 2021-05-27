@@ -1,21 +1,22 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.rest;
+package com.azure.android.core.rest.util.paging;
 
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents an HTTP response that contains a list of items deserialized
- * into a {@link com.azure.android.core.rest.Page}.
+ * into a {@link Page}.
  *
  * @param <H> The HTTP response headers
- * @param <T> The type of items contained in the {@link com.azure.android.core.rest.Page}
- * @see com.azure.android.core.rest.PagedResponse
+ * @param <T> The type of items contained in the {@link Page}
+ * @see PagedResponse
  */
 public class PagedResponseBase<H, T> implements PagedResponse<T> {
     private final HttpRequest request;
@@ -34,7 +35,7 @@ public class PagedResponseBase<H, T> implements PagedResponse<T> {
      * @param page The page of content returned from the service within the response.
      * @param deserializedHeaders The headers, deserialized into an instance of type H.
      */
-    public PagedResponseBase(HttpRequest request, int statusCode, HttpHeaders headers, Page<T> page,
+    public PagedResponseBase(HttpRequest request, int statusCode, HttpHeaders headers, Page<String, T> page,
                              H deserializedHeaders) {
         this(request, statusCode, headers, page.getElements(), page.getContinuationToken(), deserializedHeaders);
     }

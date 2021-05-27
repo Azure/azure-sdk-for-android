@@ -17,12 +17,15 @@ import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.implementation.TypeUtil;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.rest.util.paging.PagedResponse;
+import com.azure.android.core.rest.util.paging.PagedResponseBase;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.Base64Url;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.core.util.UnixTime;
 import com.azure.android.core.rest.annotation.Head;
+import com.azure.android.core.util.paging.Page;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -164,14 +164,10 @@ public class ReadmeSamples {
     public void getChatMessages() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        Page<ChatMessage> chatMessagesResponse = chatThreadClient.getMessagesFirstPage();
-        List<ChatMessage> chatMessages = chatMessagesResponse.getElements();
-        String nextLink = chatMessagesResponse.getContinuationToken();
-        while (nextLink != null) {
-            chatMessagesResponse = chatThreadClient.getMessagesNextPage(nextLink);
-            chatMessages = chatMessagesResponse.getElements();
-            nextLink = chatMessagesResponse.getContinuationToken();
-        }
+        PagedIterable<ChatMessage> chatMessages = chatThreadClient.listMessages();
+        chatMessages.forEach(chatMessage -> {
+            // You code to handle single chatMessage
+        });
     }
 
     /**
@@ -203,14 +199,10 @@ public class ReadmeSamples {
     public void listChatParticipants() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        Page<ChatParticipant> chatParticipantsResponse = chatThreadClient.getParticipantsFirstPage();
-        List<ChatParticipant> chatParticipants = chatParticipantsResponse.getElements();
-        String nextLink = chatParticipantsResponse.getContinuationToken();
-        while (nextLink != null) {
-            chatParticipantsResponse = chatThreadClient.getParticipantsNextPage(nextLink);
-            chatParticipants = chatParticipantsResponse.getElements();
-            nextLink = chatParticipantsResponse.getContinuationToken();
-        }
+        PagedIterable<ChatParticipant> chatParticipants = chatThreadClient.listParticipants();
+        chatParticipants.forEach(chatParticipant -> {
+            // You code to handle single chatParticipant
+        });
     }
 
     /**
@@ -267,14 +259,10 @@ public class ReadmeSamples {
     public void listReadReceipts() {
         ChatThreadClient chatThreadClient = getChatThreadClient();
 
-        Page<ChatMessageReadReceipt> readReceiptsResponse = chatThreadClient.getReadReceiptsFirstPage();
-        List<ChatMessageReadReceipt> chatMessageReadReceipts = readReceiptsResponse.getElements();
-        String nextLink = readReceiptsResponse.getContinuationToken();
-        while (nextLink != null) {
-            readReceiptsResponse = chatThreadClient.getReadReceiptsNextPage(nextLink);
-            chatMessageReadReceipts = readReceiptsResponse.getElements();
-            nextLink = readReceiptsResponse.getContinuationToken();
-        }
+        PagedIterable<ChatMessageReadReceipt> readReceipts = chatThreadClient.listReadReceipts();
+        readReceipts.forEach(readReceipt -> {
+            // You code to handle single readReceipt
+        });
     }
 
     /**

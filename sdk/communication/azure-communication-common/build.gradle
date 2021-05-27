@@ -12,8 +12,8 @@ android {
 
 dependencies {
     // <!-- begin: api Dependencies -->
-    api "com.azure.android:azure-core:$azureCoreVersion"
-    api "com.azure.android:azure-core-logging:$azureCoreVersion"
+    api project (":sdk:core:azure-core")
+    api project (":sdk:core:azure-core-logging")
     api "net.sourceforge.streamsupport:android-retrofuture:$retroFutureVersion"
     // <!-- end: api Dependencies -->
 
