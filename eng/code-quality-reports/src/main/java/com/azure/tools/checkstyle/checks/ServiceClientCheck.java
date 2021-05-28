@@ -56,7 +56,7 @@ public class ServiceClientCheck extends AbstractCheck {
     private static final String COMPLETABLE_FUTURE_BRACKET = "CompletableFuture<";
     private static final String COMPLETABLE_FUTURE_RESPONSE_BRACKET = "CompletableFuture<Response<";
     private static final String COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET = "CompletableFuture<PagedResponse<";
-    private static final String PAGED_FLUX_BRACKET = "PagedFlux<";
+    private static final String PAGED_ASYNC_STREAM_BRACKET = "PagedAsyncStream<";
     private static final String PAGED_ITERABLE_BRACKET = "PagedIterable<";
 
     private static final String WITH_RESPONSE = "WithResponse";
@@ -65,7 +65,7 @@ public class ServiceClientCheck extends AbstractCheck {
     private static final String SINGLE_RETURN_TYPE = "ReturnType.SINGLE";
 
     private static final String JAVA_SPEC_LINK = "https://azure.github.io/azure-sdk/java_introduction.html";
-    private static final String PAGED_FLUX = "PagedFlux";
+    private static final String PAGED_ASYNC_STREAM = "PagedAsyncStream";
     private static final String COMPLETABLE_FUTURE = "CompletableFuture";
     private static final String RESPONSE = "Response";
     private static final String PAGED_ITERABLE = "PagedIterable";
@@ -336,10 +336,10 @@ public class ServiceClientCheck extends AbstractCheck {
                 }
             } else if (COLLECTION_RETURN_TYPE.equals(returnsAnnotationMemberValue)) {
                 // If value of 'returns' is COLLECTION, and then log error if the return type of the method is not
-                // start with {@code PagedFlux<T>}
-                if (!returnType.startsWith(PAGED_FLUX_BRACKET)) {
+                // start with {@code PagedAsyncStream<T>}
+                if (!returnType.startsWith(PAGED_ASYNC_STREAM_BRACKET)) {
                     log(methodDefToken, String.format(RETURN_TYPE_ERROR, "Asynchronous", COLLECTION_RETURN_TYPE,
-                        PAGED_FLUX));
+                        PAGED_ASYNC_STREAM));
                 }
             }
         } else {

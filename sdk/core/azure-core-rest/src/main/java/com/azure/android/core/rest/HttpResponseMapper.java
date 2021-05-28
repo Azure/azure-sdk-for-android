@@ -13,6 +13,8 @@ import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.implementation.HttpResponseExceptionInfo;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.rest.util.paging.PagedResponse;
+import com.azure.android.core.rest.util.paging.PagedResponseBase;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.serde.jackson.SerdeParseException;
@@ -24,6 +26,7 @@ import com.azure.android.core.rest.annotation.ReturnValueWireType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.implementation.ItemPage;
 import com.azure.android.core.rest.implementation.TypeUtil;
+import com.azure.android.core.util.paging.Page;
 
 import org.threeten.bp.OffsetDateTime;
 

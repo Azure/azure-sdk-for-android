@@ -39,6 +39,7 @@ dependencies {
     api project (":sdk:core:azure-core-http")
     api project (":sdk:core:azure-core-logging")
     api project (":sdk:core:azure-core-rest")
+
     api "net.sourceforge.streamsupport:android-retrofuture:$retroFutureVersion"
 
     api project(":sdk:communication:azure-communication-common")

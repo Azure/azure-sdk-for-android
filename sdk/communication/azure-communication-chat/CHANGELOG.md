@@ -4,6 +4,50 @@
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
 
 ### Breaking Changes
+- ChatClient:
+    - Added `listChatThreads`
+    - Removed `getChatThreadsFirstPage`
+    - Removed `getChatThreadsFirstPageWithResponse`
+    - Removed `getChatThreadsNextPage`
+    - Removed `getChatThreadsNextPageWithResponse`
+- ChatAsyncClient:
+    - Added `listChatThreads`
+    - Removed `getChatThreadsFirstPage`
+    - Removed `getChatThreadsFirstPageWithResponse`
+    - Removed `getChatThreadsNextPage`
+    - Removed `getChatThreadsNextPageWithResponse`
+- ChatThreadClient:
+    - Added `listParticipants`
+    - Added `listMessages`
+    - Added `listReadReceipts`
+    - Removed `getParticipantsFirstPage`
+    - Removed `getParticipantsFirstPageWithResponse`
+    - Removed `getParticipantsNextPage`
+    - Removed `getParticipantsNextPageWithResponse`
+    - Removed `getMessagesFirstPage`
+    - Removed `getMessagesFirstPageWithResponse`
+    - Removed `getMessagesNextPage`
+    - Removed `getMessagesNextPageWithResponse`
+    - Removed `getReadReceiptsFirstPage`
+    - Removed `getReadReceiptsFirstPageWithResponse`
+    - Removed `getReadReceiptsNextPage`
+    - Removed `getReadReceiptsNextPageWithResponse`
+- ChatThreadAsyncClient:
+    - Added `listParticipants`
+    - Added `listMessages`
+    - Added `listReadReceipts`
+    - Removed `getParticipantsFirstPage`
+    - Removed `getParticipantsFirstPageWithResponse`
+    - Removed `getParticipantsNextPage`
+    - Removed `getParticipantsNextPageWithResponse`
+    - Removed `getMessagesFirstPage`
+    - Removed `getMessagesFirstPageWithResponse`
+    - Removed `getMessagesNextPage`
+    - Removed `getMessagesNextPageWithResponse`
+    - Removed `getReadReceiptsFirstPage`
+    - Removed `getReadReceiptsFirstPageWithResponse`
+    - Removed `getReadReceiptsNextPage`
+    - Removed `getReadReceiptsNextPageWithResponse`
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`.
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`.
 - Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.*`.
@@ -19,6 +63,7 @@
 - Changed `ChatThreadPropertiesUpdatedEvent` updatedOn type from `String` to `OffsetDateTime`
 - Changed `ParticipantsAddedEvent` addedOn type from `String` to `OffsetDateTime`
 - Changed `ParticipantsRemovedEvent` removedOn type from `String` to `OffsetDateTime`
+
 
 ## 1.0.0-beta.8 (2021-03-29)
 ### Breaking Changes

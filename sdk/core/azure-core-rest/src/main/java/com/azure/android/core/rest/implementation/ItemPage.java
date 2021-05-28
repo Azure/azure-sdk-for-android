@@ -3,7 +3,7 @@
 
 package com.azure.android.core.rest.implementation;
 
-import com.azure.android.core.rest.Page;
+import com.azure.android.core.util.paging.Page;
 import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.util.Collections;
@@ -23,7 +23,7 @@ import java.util.List;
  * or any other cases where the property names of that type are swapped
  * @param <T> The type of the object stored within the {@link ItemPage} instance
  */
-public class ItemPage<T> implements Page<T> {
+public class ItemPage<T> implements Page<String, T> {
     @JsonAlias({"items", "value"})
     private List<T> items;
 

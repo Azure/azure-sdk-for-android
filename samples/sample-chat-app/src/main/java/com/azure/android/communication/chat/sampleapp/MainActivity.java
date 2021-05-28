@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
+import com.azure.android.communication.chat.ChatThreadClient;
+import com.azure.android.communication.chat.ChatThreadClientBuilder;
+import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
@@ -39,22 +42,24 @@ import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
-import com.azure.android.core.rest.PagedResponse;
+import com.azure.android.core.rest.util.paging.PagedAsyncStream;
+import com.azure.android.core.rest.util.paging.PagedIterable;
 import com.azure.android.core.serde.jackson.JacksonSerder;
-import com.azure.android.core.serde.jackson.SerdeEncoding;
+import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.Context;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.threeten.bp.OffsetDateTime;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.StringJoiner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
@@ -150,6 +155,13 @@ public class MainActivity extends AppCompatActivity {
             logAndToast("Created thread with ID: " + threadId);
 
             chatThreadAsyncClient = chatAsyncClient.getChatThreadClient(threadId);
+
+            ChatThreadClient c = new ChatThreadClientBuilder().buildClient();
+
+            PagedIterable<ChatMessage> messages = c.listMessages();
+            messages.forEach(message -> {
+
+            });
 
             Log.d(TAG, "Created ChatThreadAsyncClient");
         } catch (InterruptedException | ExecutionException e) {
@@ -329,24 +341,38 @@ public class MainActivity extends AppCompatActivity {
                 .setSkip(skip);
 
             try {
-                PagedResponse<ChatParticipant> firstPageWithResponse =
-                    chatThreadAsyncClient.getParticipantsFirstPageWithResponse(listParticipantsOptions, Context.NONE).get();
+                PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
+                    = chatThreadAsyncClient.listParticipants(new ListParticipantsOptions(), null);
 
                 StringJoiner participantsStringJoiner =
                     new StringJoiner(
                         "\nParticipant: ",
-                        "Page 1:\nParticipant: ",
+                        "",
                         ""
                     );
 
-                for (ChatParticipant participant : firstPageWithResponse.getValue()) {
-                    participantsStringJoiner.add(participant.getDisplayName());
-                }
+                CountDownLatch latch = new CountDownLatch(1);
 
+                participantPagedAsyncStream.forEach(new AsyncStreamHandler<ChatParticipant>() {
+                    @Override
+                    public void onNext(ChatParticipant participant) {
+                        participantsStringJoiner.add(participant.getDisplayName());
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        latch.countDown();
+                    }
+                });
+
+                awaitOnLatch(latch);
                 logAndToast(participantsStringJoiner.toString());
-
-                listParticipantsNextPage(firstPageWithResponse.getContinuationToken(), 2);
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (Exception e) {
                 logAndToast("Listing participants failed: " + e.getMessage());
             }
         } else {
@@ -428,25 +454,15 @@ public class MainActivity extends AppCompatActivity {
                 .setSkip(skip);
 
             try {
-                PagedResponse<ChatMessageReadReceipt> firstPageWithResponse =
-                    chatThreadAsyncClient.getReadReceiptsFirstPageWithResponse(listReadReceiptOptions, Context.NONE)
-                        .get();
-
-                StringJoiner readReceiptsStringJoiner =
-                    new StringJoiner(
-                        "\nGot receipt for message with id: ",
-                        "Page 1:\nGot receipt for message with id: ",
-                        ""
-                    );
-
-                for (ChatMessageReadReceipt readReceipt : firstPageWithResponse.getValue()) {
-                    readReceiptsStringJoiner.add(readReceipt.getChatMessageId());
-                }
-
-                logAndToast(readReceiptsStringJoiner.toString());
-
-                listReadReceiptsNextPage(firstPageWithResponse.getContinuationToken(), 2);
-            } catch (InterruptedException | ExecutionException e) {
+                PagedAsyncStream<ChatMessageReadReceipt> readReceipts =
+                    chatThreadAsyncClient.listReadReceipts(listReadReceiptOptions, Context.NONE);
+                readReceipts.forEach(readReceipt -> {
+                    Log.d(TAG, "Got receipt for participant "
+                        + ((CommunicationUserIdentifier)readReceipt.getSenderCommunicationIdentifier()).getId()
+                        + " for message with id: "
+                        + readReceipt.getChatMessageId());
+                });
+            } catch (Exception e) {
                 logAndToast("Listing read receipts failed: " + e.getMessage());
             }
         } else {
@@ -454,47 +470,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void listParticipantsNextPage(String continuationToken, int pageNumber) throws ExecutionException, InterruptedException {
-        if (continuationToken != null) {
-            PagedResponse<ChatParticipant> nextPageWithResponse =
-                chatThreadAsyncClient.getParticipantsNextPageWithResponse(continuationToken, Context.NONE).get();
-
-            StringJoiner participantsStringJoiner =
-                new StringJoiner(
-                    "\nParticipant: ",
-                    "Page " + pageNumber + ":\nParticipant: ",
-                    ""
-                );
-
-            for (ChatParticipant participant : nextPageWithResponse.getValue()) {
-                participantsStringJoiner.add(participant.getDisplayName());
-            }
-
-            logAndToast(participantsStringJoiner.toString());
-
-            listParticipantsNextPage(nextPageWithResponse.getContinuationToken(), ++pageNumber);
-        }
-    }
-
-    private void listReadReceiptsNextPage(String continuationToken, int pageNumber) throws ExecutionException, InterruptedException {
-        if (continuationToken != null) {
-            PagedResponse<ChatMessageReadReceipt> nextPageWithResponse =
-                chatThreadAsyncClient.getReadReceiptsNextPageWithResponse(continuationToken, Context.NONE).get();
-
-            StringJoiner readReceiptsStringJoiner =
-                new StringJoiner(
-                    "\nGot receipt for message with id: ",
-                    "Page " + pageNumber + ":\nGot receipt for message with id: ",
-                    ""
-                );
-
-            for (ChatMessageReadReceipt readReceipt : nextPageWithResponse.getValue()) {
-                readReceiptsStringJoiner.add(readReceipt.getChatMessageId());
-            }
-
-            logAndToast(readReceiptsStringJoiner.toString());
-
-            listParticipantsNextPage(nextPageWithResponse.getContinuationToken(), ++pageNumber);
+    private static void awaitOnLatch(CountDownLatch latch) {
+        long timeoutInSec = 2;
+        try {
+            latch.await(timeoutInSec, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            Log.e(TAG, "List operation didn't complete within " + timeoutInSec + " minutes");
         }
     }
 }
