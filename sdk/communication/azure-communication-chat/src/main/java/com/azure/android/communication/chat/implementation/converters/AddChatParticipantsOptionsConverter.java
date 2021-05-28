@@ -3,7 +3,6 @@
 
 package com.azure.android.communication.chat.implementation.converters;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.core.logging.ClientLogger;
 
@@ -12,24 +11,24 @@ import java.util.List;
 
 /**
  * A converter between {@link com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions} and
- * {@link AddChatParticipantsOptions}.
+ * a {@link ChatParticipant} Iterable.
  */
 public final class AddChatParticipantsOptionsConverter {
     /**
-     * Maps from {AddChatThreadMembersOptions} to
+     * Maps from a {@link ChatParticipant} Iterable to
      * {@link com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions}.
      */
     public static com.azure.android.communication.chat.implementation.models.AddChatParticipantsOptions convert(
-        AddChatParticipantsOptions obj,
+        Iterable<ChatParticipant> participants,
         ClientLogger logger) {
 
-        if (obj == null) {
+        if (participants == null) {
             return null;
         }
 
         List<com.azure.android.communication.chat.implementation.models.ChatParticipant> innerParticipants
-            = new ArrayList<>(obj.getParticipants().size());
-        for (ChatParticipant participant : obj.getParticipants()) {
+            = new ArrayList<>();
+        for (ChatParticipant participant : participants) {
             innerParticipants.add(ChatParticipantConverter.convert(participant, logger));
         }
 

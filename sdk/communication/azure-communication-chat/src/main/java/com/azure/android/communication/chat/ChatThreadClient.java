@@ -3,7 +3,6 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
@@ -109,25 +108,26 @@ public final class ChatThreadClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param options options for adding participants.
+     * @param participants Participants to add.
+     * @return the add participants result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void addParticipants(AddChatParticipantsOptions options) {
-        block(this.client.addParticipants(options));
+    public AddChatParticipantsResult addParticipants(Iterable<ChatParticipant> participants) {
+        return block(this.client.addParticipants(participants));
     }
 
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param options options for adding participants.
+     * @param participants Participants to add.
      * @param context the context to associate with this operation.
      *
      * @return the response containing operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<AddChatParticipantsResult> addParticipantsWithResponse(
-        AddChatParticipantsOptions options, Context context) {
-        return block(this.client.addParticipants(options, context));
+        Iterable<ChatParticipant> participants, Context context) {
+        return block(this.client.addParticipants(participants, context));
     }
 
     /**
@@ -298,17 +298,17 @@ public final class ChatThreadClient {
     /**
      * Gets the list of thread messages.
      *
-     * @param listChatMessagesOptions the list options.
+     * @param listMessagesOptions the list options.
      * @param context the context to associate with this operation.
      *
      * @return the list of thread messages.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<ChatMessage> listMessages(ListChatMessagesOptions listChatMessagesOptions,
+    public PagedIterable<ChatMessage> listMessages(ListChatMessagesOptions listMessagesOptions,
         Context context) {
         final Function<String, PagedResponse<ChatMessage>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getMessagesFirstPageWithResponse(listChatMessagesOptions, context);
+                return this.getMessagesFirstPageWithResponse(listMessagesOptions, context);
             } else {
                 return this.getMessagesNextPageWithResponse(pageId, context);
             }

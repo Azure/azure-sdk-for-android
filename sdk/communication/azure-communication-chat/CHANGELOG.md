@@ -17,6 +17,8 @@
     - Added `listParticipants`
     - Added `listMessages`
     - Added `listReadReceipts`
+    - Changed returning `AddChatParticipantsResult` instead of `void` for `addParticipants`
+    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`
     - Removed `getParticipantsFirstPage`
     - Removed `getParticipantsFirstPageWithResponse`
     - Removed `getParticipantsNextPage`
@@ -33,6 +35,8 @@
     - Added `listParticipants`
     - Added `listMessages`
     - Added `listReadReceipts`
+    - Changed returning `CompletableFuture<AddChatParticipantsResult>` instead of `CompletableFuture<Void>` for `addParticipants`
+    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`
     - Removed `getParticipantsFirstPage`
     - Removed `getParticipantsFirstPageWithResponse`
     - Removed `getParticipantsNextPage`
@@ -47,6 +51,7 @@
     - Removed `getReadReceiptsNextPageWithResponse`
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`.
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`.
+- Removed `com.azure.android.communication.chat.models.AddChatParticipantsOptions`.
 - Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.*`.
 - Changed `httpClient` to an optional component for `ChatClientBuilder`/`ChatThreadClientBuilder` to create corresponding client.
 - Changed `ChatEventId` to `ChatEventKind`.

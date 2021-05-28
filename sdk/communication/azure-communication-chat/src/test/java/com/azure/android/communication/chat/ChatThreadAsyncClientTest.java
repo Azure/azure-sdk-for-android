@@ -3,7 +3,6 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatMessage;
@@ -270,10 +269,10 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void canAddListAndRemoveParticipants(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
-        AddChatParticipantsOptions options = addParticipantsOptions(this.firstThreadParticipant.getId(),
+        Iterable<ChatParticipant> participants = addParticipants(this.firstThreadParticipant.getId(),
             this.secondThreadParticipant.getId());
 
-        this.chatThreadClient.addParticipants(options).get();
+        this.chatThreadClient.addParticipants(participants).get();
 
         PagedAsyncStream<ChatParticipant> participantPagedAsyncStream
             = this.chatThreadClient.listParticipants(new ListParticipantsOptions(), null);
@@ -311,12 +310,12 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         }
 
         if (TEST_MODE != TestMode.PLAYBACK) {
-            for (ChatParticipant participant : options.getParticipants()) {
+            for (ChatParticipant participant : participants) {
                 assertTrue(super.checkParticipantsListContainsParticipantId(returnedParticipants,
                     ((CommunicationUserIdentifier) participant.getCommunicationIdentifier()).getId()));
             }
 
-            for (ChatParticipant participant : options.getParticipants()) {
+            for (ChatParticipant participant : participants) {
                 final String id = ((CommunicationUserIdentifier) participant.getCommunicationIdentifier()).getId();
                 assertNotNull(id);
                 if (!id.equals(this.firstThreadParticipant.getId())) {
@@ -331,11 +330,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void canAddListAndRemoveParticipantsWithResponse(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
-        AddChatParticipantsOptions options = addParticipantsOptions(this.firstThreadParticipant.getId(),
+        Iterable<ChatParticipant> participants = addParticipants(this.firstThreadParticipant.getId(),
             this.secondThreadParticipant.getId());
 
         Response<AddChatParticipantsResult> addResponse
-            = this.chatThreadClient.addParticipantsWithResponse(options, null).get();
+            = this.chatThreadClient.addParticipantsWithResponse(participants, null).get();
 
         assertNotNull(addResponse);
         assertEquals(201, addResponse.getStatusCode());
@@ -376,12 +375,12 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         }
 
         if (TEST_MODE != TestMode.PLAYBACK) {
-            for (ChatParticipant participant : options.getParticipants()) {
+            for (ChatParticipant participant : participants) {
                 assertTrue(super.checkParticipantsListContainsParticipantId(returnedParticipants,
                     ((CommunicationUserIdentifier) participant.getCommunicationIdentifier()).getId()));
             }
 
-            for (ChatParticipant participant : options.getParticipants()) {
+            for (ChatParticipant participant : participants) {
                 final String id = ((CommunicationUserIdentifier) participant.getCommunicationIdentifier()).getId();
                 assertNotNull(id);
                 if (!id.equals(this.firstThreadParticipant.getId())) {
@@ -396,11 +395,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void cannotAddParticipantsWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
-        AddChatParticipantsOptions options = addParticipantsOptions("8:acs:invalidUserId",
+        Iterable<ChatParticipant> participants = addParticipants("8:acs:invalidUserId",
             this.secondThreadParticipant.getId());
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            this.chatThreadClient.addParticipants(options).get();
+            this.chatThreadClient.addParticipants(participants).get();
         });
 
         Throwable cause = executionException.getCause();
@@ -417,11 +416,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
     public void cannotAddParticipantsWithResponseWithInvalidUser(HttpClient httpClient) throws InterruptedException, ExecutionException {
         setupTest(httpClient);
 
-        AddChatParticipantsOptions options = addParticipantsOptions("8:acs:invalidUserId",
+        Iterable<ChatParticipant> participants = addParticipants("8:acs:invalidUserId",
             this.secondThreadParticipant.getId());
 
         ExecutionException executionException = assertThrows(ExecutionException.class, () -> {
-            this.chatThreadClient.addParticipantsWithResponse(options, null).get();
+            this.chatThreadClient.addParticipantsWithResponse(participants, null).get();
         });
 
         Throwable cause = executionException.getCause();

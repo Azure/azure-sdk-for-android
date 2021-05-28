@@ -15,7 +15,6 @@ import com.azure.android.communication.chat.implementation.converters.ChatThread
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CommunicationIdentifierConverter;
 import com.azure.android.communication.chat.implementation.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatError;
 import com.azure.android.communication.chat.models.ChatMessage;
@@ -173,36 +172,36 @@ public final class ChatThreadAsyncClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param options Options for adding participants.
+     * @param participants Participants to add.
      *
      * @return the {@link CompletableFuture} that signals the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Void> addParticipants(AddChatParticipantsOptions options) {
-        if (options == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
+    public CompletableFuture<AddChatParticipantsResult> addParticipants(Iterable<ChatParticipant> participants) {
+        if (participants == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("'participants' cannot be null."));
         }
-        return this.addParticipants(options, null)
+        return this.addParticipants(participants, null)
             .thenApply(response -> {
-                return null;
+                return response.getValue();
             });
     }
 
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param options Options for adding participants.
+     * @param participants Participants to add.
      * @param context The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantsWithResponse(
-        AddChatParticipantsOptions options, Context context) {
-        if (options == null) {
-            return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
+        Iterable<ChatParticipant> participants, Context context) {
+        if (participants == null) {
+            return CompletableFuture.failedFuture(new NullPointerException("'participants' cannot be null."));
         }
-        return this.addParticipants(options, context);
+        return this.addParticipants(participants, context);
     }
 
     /**
@@ -246,7 +245,7 @@ public final class ChatThreadAsyncClient {
     CompletableFuture<Response<Void>> addParticipant(ChatParticipant participant, Context context) {
         context = context == null ? Context.NONE : context;
         return this.addParticipants(
-            new AddChatParticipantsOptions().setParticipants(Collections.singletonList(participant)),
+            Collections.singletonList(participant),
             context)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
@@ -264,16 +263,16 @@ public final class ChatThreadAsyncClient {
     /**
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
-     * @param options Options for adding participants.
+     * @param participants Collection of participants to add.
      * @param context The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
-    CompletableFuture<Response<AddChatParticipantsResult>> addParticipants(AddChatParticipantsOptions options,
+    CompletableFuture<Response<AddChatParticipantsResult>> addParticipants(Iterable<ChatParticipant> participants,
                                                                            Context context) {
         context = context == null ? Context.NONE : context;
         return this.chatThreadClient.addChatParticipantsWithResponseAsync(
-            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(options, this.logger), context)
+            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(participants, this.logger), context)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(result -> {

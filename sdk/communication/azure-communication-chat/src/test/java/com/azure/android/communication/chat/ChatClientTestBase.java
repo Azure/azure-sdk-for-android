@@ -3,7 +3,6 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
@@ -128,7 +127,7 @@ public class ChatClientTestBase extends TestBase {
         return options;
     }
 
-    public static AddChatParticipantsOptions addParticipantsOptions(String userId1, String userId2) {
+    public static Iterable<ChatParticipant> addParticipants(String userId1, String userId2) {
         List<ChatParticipant> participants = new ArrayList<ChatParticipant>();
         participants.add(generateParticipant(
             userId1,
@@ -137,10 +136,7 @@ public class ChatClientTestBase extends TestBase {
             userId2,
             "Added Tester 2"));
 
-        AddChatParticipantsOptions options = new AddChatParticipantsOptions();
-        options.setParticipants(participants);
-
-        return options;
+        return participants;
     }
 
     public static SendChatMessageOptions sendMessageOptions() {

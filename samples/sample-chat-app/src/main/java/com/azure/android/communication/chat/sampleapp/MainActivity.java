@@ -13,9 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
-import com.azure.android.communication.chat.ChatThreadClient;
-import com.azure.android.communication.chat.ChatThreadClientBuilder;
-import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
@@ -43,7 +40,6 @@ import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.util.paging.PagedAsyncStream;
-import com.azure.android.core.rest.util.paging.PagedIterable;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.Context;
@@ -71,7 +67,6 @@ import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THR
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -155,13 +150,6 @@ public class MainActivity extends AppCompatActivity {
             logAndToast("Created thread with ID: " + threadId);
 
             chatThreadAsyncClient = chatAsyncClient.getChatThreadClient(threadId);
-
-            ChatThreadClient c = new ChatThreadClientBuilder().buildClient();
-
-            PagedIterable<ChatMessage> messages = c.listMessages();
-            messages.forEach(message -> {
-
-            });
 
             Log.d(TAG, "Created ChatThreadAsyncClient");
         } catch (InterruptedException | ExecutionException e) {
@@ -314,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 chatThreadAsyncClient.addParticipant(new ChatParticipant().setCommunicationIdentifier(
-                    new CommunicationUserIdentifier(secondUserId)).setDisplayName(secondUserDisplayName)).get();
+                   new CommunicationUserIdentifier(secondUserId)).setDisplayName(secondUserDisplayName)).get();
 
                 logAndToast("Added chat participant");
             } catch (InterruptedException | ExecutionException e) {
