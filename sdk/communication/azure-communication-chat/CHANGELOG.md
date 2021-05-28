@@ -1,5 +1,8 @@
 # Release History
 ## 1.0.0-beta.9 (Unreleased)
+### New Features
+- Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
+
 ### Breaking Changes
 - ChatClient:
     - Added `listChatThreads`

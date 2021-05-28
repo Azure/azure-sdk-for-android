@@ -45,12 +45,13 @@ public final class ChatClientBuilder {
     private CommunicationSignalingClient communicationSignalingClient;
     private Context context;
     private String userToken;
+    private ChatServiceVersion serviceVersion;
 
     /**
      * Set endpoint of the service
      *
      * @param endpoint url of the service
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder endpoint(String endpoint) {
         if (endpoint == null) {
@@ -64,7 +65,7 @@ public final class ChatClientBuilder {
      * Set HttpClient to use
      *
      * @param httpClient HttpClient to use
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder httpClient(HttpClient httpClient) {
         if (httpClient == null) {
@@ -78,7 +79,7 @@ public final class ChatClientBuilder {
      * Set a token credential for authorization
      *
      * @param communicationTokenCredential valid token credential as a string
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder credential(CommunicationTokenCredential communicationTokenCredential) {
         if (communicationTokenCredential == null) {
@@ -92,7 +93,7 @@ public final class ChatClientBuilder {
      * Sets the {@link HttpPipelinePolicy} that attaches authorization header.
      *
      * @param credentialPolicy the credentials policy.
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder credentialPolicy(HttpPipelinePolicy credentialPolicy) {
         if (credentialPolicy == null) {
@@ -107,7 +108,7 @@ public final class ChatClientBuilder {
      *
      * @param pipelinePolicy HttpPipelinePolicy objects to be applied after
      *                       AzureKeyCredentialPolicy, UserAgentPolicy, RetryPolicy, and CookiePolicy
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder addPolicy(HttpPipelinePolicy pipelinePolicy) {
         if (pipelinePolicy == null) {
@@ -121,7 +122,7 @@ public final class ChatClientBuilder {
      * Sets the {@link HttpLogOptions} for service requests.
      *
      * @param logOptions The logging configuration to use when sending and receiving HTTP requests/responses.
-     * @return the updated ChatClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder httpLogOptions(HttpLogOptions logOptions) {
         if (logOptions == null) {
@@ -132,12 +133,30 @@ public final class ChatClientBuilder {
     }
 
     /**
+     * Sets the {@link ChatServiceVersion} that is used when making API requests.
+     * <p>
+     * If a service version is not provided, the service version that will be used will be the latest known service
+     * version based on the version of the client library being used. If no service version is specified, updating to a
+     * newer version of the client library will have the result of potentially moving to a newer service version.
+     * <p>
+     * Targeting a specific service version may also mean that the service will return an error for newer APIs.
+     *
+     * @param serviceVersion {@link ChatServiceVersion} of the service to be used when making requests.
+     * @return The updated {@link ChatClientBuilder} object.
+     */
+    public ChatClientBuilder serviceVersion(ChatServiceVersion serviceVersion) {
+        this.serviceVersion = serviceVersion;
+
+        return this;
+    }
+
+    /**
      * Sets the {@link HttpPipeline} to use for the service client.
      *
      * If {@code pipeline} is set, all other settings are ignored, aside from {@link #endpoint(String) endpoint}.
      *
      * @param httpPipeline HttpPipeline to use for sending service requests and receiving responses.
-     * @return the updated BlobServiceClientBuilder object
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder pipeline(HttpPipeline httpPipeline) {
         this.httpPipeline = httpPipeline;
@@ -148,7 +167,7 @@ public final class ChatClientBuilder {
      * Set realtime notification params to be able to start the real time notification
      * @param context the app context of the app
      * @param userToken the skype user token
-     * @return ChatClientBuilder instance
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder realtimeNotificationParams(Context context, String userToken) {
         this.context = context;
@@ -161,7 +180,7 @@ public final class ChatClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @return ChatClient instance
+     * @return A {@link ChatClient} instance.
      */
     public ChatClient buildClient() {
         ChatAsyncClient asyncClient = buildAsyncClient();
@@ -173,7 +192,7 @@ public final class ChatClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @return ChatAsyncClient instance
+     * @return A {@link ChatAsyncClient} instance.
      */
     public ChatAsyncClient buildAsyncClient() {
         if (this.endpoint == null) {
@@ -222,9 +241,13 @@ public final class ChatClientBuilder {
                 this.customPolicies);
         }
 
-        AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder();
-        clientBuilder.endpoint(this.endpoint)
+        AzureCommunicationChatServiceImplBuilder clientBuilder = new AzureCommunicationChatServiceImplBuilder()
+            .apiVersion((this.serviceVersion == null)
+                ? ChatServiceVersion.getLatest().getVersion()
+                : this.serviceVersion.getVersion())
+            .endpoint(this.endpoint)
             .pipeline(pipeline);
+
         return new ChatAsyncClient(clientBuilder.buildClient(), communicationSignalingClient);
     }
 
