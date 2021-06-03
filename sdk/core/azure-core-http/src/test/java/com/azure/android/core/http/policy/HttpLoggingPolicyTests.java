@@ -13,7 +13,7 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class HttpLoggingPolicyTests {
     private static final String REDACTED = "REDACTED";
-    private static final Context CONTEXT = new Context("caller-method", HttpLoggingPolicyTests.class.getName());
+    private static final RequestContext CONTEXT = new RequestContext("caller-method", HttpLoggingPolicyTests.class.getName());
 
     private PrintStream originalSystemOut;
     private ByteArrayOutputStream logCaptureStream;
@@ -84,7 +84,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
         pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl),
-            Context.NONE,
+            RequestContext.NONE,
             CancellationToken.NONE,
             new HttpCallback() {
                 @Override
@@ -163,7 +163,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
         pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content),
-            Context.NONE,
+            RequestContext.NONE,
             CancellationToken.NONE,
             new HttpCallback() {
                 @Override
@@ -217,7 +217,7 @@ public class HttpLoggingPolicyTests {
 
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(request, CONTEXT)
-        pipeline.send(request, Context.NONE, CancellationToken.NONE, new HttpCallback() {
+        pipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 try {

@@ -6,35 +6,35 @@ package com.azure.android.core.util;
 import com.azure.android.core.logging.ClientLogger;
 
 /**
- * {@code Context} offers a means of passing arbitrary data (key-value pairs) to pipeline policies.
- * Most applications do not need to pass arbitrary data to the pipeline and can pass {@code Context.NONE} or
+ * {@code RequestContext} offers a means of passing arbitrary data (key-value pairs) to pipeline policies.
+ * Most applications do not need to pass arbitrary data to the pipeline and can pass {@code RequestContext.NONE} or
  * {@code null}.
  * <p>
  * Each context object is immutable. The {@link #addData(Object, Object)} method creates a new
- * {@code Context} object that refers to its parent, forming a linked list.
+ * {@code RequestContext} object that refers to its parent, forming a linked list.
  */
-public class Context {
-    private final ClientLogger logger = new ClientLogger(Context.class);
+public class RequestContext {
+    private final ClientLogger logger = new ClientLogger(RequestContext.class);
 
     // All fields must be immutable.
     //
     /**
      * Signifies that no data needs to be passed to the pipeline.
      */
-    public static final Context NONE = new Context(null, null, null);
+    public static final RequestContext NONE = new RequestContext(null, null, null);
 
-    private final Context parent;
+    private final RequestContext parent;
     private final Object key;
     private final Object value;
 
     /**
-     * Constructs a new {@link Context} object.
+     * Constructs a new {@link RequestContext} object.
      *
      * @param key The key with which the specified value should be associated.
      * @param value The value to be associated with the specified key.
      * @throws IllegalArgumentException If {@code key} is {@code null}.
      */
-    public Context(Object key, Object value) {
+    public RequestContext(Object key, Object value) {
         this.parent = null;
         if (key == null) {
             throw new NullPointerException("'key' cannot be null.");
@@ -43,30 +43,30 @@ public class Context {
         this.value = value;
     }
 
-    private Context(Context parent, Object key, Object value) {
+    private RequestContext(RequestContext parent, Object key, Object value) {
         this.parent = parent;
         this.key = key;
         this.value = value;
     }
 
     /**
-     * Adds a new immutable {@link Context} object with the specified key-value pair to
-     * the existing {@link Context} chain.
+     * Adds a new immutable {@link RequestContext} object with the specified key-value pair to
+     * the existing {@link RequestContext} chain.
      *
      * @param key The key with which the specified value should be associated.
      * @param value The value to be associated with the specified key.
-     * @return the new {@link Context} object containing the specified pair added to the set of pairs.
+     * @return the new {@link RequestContext} object containing the specified pair added to the set of pairs.
      * @throws IllegalArgumentException If {@code key} is {@code null}.
      */
-    public Context addData(Object key, Object value) {
+    public RequestContext addData(Object key, Object value) {
         if (key == null) {
             throw logger.logExceptionAsError(new IllegalArgumentException("key cannot be null"));
         }
-        return new Context(this, key, value);
+        return new RequestContext(this, key, value);
     }
 
     /**
-     * Scans the linked-list of {@link Context} objects looking for one with the specified key.
+     * Scans the linked-list of {@link RequestContext} objects looking for one with the specified key.
      * Note that the first key found, i.e. the most recently added, will be returned.
      *
      * @param key The key to search for.
@@ -77,7 +77,7 @@ public class Context {
         if (key == null) {
             throw logger.logExceptionAsError(new IllegalArgumentException("key cannot be null"));
         }
-        for (Context c = this; c != null; c = c.parent) {
+        for (RequestContext c = this; c != null; c = c.parent) {
             if (key.equals(c.key)) {
                 return Option.of(c.value);
             }

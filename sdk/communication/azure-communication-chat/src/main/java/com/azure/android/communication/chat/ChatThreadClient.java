@@ -22,7 +22,7 @@ import com.azure.android.core.rest.annotation.ServiceClient;
 import com.azure.android.core.rest.annotation.ServiceMethod;
 import com.azure.android.core.rest.util.paging.PagedIterable;
 import com.azure.android.core.rest.util.paging.PagedResponse;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
 
 import java.util.concurrent.ExecutionException;
@@ -73,13 +73,13 @@ public final class ChatThreadClient {
     /**
      * Gets chat thread properties.
      *
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the thread with the given id.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ChatThreadProperties> getPropertiesWithResponse(Context context) {
-        return block(this.client.getProperties(context));
+    public Response<ChatThreadProperties> getPropertiesWithResponse(RequestContext requestContext) {
+        return block(this.client.getProperties(requestContext));
     }
 
     /**
@@ -96,13 +96,13 @@ public final class ChatThreadClient {
      * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> updateTopicWithResponse(String topic, Context context) {
-        return block(this.client.updateTopic(topic, context));
+    public Response<Void> updateTopicWithResponse(String topic, RequestContext requestContext) {
+        return block(this.client.updateTopic(topic, requestContext));
     }
 
     /**
@@ -120,14 +120,14 @@ public final class ChatThreadClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param participants Participants to add.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<AddChatParticipantsResult> addParticipantsWithResponse(
-        Iterable<ChatParticipant> participants, Context context) {
-        return block(this.client.addParticipants(participants, context));
+        Iterable<ChatParticipant> participants, RequestContext requestContext) {
+        return block(this.client.addParticipants(participants, requestContext));
     }
 
     /**
@@ -144,26 +144,27 @@ public final class ChatThreadClient {
      * Adds a participant to a thread. If the participant already exists, no change occurs.
      *
      * @param participant The new participant.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response containing operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> addParticipantWithResponse(ChatParticipant participant, Context context) {
-        return block(this.client.addParticipant(participant, context));
+    public Response<Void> addParticipantWithResponse(ChatParticipant participant, RequestContext requestContext) {
+        return block(this.client.addParticipant(participant, requestContext));
     }
 
     /**
      * Remove a participant from a thread.
      *
      * @param identifier Identity of the participant to remove from the thread.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response of the remove request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> removeParticipantWithResponse(CommunicationIdentifier identifier, Context context) {
-        return block(this.client.removeParticipant(identifier, context));
+    public Response<Void> removeParticipantWithResponse(CommunicationIdentifier identifier,
+                                                        RequestContext requestContext) {
+        return block(this.client.removeParticipant(identifier, requestContext));
     }
 
     /**
@@ -184,26 +185,26 @@ public final class ChatThreadClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatParticipant> listParticipants() {
-        return this.listParticipants(new ListParticipantsOptions(), Context.NONE);
+        return this.listParticipants(new ListParticipantsOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of the thread participants.
      *
      * @param listParticipantsOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the list of the thread participants.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatParticipant> listParticipants(
         ListParticipantsOptions listParticipantsOptions,
-        Context context) {
+        RequestContext requestContext) {
         final Function<String, PagedResponse<ChatParticipant>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getParticipantsFirstPageWithResponse(listParticipantsOptions, context);
+                return this.getParticipantsFirstPageWithResponse(listParticipantsOptions, requestContext);
             } else {
-                return this.getParticipantsNextPageWithResponse(pageId, context);
+                return this.getParticipantsNextPageWithResponse(pageId, requestContext);
             }
         };
         return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
@@ -213,40 +214,41 @@ public final class ChatThreadClient {
      * Gets the list of the thread participants in the first page.
      *
      * @param listParticipantsOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the list of the thread participants in the first page.
      */
     private PagedResponse<ChatParticipant> getParticipantsFirstPageWithResponse(
         ListParticipantsOptions listParticipantsOptions,
-        Context context) {
-        return block(this.client.getParticipantsFirstPage(listParticipantsOptions, context));
+        RequestContext requestContext) {
+        return block(this.client.getParticipantsFirstPage(listParticipantsOptions, requestContext));
     }
 
     /**
      * Gets the page with given id containing list of thread participants.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing the list of thread participants in the first page.
      */
     private PagedResponse<ChatParticipant> getParticipantsNextPageWithResponse(String nextLink,
-                                                                              Context context) {
-        return block(this.client.getParticipantsNextPage(nextLink, context));
+                                                                              RequestContext requestContext) {
+        return block(this.client.getParticipantsNextPage(nextLink, requestContext));
     }
 
     /**
      * Sends a message to a thread.
      *
      * @param options options for sending the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing the send message result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<SendChatMessageResult> sendMessageWithResponse(SendChatMessageOptions options, Context context) {
-        return block(this.client.sendMessage(options, context));
+    public Response<SendChatMessageResult> sendMessageWithResponse(SendChatMessageOptions options,
+                                                                   RequestContext requestContext) {
+        return block(this.client.sendMessage(options, requestContext));
     }
 
     /**
@@ -264,13 +266,13 @@ public final class ChatThreadClient {
      * Gets a message by id.
      *
      * @param chatMessageId the message id.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing the chat message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<ChatMessage> getMessageWithResponse(String chatMessageId, Context context) {
-        return block(this.client.getMessage(chatMessageId, context));
+    public Response<ChatMessage> getMessageWithResponse(String chatMessageId, RequestContext requestContext) {
+        return block(this.client.getMessage(chatMessageId, requestContext));
     }
 
     /**
@@ -292,25 +294,25 @@ public final class ChatThreadClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatMessage> listMessages() {
-        return this.listMessages(new ListChatMessagesOptions(), Context.NONE);
+        return this.listMessages(new ListChatMessagesOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of thread messages.
      *
      * @param listMessagesOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the list of thread messages.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatMessage> listMessages(ListChatMessagesOptions listMessagesOptions,
-        Context context) {
+        RequestContext requestContext) {
         final Function<String, PagedResponse<ChatMessage>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getMessagesFirstPageWithResponse(listMessagesOptions, context);
+                return this.getMessagesFirstPageWithResponse(listMessagesOptions, requestContext);
             } else {
-                return this.getMessagesNextPageWithResponse(pageId, context);
+                return this.getMessagesNextPageWithResponse(pageId, requestContext);
             }
         };
         return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
@@ -320,25 +322,25 @@ public final class ChatThreadClient {
      * Gets the list of thread messages in the first page.
      *
      * @param listMessagesOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing the list of thread messages.
      */
     private PagedResponse<ChatMessage> getMessagesFirstPageWithResponse(ListChatMessagesOptions listMessagesOptions,
-        Context context) {
-        return block(this.client.getMessagesFirstPage(listMessagesOptions, context));
+        RequestContext requestContext) {
+        return block(this.client.getMessagesFirstPage(listMessagesOptions, requestContext));
     }
 
     /**
      * Gets the list of thread messages in the page with the given id.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response containing the list of thread messages.
      */
-    private PagedResponse<ChatMessage> getMessagesNextPageWithResponse(String nextLink, Context context) {
-        return block(this.client.getMessagesNextPage(nextLink, context));
+    private PagedResponse<ChatMessage> getMessagesNextPageWithResponse(String nextLink, RequestContext requestContext) {
+        return block(this.client.getMessagesNextPage(nextLink, requestContext));
     }
 
     /**
@@ -346,14 +348,14 @@ public final class ChatThreadClient {
      *
      * @param chatMessageId the message id.
      * @param options options for updating the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> updateMessageWithResponse(
-        String chatMessageId, UpdateChatMessageOptions options, Context context) {
-        return block(this.client.updateMessage(chatMessageId, options, context));
+        String chatMessageId, UpdateChatMessageOptions options, RequestContext requestContext) {
+        return block(this.client.updateMessage(chatMessageId, options, requestContext));
     }
 
     /**
@@ -371,13 +373,13 @@ public final class ChatThreadClient {
      * Deletes a message.
      *
      * @param chatMessageId the message id.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteMessageWithResponse(String chatMessageId, Context context) {
-        return block(this.client.deleteMessage(chatMessageId, context));
+    public Response<Void> deleteMessageWithResponse(String chatMessageId, RequestContext requestContext) {
+        return block(this.client.deleteMessage(chatMessageId, requestContext));
     }
 
     /**
@@ -393,13 +395,13 @@ public final class ChatThreadClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendTypingNotificationWithResponse(Context context) {
-        return block(this.client.sendTypingNotification(context));
+    public Response<Void> sendTypingNotificationWithResponse(RequestContext requestContext) {
+        return block(this.client.sendTypingNotification(requestContext));
     }
 
     /**
@@ -415,13 +417,13 @@ public final class ChatThreadClient {
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId The id of the chat message that was read.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendReadReceiptWithResponse(String chatMessageId, Context context) {
-        return block(this.client.sendReadReceipt(chatMessageId, context));
+    public Response<Void> sendReadReceiptWithResponse(String chatMessageId, RequestContext requestContext) {
+        return block(this.client.sendReadReceipt(chatMessageId, requestContext));
     }
 
     /**
@@ -441,25 +443,25 @@ public final class ChatThreadClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatMessageReadReceipt> listReadReceipts() {
-        return this.listReadReceipts(new ListReadReceiptOptions(), Context.NONE);
+        return this.listReadReceipts(new ListReadReceiptOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of thread read receipts.
      *
      * @param listReadReceiptOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the list of thread read receipts.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<ChatMessageReadReceipt> listReadReceipts(ListReadReceiptOptions listReadReceiptOptions,
-                                                                 Context context) {
+                                                                 RequestContext requestContext) {
         final Function<String, PagedResponse<ChatMessageReadReceipt>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getReadReceiptsFirstPageWithResponse(listReadReceiptOptions, context);
+                return this.getReadReceiptsFirstPageWithResponse(listReadReceiptOptions, requestContext);
             } else {
-                return this.getReadReceiptsNextPageWithResponse(pageId, context);
+                return this.getReadReceiptsNextPageWithResponse(pageId, requestContext);
             }
         };
         return new PagedIterable<>(pageRetriever, pageId -> pageId != null, this.logger);
@@ -469,28 +471,28 @@ public final class ChatThreadClient {
      * Gets the list of thread read receipts in the first page.
      *
      * @param listReadReceiptOptions the list options.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the response containing the list of thread read receipts in the first page.
      */
     private PagedResponse<ChatMessageReadReceipt> getReadReceiptsFirstPageWithResponse(
         ListReadReceiptOptions listReadReceiptOptions,
-        Context context) {
-        return block(this.client.getReadReceiptsFirstPage(listReadReceiptOptions, context));
+        RequestContext requestContext) {
+        return block(this.client.getReadReceiptsFirstPage(listReadReceiptOptions, requestContext));
     }
 
     /**
      * Gets the list of thread read receipts in the page with the given id.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the response containing the list of thread read receipts in the first page.
      */
     private PagedResponse<ChatMessageReadReceipt> getReadReceiptsNextPageWithResponse(
         String nextLink,
-        Context context) {
-        return block(this.client.getReadReceiptsNextPage(nextLink, context));
+        RequestContext requestContext) {
+        return block(this.client.getReadReceiptsNextPage(nextLink, requestContext));
     }
 
     private <T> T block(CompletableFuture<T> completableFuture) {

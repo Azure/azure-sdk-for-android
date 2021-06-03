@@ -7,7 +7,7 @@ import android.util.Log;
 
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.concurrent.TimeUnit;
@@ -22,7 +22,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     private final int index;
     private final HttpPipeline httpPipeline;
     private final HttpRequest httpRequest;
-    private final Context context;
+    private final RequestContext context;
     private final CancellationToken cancellationToken;
     private final NextPolicyCallback prevPolicyCallback;
     private volatile boolean reportedBypassedError;
@@ -37,18 +37,18 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      *
      * @param httpPipeline The HTTP pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
-     * @param context The context to flow through the pipeline.
+     * @param requestContext The context to flow through the pipeline.
      * @param cancellationToken The cancellation token for the pipeline execution.
      * @param pipelineSendCallback The callback to invoke once the execution of the pipeline completes.
      */
     static void beginPipelineExecution(HttpPipeline httpPipeline,
                                        HttpRequest httpRequest,
-                                       Context context,
+                                       RequestContext requestContext,
                                        CancellationToken cancellationToken,
                                        HttpCallback pipelineSendCallback) {
         Util.requireNonNull(httpPipeline, "'httpPipeline' is required.");
         Util.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Util.requireNonNull(context, "'context' is required.");
+        Util.requireNonNull(requestContext, "'context' is required.");
         Util.requireNonNull(cancellationToken, "'cancellationToken' is required.");
         Util.requireNonNull(pipelineSendCallback, "'pipelineSendCallback' is required.");
 
@@ -57,7 +57,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                 httpPipeline,
                 request,
                 rootHttpCallback,
-                context,
+                requestContext,
                 cancellationToken,
                 null,
                 new NextPolicyCallback() {
@@ -100,7 +100,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * @param httpPipeline The HTTP Pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
      * @param rootHttpCallback The Root HttpCallback from the dispatcher.
-     * @param context The context to flow through the pipeline.
+     * @param requestContext The context to flow through the pipeline.
      * @param cancellationToken cancellationToken for the pipeline run this chain belongs to.
      * @param prevChain The reference to previous chain (chain for the policy at {@code index - 1}).
      * @param prevPolicyCallback The reference to the callback provided to the {@code proceed(..)} method
@@ -110,7 +110,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                                         HttpPipeline httpPipeline,
                                         HttpRequest httpRequest,
                                         HttpCallback rootHttpCallback,
-                                        Context context,
+                                        RequestContext requestContext,
                                         CancellationToken cancellationToken,
                                         HttpPipelinePolicyChainImpl prevChain,
                                         NextPolicyCallback prevPolicyCallback) {
@@ -118,7 +118,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         assert (httpPipeline != null
             && httpRequest != null
             && rootHttpCallback != null
-            && context != null
+            && requestContext != null
             && cancellationToken != null
             && (prevChain != null || prevPolicyCallback != null));
 
@@ -126,7 +126,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         this.httpPipeline = httpPipeline;
         this.httpRequest = httpRequest;
         this.rootHttpCallback = rootHttpCallback;
-        this.context = context;
+        this.context = requestContext;
         this.cancellationToken = cancellationToken;
         this.prevChain = prevChain;
         this.prevPolicyCallback = prevPolicyCallback;
@@ -143,7 +143,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     }
 
     @Override
-    public Context getContext() {
+    public RequestContext getContext() {
         return this.context;
     }
 
@@ -217,11 +217,12 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * </p>
      *
      * @param httpRequest The HTTP request for the next policy.
-     * @param context The HTTP context for the next policy.
+     * @param requestContext The HTTP context for the next policy.
      * @param proceedCallback The current policy's callback (policy at {@code index})
      *     that next policy notify results to.
      */
-    private void processNextPolicyIntern(HttpRequest httpRequest, Context context, NextPolicyCallback proceedCallback) {
+    private void processNextPolicyIntern(HttpRequest httpRequest, RequestContext requestContext,
+                                         NextPolicyCallback proceedCallback) {
         final int nextIndex = this.index + 1;
         assert nextIndex >= 0;
 
@@ -230,7 +231,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
             this.httpPipeline,
             httpRequest,
             this.rootHttpCallback,
-            context,
+            requestContext,
             this.cancellationToken,
             this,
             proceedCallback);
@@ -270,7 +271,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * chain.complete(..). If a bypassed error appears in the pipeline, we "short circuit" the pipeline chain
      * and report error to "rootCallback". The "rootCallback" is designed to delegates the received result
      * (response|error) to the callback that was provided to
-     * {@link HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} and
+     * {@link HttpPipeline#send(HttpRequest, RequestContext, CancellationToken, HttpCallback)} and
      * to take care of dispatcher specific housekeeping.
      *
      * If an attempt to report a bypassed error e1 results in another bypassed error e2, we log e2 and re-throw e2.

@@ -11,7 +11,7 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -87,7 +87,7 @@ public class AddHeadersPolicyTest {
 
         CountDownLatch latch = new CountDownLatch(1);
         pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/"),
-            Context.NONE,
+            RequestContext.NONE,
             CancellationToken.NONE,
             new HttpCallback() {
                 @Override

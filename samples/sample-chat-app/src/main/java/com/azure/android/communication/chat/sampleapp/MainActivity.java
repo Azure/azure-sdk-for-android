@@ -42,7 +42,7 @@ import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.util.paging.PagedAsyncStream;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.AsyncStreamHandler;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import org.threeten.bp.OffsetDateTime;
@@ -443,7 +443,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 PagedAsyncStream<ChatMessageReadReceipt> readReceipts =
-                    chatThreadAsyncClient.listReadReceipts(listReadReceiptOptions, Context.NONE);
+                    chatThreadAsyncClient.listReadReceipts(listReadReceiptOptions, RequestContext.NONE);
                 readReceipts.forEach(readReceipt -> {
                     Log.d(TAG, "Got receipt for participant "
                         + ((CommunicationUserIdentifier)readReceipt.getSenderCommunicationIdentifier()).getId()

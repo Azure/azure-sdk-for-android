@@ -12,7 +12,7 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.PolicyCompleter;
 import com.azure.android.core.http.util.UrlBuilder;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.logging.LogLevel;
 
@@ -47,7 +47,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
     }
 
     /**
-     * Key for {@link Context} to pass request retry count metadata for logging.
+     * Key for {@link RequestContext} to pass request retry count metadata for logging.
      */
     public static final String RETRY_COUNT_CONTEXT = "requestRetryCount";
 

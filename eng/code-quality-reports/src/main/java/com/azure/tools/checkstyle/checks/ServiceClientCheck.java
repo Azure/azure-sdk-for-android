@@ -49,7 +49,7 @@ public class ServiceClientCheck extends AbstractCheck {
     private static final String ASYNC_CLIENT = "AsyncClient";
     private static final String CLIENT = "Client";
     private static final String IS_ASYNC = "isAsync";
-    private static final String CONTEXT = "Context";
+    private static final String REQUEST_CONTEXT = "RequestContext";
 
     private static final String RESPONSE_BRACKET = "Response<";
     private static final String PAGED_RESPONSE_BRACKET = "PagedResponse<";
@@ -417,20 +417,20 @@ public class ServiceClientCheck extends AbstractCheck {
                 }
                 final DetailAST paramTypeIdentToken =
                     parameterToken.findFirstToken(TokenTypes.TYPE).findFirstToken(TokenTypes.IDENT);
-                return paramTypeIdentToken != null && CONTEXT.equals(paramTypeIdentToken.getText());
+                return paramTypeIdentToken != null && REQUEST_CONTEXT.equals(paramTypeIdentToken.getText());
             })
             .isPresent();
 
         if (!containsContextParameter) {
             if (returnType.startsWith(COMPLETABLE_FUTURE_RESPONSE_BRACKET)
                 || returnType.startsWith(COMPLETABLE_FUTURE_PAGED_RESPONSE_BRACKET)) {
-                log(methodDefToken, String.format(ASYNC_CONTEXT_ERROR, CONTEXT));
+                log(methodDefToken, String.format(ASYNC_CONTEXT_ERROR, REQUEST_CONTEXT));
             }
 
             // Context should be passed in as an argument to all public methods annotated with @ServiceMethod that
             // return Response<T> in sync clients.
             if (returnType.startsWith(RESPONSE_BRACKET)) {
-                log(methodDefToken, String.format(SYNC_CONTEXT_ERROR, CONTEXT));
+                log(methodDefToken, String.format(SYNC_CONTEXT_ERROR, REQUEST_CONTEXT));
             }
         }
     }

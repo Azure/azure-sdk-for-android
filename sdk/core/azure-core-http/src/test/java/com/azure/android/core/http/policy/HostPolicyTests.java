@@ -10,7 +10,7 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ public class HostPolicyTests {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost");
         CountDownLatch latch = new CountDownLatch(1);
         pipeline.send(createHttpRequest("ftp://www.example.com"),
-            Context.NONE,
+            RequestContext.NONE,
             CancellationToken.NONE,
             new HttpCallback() {
                 @Override
@@ -52,7 +52,7 @@ public class HostPolicyTests {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost:1234");
         CountDownLatch latch = new CountDownLatch(1);
         pipeline.send(createHttpRequest("ftp://www.example.com:1234"),
-            Context.NONE,
+            RequestContext.NONE,
             CancellationToken.NONE,
             new HttpCallback() {
                 @Override

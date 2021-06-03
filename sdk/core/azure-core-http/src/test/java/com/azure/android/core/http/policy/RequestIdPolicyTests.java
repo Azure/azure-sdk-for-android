@@ -11,7 +11,7 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -90,7 +90,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch1 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/"), Context.NONE, CancellationToken.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/"), RequestContext.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -109,7 +109,7 @@ public class RequestIdPolicyTests {
         awaitOnLatch(latch1, "newRequestIdForEachCall");
 
         CountDownLatch latch2 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), RequestContext.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -170,7 +170,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), RequestContext.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

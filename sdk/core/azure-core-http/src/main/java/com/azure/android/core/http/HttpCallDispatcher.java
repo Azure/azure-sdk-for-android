@@ -5,7 +5,7 @@ package com.azure.android.core.http;
 
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.io.IOException;
@@ -125,7 +125,7 @@ public final class HttpCallDispatcher {
 
         // 1]. The most common use case of 'enqueue' is to enable the async pipeline run for an HTTP request.
         /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline, HttpRequest,
-         * Context, CancellationToken, HttpCallback)} */
+         * RequestContext, CancellationToken, HttpCallback)} */
         //
         // 2]. Additionally, an HttpClient implementation that does not have native async support can
         // use 'enqueue' to enable async HTTP calls.
@@ -174,20 +174,20 @@ public final class HttpCallDispatcher {
      *
      * @param chain The chain to invoke {@code processNextPolicy} call on.
      * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
-     * @param context The context parameter for the scheduled {@code processNextPolicy} call.
+     * @param requestContext The context parameter for the scheduled {@code processNextPolicy} call.
      * @param callback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
      * @param delay The time from now to delay the execution of the {@code processNextPolicy} call.
      * @param timeUnit The time unit of the {@code delay}.
      */
     void scheduleProcessNextPolicy(HttpPipelinePolicyChainImpl chain,
                                    HttpRequest httpRequest,
-                                   Context context,
+                                   RequestContext requestContext,
                                    NextPolicyCallback callback,
                                    long delay,
                                    TimeUnit timeUnit) {
         Util.requireNonNull(chain, "'chain' is required.");
         Util.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Util.requireNonNull(context, "'context' is required.");
+        Util.requireNonNull(requestContext, "'context' is required.");
         Util.requireNonNull(callback, "'httpCallback' is required.");
         Util.requireNonNull(timeUnit, "'timeUnit' is required.");
 

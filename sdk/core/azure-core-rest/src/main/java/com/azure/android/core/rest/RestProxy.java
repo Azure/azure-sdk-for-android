@@ -11,7 +11,7 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.io.IOException;
@@ -80,7 +80,7 @@ public final class RestProxy implements InvocationHandler {
             return null;
         }
 
-        this.httpPipeline.send(httpRequest, Context.NONE,
+        this.httpPipeline.send(httpRequest, RequestContext.NONE,
             cancellationToken,
             new HttpPipelineCallback(methodParser, restCallback));
         return null;

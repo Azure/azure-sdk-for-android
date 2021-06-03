@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.azure.android.communication.chat.sampleapp.MainActivity">
+    tools:requestContext="com.azure.android.communication.chat.sampleapp.MainActivity">
 
   <LinearLayout
       android:id="@+id/linearLayout2"
@@ -15,7 +15,7 @@
       app:layout_constraintEnd_toStartOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent"
-      tools:context="com.azure.android.communication.chat.sampleapp.MainActivity"
+      tools:requestContext="com.azure.android.communication.chat.sampleapp.MainActivity"
       tools:showIn="@layout/activity_main">
 
     <Button
