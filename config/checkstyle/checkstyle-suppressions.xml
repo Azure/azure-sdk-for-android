@@ -144,7 +144,7 @@
   <!-- Replacing Objects.requireNonNull with explicit null check -->
   <suppress
       checks="com.azure.tools.checkstyle.checks.JavadocThrowsChecks"
-      files="com.azure.android.core.util.Context"/>
+      files="com.azure.android.core.util.RequestContext"/>
 
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.core.credential.AzureKeyCredential.java"/>

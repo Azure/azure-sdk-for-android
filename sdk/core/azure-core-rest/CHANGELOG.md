@@ -2,6 +2,13 @@
 
 ## 1.0.0-beta.6 (Unreleased)
 
+### New Features
+
+- Added `PagedAsyncStream` and `PagedIterable` to support enumeration of a paged responses from REST services.
+
+### Breaking Changes
+
+- Removed `Page` type and moved it to azure-core.
 
 ## 1.0.0-beta.5 (2021-03-26)
 

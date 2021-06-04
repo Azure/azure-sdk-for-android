@@ -40,7 +40,7 @@ import com.azure.android.core.rest.util.paging.PagedAsyncStream;
 import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.rest.util.paging.PagedResponseBase;
 import com.azure.android.core.util.AsyncStream;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
 
 import java.util.ArrayList;
@@ -95,16 +95,16 @@ public final class ChatThreadAsyncClient {
      * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<Void>> updateTopicWithResponse(String topic, Context context) {
+    public CompletableFuture<Response<Void>> updateTopicWithResponse(String topic, RequestContext requestContext) {
         if (topic == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'topic' cannot be null."));
         }
-        return this.updateTopic(topic, context);
+        return this.updateTopic(topic, requestContext);
     }
 
     /**
@@ -123,25 +123,25 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets chat thread properties.
      *
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the thread properties.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<ChatThreadProperties>> getPropertiesWithResponse(Context context) {
-        return this.getProperties(context);
+    public CompletableFuture<Response<ChatThreadProperties>> getPropertiesWithResponse(RequestContext requestContext) {
+        return this.getProperties(requestContext);
     }
 
     /**
      * Gets chat thread properties.
      *
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the thread properties.
      */
-    CompletableFuture<Response<ChatThreadProperties>> getProperties(Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.getChatThreadPropertiesWithResponseAsync(this.chatThreadId, context)
+    CompletableFuture<Response<ChatThreadProperties>> getProperties(RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.getChatThreadPropertiesWithResponseAsync(this.chatThreadId, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(result -> {
@@ -154,16 +154,16 @@ public final class ChatThreadAsyncClient {
      * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
-    CompletableFuture<Response<Void>> updateTopic(String topic, Context context) {
-        context = context == null ? Context.NONE : context;
+    CompletableFuture<Response<Void>> updateTopic(String topic, RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.updateChatThreadPropertiesWithResponseAsync(
             chatThreadId,
             new UpdateChatThreadOptions().setTopic(topic),
-            context
+            requestContext
         ).exceptionally(throwable -> {
             throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
         });
@@ -191,17 +191,17 @@ public final class ChatThreadAsyncClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param participants Participants to add.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<AddChatParticipantsResult>> addParticipantsWithResponse(
-        Iterable<ChatParticipant> participants, Context context) {
+        Iterable<ChatParticipant> participants, RequestContext requestContext) {
         if (participants == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'participants' cannot be null."));
         }
-        return this.addParticipants(participants, context);
+        return this.addParticipants(participants, requestContext);
     }
 
     /**
@@ -223,30 +223,30 @@ public final class ChatThreadAsyncClient {
      * Adds a participant to a thread. If the participant already exists, no change occurs.
      *
      * @param participant The new participant.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> addParticipantWithResponse(
-        ChatParticipant participant, Context context) {
-        return this.addParticipant(participant, context);
+        ChatParticipant participant, RequestContext requestContext) {
+        return this.addParticipant(participant, requestContext);
     }
 
     /**
      * Adds a participant to a thread. If participants already exist, no change occurs.
      *
      * @param participant The new participant.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws InvalidParticipantException thrown if the participant is rejected by the server.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
-    CompletableFuture<Response<Void>> addParticipant(ChatParticipant participant, Context context) {
-        context = context == null ? Context.NONE : context;
+    CompletableFuture<Response<Void>> addParticipant(ChatParticipant participant, RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.addParticipants(
             Collections.singletonList(participant),
-            context)
+            requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(result -> {
@@ -264,15 +264,15 @@ public final class ChatThreadAsyncClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param participants Collection of participants to add.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
     CompletableFuture<Response<AddChatParticipantsResult>> addParticipants(Iterable<ChatParticipant> participants,
-                                                                           Context context) {
-        context = context == null ? Context.NONE : context;
+                                                                           RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.addChatParticipantsWithResponseAsync(
-            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(participants, this.logger), context)
+            this.chatThreadId, AddChatParticipantsOptionsConverter.convert(participants, this.logger), requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(result -> {
@@ -302,31 +302,32 @@ public final class ChatThreadAsyncClient {
      * Remove a participant from a thread.
      *
      * @param identifier identity of the participant to remove from the thread.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the remove request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> removeParticipantWithResponse(CommunicationIdentifier identifier,
-                                                                           Context context) {
+                                                                           RequestContext requestContext) {
         if (identifier == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'identifier' cannot be null."));
         }
-        return this.removeParticipant(identifier, context);
+        return this.removeParticipant(identifier, requestContext);
     }
 
     /**
      * Remove a participant from a thread.
      *
      * @param identifier identity of the participant to remove from the thread.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the remove request.
      */
-    CompletableFuture<Response<Void>> removeParticipant(CommunicationIdentifier identifier, Context context) {
-        context = context == null ? Context.NONE : context;
+    CompletableFuture<Response<Void>> removeParticipant(CommunicationIdentifier identifier,
+                                                        RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.removeChatParticipantWithResponseAsync(
-            chatThreadId, CommunicationIdentifierConverter.convert(identifier, this.logger), context)
+            chatThreadId, CommunicationIdentifierConverter.convert(identifier, this.logger), requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -339,26 +340,26 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatParticipant> listParticipants() {
-        return this.listParticipants(new ListParticipantsOptions(), Context.NONE);
+        return this.listParticipants(new ListParticipantsOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of the thread participants.
      *
      * @param listParticipantsOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the paged stream of participants in the thread.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatParticipant> listParticipants(
         ListParticipantsOptions listParticipantsOptions,
-        Context context) {
+        RequestContext requestContext) {
         final Function<String, CompletableFuture<PagedResponse<ChatParticipant>>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getParticipantsFirstPage(listParticipantsOptions, context);
+                return this.getParticipantsFirstPage(listParticipantsOptions, requestContext);
             } else {
-                return this.getParticipantsNextPage(pageId, context);
+                return this.getParticipantsNextPage(pageId, requestContext);
             }
         };
 
@@ -373,18 +374,18 @@ public final class ChatThreadAsyncClient {
      * Gets the list of the thread participants in the first page.
      *
      * @param listParticipantsOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread participants
      * in the first page.
      */
     CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsFirstPage(
         ListParticipantsOptions listParticipantsOptions,
-        Context context) {
-        context = context == null ? Context.NONE : context;
+        RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.listChatParticipantsSinglePageAsync(this.chatThreadId,
             listParticipantsOptions.getMaxPageSize(),
-            listParticipantsOptions.getSkip(), context)
+            listParticipantsOptions.getSkip(), requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {
@@ -408,14 +409,14 @@ public final class ChatThreadAsyncClient {
      * Gets the list of the thread participants in the page with given id.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread participants in the page.
      */
     CompletableFuture<PagedResponse<ChatParticipant>> getParticipantsNextPage(String nextLink,
-                                                                              Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.listChatParticipantsNextSinglePageAsync(nextLink, context)
+                                                                              RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.listChatParticipantsNextSinglePageAsync(nextLink, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {
@@ -457,30 +458,31 @@ public final class ChatThreadAsyncClient {
      * Sends a message to a thread.
      *
      * @param options Options for sending the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<SendChatMessageResult>> sendMessageWithResponse(SendChatMessageOptions options,
-                                                                       Context context) {
+                                                                       RequestContext requestContext) {
         if (options == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
         }
-        return this.sendMessage(options, context);
+        return this.sendMessage(options, requestContext);
     }
 
     /**
      * Sends a message to a thread.
      *
      * @param options options for sending the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
-    CompletableFuture<Response<SendChatMessageResult>> sendMessage(SendChatMessageOptions options, Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.sendChatMessageWithResponseAsync(this.chatThreadId, options, context)
+    CompletableFuture<Response<SendChatMessageResult>> sendMessage(SendChatMessageOptions options,
+                                                                   RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.sendChatMessageWithResponseAsync(this.chatThreadId, options, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -508,29 +510,31 @@ public final class ChatThreadAsyncClient {
      * Gets a message by id.
      *
      * @param chatMessageId The message id.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the message.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<ChatMessage>> getMessageWithResponse(String chatMessageId, Context context) {
+    public CompletableFuture<Response<ChatMessage>> getMessageWithResponse(String chatMessageId,
+                                                                           RequestContext requestContext) {
         if (chatMessageId == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'chatMessageId' cannot be null."));
         }
-        return this.getMessage(chatMessageId, context);
+        return this.getMessage(chatMessageId, requestContext);
     }
 
     /**
      * Gets a message by id.
      *
      * @param chatMessageId the message id.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing the message.
      */
-    CompletableFuture<Response<ChatMessage>> getMessage(String chatMessageId, Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.getChatMessageWithResponseAsync(chatThreadId, chatMessageId, context)
+    CompletableFuture<Response<ChatMessage>> getMessage(String chatMessageId,
+                                                        RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.getChatMessageWithResponseAsync(chatThreadId, chatMessageId, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(result -> new SimpleResponse<>(result, ChatMessageConverter.convert(result.getValue(),
@@ -544,26 +548,26 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatMessage> listMessages() {
-        return this.listMessages(new ListChatMessagesOptions(), Context.NONE);
+        return this.listMessages(new ListChatMessagesOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of thread messages.
      *
      * @param listMessagesOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the paged stream of messages in the thread.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatMessage> listMessages(
         ListChatMessagesOptions listMessagesOptions,
-        Context context) {
+        RequestContext requestContext) {
         final Function<String, CompletableFuture<PagedResponse<ChatMessage>>> pageRetriever = (String pageId) -> {
             if (pageId == null) {
-                return this.getMessagesFirstPage(listMessagesOptions, context);
+                return this.getMessagesFirstPage(listMessagesOptions, requestContext);
             } else {
-                return this.getMessagesNextPage(pageId, context);
+                return this.getMessagesNextPage(pageId, requestContext);
             }
         };
 
@@ -578,18 +582,18 @@ public final class ChatThreadAsyncClient {
      * Gets the list of thread messages in the first page.
      *
      * @param listChatMessagesOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread messages
      * in the first page.
      */
     CompletableFuture<PagedResponse<ChatMessage>> getMessagesFirstPage(
         ListChatMessagesOptions listChatMessagesOptions,
-        Context context) {
-        context = context == null ? Context.NONE : context;
+        RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.listChatMessagesSinglePageAsync(this.chatThreadId,
             listChatMessagesOptions.getMaxPageSize(),
-            listChatMessagesOptions.getStartTime(), context)
+            listChatMessagesOptions.getStartTime(), requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {
@@ -613,14 +617,14 @@ public final class ChatThreadAsyncClient {
      * Gets the list of the thread messages in the page with given id.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread messages in the page.
      */
     CompletableFuture<PagedResponse<ChatMessage>> getMessagesNextPage(String nextLink,
-                                                                      Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.listChatMessagesNextSinglePageAsync(nextLink, context)
+                                                                      RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.listChatMessagesNextSinglePageAsync(nextLink, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {
@@ -665,21 +669,21 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId the message id.
      * @param options options for updating the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> updateMessageWithResponse(String chatMessageId,
                                                                        UpdateChatMessageOptions options,
-                                                                       Context context) {
+                                                                       RequestContext requestContext) {
         if (chatMessageId == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'chatMessageId' cannot be null."));
         }
         if (options == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'options' cannot be null."));
         }
-        return this.updateMessage(chatMessageId, options, context);
+        return this.updateMessage(chatMessageId, options, requestContext);
     }
 
     /**
@@ -687,14 +691,15 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId the message id.
      * @param options options for updating the message.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
     CompletableFuture<Response<Void>> updateMessage(String chatMessageId,
                                                     UpdateChatMessageOptions options,
-                                                    Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.updateChatMessageWithResponseAsync(chatThreadId, chatMessageId, options, context)
+                                                    RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.updateChatMessageWithResponseAsync(chatThreadId, chatMessageId, options,
+            requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -722,29 +727,31 @@ public final class ChatThreadAsyncClient {
      * Deletes a message.
      *
      * @param chatMessageId the message id.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<Void>> deleteMessageWithResponse(String chatMessageId, Context context) {
+    public CompletableFuture<Response<Void>> deleteMessageWithResponse(String chatMessageId,
+                                                                       RequestContext requestContext) {
         if (chatMessageId == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'chatMessageId' cannot be null."));
         }
-        return this.deleteMessage(chatMessageId, context);
+        return this.deleteMessage(chatMessageId, requestContext);
     }
 
     /**
      * Deletes a message.
      *
      * @param chatMessageId the message id.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
-    CompletableFuture<Response<Void>> deleteMessage(String chatMessageId, Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.deleteChatMessageWithResponseAsync(chatThreadId, chatMessageId, context)
+    CompletableFuture<Response<Void>> deleteMessage(String chatMessageId,
+                                                    RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.deleteChatMessageWithResponseAsync(chatThreadId, chatMessageId, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -766,25 +773,25 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<Void>> sendTypingNotificationWithResponse(Context context) {
-        return this.sendTypingNotification(context);
+    public CompletableFuture<Response<Void>> sendTypingNotificationWithResponse(RequestContext requestContext) {
+        return this.sendTypingNotification(requestContext);
     }
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
-    CompletableFuture<Response<Void>> sendTypingNotification(Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.sendTypingNotificationWithResponseAsync(chatThreadId, context)
+    CompletableFuture<Response<Void>> sendTypingNotification(RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.sendTypingNotificationWithResponseAsync(chatThreadId, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -812,31 +819,32 @@ public final class ChatThreadAsyncClient {
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId The id of the chat message that was read.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<Void>> sendReadReceiptWithResponse(String chatMessageId, Context context) {
+    public CompletableFuture<Response<Void>> sendReadReceiptWithResponse(String chatMessageId,
+                                                                         RequestContext requestContext) {
         if (chatMessageId == null) {
             return CompletableFuture.failedFuture(new NullPointerException("'chatMessageId' cannot be null."));
         }
-        return this.sendReadReceipt(chatMessageId, context);
+        return this.sendReadReceipt(chatMessageId, requestContext);
     }
 
     /**
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId The id of the chat message that was read.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
-    CompletableFuture<Response<Void>> sendReadReceipt(String chatMessageId, Context context) {
-        context = context == null ? Context.NONE : context;
+    CompletableFuture<Response<Void>> sendReadReceipt(String chatMessageId, RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         SendReadReceiptRequest request = new SendReadReceiptRequest()
             .setChatMessageId(chatMessageId);
-        return this.chatThreadClient.sendChatReadReceiptWithResponseAsync(chatThreadId, request, context)
+        return this.chatThreadClient.sendChatReadReceiptWithResponseAsync(chatThreadId, request, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             });
@@ -849,27 +857,27 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatMessageReadReceipt> listReadReceipts() {
-        return this.listReadReceipts(new ListReadReceiptOptions(), Context.NONE);
+        return this.listReadReceipts(new ListReadReceiptOptions(), RequestContext.NONE);
     }
 
     /**
      * Gets the list of thread read receipts.
      *
      * @param listReadReceiptOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the paged stream of read receipts in the thread.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedAsyncStream<ChatMessageReadReceipt> listReadReceipts(
         ListReadReceiptOptions listReadReceiptOptions,
-        Context context) {
+        RequestContext requestContext) {
         final Function<String, CompletableFuture<PagedResponse<ChatMessageReadReceipt>>> pageRetriever =
             (String pageId) -> {
                 if (pageId == null) {
-                    return this.getReadReceiptsFirstPage(listReadReceiptOptions, context);
+                    return this.getReadReceiptsFirstPage(listReadReceiptOptions, requestContext);
                 } else {
-                    return this.getReadReceiptsNextPage(pageId, context);
+                    return this.getReadReceiptsNextPage(pageId, requestContext);
                 }
             };
 
@@ -885,18 +893,18 @@ public final class ChatThreadAsyncClient {
      * Gets the list of thread read receipts in the first page.
      *
      * @param listReadReceiptOptions the list options.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
      * in the first page.
      */
     CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsFirstPage(
         ListReadReceiptOptions listReadReceiptOptions,
-        Context context) {
-        context = context == null ? Context.NONE : context;
+        RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.listChatReadReceiptsSinglePageAsync(this.chatThreadId,
             listReadReceiptOptions.getMaxPageSize(),
-            listReadReceiptOptions.getSkip(), context)
+            listReadReceiptOptions.getSkip(), requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {
@@ -920,15 +928,15 @@ public final class ChatThreadAsyncClient {
      * Gets the list of the thread read receipts in the page with given id.
      *
      * @param nextLink the identifier for the page to retrieve.
-     * @param context the context to associate with this operation.
+     * @param requestContext the context to associate with this operation.
      *
      * @return the {@link CompletableFuture} that emits the response containing list of thread read receipts
      * in the page.
      */
     CompletableFuture<PagedResponse<ChatMessageReadReceipt>> getReadReceiptsNextPage(String nextLink,
-                                                                                     Context context) {
-        context = context == null ? Context.NONE : context;
-        return this.chatThreadClient.listChatReadReceiptsNextSinglePageAsync(nextLink, context)
+                                                                                     RequestContext requestContext) {
+        requestContext = requestContext == null ? RequestContext.NONE : requestContext;
+        return this.chatThreadClient.listChatReadReceiptsNextSinglePageAsync(nextLink, requestContext)
             .exceptionally(throwable -> {
                 throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
             }).thenApply(response -> {

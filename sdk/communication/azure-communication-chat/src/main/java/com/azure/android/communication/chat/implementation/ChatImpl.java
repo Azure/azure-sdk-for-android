@@ -29,7 +29,8 @@ import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.rest.util.paging.PagedResponseBase;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
+
 import java.util.concurrent.ExecutionException;
 import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Function;
@@ -69,7 +70,7 @@ public final class ChatImpl {
                 @QueryParam("api-version") String apiVersion,
                 @BodyParam("application/json") CreateChatThreadOptions createChatThreadRequest,
                 @HeaderParam("Accept") String accept,
-                Context context,
+                RequestContext requestContext,
                 Callback<Response<CreateChatThreadResult>> callback);
 
         @Get("/chat/threads")
@@ -81,7 +82,7 @@ public final class ChatImpl {
                 @QueryParam("startTime") OffsetDateTime startTime,
                 @QueryParam("api-version") String apiVersion,
                 @HeaderParam("Accept") String accept,
-                Context context,
+                RequestContext requestContext,
                 Callback<Response<ChatThreadsItemCollection>> callback);
 
         @Delete("/chat/threads/{chatThreadId}")
@@ -92,7 +93,7 @@ public final class ChatImpl {
                 @PathParam("chatThreadId") String chatThreadId,
                 @QueryParam("api-version") String apiVersion,
                 @HeaderParam("Accept") String accept,
-                Context context,
+                RequestContext requestContext,
                 Callback<Response<Void>> callback);
 
         @Get("{nextLink}")
@@ -102,7 +103,7 @@ public final class ChatImpl {
                 @PathParam(value = "nextLink", encoded = true) String nextLink,
                 @HostParam("endpoint") String endpoint,
                 @HeaderParam("Accept") String accept,
-                Context context,
+                RequestContext requestContext,
                 Callback<Response<ChatThreadsItemCollection>> callback);
     }
 
@@ -130,7 +131,7 @@ public final class ChatImpl {
                 this.client.getApiVersion(),
                 createChatThreadRequest,
                 accept,
-                Context.NONE,
+                RequestContext.NONE,
                 completableFuture);
         return completableFuture;
     }
@@ -144,14 +145,14 @@ public final class ChatImpl {
      *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
      *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
      *     request. It is recommended to use version 4 (random) UUIDs.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
-            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
+            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, RequestContext requestContext) {
         final String accept = "application/json";
         ResponseCompletableFuture<CreateChatThreadResult> completableFuture = new ResponseCompletableFuture<>();
         service.createChatThread(
@@ -160,7 +161,7 @@ public final class ChatImpl {
                 this.client.getApiVersion(),
                 createChatThreadRequest,
                 accept,
-                context,
+            requestContext,
                 completableFuture);
         return completableFuture;
     }
@@ -212,7 +213,7 @@ public final class ChatImpl {
      *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
      *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
      *     request. It is recommended to use version 4 (random) UUIDs.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -220,8 +221,8 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
-            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
-        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context)
+            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, RequestContext requestContext) {
+        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, requestContext)
                 .thenApply(response -> response.getValue());
     }
 
@@ -281,7 +282,7 @@ public final class ChatImpl {
      *     response without the server executing the request multiple times. The value of the Repeatability-Request-Id
      *     is an opaque string representing a client-generated, globally unique for all time, identifier for the
      *     request. It is recommended to use version 4 (random) UUIDs.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -289,9 +290,9 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CreateChatThreadResult> createChatThreadWithResponse(
-            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
+            CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, RequestContext requestContext) {
         try {
-            return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context).get();
+            return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, requestContext).get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
@@ -332,7 +333,7 @@ public final class ChatImpl {
                 startTime,
                 this.client.getApiVersion(),
                 accept,
-                Context.NONE,
+                RequestContext.NONE,
                 completableFuture);
         return completableFuture;
     }
@@ -343,7 +344,7 @@ public final class ChatImpl {
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format:
      *     `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -351,7 +352,7 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsSinglePageAsync(
-            Integer maxPageSize, OffsetDateTime startTime, Context context) {
+            Integer maxPageSize, OffsetDateTime startTime, RequestContext requestContext) {
         final String accept = "application/json";
         PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
@@ -371,7 +372,7 @@ public final class ChatImpl {
                 startTime,
                 this.client.getApiVersion(),
                 accept,
-                context,
+            requestContext,
                 completableFuture);
         return completableFuture;
     }
@@ -453,7 +454,7 @@ public final class ChatImpl {
                 chatThreadId,
                 this.client.getApiVersion(),
                 accept,
-                Context.NONE,
+                RequestContext.NONE,
                 completableFuture);
         return completableFuture;
     }
@@ -462,13 +463,13 @@ public final class ChatImpl {
      * Deletes a thread.
      *
      * @param chatThreadId Id of the thread to be deleted.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId, Context context) {
+    public CompletableFuture<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId, RequestContext requestContext) {
         final String accept = "application/json";
         ResponseCompletableFuture<Void> completableFuture = new ResponseCompletableFuture<>();
         service.deleteChatThread(
@@ -476,7 +477,7 @@ public final class ChatImpl {
                 chatThreadId,
                 this.client.getApiVersion(),
                 accept,
-                context,
+            requestContext,
                 completableFuture);
         return completableFuture;
     }
@@ -499,15 +500,15 @@ public final class ChatImpl {
      * Deletes a thread.
      *
      * @param chatThreadId Id of the thread to be deleted.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Void> deleteChatThreadAsync(String chatThreadId, Context context) {
-        return deleteChatThreadWithResponseAsync(chatThreadId, context).thenApply(response -> response.getValue());
+    public CompletableFuture<Void> deleteChatThreadAsync(String chatThreadId, RequestContext requestContext) {
+        return deleteChatThreadWithResponseAsync(chatThreadId, requestContext).thenApply(response -> response.getValue());
     }
 
     /**
@@ -533,16 +534,16 @@ public final class ChatImpl {
      * Deletes a thread.
      *
      * @param chatThreadId Id of the thread to be deleted.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> deleteChatThreadWithResponse(String chatThreadId, Context context) {
+    public Response<Void> deleteChatThreadWithResponse(String chatThreadId, RequestContext requestContext) {
         try {
-            return deleteChatThreadWithResponseAsync(chatThreadId, context).get();
+            return deleteChatThreadWithResponseAsync(chatThreadId, requestContext).get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (ExecutionException e) {
@@ -574,7 +575,7 @@ public final class ChatImpl {
                                     null);
                         });
 
-        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE, completableFuture);
+        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, RequestContext.NONE, completableFuture);
         return completableFuture;
     }
 
@@ -582,7 +583,7 @@ public final class ChatImpl {
      * Get the next page of items.
      *
      * @param nextLink The nextLink parameter.
-     * @param context The context to associate with this operation.
+     * @param requestContext The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -590,7 +591,7 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<PagedResponse<ChatThreadItem>> listChatThreadsNextSinglePageAsync(
-            String nextLink, Context context) {
+            String nextLink, RequestContext requestContext) {
         final String accept = "application/json";
         PagedResponseCompletableFuture<ChatThreadsItemCollection, ChatThreadItem> completableFuture =
                 new PagedResponseCompletableFuture<>(
@@ -604,7 +605,7 @@ public final class ChatImpl {
                                     null);
                         });
 
-        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, context, completableFuture);
+        service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, requestContext, completableFuture);
         return completableFuture;
     }
 

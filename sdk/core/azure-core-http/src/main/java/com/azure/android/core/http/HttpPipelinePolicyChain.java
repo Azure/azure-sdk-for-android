@@ -4,7 +4,7 @@
 package com.azure.android.core.http;
 
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,20 +44,20 @@ public interface HttpPipelinePolicyChain {
 
     /**
      * Gets the context that was given to
-     * {@link HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} call,
+     * {@link HttpPipeline#send(HttpRequest, RequestContext, CancellationToken, HttpCallback)} call,
      * the send call that initiated the pipeline run.
      *
      * <p>
      * The policy implementation may inspect the context for any known settings specific to the policy.
      *
      * If the policy calls into Azure SDK API that accept context, then this context
-     * or a new immutable context object obtained by calling the {@link Context#addData(Object, Object)}
+     * or a new immutable context object obtained by calling the {@link RequestContext#addData(Object, Object)}
      * on this context should be provided to the API.
      * </p>
      *
      * @return The context.
      */
-    Context getContext();
+    RequestContext getContext();
 
     /**
      * Signal that the pipeline can proceed with the execution of the next policy.

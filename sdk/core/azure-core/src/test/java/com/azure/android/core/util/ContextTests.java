@@ -3,9 +3,6 @@
 
 package com.azure.android.core.util;
 
-import com.azure.android.core.util.Context;
-import com.azure.android.core.util.Option;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Tests {@link Context}
+ * Tests {@link RequestContext}
  */
 public class ContextTests {
     @Test
     public void simpleContext() {
-        Context context = new Context("key", "value");
+        RequestContext context = new RequestContext("key", "value");
 
         Option<Object> optionValue = context.getData("key");
         assertTrue(optionValue.isInitialized());
@@ -34,13 +31,13 @@ public class ContextTests {
 
     @Test
     public void constructorKeyCannotBeNull() {
-        assertThrows(NullPointerException.class, () -> new Context(null, null));
+        assertThrows(NullPointerException.class, () -> new RequestContext(null, null));
     }
 
     @ParameterizedTest
     @MethodSource("addDataSupplier")
     public void addData(String key, String value, String expectedOriginalValue) {
-        Context context = new Context("key", "value").addData(key, value);
+        RequestContext context = new RequestContext("key", "value").addData(key, value);
 
         Option<Object> optionValue = context.getData(key);
         assertTrue(optionValue.isInitialized());
@@ -65,13 +62,13 @@ public class ContextTests {
 
     @Test
     public void addDataKeyCannotBeNull() {
-        Context context = new Context("key",  "value");
+        RequestContext context = new RequestContext("key",  "value");
 
         assertThrows(IllegalArgumentException.class, () -> context.addData(null, null));
     }
 
     @Test
     public void getValueKeyCannotBeNull() {
-        assertThrows(IllegalArgumentException.class, () -> Context.NONE.getData(null));
+        assertThrows(IllegalArgumentException.class, () -> RequestContext.NONE.getData(null));
     }
 }

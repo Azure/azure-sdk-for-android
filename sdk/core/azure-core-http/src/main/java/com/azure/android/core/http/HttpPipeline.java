@@ -5,7 +5,7 @@ package com.azure.android.core.http;
 
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.Context;
+import com.azure.android.core.util.RequestContext;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public final class HttpPipeline {
 
     /**
      * Creates a HttpPipeline holding array of policies that gets applied to all request initiated through {@link
-     * HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} and it's response.
+     * HttpPipeline#send(HttpRequest, RequestContext, CancellationToken, HttpCallback)} and it's response.
      *
      * @param httpClient the http client to write request to wire and receive response from wire.
      * @param pipelinePolicies pipeline policies in the order they need to applied, a copy of this array will be made
@@ -66,22 +66,22 @@ public final class HttpPipeline {
      * Execute an HTTP call by sending the {@code request} through the HTTP pipeline.
      *
      * @param httpRequest The HTTP request to send.
-     * @param context The context that is passed through the HTTP pipeline.
+     * @param requestContext The context that is passed through the HTTP pipeline.
      *     The pipeline policies may inspect the context for any settings specific to the policy.
      *     The policies that want to make Azure SDK API calls may have to provide this context
-     *     or a context derived from it (via {@link Context#addData(Object, Object)}) to the API.
+     *     or a context derived from it (via {@link RequestContext#addData(Object, Object)}) to the API.
      * @param cancellationToken The cancellation token for the HTTP call, on which the caller
      *     may request cancellation of this HTTP call execution. Note that cancellation is best
      *     effort hence not guaranteed.
      * @param httpCallback The HTTP callback to notify the result of the HTTP call.
      */
     public void send(HttpRequest httpRequest,
-                     Context context,
+                     RequestContext requestContext,
                      CancellationToken cancellationToken,
                      HttpCallback httpCallback) {
         HttpPipelinePolicyChainImpl.beginPipelineExecution(this,
             httpRequest,
-            context,
+            requestContext,
             cancellationToken,
             httpCallback);
     }

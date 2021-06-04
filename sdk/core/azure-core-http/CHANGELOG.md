@@ -2,6 +2,10 @@
 
 ## 1.0.0-beta.6 (Unreleased)
 
+### Breaking Changes
+
+- Replaced `azure.core.util.Context` in the `HttpPipeline::send` API with `azure.core.util.RequestContext`
+- Replaced `azure.core.util.Context` in the `HttpPipelinePolicyChain` type with `azure.core.util.RequestContext`
 
 ## 1.0.0-beta.5 (2021-03-26)
 
