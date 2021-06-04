@@ -48,7 +48,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                                        HttpCallback pipelineSendCallback) {
         Util.requireNonNull(httpPipeline, "'httpPipeline' is required.");
         Util.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Util.requireNonNull(requestContext, "'context' is required.");
+        Util.requireNonNull(requestContext, "'requestContext' is required.");
         Util.requireNonNull(cancellationToken, "'cancellationToken' is required.");
         Util.requireNonNull(pipelineSendCallback, "'pipelineSendCallback' is required.");
 

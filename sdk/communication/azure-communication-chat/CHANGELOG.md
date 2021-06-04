@@ -10,12 +10,14 @@
     - Removed `getChatThreadsFirstPageWithResponse`
     - Removed `getChatThreadsNextPage`
     - Removed `getChatThreadsNextPageWithResponse`
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
 - ChatAsyncClient:
     - Added `listChatThreads`
     - Removed `getChatThreadsFirstPage`
     - Removed `getChatThreadsFirstPageWithResponse`
     - Removed `getChatThreadsNextPage`
     - Removed `getChatThreadsNextPageWithResponse`
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
 - ChatThreadClient:
     - Added `listParticipants`
     - Added `listMessages`
@@ -34,6 +36,7 @@
     - Removed `getReadReceiptsFirstPageWithResponse`
     - Removed `getReadReceiptsNextPage`
     - Removed `getReadReceiptsNextPageWithResponse`
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
 - ChatThreadAsyncClient:
     - Added `listParticipants`
     - Added `listMessages`
@@ -52,6 +55,7 @@
     - Removed `getReadReceiptsFirstPageWithResponse`
     - Removed `getReadReceiptsNextPage`
     - Removed `getReadReceiptsNextPageWithResponse`
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`.
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`.
 - Removed `com.azure.android.communication.chat.models.AddChatParticipantsOptions`.

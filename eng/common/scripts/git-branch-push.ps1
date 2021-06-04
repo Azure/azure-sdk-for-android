@@ -52,7 +52,7 @@ if ((git remote) -contains $RemoteName)
     exit 1
   }
 }
-else
+else 
 {
   Write-Host "git remote add $RemoteName $GitUrl"
   git remote add $RemoteName $GitUrl
@@ -66,8 +66,8 @@ else
 git show-ref --verify --quiet refs/heads/$PRBranchName
 if ($LASTEXITCODE -eq 0) {
   Write-Host "git checkout $PRBranchName."
-  git checkout $PRBranchName
-}
+  git checkout $PRBranchName 
+} 
 else {
   Write-Host "git checkout -b $PRBranchName."
   git checkout -b $PRBranchName
@@ -115,7 +115,7 @@ do
     {
         $needsRetry = $true
         Write-Host "Git push failed with LASTEXITCODE=$($LASTEXITCODE) Need to fetch and rebase: attempt number=$($tryNumber)"
-
+ 
         Write-Host "git fetch $RemoteName"
         git fetch $RemoteName
         if ($LASTEXITCODE -ne 0)
@@ -143,7 +143,7 @@ do
                 continue
             }
 
-            # -C0 means to use no extra before or after lines of requestContext to enable us to avoid adjacent line merge conflicts
+            # -C0 means to use no extra before or after lines of context to enable us to avoid adjacent line merge conflicts
             Write-Host "git apply -C0 $TempPatchFile"
             git apply -C0 $TempPatchFile
             if ($LASTEXITCODE -ne 0)
@@ -182,7 +182,7 @@ do
 if ($LASTEXITCODE -ne 0 -or $tryNumber -gt $numberOfRetries)
 {
     Write-Error "Unable to push commit after $($tryNumber) retries LASTEXITCODE=$($LASTEXITCODE), see command output above."
-    if (0 -eq $LASTEXITCODE)
+    if (0 -eq $LASTEXITCODE) 
     {
         exit 1
     }

@@ -4,7 +4,7 @@
         See https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#parallelexec
 
     .EXAMPLE
-    ./eng/common/scripts/Create-JobMatrix $requestContext
+    ./eng/common/scripts/Create-JobMatrix $context
 #>
 
 [CmdletBinding()]
