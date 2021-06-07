@@ -1,16 +1,16 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.6 (2021-06-07)
 
 ### New Features
 
-- Added `AsyncStream` and `AsyncStreamHandler` to support enumeration of a stream of data asynchronously
+- Added `AsyncStream` and `AsyncStreamHandler` to support enumeration of a stream of data asynchronously.
 - Added `Page` and `PagedAsyncStreamCore` that defines the paging contract.
 
 ### Breaking Changes
 
-- Renamed `azure.core.util.Context` to `azure.core.util.RequestContext`
-- Removed `ContinuablePage`
+- Renamed `azure.core.util.Context` to `azure.core.util.RequestContext`.
+- Removed `ContinuablePage`.
 
 ## 1.0.0-beta.5 (2021-03-26)
 
