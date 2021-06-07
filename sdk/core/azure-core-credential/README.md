@@ -17,7 +17,7 @@ Azure Core Credentials provides shared primitives, abstractions, and helpers aut
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-credential</artifactId>
-    <version>1.0.0-beta.5</version>
+    <version>1.0.0-beta.6</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
