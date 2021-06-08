@@ -1,7 +1,8 @@
 # Release History
 
 ## 1.0.1 (2021-06-09)
-- Update dependency version
+### Dependency Updates
+- Updated Azure Core from 1.0.0-beta.5 to 1.0.0-beta.6
 
 ## 1.0.0 (2021-04-20)
 - Update version

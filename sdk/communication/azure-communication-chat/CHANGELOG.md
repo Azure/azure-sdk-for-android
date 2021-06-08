@@ -1,6 +1,7 @@
 # Release History
 ## 1.0.0 (2021-06-09)
-- Update dependency version
+### Dependency Updates
+- Updated Azure Core from 1.0.0-beta.5 to 1.0.0-beta.6
 
 ### New Features
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
