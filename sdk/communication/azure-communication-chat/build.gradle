@@ -34,11 +34,11 @@ static def getBuildVariant() {
 
 dependencies {
     // <!-- begin: api Dependencies -->
-    api project (":sdk:core:azure-core")
-    api project (":sdk:core:azure-core-credential")
-    api project (":sdk:core:azure-core-http")
-    api project (":sdk:core:azure-core-logging")
-    api project (":sdk:core:azure-core-rest")
+    api "com.azure.android:azure-core:$azureCoreVersion"
+    api "com.azure.android:azure-core-credential:$azureCoreVersion"
+    api "com.azure.android:azure-core-http:$azureCoreVersion"
+    api "com.azure.android:azure-core-logging:$azureCoreVersion"
+    api "com.azure.android:azure-core-rest:$azureCoreVersion"
 
     api "net.sourceforge.streamsupport:android-retrofuture:$retroFutureVersion"
 
@@ -46,12 +46,12 @@ dependencies {
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
-    implementation project(":sdk:core:azure-core-http-okhttp")
+    implementation "com.azure.android:azure-core-http-okhttp:$azureCoreVersion"
     implementation "com.microsoft:trouter-client-android:$trouterVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation project (":sdk:core:azure-core-test")
+    testImplementation "com.azure.android:azure-core-test:$azureCoreVersion"
     testImplementation "com.nimbusds:nimbus-jose-jwt:$nimbusJoseJwtTestVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
