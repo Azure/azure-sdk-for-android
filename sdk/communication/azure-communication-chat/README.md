@@ -1,4 +1,4 @@
-# # Azure Communication Chat client library for Java
+# Azure Communication Chat client library for Android
 
 Azure Communication Chat contains the APIs used in chat applications for Azure Communication Services.  
 
@@ -13,14 +13,39 @@ Azure Communication Chat contains the APIs used in chat applications for Azure C
 - [Java Development Kit (JDK)](https://docs.microsoft.com/java/azure/jdk/?view=azure-java-stable) version 8 or above.
 - [Apache Maven](https://maven.apache.org/download.cgi).
 - A deployed Communication Services resource. You can use the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp) or the [Azure PowerShell](https://docs.microsoft.com/powershell/module/az.communication/new-azcommunicationservice) to set it up.
-### Include the package
 
-[//]: # ({x-version-update-start;com.azure:azure-communication-chat;current})
+### Include the package
+To install the Azure Communication Chat libraries for Android, add them as dependencies within your
+[Gradle](#add-a-dependency-with-gradle) or
+[Maven](#add-a-dependency-with-maven) build scripts.
+
+#### Add a dependency with Gradle
+To import the library into your project using the [Gradle](https://gradle.org/) build system, follow the instructions in [Add build dependencies](https://developer.android.com/studio/build/dependencies):
+
+Add an `implementation` configuration to the `dependencies` block of your app's `build.gradle` or `build.gradle.kts` file, specifying the library's name and the version you wish to use:
+
+```gradle
+// build.gradle
+dependencies {
+    ...
+    implementation "com.azure.android:azure-communication-chat:1.0.0"
+}
+
+// build.gradle.kts
+dependencies {
+    ...
+    implementation("com.azure.android:azure-communication-chat:1.0.0")
+}
+```
+
+#### Add a dependency with Maven
+To import the library into your project using the [Maven](https://maven.apache.org/) build system, add it to the `dependencies` section of your app's `pom.xml` file, specifying its artifact ID and the version you wish to use:
+
 ```xml
 <dependency>
-    <groupId>com.azure</groupId>
-    <artifactId>azure-communication-chat</artifactId>
-    <version>1.0.0</version>
+  <groupId>com.azure.android</groupId>
+  <artifactId>azure-communication-chat</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ```
 
