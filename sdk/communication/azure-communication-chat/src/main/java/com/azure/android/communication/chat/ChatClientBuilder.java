@@ -35,7 +35,6 @@ public final class ChatClientBuilder {
     private String endpoint;
     private HttpClient httpClient;
     private CommunicationTokenCredential communicationTokenCredential;
-    private HttpPipelinePolicy credentialPolicy;
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
@@ -80,20 +79,6 @@ public final class ChatClientBuilder {
             throw logger.logExceptionAsError(new NullPointerException("communicationTokenCredential is required."));
         }
         this.communicationTokenCredential = communicationTokenCredential;
-        return this;
-    }
-
-    /**
-     * Sets the {@link HttpPipelinePolicy} that attaches authorization header.
-     *
-     * @param credentialPolicy the credentials policy.
-     * @return The updated {@link ChatClientBuilder} object.
-     */
-    public ChatClientBuilder credentialPolicy(HttpPipelinePolicy credentialPolicy) {
-        if (credentialPolicy == null) {
-            throw logger.logExceptionAsError(new NullPointerException("credentialPolicy is required."));
-        }
-        this.credentialPolicy = credentialPolicy;
         return this;
     }
 
@@ -185,14 +170,7 @@ public final class ChatClientBuilder {
         if (this.httpPipeline != null) {
             pipeline = this.httpPipeline;
         } else {
-            if (this.communicationTokenCredential == null && this.credentialPolicy == null) {
-                throw logger
-                    .logExceptionAsError(
-                        new NullPointerException(
-                            "Either CommunicationTokenCredential or CredentialPolicy is required."));
-            }
-
-            final HttpPipelinePolicy authorizationPolicy;
+            HttpPipelinePolicy authorizationPolicy = null;
             if (this.communicationTokenCredential != null) {
                 authorizationPolicy = chain -> {
                     final CompletableFuture<CommunicationAccessToken> tokenFuture
@@ -211,9 +189,8 @@ public final class ChatClientBuilder {
                     httpRequest.getHeaders().put("Authorization", "Bearer " + token.getToken());
                     chain.processNextPolicy(httpRequest);
                 };
-            } else {
-                authorizationPolicy = this.credentialPolicy;
             }
+
             pipeline = createHttpPipeline(this.httpClient,
                 authorizationPolicy,
                 this.customPolicies);
@@ -234,7 +211,9 @@ public final class ChatClientBuilder {
                                             List<HttpPipelinePolicy> additionalPolicies) {
 
         List<HttpPipelinePolicy> policies = new ArrayList<HttpPipelinePolicy>();
-        policies.add(authorizationPolicy);
+        if (authorizationPolicy != null) {
+            policies.add(authorizationPolicy);
+        }
         applyRequiredPolicies(policies);
 
         if (additionalPolicies != null && additionalPolicies.size() > 0) {
@@ -248,7 +227,7 @@ public final class ChatClientBuilder {
     }
 
     private void applyRequiredPolicies(List<HttpPipelinePolicy> policies) {
-        policies.add(new UserAgentPolicy(null, "azure-communication-chat", "1.0.0-beta.8"));
+        policies.add(new UserAgentPolicy(null, "azure-communication-chat", "1.0.0"));
         policies.add(RetryPolicy.withExponentialBackoff());
         policies.add(new CookiePolicy());
         policies.add(new HttpLoggingPolicy(this.logOptions));

@@ -107,7 +107,7 @@ String token = "SECRET";
 // Initialize the chat client
 final ChatClientBuilder builder = new ChatClientBuilder();
 builder.endpoint(endpoint)
-    .credentialPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
+    .addPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
         callback.onSuccess(new AccessToken(token, OffsetDateTime.now().plusDays(1)))));
 ChatClient chatClient = builder.buildClient();
 ```

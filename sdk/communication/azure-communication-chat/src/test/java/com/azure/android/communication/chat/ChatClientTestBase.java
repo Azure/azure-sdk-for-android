@@ -65,14 +65,14 @@ public class ChatClientTestBase extends TestBase {
             .httpClient(httpClient == null ? interceptorManager.getPlaybackClient() : httpClient);
 
         if (interceptorManager.isPlaybackMode()) {
-            builder.credentialPolicy(chain -> {
+            builder.addPolicy(chain -> {
                 HttpRequest request = chain.getRequest();
                 request.getHeaders().put("Authorization", "Bearer " + generateRawToken());
                 chain.processNextPolicy(request);
             });
             return builder;
         } else {
-            builder.credentialPolicy(chain -> {
+            builder.addPolicy(chain -> {
                 HttpRequest request = chain.getRequest();
                 request.getHeaders().put("Authorization", "Bearer " + ACCESS_KEY);
                 chain.processNextPolicy(request);

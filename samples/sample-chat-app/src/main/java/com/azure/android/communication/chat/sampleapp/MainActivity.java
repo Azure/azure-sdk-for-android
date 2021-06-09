@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
     private final String listenerId = "testListener";
-    private final String sdkVersion = "1.0.0-beta.8";
+    private final String sdkVersion = "1.0.0";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat Test App";
     private static final String TAG = "[Chat Test App]";
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             chatAsyncClient = new ChatClientBuilder()
                 .endpoint(endpoint)
-                .credentialPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
+                .addPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
                     callback.onSuccess(new AccessToken(firstUserAccessToken, OffsetDateTime.now().plusDays(1)))))
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
                 .httpLogOptions(new HttpLogOptions()
