@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 
@@ -19,8 +21,10 @@ public interface SignalingClient {
 
     /**
      * Start the realtime connection.
+     * @param skypeUserToken the skype user token
+     * @param context the android application context
      */
-    void start();
+    void start(String skypeUserToken, Context context);
     /**
      * Stop the realtime connection and unsubscribe all event handlers.
      */

@@ -3,10 +3,7 @@
 
 package com.azure.android.communication.chat;
 
-import android.content.Context;
-
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
-import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.common.CommunicationAccessToken;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.http.HttpClient;
@@ -42,9 +39,6 @@ public final class ChatClientBuilder {
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
-    private CommunicationSignalingClient communicationSignalingClient;
-    private Context context;
-    private String userToken;
     private ChatServiceVersion serviceVersion;
 
     /**
@@ -164,18 +158,6 @@ public final class ChatClientBuilder {
     }
 
     /**
-     * Set realtime notification params to be able to start the real time notification
-     * @param context the app context of the app
-     * @param userToken the skype user token
-     * @return The updated {@link ChatClientBuilder} object.
-     */
-    public ChatClientBuilder realtimeNotificationParams(Context context, String userToken) {
-        this.context = context;
-        this.userToken = userToken;
-        return this;
-    }
-
-    /**
      * Create synchronous client applying CommunicationTokenCredential, UserAgentPolicy,
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
@@ -208,10 +190,6 @@ public final class ChatClientBuilder {
                     .logExceptionAsError(
                         new NullPointerException(
                             "Either CommunicationTokenCredential or CredentialPolicy is required."));
-            }
-
-            if (context != null && userToken != null) {
-                communicationSignalingClient = new CommunicationSignalingClient(userToken, context);
             }
 
             final HttpPipelinePolicy authorizationPolicy;
@@ -248,7 +226,7 @@ public final class ChatClientBuilder {
             .endpoint(this.endpoint)
             .pipeline(pipeline);
 
-        return new ChatAsyncClient(clientBuilder.buildClient(), communicationSignalingClient);
+        return new ChatAsyncClient(clientBuilder.buildClient());
     }
 
     private HttpPipeline createHttpPipeline(HttpClient httpClient,

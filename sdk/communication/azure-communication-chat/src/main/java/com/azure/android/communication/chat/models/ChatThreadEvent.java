@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Chat thread event
  */
-public abstract class ChatThreadEvent extends BaseEvent {
+public abstract class ChatThreadEvent extends ChatEvent {
     /**
      * Version of the thread. This version is an epoch time in a numeric unsigned Int64 format:
      * `1593117207131`

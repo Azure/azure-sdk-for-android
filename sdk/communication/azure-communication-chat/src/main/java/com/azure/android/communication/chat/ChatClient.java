@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -165,9 +167,11 @@ public final class ChatClient {
 
     /**
      * Receive real-time messages and notifications.
+     * @param skypeUserToken the skype user token
+     * @param context the app context of the app
      */
-    public void startRealtimeNotifications() {
-        this.client.startRealtimeNotifications();
+    public void startRealtimeNotifications(String skypeUserToken, Context context) {
+        this.client.startRealtimeNotifications(skypeUserToken, context);
     }
 
     /**
@@ -178,22 +182,22 @@ public final class ChatClient {
     }
 
     /**
-     * Listen to a chat event.
-     * @param chatEventType the chat event kind
+     * Add handler for a chat event.
+     * @param chatEventType the chat event type
      * @param listenerId the listener id that is used to identify a listener
      * @param listener the listener callback function
      */
-    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
-        this.client.on(chatEventType, listenerId, listener);
+    public void addEventHandler(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+        this.client.addEventHandler(chatEventType, listenerId, listener);
     }
 
     /**
-     * Stop listening to a chat event.
-     * @param chatEventType the chat event kind
-     * @param listenerId the listener id that is to off
+     * Remove handler from a chat event.
+     * @param chatEventType the chat event type
+     * @param listenerId the listener id that is to be removed
      */
-    public void off(ChatEventType chatEventType, String listenerId) {
-        client.off(chatEventType, listenerId);
+    public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
+        this.client.removeEventHandler(chatEventType, listenerId);
     }
 
     private <T> T block(CompletableFuture<T> completableFuture) {

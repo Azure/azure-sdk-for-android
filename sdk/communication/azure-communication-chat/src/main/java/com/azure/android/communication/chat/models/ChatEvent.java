@@ -6,9 +6,9 @@ package com.azure.android.communication.chat.models;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The base event of chat events
+ * The base class of chat events
  */
-public abstract class BaseEvent {
+public abstract class ChatEvent {
     /**
      * Thread Id of the event.
      */
@@ -33,7 +33,7 @@ public abstract class BaseEvent {
     /**
      * Sets Thread Id of the event.
      */
-    BaseEvent setThreadId() {
+    ChatEvent setThreadId() {
         this.threadId = groupId;
         return this;
     }

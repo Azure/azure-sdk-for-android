@@ -3,12 +3,15 @@
 
 package com.azure.android.communication.chat;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.CFBackedPageAsyncStream;
 import com.azure.android.communication.chat.implementation.ChatImpl;
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
+import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
@@ -44,9 +47,9 @@ public final class ChatAsyncClient {
     private final SignalingClient signalingClient;
     private final ChatImpl chatClient;
 
-    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
+    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
         this.chatServiceClient = chatServiceClient;
-        this.signalingClient = signalingClient;
+        this.signalingClient = new CommunicationSignalingClient();
         this.chatClient = chatServiceClient.getChatClient();
     }
 
@@ -244,8 +247,10 @@ public final class ChatAsyncClient {
 
     /**
      * Receive real-time messages and notifications.
+     * @param skypeUserToken the skype user token
+     * @param context the app context of the app
      */
-    public void startRealtimeNotifications() {
+    public void startRealtimeNotifications(String skypeUserToken, Context context) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
@@ -254,7 +259,7 @@ public final class ChatAsyncClient {
             return;
         }
 
-        this.signalingClient.start();
+        this.signalingClient.start(skypeUserToken, context);
     }
 
     /**
@@ -269,12 +274,12 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Listen to a chat event.
-     * @param chatEventType the chat event kind
-     * @param listenerId a listener id that is used to identify the listner
+     * Add handler for a chat event.
+     * @param chatEventType the chat event type
+     * @param listenerId a listener id that is used to identify the listener
      * @param listener the listener callback function
      */
-    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+    public void addEventHandler(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
@@ -289,11 +294,11 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Stop listening to a chat event.
-     * @param chatEventType the chat event kind
-     * @param listenerId the listener id that is to off
+     * Remove handler from a chat event.
+     * @param chatEventType the chat event type
+     * @param listenerId the listener id that is to be removed
      */
-    public void off(ChatEventType chatEventType, String listenerId) {
+    public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }

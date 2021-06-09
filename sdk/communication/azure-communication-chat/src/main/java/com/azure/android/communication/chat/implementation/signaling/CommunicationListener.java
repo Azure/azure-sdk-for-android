@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.core.logging.ClientLogger;
@@ -44,7 +44,7 @@ final class CommunicationListener implements ITrouterListener {
             + iTrouterRequest.getBody();
         logger.info(msg);
         // convert payload to chat event here
-        BaseEvent chatEvent = TrouterUtils.parsePayload(chatEventType, iTrouterRequest.getBody());
+        ChatEvent chatEvent = TrouterUtils.parsePayload(chatEventType, iTrouterRequest.getBody());
         if (chatEvent != null) {
             listenerFromConsumer.onChatEvent(chatEvent);
         }

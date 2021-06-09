@@ -13,6 +13,6 @@ public interface RealTimeNotificationCallback {
      * the call back method
      * @param chatEvent the chat event json object
      */
-    void onChatEvent(BaseEvent chatEvent);
+    void onChatEvent(ChatEvent chatEvent);
 
 }
