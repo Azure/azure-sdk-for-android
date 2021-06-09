@@ -31,7 +31,7 @@ The following libraries are currently in **beta**:
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
-The following libraries are currently **general available**:
+The following libraries are currently **generally available**:
 
 #### Azure Communication Services
 - [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 1.0.0
