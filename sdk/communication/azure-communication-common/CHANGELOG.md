@@ -1,6 +1,8 @@
 # Release History
 
-#1.1.0-beta1 (Unreleased)
+## 1.0.1 (2021-06-09)
+### Dependency Updates
+- Updated `com.azure.android.core` from `1.0.0-beta.5` to `1.0.0-beta.6`
 
 ## 1.0.0 (2021-04-20)
 - Update version

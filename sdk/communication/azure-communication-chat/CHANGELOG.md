@@ -1,5 +1,5 @@
 # Release History
-## 1.0.0-beta.9 (Unreleased)
+## 1.0.0 (2021-06-09)
 ### New Features
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
 
@@ -72,6 +72,9 @@
 - Changed `ChatThreadPropertiesUpdatedEvent` updatedOn type from `String` to `OffsetDateTime`
 - Changed `ParticipantsAddedEvent` addedOn type from `String` to `OffsetDateTime`
 - Changed `ParticipantsRemovedEvent` removedOn type from `String` to `OffsetDateTime`
+
+### Dependency Updates
+- Updated `com.azure.android.core` from `1.0.0-beta.5` to `1.0.0-beta.6`
 
 
 ## 1.0.0-beta.8 (2021-03-29)
