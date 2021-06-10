@@ -93,6 +93,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         );
 
         try {
+            trouterListeners.clear();
             trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
             trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
                 new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
@@ -113,6 +114,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         this.isRealtimeNotificationsStarted = false;
         this.trouter.close();
+        this.trouterListeners.clear();
     }
 
     @Override

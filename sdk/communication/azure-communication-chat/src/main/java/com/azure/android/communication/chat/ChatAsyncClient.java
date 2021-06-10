@@ -30,9 +30,6 @@ import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
-import com.azure.android.core.util.paging.Page;
-
-import java.util.List;
 
 import java9.util.concurrent.CompletableFuture;
 
@@ -304,25 +301,5 @@ public final class ChatAsyncClient {
         }
 
         this.signalingClient.off(chatEventType, listenerId);
-    }
-
-    static class PageImpl<T> implements Page<String, T> {
-        private final List<T> items;
-        private final String continuationToken;
-
-        PageImpl(List<T> items, String continuationToken) {
-            this.items = items;
-            this.continuationToken = continuationToken;
-        }
-
-        @Override
-        public List<T> getElements() {
-            return this.items;
-        }
-
-        @Override
-        public String getContinuationToken() {
-            return this.continuationToken;
-        }
     }
 }

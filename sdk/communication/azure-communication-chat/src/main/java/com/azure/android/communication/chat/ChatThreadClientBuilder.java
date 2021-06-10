@@ -37,6 +37,7 @@ public final class ChatThreadClientBuilder {
     private String endpoint;
     private HttpClient httpClient;
     private CommunicationTokenCredential communicationTokenCredential;
+    private RetryPolicy retryPolicy;
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
@@ -96,6 +97,20 @@ public final class ChatThreadClientBuilder {
             throw logger.logExceptionAsError(new NullPointerException("pipelinePolicy is required."));
         }
         this.customPolicies.add(pipelinePolicy);
+        return this;
+    }
+
+    /**
+     * Sets the {@link RetryPolicy} that will attempt to retry failed requests, if applicable.
+     *
+     * @param retryPolicy the retryPolicy value.
+     * @return the AzureCommunicationChatServiceImplBuilder.
+     */
+    public ChatThreadClientBuilder retryPolicy(RetryPolicy retryPolicy) {
+        if (retryPolicy == null) {
+            throw logger.logExceptionAsError(new NullPointerException("retryPolicy is required."));
+        }
+        this.retryPolicy = retryPolicy;
         return this;
     }
 
@@ -251,7 +266,7 @@ public final class ChatThreadClientBuilder {
     private void applyRequiredPolicies(List<HttpPipelinePolicy> policies) {
         policies.add(
             new UserAgentPolicy(null, "azure-communication-chat", "1.0.0"));
-        policies.add(RetryPolicy.withExponentialBackoff());
+        policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.add(new HttpLoggingPolicy(this.logOptions));
     }

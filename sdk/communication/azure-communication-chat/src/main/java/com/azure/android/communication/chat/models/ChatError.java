@@ -3,22 +3,39 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.core.rest.annotation.Fluent;
+import com.azure.android.core.rest.annotation.Immutable;
+
 import java.util.List;
 
 /** The Chat Services error. */
-@Fluent
+@Immutable
 public final class ChatError {
 
-    private String code;
+    private final String code;
 
-    private String message;
+    private final String message;
 
-    private String target;
+    private final String target;
 
-    private List<ChatError> details;
+    private final List<ChatError> details;
 
-    private ChatError innerError;
+    private final ChatError innerError;
+
+    /**
+     * Initializes a new instance of the ChatError class.
+     * @param code The error code.
+     * @param message The error message.
+     * @param target The error target.
+     * @param innerError The inner error if any.
+     * @param details Further details about specific errors that led to this error.
+     */
+    public ChatError(String code, String message, String target, ChatError innerError, List<ChatError> details) {
+        this.code = code;
+        this.message = message;
+        this.target = target;
+        this.innerError = innerError;
+        this.details = details;
+    }
 
     /**
      * Get the code property: The error code.
@@ -30,34 +47,12 @@ public final class ChatError {
     }
 
     /**
-     * Set the code property: The error code.
-     *
-     * @param code the code value to set.
-     * @return the ChatError object itself.
-     */
-    public ChatError setCode(String code) {
-        this.code = code;
-        return this;
-    }
-
-    /**
      * Get the message property: The error message.
      *
      * @return the message value.
      */
     public String getMessage() {
         return this.message;
-    }
-
-    /**
-     * Set the message property: The error message.
-     *
-     * @param message the message value to set.
-     * @return the ChatError object itself.
-     */
-    public ChatError setMessage(String message) {
-        this.message = message;
-        return this;
     }
 
     /**
@@ -85,38 +80,5 @@ public final class ChatError {
      */
     public ChatError getInnerError() {
         return this.innerError;
-    }
-
-    /**
-     * Set the target property
-     *
-     * @param target the code value to set.
-     * @return the ChatError object itself.
-     */
-    public ChatError setTarget(String target) {
-        this.target = target;
-        return this;
-    }
-
-    /**
-     * Set the details property
-     *
-     * @param details the code value to set.
-     * @return the ChatError object itself.
-     */
-    public ChatError setDetails(List<ChatError> details) {
-        this.details = details;
-        return this;
-    }
-
-    /**
-     * Set the innerError property
-     *
-     * @param innerError the code value to set.
-     * @return the ChatError object itself.
-     */
-    public ChatError setInnerError(ChatError innerError) {
-        this.innerError = innerError;
-        return this;
     }
 }
