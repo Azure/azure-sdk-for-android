@@ -31,6 +31,8 @@ import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
 
+import java.util.UUID;
+
 import java9.util.concurrent.CompletableFuture;
 
 /**
@@ -273,10 +275,11 @@ public final class ChatAsyncClient {
     /**
      * Add handler for a chat event.
      * @param chatEventType the chat event type
-     * @param listenerId a listener id that is used to identify the listener
      * @param listener the listener callback function
+     *
+     * @return the listener id for the recently added listener.
      */
-    public void addEventHandler(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+    public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         if (signalingClient == null) {
             throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
         }
@@ -287,7 +290,10 @@ public final class ChatAsyncClient {
             ));
         }
 
+        String listenerId = UUID.randomUUID().toString();
         this.signalingClient.on(chatEventType, listenerId, listener);
+
+        return listenerId;
     }
 
     /**

@@ -184,11 +184,12 @@ public final class ChatClient {
     /**
      * Add handler for a chat event.
      * @param chatEventType the chat event type
-     * @param listenerId the listener id that is used to identify a listener
      * @param listener the listener callback function
+     *
+     * @return the listener id for the recently added listener.
      */
-    public void addEventHandler(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
-        this.client.addEventHandler(chatEventType, listenerId, listener);
+    public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        return this.client.addEventHandler(chatEventType, listener);
     }
 
     /**

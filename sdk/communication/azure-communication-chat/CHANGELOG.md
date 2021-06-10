@@ -4,77 +4,94 @@
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
 
 ### Breaking Changes
+- ChatClientBuilder:
+    - Added `retryPolicy`.
+    - Removed `credentialPolicy`.
+    - Removed `realtimeNotificationParams`.
+- ChatThreadClientBuilder:
+    - Added `retryPolicy`.
+    - Removed `credentialPolicy`.
+    - Removed `realtimeNotificationParams`.
 - ChatClient:
-    - Added `listChatThreads`
-    - Removed `getChatThreadsFirstPage`
-    - Removed `getChatThreadsFirstPageWithResponse`
-    - Removed `getChatThreadsNextPage`
-    - Removed `getChatThreadsNextPageWithResponse`
-    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
+    - Added `listChatThreads`.
+    - Changed `startRealtimeNotifications` with adding parameter `String skypeUserToken` and `Context context`.
+    - Removed `getChatThreadsFirstPage`.
+    - Removed `getChatThreadsFirstPageWithResponse`.
+    - Removed `getChatThreadsNextPage`.
+    - Removed `getChatThreadsNextPageWithResponse`.
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`.
+    - Replaced `on` with `addEventHandler`.
+    - Replaced `off` with `removeEventHandler`.
 - ChatAsyncClient:
-    - Added `listChatThreads`
-    - Removed `getChatThreadsFirstPage`
-    - Removed `getChatThreadsFirstPageWithResponse`
-    - Removed `getChatThreadsNextPage`
-    - Removed `getChatThreadsNextPageWithResponse`
-    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
+    - Added `listChatThreads`.
+    - Changed `startRealtimeNotifications` with adding parameter `String skypeUserToken` and `Context context`.
+    - Removed `getChatThreadsFirstPage`.
+    - Removed `getChatThreadsFirstPageWithResponse`.
+    - Removed `getChatThreadsNextPage`.
+    - Removed `getChatThreadsNextPageWithResponse`.
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`.
+    - Replaced `on` with `addEventHandler`.
+    - Replaced `off` with `removeEventHandler`.
 - ChatThreadClient:
-    - Added `listParticipants`
-    - Added `listMessages`
-    - Added `listReadReceipts`
-    - Changed returning `AddChatParticipantsResult` instead of `void` for `addParticipants`
-    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`
-    - Removed `getParticipantsFirstPage`
-    - Removed `getParticipantsFirstPageWithResponse`
-    - Removed `getParticipantsNextPage`
-    - Removed `getParticipantsNextPageWithResponse`
-    - Removed `getMessagesFirstPage`
-    - Removed `getMessagesFirstPageWithResponse`
-    - Removed `getMessagesNextPage`
-    - Removed `getMessagesNextPageWithResponse`
-    - Removed `getReadReceiptsFirstPage`
-    - Removed `getReadReceiptsFirstPageWithResponse`
-    - Removed `getReadReceiptsNextPage`
-    - Removed `getReadReceiptsNextPageWithResponse`
-    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
+    - Added `listParticipants`.
+    - Added `listMessages`.
+    - Added `listReadReceipts`.
+    - Changed returning `AddChatParticipantsResult` instead of `void` for `addParticipants`.
+    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`.
+    - Removed `getParticipantsFirstPage`.
+    - Removed `getParticipantsFirstPageWithResponse`.
+    - Removed `getParticipantsNextPage`.
+    - Removed `getParticipantsNextPageWithResponse`.
+    - Removed `getMessagesFirstPage`.
+    - Removed `getMessagesFirstPageWithResponse`.
+    - Removed `getMessagesNextPage`.
+    - Removed `getMessagesNextPageWithResponse`.
+    - Removed `getReadReceiptsFirstPage`.
+    - Removed `getReadReceiptsFirstPageWithResponse`.
+    - Removed `getReadReceiptsNextPage`.
+    - Removed `getReadReceiptsNextPageWithResponse`.
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`.
 - ChatThreadAsyncClient:
-    - Added `listParticipants`
-    - Added `listMessages`
-    - Added `listReadReceipts`
-    - Changed returning `CompletableFuture<AddChatParticipantsResult>` instead of `CompletableFuture<Void>` for `addParticipants`
-    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`
-    - Removed `getParticipantsFirstPage`
-    - Removed `getParticipantsFirstPageWithResponse`
-    - Removed `getParticipantsNextPage`
-    - Removed `getParticipantsNextPageWithResponse`
-    - Removed `getMessagesFirstPage`
-    - Removed `getMessagesFirstPageWithResponse`
-    - Removed `getMessagesNextPage`
-    - Removed `getMessagesNextPageWithResponse`
-    - Removed `getReadReceiptsFirstPage`
-    - Removed `getReadReceiptsFirstPageWithResponse`
-    - Removed `getReadReceiptsNextPage`
-    - Removed `getReadReceiptsNextPageWithResponse`
-    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`
+    - Added `listParticipants`.
+    - Added `listMessages`.
+    - Added `listReadReceipts`.
+    - Changed returning `CompletableFuture<AddChatParticipantsResult>` instead of `CompletableFuture<Void>` for `addParticipants`.
+    - Changed taking parameter `Iterable<ChatParticipant> participants` instead of `AddChatParticipantsOptions options` for `addParticipants` and `addParticipantsWithResponse`.
+    - Removed `getParticipantsFirstPage`.
+    - Removed `getParticipantsFirstPageWithResponse`.
+    - Removed `getParticipantsNextPage`.
+    - Removed `getParticipantsNextPageWithResponse`.
+    - Removed `getMessagesFirstPage`.
+    - Removed `getMessagesFirstPageWithResponse`.
+    - Removed `getMessagesNextPage`.
+    - Removed `getMessagesNextPageWithResponse`.
+    - Removed `getReadReceiptsFirstPage`.
+    - Removed `getReadReceiptsFirstPageWithResponse`.
+    - Removed `getReadReceiptsNextPage`.
+    - Removed `getReadReceiptsNextPageWithResponse`.
+    - Replaced `azure.core.util.Context` in the APIs with `azure.core.util.RequestContext`.
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatParticipant`.
 - Removed `com.azure.android.communication.chat.signaling.chatevents.ChatThreadProperties`.
 - Removed `com.azure.android.communication.chat.models.AddChatParticipantsOptions`.
+- Removed setters for `AddChatParticipantsResult`.
+- Removed setters for `ChatError`.
 - Changed `com.azure.android.communication.chat.signaling.chatevents.*` to `com.azure.android.communication.chat.models.*`.
 - Changed `httpClient` to an optional component for `ChatClientBuilder`/`ChatThreadClientBuilder` to create corresponding client.
-- Changed `ChatEventId` to `ChatEventKind`.
-- Changed `ChatMessageReceivedEvent` createdOn type from `String` to `OffsetDateTime`
-- Changed `ChatMessageEditedEvent` createdOn and editedOn type from `String` to `OffsetDateTime`
-- Changed `ChatMessageDeletedEvent` createdOn and deletedOn type from `String` to `OffsetDateTime`
-- Changed `ReadReceiptReceivedEvent` readOn type from `String` to `OffsetDateTime`
-- Changed `TypingIndicatorReceivedEvent` receivedOn type from `String` to `OffsetDateTime`
-- Changed `ChatThreadCreatedEvent` createdOn type from `String` to `OffsetDateTime`
-- Changed `ChatThreadDeletedEvent` deletedOn type from `String` to `OffsetDateTime`
-- Changed `ChatThreadPropertiesUpdatedEvent` updatedOn type from `String` to `OffsetDateTime`
-- Changed `ParticipantsAddedEvent` addedOn type from `String` to `OffsetDateTime`
-- Changed `ParticipantsRemovedEvent` removedOn type from `String` to `OffsetDateTime`
+- Changed `ChatEventId` to `ChatEventType`.
+- Changed `BaseEvent` to `ChatEvent`.
+- Changed `ChatMessageReceivedEvent` createdOn type from `String` to `OffsetDateTime`.
+- Changed `ChatMessageEditedEvent` createdOn and editedOn type from `String` to `OffsetDateTime`.
+- Changed `ChatMessageDeletedEvent` createdOn and deletedOn type from `String` to `OffsetDateTime`.
+- Changed `ReadReceiptReceivedEvent` readOn type from `String` to `OffsetDateTime`.
+- Changed `TypingIndicatorReceivedEvent` receivedOn type from `String` to `OffsetDateTime`.
+- Changed `ChatThreadCreatedEvent` createdOn type from `String` to `OffsetDateTime`.
+- Changed `ChatThreadDeletedEvent` deletedOn type from `String` to `OffsetDateTime`.
+- Changed `ChatThreadPropertiesUpdatedEvent` updatedOn type from `String` to `OffsetDateTime`.
+- Changed `ParticipantsAddedEvent` addedOn type from `String` to `OffsetDateTime`.
+- Changed `ParticipantsRemovedEvent` removedOn type from `String` to `OffsetDateTime`.
 
 ### Dependency Updates
-- Updated `com.azure.android.core` from `1.0.0-beta.5` to `1.0.0-beta.6`
+- Updated `com.azure.android.core` from `1.0.0-beta.5` to `1.0.0-beta.6`.
 
 
 ## 1.0.0-beta.8 (2021-03-29)
