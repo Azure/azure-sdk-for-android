@@ -13,6 +13,7 @@ import com.azure.android.communication.chat.implementation.converters.CreateChat
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
 import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.chat.models.ChatEventType;
+import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -56,6 +57,7 @@ public final class ChatAsyncClient {
      * Creates a chat thread client.
      *
      * @param chatThreadId The id of the thread.
+     * @throws NullPointerException if chatThreadId is null
      * @return the client.
      */
     public ChatThreadAsyncClient getChatThreadClient(String chatThreadId) {
@@ -69,6 +71,8 @@ public final class ChatAsyncClient {
      * Creates a chat thread.
      *
      * @param options Options for creating a chat thread.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -87,7 +91,8 @@ public final class ChatAsyncClient {
      *
      * @param options Options for creating a chat thread.
      * @param requestContext The context to associate with this operation.
-     *
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -126,6 +131,8 @@ public final class ChatAsyncClient {
     /**
      * Gets the list of chat threads of a user.
      *
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
@@ -138,6 +145,8 @@ public final class ChatAsyncClient {
      *
      * @param listThreadsOptions The request options.
      * @param requestContext The context to associate with this operation.
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
@@ -197,7 +206,8 @@ public final class ChatAsyncClient {
      * Deletes a chat thread.
      *
      * @param chatThreadId the id of the Chat thread to delete.
-     *
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of deletion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -216,7 +226,8 @@ public final class ChatAsyncClient {
      *
      * @param chatThreadId the id of the Chat thread to delete.
      * @param requestContext The context to associate with this operation.
-     *
+     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -245,15 +256,12 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Receive real-time messages and notifications.
+     * Receive real-time notifications.
      * @param skypeUserToken the skype user token
      * @param context the app context of the app
+     * @throws RuntimeException if real-time notifications failed to start.
      */
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         if (this.signalingClient.hasStarted()) {
             return;
         }
@@ -262,13 +270,9 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Stop receiving real-time messages and notifications.
+     * Stop receiving real-time notifications.
      */
     public void stopRealtimeNotifications() {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         this.signalingClient.stop();
     }
 
@@ -276,14 +280,10 @@ public final class ChatAsyncClient {
      * Add handler for a chat event.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     *
+     * @throws IllegalStateException thrown if real-time notifications has not started yet.
      * @return the listener id for the recently added listener.
      */
     public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         if (!this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
@@ -302,10 +302,6 @@ public final class ChatAsyncClient {
      * @param listenerId the listener id that is to be removed
      */
     public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         this.signalingClient.off(chatEventType, listenerId);
     }
 }
