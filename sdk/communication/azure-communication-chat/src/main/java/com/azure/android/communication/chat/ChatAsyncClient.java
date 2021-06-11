@@ -44,12 +44,12 @@ public final class ChatAsyncClient {
     private final ClientLogger logger = new ClientLogger(ChatAsyncClient.class);
 
     private final AzureCommunicationChatServiceImpl chatServiceClient;
-    private final SignalingClient signalingClient;
     private final ChatImpl chatClient;
+
+    private SignalingClient signalingClient;
 
     ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
         this.chatServiceClient = chatServiceClient;
-        this.signalingClient = new CommunicationSignalingClient();
         this.chatClient = chatServiceClient.getChatClient();
     }
 
@@ -262,6 +262,10 @@ public final class ChatAsyncClient {
      * @throws RuntimeException if real-time notifications failed to start.
      */
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
+        if (this.signalingClient == null) {
+            signalingClient = new CommunicationSignalingClient();
+        }
+
         if (this.signalingClient.hasStarted()) {
             return;
         }
@@ -273,6 +277,10 @@ public final class ChatAsyncClient {
      * Stop receiving real-time notifications.
      */
     public void stopRealtimeNotifications() {
+        if (this.signalingClient == null) {
+            return;
+        }
+
         this.signalingClient.stop();
     }
 
@@ -284,7 +292,7 @@ public final class ChatAsyncClient {
      * @return the listener id for the recently added listener.
      */
     public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
-        if (!this.signalingClient.hasStarted()) {
+        if (this.signalingClient == null || !this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
             ));
@@ -302,6 +310,10 @@ public final class ChatAsyncClient {
      * @param listenerId the listener id that is to be removed
      */
     public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
+        if (this.signalingClient == null) {
+            return;
+        }
+
         this.signalingClient.off(chatEventType, listenerId);
     }
 }
