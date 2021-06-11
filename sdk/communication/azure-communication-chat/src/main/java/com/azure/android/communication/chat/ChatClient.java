@@ -178,7 +178,7 @@ public final class ChatClient {
     /**
      * Receive real-time notifications.
      * @param skypeUserToken the skype user token
-     * @param context the app context of the app
+     * @param context the Android app context
      * @throws RuntimeException if real-time notifications failed to start.
      */
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
