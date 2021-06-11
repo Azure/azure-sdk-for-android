@@ -47,7 +47,7 @@ public final class ChatThreadClientBuilder {
      * Set endpoint of the service
      *
      * @param endpoint url of the service
-     * @throws NullPointerException thrown if endpoint is null.
+     * @throws NullPointerException if endpoint is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder endpoint(String endpoint) {
@@ -62,7 +62,7 @@ public final class ChatThreadClientBuilder {
      * Set HttpClient to use
      *
      * @param httpClient HttpClient to use
-     * @throws NullPointerException thrown if httpClient is null.
+     * @throws NullPointerException if httpClient is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpClient(HttpClient httpClient) {
@@ -77,7 +77,7 @@ public final class ChatThreadClientBuilder {
      * Set a token credential for authorization
      *
      * @param communicationTokenCredential valid token credential as a string
-     * @throws NullPointerException thrown if communicationTokenCredential is null.
+     * @throws NullPointerException if communicationTokenCredential is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder credential(CommunicationTokenCredential communicationTokenCredential) {
@@ -93,7 +93,7 @@ public final class ChatThreadClientBuilder {
      *
      * @param pipelinePolicy HttpPipelinePolicy objects to be applied after
      *                       AzureKeyCredentialPolicy, UserAgentPolicy, RetryPolicy, and CookiePolicy
-     * @throws NullPointerException thrown if pipelinePolicy is null.
+     * @throws NullPointerException if pipelinePolicy is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder addPolicy(HttpPipelinePolicy pipelinePolicy) {
@@ -108,8 +108,8 @@ public final class ChatThreadClientBuilder {
      * Sets the {@link RetryPolicy} that will attempt to retry failed requests, if applicable.
      *
      * @param retryPolicy the retryPolicy value.
-     * @throws NullPointerException thrown if retryPolicy is null.
-     * @return the AzureCommunicationChatServiceImplBuilder.
+     * @throws NullPointerException if retryPolicy is null.
+     * @return The updated {@link ChatThreadClientBuilder} object.
      */
     public ChatThreadClientBuilder retryPolicy(RetryPolicy retryPolicy) {
         if (retryPolicy == null) {
@@ -123,7 +123,7 @@ public final class ChatThreadClientBuilder {
      * Sets the {@link HttpLogOptions} for service requests.
      *
      * @param logOptions The logging configuration to use when sending and receiving HTTP requests/responses.
-     * @throws NullPointerException thrown if logOptions is null.
+     * @throws NullPointerException if logOptions is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpLogOptions(HttpLogOptions logOptions) {
@@ -181,7 +181,7 @@ public final class ChatThreadClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @throws NullPointerException thrown if chatThreadId, endpoint or communicationTokenCredential is not set.
+     * @throws NullPointerException if chatThreadId, endpoint or communicationTokenCredential is not set.
      * @return A {@link ChatThreadClient} instance.
      */
     public ChatThreadClient buildClient() {
@@ -193,7 +193,7 @@ public final class ChatThreadClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @throws NullPointerException thrown if chatThreadId, endpoint or communicationTokenCredential is not set.
+     * @throws NullPointerException if chatThreadId, endpoint or communicationTokenCredential is not set.
      * @return A {@link ChatThreadAsyncClient} instance.
      */
     public ChatThreadAsyncClient buildAsyncClient() {

@@ -78,7 +78,7 @@ public final class ChatThreadAsyncClient {
      * Updates a thread's topic.
      *
      * @param topic The new topic.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the update result.
      */
@@ -98,7 +98,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param topic The new topic.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
@@ -113,7 +113,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets chat thread properties.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread properties.
      */
@@ -129,7 +129,7 @@ public final class ChatThreadAsyncClient {
      * Gets chat thread properties.
      *
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the response containing the thread properties.
      */
@@ -179,7 +179,7 @@ public final class ChatThreadAsyncClient {
      * Adds participants to a thread. If participants already exist, no change occurs.
      *
      * @param participants Participants to add.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the operation result.
      */
@@ -199,7 +199,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param participants Participants to add.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
@@ -216,8 +216,8 @@ public final class ChatThreadAsyncClient {
      * Adds a participant to a thread. If the participant already exists, no change occurs.
      *
      * @param participant The new participant.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
-     * @throws InvalidParticipantException thrown if the participant is rejected by the server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws InvalidParticipantException if the participant is rejected by the server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the operation result.
      */
@@ -234,8 +234,8 @@ public final class ChatThreadAsyncClient {
      *
      * @param participant The new participant.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
-     * @throws InvalidParticipantException thrown if the participant is rejected by the server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws InvalidParticipantException if the participant is rejected by the server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
@@ -250,7 +250,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param participant The new participant.
      * @param requestContext The context to associate with this operation.
-     * @throws InvalidParticipantException thrown if the participant is rejected by the server.
+     * @throws InvalidParticipantException if the participant is rejected by the server.
      *
      * @return the {@link CompletableFuture} that emits response containing the operation result.
      */
@@ -297,7 +297,7 @@ public final class ChatThreadAsyncClient {
      * Remove a participant from a thread.
      *
      * @param identifier identity of the participant to remove from the thread.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the operation result.
      */
@@ -316,7 +316,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param identifier identity of the participant to remove from the thread.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the remove request.
      */
@@ -350,7 +350,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets the list of the thread participants.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of participants in the thread.
      */
@@ -364,7 +364,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param listParticipantsOptions the list options.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of participants in the thread.
      */
@@ -457,7 +457,7 @@ public final class ChatThreadAsyncClient {
      * Sends a message to a thread.
      *
      * @param options Options for sending the message.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the id of the message.
      */
@@ -477,7 +477,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param options Options for sending the message.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the response containing the id of the message.
      */
@@ -511,7 +511,7 @@ public final class ChatThreadAsyncClient {
      * Gets a message by id.
      *
      * @param chatMessageId The message id.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the the message.
      */
@@ -531,7 +531,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId The message id.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the response containing the message.
      */
@@ -565,7 +565,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets the list of thread messages.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of messages in the thread.
      */
@@ -579,7 +579,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param listMessagesOptions the list options.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of messages in the thread.
      */
@@ -673,7 +673,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId the message id.
      * @param options options for updating the message.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the update result.
      */
@@ -695,7 +695,7 @@ public final class ChatThreadAsyncClient {
      * @param chatMessageId the message id.
      * @param options options for updating the message.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the update request.
      */
@@ -735,7 +735,7 @@ public final class ChatThreadAsyncClient {
      * Deletes a message.
      *
      * @param chatMessageId the message id.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of deletion.
      */
@@ -755,7 +755,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId the message id.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
@@ -788,7 +788,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of the operation.
      */
@@ -804,7 +804,7 @@ public final class ChatThreadAsyncClient {
      * Posts a typing event to a thread, on behalf of a user.
      *
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
@@ -832,7 +832,7 @@ public final class ChatThreadAsyncClient {
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId the id of the chat message that was read.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of the operation.
      */
@@ -852,7 +852,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatMessageId The id of the chat message that was read.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
@@ -886,7 +886,7 @@ public final class ChatThreadAsyncClient {
     /**
      * Gets the list of thread read receipts.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of read receipts in the thread.
      */
@@ -900,7 +900,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param listReadReceiptOptions the list options.
      * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of read receipts in the thread.
      */

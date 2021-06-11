@@ -71,7 +71,7 @@ public final class ChatAsyncClient {
      * Creates a chat thread.
      *
      * @param options Options for creating a chat thread.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
@@ -91,7 +91,7 @@ public final class ChatAsyncClient {
      *
      * @param options Options for creating a chat thread.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
@@ -131,7 +131,7 @@ public final class ChatAsyncClient {
     /**
      * Gets the list of chat threads of a user.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
@@ -145,7 +145,7 @@ public final class ChatAsyncClient {
      *
      * @param listThreadsOptions The request options.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
@@ -206,7 +206,7 @@ public final class ChatAsyncClient {
      * Deletes a chat thread.
      *
      * @param chatThreadId the id of the Chat thread to delete.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of deletion.
      */
@@ -226,7 +226,7 @@ public final class ChatAsyncClient {
      *
      * @param chatThreadId the id of the Chat thread to delete.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
@@ -258,7 +258,7 @@ public final class ChatAsyncClient {
     /**
      * Receive real-time notifications.
      * @param skypeUserToken the skype user token
-     * @param context the app context of the app
+     * @param context the Android app context
      * @throws RuntimeException if real-time notifications failed to start.
      */
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
@@ -280,7 +280,7 @@ public final class ChatAsyncClient {
      * Add handler for a chat event.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException thrown if real-time notifications has not started yet.
+     * @throws IllegalStateException if real-time notifications has not started yet.
      * @return the listener id for the recently added listener.
      */
     public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {

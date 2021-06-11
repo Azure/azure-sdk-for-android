@@ -45,7 +45,7 @@ public final class ChatClientBuilder {
      * Set endpoint of the service
      *
      * @param endpoint url of the service
-     * @throws NullPointerException thrown if endpoint is null.
+     * @throws NullPointerException if endpoint is null.
      * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder endpoint(String endpoint) {
@@ -60,7 +60,7 @@ public final class ChatClientBuilder {
      * Set HttpClient to use
      *
      * @param httpClient HttpClient to use
-     * @throws NullPointerException thrown if httpClient is null.
+     * @throws NullPointerException if httpClient is null.
      * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder httpClient(HttpClient httpClient) {
@@ -75,7 +75,7 @@ public final class ChatClientBuilder {
      * Set a token credential for authorization
      *
      * @param communicationTokenCredential valid token credential as a string
-     * @throws NullPointerException thrown if communicationTokenCredential is null.
+     * @throws NullPointerException if communicationTokenCredential is null.
      * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder credential(CommunicationTokenCredential communicationTokenCredential) {
@@ -91,7 +91,7 @@ public final class ChatClientBuilder {
      *
      * @param pipelinePolicy HttpPipelinePolicy objects to be applied after
      *                       AzureKeyCredentialPolicy, UserAgentPolicy, RetryPolicy, and CookiePolicy
-     * @throws NullPointerException thrown if pipelinePolicy is null.
+     * @throws NullPointerException if pipelinePolicy is null.
      * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder addPolicy(HttpPipelinePolicy pipelinePolicy) {
@@ -106,8 +106,8 @@ public final class ChatClientBuilder {
      * Sets the {@link RetryPolicy} that will attempt to retry failed requests, if applicable.
      *
      * @param retryPolicy the retryPolicy value.
-     * @throws NullPointerException thrown if retryPolicy is null.
-     * @return the AzureCommunicationChatServiceImplBuilder.
+     * @throws NullPointerException if retryPolicy is null.
+     * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder retryPolicy(RetryPolicy retryPolicy) {
         if (retryPolicy == null) {
@@ -121,7 +121,7 @@ public final class ChatClientBuilder {
      * Sets the {@link HttpLogOptions} for service requests.
      *
      * @param logOptions The logging configuration to use when sending and receiving HTTP requests/responses.
-     * @throws NullPointerException thrown if logOptions is null.
+     * @throws NullPointerException if logOptions is null.
      * @return The updated {@link ChatClientBuilder} object.
      */
     public ChatClientBuilder httpLogOptions(HttpLogOptions logOptions) {
@@ -168,7 +168,7 @@ public final class ChatClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @throws NullPointerException thrown if endpoint or CommunicationTokenCredential is not set.
+     * @throws NullPointerException if endpoint or CommunicationTokenCredential is not set.
      * @return A {@link ChatClient} instance.
      */
     public ChatClient buildClient() {
@@ -181,7 +181,7 @@ public final class ChatClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
-     * @throws NullPointerException thrown if endpoint or CommunicationTokenCredential is not set.
+     * @throws NullPointerException if endpoint or CommunicationTokenCredential is not set.
      * @return A {@link ChatAsyncClient} instance.
      */
     public ChatAsyncClient buildAsyncClient() {

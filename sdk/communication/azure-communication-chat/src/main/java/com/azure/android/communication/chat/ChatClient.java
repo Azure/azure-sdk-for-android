@@ -60,7 +60,7 @@ public final class ChatClient {
      * Creates a chat thread.
      *
      * @param options Options for creating a chat thread.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the thread created.
      */
@@ -74,7 +74,7 @@ public final class ChatClient {
      *
      * @param options Options for creating a chat thread.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response containing the thread created.
      */
@@ -91,7 +91,7 @@ public final class ChatClient {
      * Deletes a chat thread.
      *
      * @param chatThreadId the id of the Chat thread to delete.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -104,7 +104,7 @@ public final class ChatClient {
      *
      * @param chatThreadId the id of the Chat thread to delete.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response of the delete request.
      */
@@ -116,7 +116,7 @@ public final class ChatClient {
     /**
      * Gets the list of chat threads of a user.
      *
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged list of chat threads of a user.
      */
@@ -130,7 +130,7 @@ public final class ChatClient {
      *
      * @param listThreadsOptions The request options.
      * @param requestContext The context to associate with this operation.
-     * @throws ChatErrorResponseException thrown if the request is rejected by server.
+     * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged list of chat threads of a user.
      */
@@ -196,7 +196,7 @@ public final class ChatClient {
      * Add handler for a chat event.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException thrown if real-time notifications has not started yet.
+     * @throws IllegalStateException if real-time notifications has not started yet.
      * @return the listener id for the recently added listener.
      */
     public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {

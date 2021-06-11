@@ -45,9 +45,9 @@ public class ReadmeSamples {
 
         // Initialize the chat client
         final ChatClientBuilder builder = new ChatClientBuilder();
-        builder.endpoint(endpoint)
-            .addPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
-                callback.onSuccess(new AccessToken(token, OffsetDateTime.now().plusDays(1)))));
+        builder
+            .endpoint(endpoint)
+            .credential(new CommunicationTokenCredential(token))
         ChatClient chatClient = builder.buildClient();
 
         return chatClient;
