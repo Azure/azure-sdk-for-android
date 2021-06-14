@@ -30,6 +30,7 @@ import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
 import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
+import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
@@ -79,12 +80,12 @@ public class MainActivity extends AppCompatActivity {
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
-    private final String listenerId = "testListener";
     private final String sdkVersion = "1.0.0";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat Test App";
     private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
+    private static RealTimeNotificationCallback messageReceivedHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,13 +171,15 @@ public class MainActivity extends AppCompatActivity {
         logAndToast("Register a test listener");
         JacksonSerder jacksonSerder = JacksonSerder.createDefault();
 
-        chatAsyncClient.addEventHandler(CHAT_MESSAGE_RECEIVED, (ChatEvent payload) -> {
+        messageReceivedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
             Log.i(TAG, "Message created! ThreadId: " + event.getChatThreadId());
-        });
+        };
+
+        chatAsyncClient.addEventHandler(CHAT_MESSAGE_RECEIVED, messageReceivedHandler);
 
         chatAsyncClient.addEventHandler(CHAT_MESSAGE_EDITED, (ChatEvent payload) -> {
             eventHandlerCalled++;
@@ -253,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void unregisterRealTimeNotificationListener(View view) {
         logAndToast("Unregister a test listener");
-        chatAsyncClient.removeEventHandler(CHAT_MESSAGE_RECEIVED, listenerId);
+        chatAsyncClient.removeEventHandler(CHAT_MESSAGE_RECEIVED, messageReceivedHandler);
     }
 
     public void sendChatMessage(View view) {

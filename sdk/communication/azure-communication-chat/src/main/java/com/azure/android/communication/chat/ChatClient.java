@@ -197,19 +197,18 @@ public final class ChatClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      * @throws IllegalStateException if real-time notifications has not started yet.
-     * @return the listener id for the recently added listener.
      */
-    public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
-        return this.client.addEventHandler(chatEventType, listener);
+    public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        this.client.addEventHandler(chatEventType, listener);
     }
 
     /**
      * Remove handler from a chat event.
      * @param chatEventType the chat event type
-     * @param listenerId the listener id that is to be removed
+     * @param listener the listener callback function
      */
-    public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
-        this.client.removeEventHandler(chatEventType, listenerId);
+    public void removeEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        this.client.removeEventHandler(chatEventType, listener);
     }
 
     private <T> T block(CompletableFuture<T> completableFuture) {

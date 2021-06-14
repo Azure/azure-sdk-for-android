@@ -37,7 +37,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
     private String userToken;
-    private final Map<String, CommunicationListener> trouterListeners;
+    private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
 
     public CommunicationSignalingClient() {
@@ -118,10 +118,10 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+    public void on(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         CommunicationListener communicationListener = new CommunicationListener(chatEventType, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
-        if (!trouterListeners.containsKey(listenerId)) {
+        if (!trouterListeners.containsKey(listener)) {
             if (ChatEventType.CHAT_MESSAGE_RECEIVED.equals(chatEventType)) {
                 trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
             } else if (ChatEventType.TYPING_INDICATOR_RECEIVED.equals(chatEventType)) {
@@ -145,15 +145,15 @@ public class CommunicationSignalingClient implements SignalingClient {
             } else {
                 return;
             }
-            trouterListeners.put(listenerId, communicationListener);
+            trouterListeners.put(listener, communicationListener);
         }
     }
 
     @Override
-    public void off(ChatEventType chatEventType, String listenerId) {
-        if (trouterListeners.containsKey(listenerId)) {
-            trouter.unregisterListener(trouterListeners.get(listenerId));
-            trouterListeners.remove(listenerId);
+    public void off(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        if (trouterListeners.containsKey(listener)) {
+            trouter.unregisterListener(trouterListeners.get(listener));
+            trouterListeners.remove(listener);
         }
     }
 

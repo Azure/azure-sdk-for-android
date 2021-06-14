@@ -32,8 +32,6 @@ import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
 
-import java.util.UUID;
-
 import java9.util.concurrent.CompletableFuture;
 
 /**
@@ -281,27 +279,23 @@ public final class ChatAsyncClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      * @throws IllegalStateException if real-time notifications has not started yet.
-     * @return the listener id for the recently added listener.
      */
-    public String addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+    public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         if (!this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
             ));
         }
 
-        String listenerId = UUID.randomUUID().toString();
-        this.signalingClient.on(chatEventType, listenerId, listener);
-
-        return listenerId;
+        this.signalingClient.on(chatEventType, listener);
     }
 
     /**
      * Remove handler from a chat event.
      * @param chatEventType the chat event type
-     * @param listenerId the listener id that is to be removed
+     * @param listener the listener callback function
      */
-    public void removeEventHandler(ChatEventType chatEventType, String listenerId) {
-        this.signalingClient.off(chatEventType, listenerId);
+    public void removeEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        this.signalingClient.off(chatEventType, listener);
     }
 }

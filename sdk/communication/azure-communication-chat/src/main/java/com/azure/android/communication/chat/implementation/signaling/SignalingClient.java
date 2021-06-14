@@ -33,15 +33,14 @@ public interface SignalingClient {
     /**
      * Listen to Chat events.
      * @param chatEventType the chat event kind
-     * @param listenerId a listener id that is used to identify the listner
      * @param listener the listener callback function
      */
-    void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener);
+    void on(ChatEventType chatEventType, RealTimeNotificationCallback listener);
 
     /**
      * Stop listening to Chat events.
      * @param chatEventType the chat event kind
-     * @param listenerId the listener id that is to off
+     * @param listener the listener callback function
      */
-    void off(ChatEventType chatEventType, String listenerId);
+    void off(ChatEventType chatEventType, RealTimeNotificationCallback listener);
 }
