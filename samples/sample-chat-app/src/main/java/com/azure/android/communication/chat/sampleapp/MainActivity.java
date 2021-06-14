@@ -33,9 +33,8 @@ import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
-import com.azure.android.core.credential.AccessToken;
-import com.azure.android.core.http.policy.BearerTokenAuthenticationPolicy;
 import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
@@ -44,8 +43,6 @@ import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.RequestContext;
 import com.jakewharton.threetenabp.AndroidThreeTen;
-
-import org.threeten.bp.OffsetDateTime;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,8 +99,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             chatAsyncClient = new ChatClientBuilder()
                 .endpoint(endpoint)
-                .addPolicy(new BearerTokenAuthenticationPolicy((request, callback) ->
-                    callback.onSuccess(new AccessToken(firstUserAccessToken, OffsetDateTime.now().plusDays(1)))))
+                .credential(new CommunicationTokenCredential(firstUserAccessToken))
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
                 .httpLogOptions(new HttpLogOptions()
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
@@ -179,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
-            Log.i(TAG, "Message created! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Message created! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(CHAT_MESSAGE_EDITED, (ChatEvent payload) -> {
@@ -187,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageEditedEvent event = (ChatMessageEditedEvent) payload;
-            Log.i(TAG, "Message edited! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Message edited! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(CHAT_MESSAGE_DELETED, (ChatEvent payload) -> {
@@ -195,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageDeletedEvent event = (ChatMessageDeletedEvent) payload;
-            Log.i(TAG, "Message deleted! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Message deleted! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(TYPING_INDICATOR_RECEIVED, (ChatEvent payload) -> {
@@ -203,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             TypingIndicatorReceivedEvent event = (TypingIndicatorReceivedEvent) payload;
-            Log.i(TAG, "Typing indicator received! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Typing indicator received! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(READ_RECEIPT_RECEIVED, (ChatEvent payload) -> {
@@ -211,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ReadReceiptReceivedEvent event = (ReadReceiptReceivedEvent) payload;
-            Log.i(TAG, "Read receipt received! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Read receipt received! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(CHAT_THREAD_CREATED, (ChatEvent payload) -> {
@@ -219,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
-            Log.i(TAG, "Chat thread created! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Chat thread created! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(CHAT_THREAD_DELETED, (ChatEvent payload) -> {
@@ -227,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadDeletedEvent event = (ChatThreadDeletedEvent) payload;
-            Log.i(TAG, "Chat thread deleted! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Chat thread deleted! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(CHAT_THREAD_PROPERTIES_UPDATED, (ChatEvent payload) -> {
@@ -235,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadPropertiesUpdatedEvent event = (ChatThreadPropertiesUpdatedEvent) payload;
-            Log.i(TAG, "Chat thread properties updated! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Chat thread properties updated! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(PARTICIPANTS_ADDED, (ChatEvent payload) -> {
@@ -243,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ParticipantsAddedEvent event = (ParticipantsAddedEvent) payload;
-            Log.i(TAG, "Participants added! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Participants added! ThreadId: " + event.getChatThreadId());
         });
 
         chatAsyncClient.addEventHandler(PARTICIPANTS_REMOVED, (ChatEvent payload) -> {
@@ -251,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ParticipantsRemovedEvent event = (ParticipantsRemovedEvent) payload;
-            Log.i(TAG, "Participants removed! ThreadId: " + event.getThreadId());
+            Log.i(TAG, "Participants removed! ThreadId: " + event.getChatThreadId());
         });
     }
 

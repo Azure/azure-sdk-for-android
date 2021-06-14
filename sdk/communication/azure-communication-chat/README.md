@@ -228,7 +228,7 @@ ChatMessage chatMessage = chatThreadClient.getMessage(chatMessageId);
 
 #### Get chat messages
 
-You can retrieve chat messages using the `getMessagesFirstPage` and `getMessagesNextPage` method on the chat thread client at specified intervals (polling).
+You can retrieve chat messages using the `listMessages` method on the chat thread client at specified intervals (polling).
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L161-L164 -->
 ```Java
@@ -238,7 +238,7 @@ chatMessages.forEach(chatMessage -> {
 });
 ```
 
-`getMessagesFirstPage` and `getMessagesNextPage` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`. 
+`listMessages` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`. 
 
 For deleted messages, `chatMessage.getDeletedOn()` returns a datetime value indicating when that message was deleted. 
 
@@ -292,7 +292,7 @@ chatThreadClient.deleteMessage(chatMessageId);
 
 #### List chat participants
 
-Use `getParticipantsFirstPage` and `getParticipantsNextPage` to retrieve a paged collection containing the participants of the chat thread identified by chatThreadId.
+Use `listParticipants` to retrieve a paged collection containing the participants of the chat thread identified by chatThreadId.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L196-L199 -->
 ```Java
@@ -354,7 +354,7 @@ chatThreadClient.sendReadReceipt(chatMessageId);
 
 #### Get read receipts
 
-Use `getReadReceiptsFirstPage` and `getReadReceiptsNextPage` to retrieve a paged collection containing the read receipts for a chat thread.
+Use `listReadReceipts` to retrieve a paged collection containing the read receipts for a chat thread.
 
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L254-L257 -->
 ```Java

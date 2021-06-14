@@ -10,23 +10,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public abstract class ChatEvent {
     /**
-     * Thread Id of the event.
+     * Chat Thread Id of the event.
      */
     @JsonProperty(value = "threadId")
     private String threadId;
 
     /**
-     * Thread Id of the event. Named as groupId in notification payload for message events.
+     * Chat Thread Id of the event. Named as groupId in notification payload for message events.
      */
     @JsonProperty(value = "groupId", access = JsonProperty.Access.WRITE_ONLY)
     private String groupId;
 
     /**
-     * Gets Thread Id of the event.
+     * Gets chat thread Id of the event.
      *
-     * @return Value of Thread Id of the event.
+     * @return Value of chat thread Id of the event.
      */
-    public String getThreadId() {
+    public String getChatThreadId() {
         return threadId;
     }
 

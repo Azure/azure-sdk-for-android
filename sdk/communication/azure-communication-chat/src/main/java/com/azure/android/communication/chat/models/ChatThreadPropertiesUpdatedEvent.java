@@ -115,7 +115,7 @@ public class ChatThreadPropertiesUpdatedEvent extends ChatThreadEvent {
         try {
             JSONObject propertiesJsonObject = new JSONObject(this.propertiesJsonString);
             this.properties
-                .setId(this.getThreadId())
+                .setId(this.getChatThreadId())
                 .setTopic(propertiesJsonObject.getString("topic"));
         } catch (JSONException e) {
             return this;
