@@ -119,7 +119,7 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
         try {
             JSONObject propertiesJsonObject = new JSONObject(this.propertiesJsonString);
             this.properties
-                .setId(this.getThreadId())
+                .setId(this.getChatThreadId())
                 .setTopic(propertiesJsonObject.getString("topic"))
                 .setCreatedByCommunicationIdentifier(this.createdBy.getCommunicationIdentifier())
                 .setCreatedOn(this.createdOn);

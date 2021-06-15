@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
@@ -28,7 +28,7 @@ public final class EventAccessorHelper {
     private static IAccessor participantsRemovedEventAccessor;
 
     public interface IAccessor {
-        void set(BaseEvent event);
+        void set(ChatEvent event);
     }
 
     public static void setChatMessageDeletedEventAccessor(final IAccessor accessor) {

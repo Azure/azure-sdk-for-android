@@ -8,9 +8,9 @@ import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpClient;
-import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.test.TestBase;
 import com.azure.android.core.test.TestMode;
@@ -65,18 +65,10 @@ public class ChatClientTestBase extends TestBase {
             .httpClient(httpClient == null ? interceptorManager.getPlaybackClient() : httpClient);
 
         if (interceptorManager.isPlaybackMode()) {
-            builder.credentialPolicy(chain -> {
-                HttpRequest request = chain.getRequest();
-                request.getHeaders().put("Authorization", "Bearer " + generateRawToken());
-                chain.processNextPolicy(request);
-            });
+            builder.credential(new CommunicationTokenCredential(generateRawToken()));
             return builder;
         } else {
-            builder.credentialPolicy(chain -> {
-                HttpRequest request = chain.getRequest();
-                request.getHeaders().put("Authorization", "Bearer " + ACCESS_KEY);
-                chain.processNextPolicy(request);
-            });
+            builder.credential(new CommunicationTokenCredential(ACCESS_KEY));
         }
 
         if (getTestMode() == TestMode.RECORD) {

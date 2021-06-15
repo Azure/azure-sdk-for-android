@@ -22,22 +22,16 @@ public final class ChatErrorConverter {
             return null;
         }
 
-        ChatError chatError = new ChatError()
-            .setInnerError(convert(obj.getInnerError()))
-            .setCode(obj.getCode())
-            .setMessage(obj.getMessage())
-            .setTarget(obj.getTarget());
+        List<ChatError> details = null;
 
         if (obj.getDetails() != null) {
-            List<ChatError> details
-                = new ArrayList<>(obj.getDetails().size());
+            details = new ArrayList<>(obj.getDetails().size());
             for (CommunicationError communicationError: obj.getDetails()) {
                 details.add(convert(communicationError));
             }
-            chatError.setDetails(details);
         }
 
-        return chatError;
+        return new ChatError(obj.getCode(), obj.getMessage(), obj.getTarget(), convert(obj.getInnerError()), details);
     }
 
     private ChatErrorConverter() {

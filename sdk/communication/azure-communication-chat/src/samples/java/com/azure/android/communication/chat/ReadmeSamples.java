@@ -40,20 +40,14 @@ public class ReadmeSamples {
     public ChatClient createChatClient() {
         String endpoint = "https://<RESOURCE_NAME>.communcationservices.azure.com";
 
-        // Create an HttpClient builder of your choice and customize it
-        // Use com.azure.core.http.netty.NettyAsyncHttpClientBuilder if that suits your needs
-        NettyAsyncHttpClientBuilder httpClientBuilder = new NettyAsyncHttpClientBuilder();
-        HttpClient httpClient = httpClientBuilder.build();
-
         // Your user access token retrieved from your trusted service
         String token = "SECRET";
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(token);
 
         // Initialize the chat client
         final ChatClientBuilder builder = new ChatClientBuilder();
-        builder.endpoint(endpoint)
-            .credential(credential)
-            .httpClient(httpClient);
+        builder
+            .endpoint(endpoint)
+            .credential(new CommunicationTokenCredential(token))
         ChatClient chatClient = builder.buildClient();
 
         return chatClient;

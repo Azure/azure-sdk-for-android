@@ -3,13 +3,17 @@
 
 package com.azure.android.communication.chat;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.CFBackedPageAsyncStream;
 import com.azure.android.communication.chat.implementation.ChatImpl;
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
+import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.chat.models.ChatEventType;
+import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -27,9 +31,6 @@ import com.azure.android.core.rest.util.paging.PagedResponse;
 import com.azure.android.core.util.AsyncStream;
 import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
-import com.azure.android.core.util.paging.Page;
-
-import java.util.List;
 
 import java9.util.concurrent.CompletableFuture;
 
@@ -44,9 +45,9 @@ public final class ChatAsyncClient {
     private final SignalingClient signalingClient;
     private final ChatImpl chatClient;
 
-    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient, SignalingClient signalingClient) {
+    ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
         this.chatServiceClient = chatServiceClient;
-        this.signalingClient = signalingClient;
+        this.signalingClient = new CommunicationSignalingClient();
         this.chatClient = chatServiceClient.getChatClient();
     }
 
@@ -54,6 +55,7 @@ public final class ChatAsyncClient {
      * Creates a chat thread client.
      *
      * @param chatThreadId The id of the thread.
+     * @throws NullPointerException if chatThreadId is null
      * @return the client.
      */
     public ChatThreadAsyncClient getChatThreadClient(String chatThreadId) {
@@ -67,6 +69,8 @@ public final class ChatAsyncClient {
      * Creates a chat thread.
      *
      * @param options Options for creating a chat thread.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -85,7 +89,8 @@ public final class ChatAsyncClient {
      *
      * @param options Options for creating a chat thread.
      * @param requestContext The context to associate with this operation.
-     *
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits the thread created.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -124,6 +129,8 @@ public final class ChatAsyncClient {
     /**
      * Gets the list of chat threads of a user.
      *
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
@@ -136,6 +143,8 @@ public final class ChatAsyncClient {
      *
      * @param listThreadsOptions The request options.
      * @param requestContext The context to associate with this operation.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the paged stream of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
@@ -195,7 +204,8 @@ public final class ChatAsyncClient {
      * Deletes a chat thread.
      *
      * @param chatThreadId the id of the Chat thread to delete.
-     *
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that signals the result of deletion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -214,7 +224,8 @@ public final class ChatAsyncClient {
      *
      * @param chatThreadId the id of the Chat thread to delete.
      * @param requestContext The context to associate with this operation.
-     *
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the {@link CompletableFuture} that emits response of the delete request.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -243,81 +254,48 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Receive real-time messages and notifications.
+     * Receive real-time notifications.
+     * @param skypeUserToken the skype user token
+     * @param context the Android app context
+     * @throws RuntimeException if real-time notifications failed to start.
      */
-    public void startRealtimeNotifications() {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
+    public void startRealtimeNotifications(String skypeUserToken, Context context) {
         if (this.signalingClient.hasStarted()) {
             return;
         }
 
-        this.signalingClient.start();
+        this.signalingClient.start(skypeUserToken, context);
     }
 
     /**
-     * Stop receiving real-time messages and notifications.
+     * Stop receiving real-time notifications.
      */
     public void stopRealtimeNotifications() {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
         this.signalingClient.stop();
     }
 
     /**
-     * Listen to a chat event.
-     * @param chatEventType the chat event kind
-     * @param listenerId a listener id that is used to identify the listner
+     * Add handler for a chat event.
+     * @param chatEventType the chat event type
      * @param listener the listener callback function
+     * @throws IllegalStateException if real-time notifications has not started yet.
      */
-    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
+    public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         if (!this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startRealtimeNotifications before you can subscribe to events."
             ));
         }
 
-        this.signalingClient.on(chatEventType, listenerId, listener);
+        this.signalingClient.on(chatEventType, listener);
     }
 
     /**
-     * Stop listening to a chat event.
-     * @param chatEventType the chat event kind
-     * @param listenerId the listener id that is to off
+     * Remove handler from a chat event.
+     * @param chatEventType the chat event type
+     * @param listener the listener callback function
      */
-    public void off(ChatEventType chatEventType, String listenerId) {
-        if (signalingClient == null) {
-            throw logger.logExceptionAsError(new IllegalStateException("Signaling client not initialized"));
-        }
-
-        this.signalingClient.off(chatEventType, listenerId);
-    }
-
-    static class PageImpl<T> implements Page<String, T> {
-        private final List<T> items;
-        private final String continuationToken;
-
-        PageImpl(List<T> items, String continuationToken) {
-            this.items = items;
-            this.continuationToken = continuationToken;
-        }
-
-        @Override
-        public List<T> getElements() {
-            return this.items;
-        }
-
-        @Override
-        public String getContinuationToken() {
-            return this.continuationToken;
-        }
+    public void removeEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        this.signalingClient.off(chatEventType, listener);
     }
 }

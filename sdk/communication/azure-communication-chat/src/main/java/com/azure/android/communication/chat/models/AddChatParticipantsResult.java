@@ -15,7 +15,15 @@ public final class AddChatParticipantsResult {
      * The participants that failed to be added to the chat thread.
      */
     @JsonProperty(value = "invalidParticipants", access = JsonProperty.Access.WRITE_ONLY)
-    private List<ChatError> invalidParticipants;
+    private final List<ChatError> invalidParticipants;
+
+    /**
+     * Initializes a new instance of the AddChatParticipantsResult class.
+     * @param invalidParticipants the invalidParticipants value to set.
+     */
+    public AddChatParticipantsResult(List<ChatError> invalidParticipants) {
+        this.invalidParticipants = invalidParticipants;
+    }
 
     /**
      * Get the invalidParticipants property: The participants that failed to be added to the chat thread.
@@ -24,16 +32,5 @@ public final class AddChatParticipantsResult {
      */
     public List<ChatError> getInvalidParticipants() {
         return this.invalidParticipants;
-    }
-
-    /**
-     * Set the invalidParticipants property: The invalidParticipants property.
-     *
-     * @param invalidParticipants the invalidParticipants value to set.
-     * @return the AddChatParticipantsResult object itself.
-     */
-    public AddChatParticipantsResult setInvalidParticipants(List<ChatError> invalidParticipants) {
-        this.invalidParticipants = invalidParticipants;
-        return this;
     }
 }

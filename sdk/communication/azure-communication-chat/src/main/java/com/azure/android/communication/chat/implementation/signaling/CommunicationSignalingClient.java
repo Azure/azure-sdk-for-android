@@ -34,22 +34,15 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_
  */
 public class CommunicationSignalingClient implements SignalingClient {
     private final ClientLogger logger;
-    private final TrouterClientHost trouterClientHost;
+    private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
-    private final String userToken;
-    private final Map<String, CommunicationListener> trouterListeners;
+    private String userToken;
+    private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
 
-    /**
-     *
-     * @param userToken the skype token
-     * @param context the android application context
-     */
-    public CommunicationSignalingClient(String userToken, Context context) {
+    public CommunicationSignalingClient() {
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
-        this.userToken = userToken;
-        trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
         trouterListeners = new HashMap<>();
     }
 
@@ -63,13 +56,16 @@ public class CommunicationSignalingClient implements SignalingClient {
 
     /**
      * Start the realtime connection.
+     * @param skypeUserToken the skype user token
+     * @param context the android application context
      */
-    public void start() {
+    public void start(String skypeUserToken, Context context) {
         if (this.isRealtimeNotificationsStarted) {
             return;
         }
 
         this.isRealtimeNotificationsStarted = true;
+        this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
@@ -97,6 +93,8 @@ public class CommunicationSignalingClient implements SignalingClient {
         );
 
         try {
+            trouterListeners.clear();
+            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
             trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
                 new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
@@ -116,56 +114,46 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         this.isRealtimeNotificationsStarted = false;
         this.trouter.close();
+        this.trouterListeners.clear();
     }
 
     @Override
-    public void on(ChatEventType chatEventType, String listenerId, RealTimeNotificationCallback listener) {
+    public void on(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         CommunicationListener communicationListener = new CommunicationListener(chatEventType, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
-        if (!trouterListeners.containsKey(listenerId)) {
-            switch (chatEventType) {
-                case CHAT_MESSAGE_RECEIVED:
-                    trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
-                    break;
-                case TYPING_INDICATOR_RECEIVED:
-                    trouter.registerListener(communicationListener, "/typingIndicatorReceived", loggingName);
-                    break;
-                case READ_RECEIPT_RECEIVED:
-                    trouter.registerListener(communicationListener, "/readReceiptReceived", loggingName);
-                    break;
-                case CHAT_MESSAGE_EDITED:
-                    trouter.registerListener(communicationListener, "/chatMessageEdited", loggingName);
-                    break;
-                case CHAT_MESSAGE_DELETED:
-                    trouter.registerListener(communicationListener, "/chatMessageDeleted", loggingName);
-                    break;
-                case CHAT_THREAD_CREATED:
-                    trouter.registerListener(communicationListener, "/chatThreadCreated", loggingName);
-                    break;
-                case CHAT_THREAD_PROPERTIES_UPDATED:
-                    trouter.registerListener(communicationListener, "/chatThreadPropertiesUpdated", loggingName);
-                    break;
-                case CHAT_THREAD_DELETED:
-                    trouter.registerListener(communicationListener, "/chatThreadDeleted", loggingName);
-                    break;
-                case PARTICIPANTS_ADDED:
-                    trouter.registerListener(communicationListener, "/participantsAdded", loggingName);
-                    break;
-                case PARTICIPANTS_REMOVED:
-                    trouter.registerListener(communicationListener, "/participantsRemoved", loggingName);
-                    break;
-                default:
-                    return;
+        if (!trouterListeners.containsKey(listener)) {
+            if (ChatEventType.CHAT_MESSAGE_RECEIVED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
+            } else if (ChatEventType.TYPING_INDICATOR_RECEIVED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/typingIndicatorReceived", loggingName);
+            } else if (ChatEventType.READ_RECEIPT_RECEIVED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/readReceiptReceived", loggingName);
+            } else if (ChatEventType.CHAT_MESSAGE_EDITED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatMessageEdited", loggingName);
+            } else if (ChatEventType.CHAT_MESSAGE_DELETED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatMessageDeleted", loggingName);
+            } else if (ChatEventType.CHAT_THREAD_CREATED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatThreadCreated", loggingName);
+            } else if (ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatThreadPropertiesUpdated", loggingName);
+            } else if (ChatEventType.CHAT_THREAD_DELETED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/chatThreadDeleted", loggingName);
+            } else if (ChatEventType.PARTICIPANTS_ADDED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/participantsAdded", loggingName);
+            } else if (ChatEventType.PARTICIPANTS_REMOVED.equals(chatEventType)) {
+                trouter.registerListener(communicationListener, "/participantsRemoved", loggingName);
+            } else {
+                return;
             }
-            trouterListeners.put(listenerId, communicationListener);
+            trouterListeners.put(listener, communicationListener);
         }
     }
 
     @Override
-    public void off(ChatEventType chatEventType, String listenerId) {
-        if (trouterListeners.containsKey(listenerId)) {
-            trouter.unregisterListener(trouterListeners.get(listenerId));
-            trouterListeners.remove(listenerId);
+    public void off(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
+        if (trouterListeners.containsKey(listener)) {
+            trouter.unregisterListener(trouterListeners.get(listener));
+            trouterListeners.remove(listener);
         }
     }
 

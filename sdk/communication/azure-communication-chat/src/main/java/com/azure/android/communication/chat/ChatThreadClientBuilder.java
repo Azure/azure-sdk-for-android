@@ -37,7 +37,7 @@ public final class ChatThreadClientBuilder {
     private String endpoint;
     private HttpClient httpClient;
     private CommunicationTokenCredential communicationTokenCredential;
-    private HttpPipelinePolicy credentialPolicy;
+    private RetryPolicy retryPolicy;
     private final List<HttpPipelinePolicy> customPolicies = new ArrayList<HttpPipelinePolicy>();
     private HttpLogOptions logOptions = new HttpLogOptions();
     private HttpPipeline httpPipeline;
@@ -47,6 +47,7 @@ public final class ChatThreadClientBuilder {
      * Set endpoint of the service
      *
      * @param endpoint url of the service
+     * @throws NullPointerException if endpoint is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder endpoint(String endpoint) {
@@ -61,6 +62,7 @@ public final class ChatThreadClientBuilder {
      * Set HttpClient to use
      *
      * @param httpClient HttpClient to use
+     * @throws NullPointerException if httpClient is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpClient(HttpClient httpClient) {
@@ -75,6 +77,7 @@ public final class ChatThreadClientBuilder {
      * Set a token credential for authorization
      *
      * @param communicationTokenCredential valid token credential as a string
+     * @throws NullPointerException if communicationTokenCredential is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder credential(CommunicationTokenCredential communicationTokenCredential) {
@@ -86,24 +89,11 @@ public final class ChatThreadClientBuilder {
     }
 
     /**
-     * Sets the {@link HttpPipelinePolicy} that attaches authorization header.
-     *
-     * @param credentialPolicy the credentials policy.
-     * @return The updated {@link ChatThreadClientBuilder} object
-     */
-    public ChatThreadClientBuilder credentialPolicy(HttpPipelinePolicy credentialPolicy) {
-        if (credentialPolicy == null) {
-            throw logger.logExceptionAsError(new NullPointerException("credentialPolicy is required."));
-        }
-        this.credentialPolicy = credentialPolicy;
-        return this;
-    }
-
-    /**
      * Apply additional {@link HttpPipelinePolicy}
      *
      * @param pipelinePolicy HttpPipelinePolicy objects to be applied after
      *                       AzureKeyCredentialPolicy, UserAgentPolicy, RetryPolicy, and CookiePolicy
+     * @throws NullPointerException if pipelinePolicy is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder addPolicy(HttpPipelinePolicy pipelinePolicy) {
@@ -115,9 +105,25 @@ public final class ChatThreadClientBuilder {
     }
 
     /**
+     * Sets the {@link RetryPolicy} that will attempt to retry failed requests, if applicable.
+     *
+     * @param retryPolicy the retryPolicy value.
+     * @throws NullPointerException if retryPolicy is null.
+     * @return The updated {@link ChatThreadClientBuilder} object.
+     */
+    public ChatThreadClientBuilder retryPolicy(RetryPolicy retryPolicy) {
+        if (retryPolicy == null) {
+            throw logger.logExceptionAsError(new NullPointerException("retryPolicy is required."));
+        }
+        this.retryPolicy = retryPolicy;
+        return this;
+    }
+
+    /**
      * Sets the {@link HttpLogOptions} for service requests.
      *
      * @param logOptions The logging configuration to use when sending and receiving HTTP requests/responses.
+     * @throws NullPointerException if logOptions is null.
      * @return The updated {@link ChatThreadClientBuilder} object
      */
     public ChatThreadClientBuilder httpLogOptions(HttpLogOptions logOptions) {
@@ -175,18 +181,19 @@ public final class ChatThreadClientBuilder {
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
+     * @throws NullPointerException if chatThreadId, endpoint or communicationTokenCredential is not set.
      * @return A {@link ChatThreadClient} instance.
      */
     public ChatThreadClient buildClient() {
         return new ChatThreadClient(buildAsyncClient());
     }
 
-
     /**
      * Create asynchronous chat thread client applying CommunicationTokenCredential, UserAgentPolicy,
      * RetryPolicy, and CookiePolicy.
      * Additional HttpPolicies specified by additionalPolicies will be applied after them
      *
+     * @throws NullPointerException if chatThreadId, endpoint or communicationTokenCredential is not set.
      * @return A {@link ChatThreadAsyncClient} instance.
      */
     public ChatThreadAsyncClient buildAsyncClient() {
@@ -207,34 +214,30 @@ public final class ChatThreadClientBuilder {
         if (this.httpPipeline != null) {
             pipeline = this.httpPipeline;
         } else {
-            if (this.communicationTokenCredential == null && this.credentialPolicy == null) {
-                throw logger.logExceptionAsError(
-                    new NullPointerException(
-                        "Either 'communicationTokenCredential' or 'credentialPolicy' is required."));
+            if (this.communicationTokenCredential == null) {
+                throw logger
+                    .logExceptionAsError(
+                        new NullPointerException(
+                            "CommunicationTokenCredential is required."));
             }
 
-            final HttpPipelinePolicy authorizationPolicy;
-            if (this.communicationTokenCredential != null) {
-                authorizationPolicy = chain -> {
-                    final CompletableFuture<CommunicationAccessToken> tokenFuture
-                        = this.communicationTokenCredential.getToken();
-                    final CommunicationAccessToken token;
-                    try {
-                        token = tokenFuture.get();
-                    } catch (ExecutionException e) {
-                        chain.completedError(e);
-                        return;
-                    } catch (InterruptedException e) {
-                        chain.completedError(e);
-                        return;
-                    }
-                    HttpRequest httpRequest = chain.getRequest();
-                    httpRequest.getHeaders().put("Authorization", "Bearer " + token.getToken());
-                    chain.processNextPolicy(httpRequest);
-                };
-            } else {
-                authorizationPolicy = this.credentialPolicy;
-            }
+            HttpPipelinePolicy authorizationPolicy = chain -> {
+                final CompletableFuture<CommunicationAccessToken> tokenFuture
+                    = this.communicationTokenCredential.getToken();
+                final CommunicationAccessToken token;
+                try {
+                    token = tokenFuture.get();
+                } catch (ExecutionException e) {
+                    chain.completedError(e);
+                    return;
+                } catch (InterruptedException e) {
+                    chain.completedError(e);
+                    return;
+                }
+                HttpRequest httpRequest = chain.getRequest();
+                httpRequest.getHeaders().put("Authorization", "Bearer " + token.getToken());
+                chain.processNextPolicy(httpRequest);
+            };
 
             pipeline = createHttpPipeline(this.httpClient,
                 authorizationPolicy,
@@ -256,8 +259,7 @@ public final class ChatThreadClientBuilder {
                                             List<HttpPipelinePolicy> additionalPolicies) {
 
         List<HttpPipelinePolicy> policies = new ArrayList<HttpPipelinePolicy>();
-        policies.add(authorizationPolicy);
-        applyRequiredPolicies(policies);
+        applyRequiredPolicies(policies, authorizationPolicy);
 
         if (additionalPolicies != null && additionalPolicies.size() > 0) {
             policies.addAll(additionalPolicies);
@@ -269,11 +271,12 @@ public final class ChatThreadClientBuilder {
             .build();
     }
 
-    private void applyRequiredPolicies(List<HttpPipelinePolicy> policies) {
+    private void applyRequiredPolicies(List<HttpPipelinePolicy> policies, HttpPipelinePolicy authorizationPolicy) {
         policies.add(
-            new UserAgentPolicy(null, "azure-communication-chat", "1.0.0-beta.8"));
-        policies.add(RetryPolicy.withExponentialBackoff());
+            new UserAgentPolicy(null, "azure-communication-chat", "1.0.0"));
+        policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
+        policies.add(authorizationPolicy);
         policies.add(new HttpLoggingPolicy(this.logOptions));
     }
 }

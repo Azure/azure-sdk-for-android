@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Base class for chat event
  */
-public abstract class ChatUserEvent extends BaseEvent {
+public abstract class ChatUserEvent extends ChatEvent {
     /**
      * The Id of the event sender. A string property in notification payload.
      */

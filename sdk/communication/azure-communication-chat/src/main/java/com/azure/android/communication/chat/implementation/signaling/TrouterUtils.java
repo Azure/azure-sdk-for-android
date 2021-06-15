@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
-import com.azure.android.communication.chat.models.BaseEvent;
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
@@ -68,7 +68,7 @@ public final class TrouterUtils {
             put(ChatEventType.PARTICIPANTS_REMOVED, 261);
         }};
 
-    public static BaseEvent parsePayload(ChatEventType chatEventType, String body) {
+    public static ChatEvent parsePayload(ChatEventType chatEventType, String body) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
@@ -89,31 +89,29 @@ public final class TrouterUtils {
         return toEventPayload(chatEventType, body);
     }
 
-    public static BaseEvent toEventPayload(ChatEventType eventId, String body) {
-        switch (eventId) {
-            case CHAT_MESSAGE_RECEIVED:
-                return getChatMessageReceived(body);
-            case TYPING_INDICATOR_RECEIVED:
-                return getTypingIndicatorReceived(body);
-            case READ_RECEIPT_RECEIVED:
-                return getReadReceiptReceived(body);
-            case CHAT_MESSAGE_EDITED:
-                return getChatMessageEdited(body);
-            case CHAT_MESSAGE_DELETED:
-                return getChatMessageDeleted(body);
-            case CHAT_THREAD_CREATED:
-                return getChatThreadCreated(body);
-            case CHAT_THREAD_PROPERTIES_UPDATED:
-                return getChatThreadPropertiesUpdated(body);
-            case CHAT_THREAD_DELETED:
-                return getChatThreadDeleted(body);
-            case PARTICIPANTS_ADDED:
-                return getParticipantsAdded(body);
-            case PARTICIPANTS_REMOVED:
-                return getParticipantsRemoved(body);
-            default:
-                return null;
+    public static ChatEvent toEventPayload(ChatEventType chatEventType, String body) {
+        if (ChatEventType.CHAT_MESSAGE_RECEIVED.equals(chatEventType)) {
+            return getChatMessageReceived(body);
+        } else if (ChatEventType.TYPING_INDICATOR_RECEIVED.equals(chatEventType)) {
+            return getTypingIndicatorReceived(body);
+        } else if (ChatEventType.READ_RECEIPT_RECEIVED.equals(chatEventType)) {
+            return getReadReceiptReceived(body);
+        } else if (ChatEventType.CHAT_MESSAGE_EDITED.equals(chatEventType)) {
+            return getChatMessageEdited(body);
+        } else if (ChatEventType.CHAT_MESSAGE_DELETED.equals(chatEventType)) {
+            return getChatMessageDeleted(body);
+        } else if (ChatEventType.CHAT_THREAD_CREATED.equals(chatEventType)) {
+            return getChatThreadCreated(body);
+        } else if (ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED.equals(chatEventType)) {
+            return getChatThreadPropertiesUpdated(body);
+        } else if (ChatEventType.CHAT_THREAD_DELETED.equals(chatEventType)) {
+            return getChatThreadDeleted(body);
+        } else if (ChatEventType.PARTICIPANTS_ADDED.equals(chatEventType)) {
+            return getParticipantsAdded(body);
+        } else if (ChatEventType.PARTICIPANTS_REMOVED.equals(chatEventType)) {
+            return getParticipantsRemoved(body);
         }
+        return null;
     }
 
     public static CommunicationIdentifier getCommunicationIdentifier(String rawId) {
@@ -174,7 +172,7 @@ public final class TrouterUtils {
         return new JSONArray(payload.getString(property));
     }
 
-    private static BaseEvent getParticipantsRemoved(String body) {
+    private static ChatEvent getParticipantsRemoved(String body) {
         try {
             ParticipantsRemovedEvent participantsRemovedEvent = JACKSON_SERDER.deserialize(body,
                 ParticipantsRemovedEvent.class,
@@ -187,7 +185,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getParticipantsAdded(String body) {
+    private static ChatEvent getParticipantsAdded(String body) {
         try {
             ParticipantsAddedEvent participantsAddedEvent = JACKSON_SERDER.deserialize(body,
                 ParticipantsAddedEvent.class,
@@ -200,7 +198,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatThreadDeleted(String body) {
+    private static ChatEvent getChatThreadDeleted(String body) {
         try {
             ChatThreadDeletedEvent chatThreadDeletedEvent = JACKSON_SERDER.deserialize(body,
                 ChatThreadDeletedEvent.class,
@@ -213,7 +211,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatThreadPropertiesUpdated(String body) {
+    private static ChatEvent getChatThreadPropertiesUpdated(String body) {
         try {
             ChatThreadPropertiesUpdatedEvent chatThreadPropertiesUpdatedEvent = JACKSON_SERDER.deserialize(body,
                 ChatThreadPropertiesUpdatedEvent.class,
@@ -226,7 +224,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatThreadCreated(String body) {
+    private static ChatEvent getChatThreadCreated(String body) {
         try {
             ChatThreadCreatedEvent chatThreadCreatedEvent = JACKSON_SERDER.deserialize(body,
                 ChatThreadCreatedEvent.class,
@@ -239,7 +237,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getReadReceiptReceived(String body) {
+    private static ChatEvent getReadReceiptReceived(String body) {
         try {
             ReadReceiptReceivedEvent readReceiptReceivedEvent = JACKSON_SERDER.deserialize(body,
                 ReadReceiptReceivedEvent.class,
@@ -252,7 +250,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getTypingIndicatorReceived(String body) {
+    private static ChatEvent getTypingIndicatorReceived(String body) {
         try {
             TypingIndicatorReceivedEvent typingIndicatorReceivedEvent = JACKSON_SERDER.deserialize(body,
                 TypingIndicatorReceivedEvent.class,
@@ -265,7 +263,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatMessageDeleted(String body) {
+    private static ChatEvent getChatMessageDeleted(String body) {
         try {
             ChatMessageDeletedEvent chatMessageDeletedEvent = JACKSON_SERDER.deserialize(body,
                 ChatMessageDeletedEvent.class,
@@ -278,7 +276,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatMessageEdited(String body) {
+    private static ChatEvent getChatMessageEdited(String body) {
         try {
             ChatMessageEditedEvent chatMessageEditedEvent = JACKSON_SERDER.deserialize(body,
                 ChatMessageEditedEvent.class,
@@ -291,7 +289,7 @@ public final class TrouterUtils {
         }
     }
 
-    private static BaseEvent getChatMessageReceived(String body) {
+    private static ChatEvent getChatMessageReceived(String body) {
         try {
             ChatMessageReceivedEvent chatMessageReceivedEvent = JACKSON_SERDER.deserialize(body,
                 ChatMessageReceivedEvent.class,
