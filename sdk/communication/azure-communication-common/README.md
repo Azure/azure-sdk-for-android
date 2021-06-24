@@ -2,7 +2,7 @@
 
 This package contains common code for Azure Communication Service libraries.
 
-[Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/communication/azure-communication-common)
+[Source code](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/communication/azure-communication-common)
 | [API reference documentation](https://azure.github.io/azure-sdk-for-android/azure-communication-common/index.html)
 | [Product documentation](https://docs.microsoft.com/azure/communication-services/overview)
 

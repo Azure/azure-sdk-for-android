@@ -112,25 +112,25 @@
 - Renamed `CommunicationError` to `ChatError`.
 - Removed `CommunicationErrorResponse`.
 - Renamed `CommunicationErrorResponseException` to `ChatErrorResponseException`.
-- Renamed `repeatabilityRequestId` renamed to `idempotencyToken` in `CreateChatThreadOptions`. 
+- Renamed `repeatabilityRequestId` renamed to `idempotencyToken` in `CreateChatThreadOptions`.
 - Renamed `chatThread` to `chatThreadProperties` in `CreateChatThreadResult`.
 - Removed the `azure-communication-chat.properties` file.
 
 ### New Features
 - Added ChatThreadClientBuilder
 - Added InvalidParticipantException
-- Added chat basic operations in test app 
+- Added chat basic operations in test app
 
 ### Bug Fixes
 - Fixed real time notification connection URL.
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Added
-- Support real time notifications with new methods in ChatClient/ChatAsyncClient: 
+- Support real time notifications with new methods in ChatClient/ChatAsyncClient:
     - startRealtimeNotifications
     - stopRealtimeNotifications
-    - on(chatEventId, listenerId, listener) 
-    - off(chatEventId, listenerId) 
+    - on(chatEventId, listenerId, listener)
+    - off(chatEventId, listenerId)
 - Add a sample chat app under folder samples for testing and playing around chat functionality purpose.
 
 ### Breaking Changes
@@ -182,11 +182,11 @@
 - Support for Rich Text Chat message content
 - New classes
     - ChatMessageContent
-    - ChatMessageType 
+    - ChatMessageType
     - AddChatParticipantsErrors
     - AddChatParticipantsResult
     - ChatMessageType
-    
+
 ### Breaking Changes
 - ChatMessage properties are now all required
 - ChatMessage type is no longer a String type but an extendable Enum type, ChatMessageType
@@ -207,5 +207,5 @@ This is the initial release of Azure Communication Services for chat. For more i
 This is a Public Preview version, so breaking changes are possible in subsequent releases as we improve the product. To provide feedback, please submit an issue in our [Azure SDK for Java GitHub repo](https://github.com/Azure/azure-sdk-for-android/issues).
 
 <!-- LINKS -->
-[read_me]: https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat/README.md
+[read_me]: https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-chat/README.md
 [documentation]: https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-java
