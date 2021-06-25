@@ -1,6 +1,6 @@
 # Azure Communication Chat client library for Android
 
-Azure Communication Chat contains the APIs used in chat applications for Azure Communication Services.  
+Azure Communication Chat contains the APIs used in chat applications for Azure Communication Services.
 
 [Source code][source] | [Package (Maven)][package] | [API reference documentation][api_documentation]
 | [Product documentation][product_docs]
@@ -80,8 +80,8 @@ endpoint = "https://*Azure-Communication-Resource-Name*.communications.azure.com
 
 ### Request a User Access Token
 
-User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. 
-You generate these tokens on your server, pass them back to a client device, and then use them to initialize the Communication Services SDKs. 
+User access tokens enable you to build client applications that directly authenticate to Azure Communication Services.
+You generate these tokens on your server, pass them back to a client device, and then use them to initialize the Communication Services SDKs.
 
 Learn how to generate user access tokens from [User Access Tokens](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens?pivots=programming-language-java#issue-user-access-tokens)
 
@@ -124,7 +124,7 @@ Use the `createChatThread` method to create a chat thread.
 - Use `topic` to give a thread topic;
 - Use `participants` to list the thread participants to be added to the thread;
 
-`CreateChatThreadResult` is the response returned from creating a chat thread. 
+`CreateChatThreadResult` is the response returned from creating a chat thread.
 It contains a `getChatThread()` method which returns the `ChatThread` object that can be used to get the thread client from which you can get the `ChatThreadClient` for performing operations on the created thread: add participants, send message, etc.
 The `ChatThread` object also contains the `getId()` method which retrieves the unique ID of the thread.
 
@@ -238,11 +238,11 @@ chatMessages.forEach(chatMessage -> {
 });
 ```
 
-`listMessages` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`. 
+`listMessages` returns the latest version of the message, including any edits or deletes that happened to the message using `.editMessage()` and `.deleteMessage()`.
 
-For deleted messages, `chatMessage.getDeletedOn()` returns a datetime value indicating when that message was deleted. 
+For deleted messages, `chatMessage.getDeletedOn()` returns a datetime value indicating when that message was deleted.
 
-For edited messages, `chatMessage.getEditedOn()` returns a datetime indicating when the message was edited. 
+For edited messages, `chatMessage.getEditedOn()` returns a datetime indicating when the message was edited.
 
 The original time of message creation can be accessed using `chatMessage.getCreatedOn()`, and it can be used for ordering the messages.
 
@@ -393,4 +393,4 @@ Check out other client libraries for Azure communication service
 [product_docs]: https://docs.microsoft.com/azure/communication-services/
 [package]: https://search.maven.org/artifact/com.azure/azure-communication-chat
 [api_documentation]: https://aka.ms/java-docs
-[source]: https://github.com/Azure/azure-sdk-for-java/tree/master/sdk/communication/azure-communication-chat/src
+[source]: https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/communication/azure-communication-chat/src
