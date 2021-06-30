@@ -318,7 +318,6 @@ public class MainActivity extends AppCompatActivity {
                 + " RemovedBy_Mri: " + ((CommunicationUserIdentifier)event.getRemovedBy().getCommunicationIdentifier()).getId()
             );
         });
-
     }
 
     public void stopPushNotification(View view) {
