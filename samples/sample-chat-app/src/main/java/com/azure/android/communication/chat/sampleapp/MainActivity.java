@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
         logAndToast("Register push notification listeners");
 
         chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, (ChatEvent payload) -> {
-            Log.i(TAG, "Push Notification ChatMessageReceivedEvent.");
+            Log.i(TAG, "Push Notification CHAT_MESSAGE_RECEIVED.");
             ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
             Log.i(TAG, "Message received!"
                 + " ThreadId: " + event.getChatThreadId()
@@ -219,18 +219,106 @@ public class MainActivity extends AppCompatActivity {
             );
         });
 
-        PushNotificationCallback callback = (ChatEvent payload) -> {
-            Log.i(TAG, "Push Notification ChatMessageReceivedEvent. #2 handler");
-        };
-
-        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, callback);
-
-        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, (ChatEvent payload) -> {
-            Log.i(TAG, "Push Notification ChatMessageReceivedEvent. #3 handler");
+        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_EDITED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification CHAT_MESSAGE_EDITED.");
+            ChatMessageEditedEvent event = (ChatMessageEditedEvent) payload;
+            Log.i(TAG, "Message edited!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " MessageId: " + event.getId()
+                + " Content: " + event.getContent()
+                + " SenderDisplayName: " + event.getSenderDisplayName()
+                + " SenderMri: " + ((CommunicationUserIdentifier)event.getSender()).getId()
+                + " Version: " + event.getVersion()
+                + " CreatedOn: " + event.getCreatedOn()
+                + " EditedOn: " + event.getEditedOn()
+                + " RecipientMri: " + ((CommunicationUserIdentifier)event.getRecipient()).getId()
+            );
         });
 
-        chatAsyncClient.removePushNotificationHandler(CHAT_MESSAGE_EDITED, callback);
-        chatAsyncClient.removePushNotificationHandler(CHAT_MESSAGE_RECEIVED, callback);
+        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_DELETED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification CHAT_MESSAGE_DELETED.");
+            ChatMessageDeletedEvent event = (ChatMessageDeletedEvent) payload;
+            Log.i(TAG, "Message deleted!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " MessageId: " + event.getId()
+                + " SenderDisplayName: " + event.getSenderDisplayName()
+                + " SenderMri: " + ((CommunicationUserIdentifier)event.getSender()).getId()
+                + " Version: " + event.getVersion()
+                + " CreatedOn: " + event.getCreatedOn()
+                + " DeletedOn: " + event.getDeletedOn()
+                + " RecipientMri: " + ((CommunicationUserIdentifier)event.getRecipient()).getId()
+            );
+        });
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_THREAD_CREATED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification CHAT_THREAD_CREATED.");
+            ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
+            Log.i(TAG, "Thread Created!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " Properties_Id: " + event.getProperties().getId()
+                + " Properties_Topic: " + event.getProperties().getTopic()
+                + " Properties_CreatedOn: " + event.getProperties().getCreatedOn()
+                + " Properties_CreatedByMri: " + ((CommunicationUserIdentifier)event.getProperties().getCreatedByCommunicationIdentifier()).getId()
+                + " Participants_size: " + event.getParticipants().size()
+                + " Version: " + event.getVersion()
+                + " CreatedOn: " + event.getCreatedOn()
+                + " CreatedBy_DisplayName: " + event.getCreatedBy().getDisplayName()
+                + " CreatedBy_Mri: " + ((CommunicationUserIdentifier)event.getCreatedBy().getCommunicationIdentifier()).getId()
+            );
+        });
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_THREAD_PROPERTIES_UPDATED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification CHAT_THREAD_PROPERTIES_UPDATED.");
+            ChatThreadPropertiesUpdatedEvent event = (ChatThreadPropertiesUpdatedEvent) payload;
+            Log.i(TAG, "Thread Updated!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " Properties_Id: " + event.getProperties().getId()
+                + " Properties_Topic: " + event.getProperties().getTopic()
+                + " Version: " + event.getVersion()
+                + " UpdatedOn: " + event.getUpdatedOn()
+                + " UpdatedBy_DisplayName: " + event.getUpdatedBy().getDisplayName()
+                + " UpdatedBy_Mri: " + ((CommunicationUserIdentifier)event.getUpdatedBy().getCommunicationIdentifier()).getId()
+            );
+        });
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_THREAD_DELETED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification CHAT_THREAD_DELETED.");
+            ChatThreadDeletedEvent event = (ChatThreadDeletedEvent) payload;
+            Log.i(TAG, "Thread Deleted!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " Version: " + event.getVersion()
+                + " DeletedOn: " + event.getDeletedOn()
+                + " DeletedBy_DisplayName: " + event.getDeletedBy().getDisplayName()
+                + " DeletedBy_Mri: " + ((CommunicationUserIdentifier)event.getDeletedBy().getCommunicationIdentifier()).getId()
+            );
+        });
+
+        chatAsyncClient.addPushNotificationHandler(PARTICIPANTS_ADDED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification PARTICIPANTS_ADDED.");
+            ParticipantsAddedEvent event = (ParticipantsAddedEvent) payload;
+            Log.i(TAG, "Participant Added!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " ParticipantsAdded_size: " + event.getParticipantsAdded().size()
+                + " Version: " + event.getVersion()
+                + " AddedOn: " + event.getAddedOn()
+                + " AddedBy_DisplayName: " + event.getAddedBy().getDisplayName()
+                + " AddedBy_Mri: " + ((CommunicationUserIdentifier)event.getAddedBy().getCommunicationIdentifier()).getId()
+            );
+        });
+
+        chatAsyncClient.addPushNotificationHandler(PARTICIPANTS_REMOVED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification PARTICIPANTS_REMOVED.");
+            ParticipantsRemovedEvent event = (ParticipantsRemovedEvent) payload;
+            Log.i(TAG, "Participant Removed!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " ParticipantsRemoved_size: " + event.getParticipantsRemoved().size()
+                + " Version: " + event.getVersion()
+                + " RemovedOn: " + event.getRemovedOn()
+                + " RemovedBy_DisplayName: " + event.getRemovedBy().getDisplayName()
+                + " RemovedBy_Mri: " + ((CommunicationUserIdentifier)event.getRemovedBy().getCommunicationIdentifier()).getId()
+            );
+        });
+
     }
 
     public void stopPushNotification(View view) {
