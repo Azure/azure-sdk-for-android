@@ -21,6 +21,12 @@ public abstract class ChatUserEvent extends ChatEvent {
      * The Id of the event recipient. A string property in notification payload.
      */
     @JsonProperty(value = "recipientMri", access = JsonProperty.Access.WRITE_ONLY)
+    private String recipientMri;
+
+    /**
+     * The Id of the event recipient. A string property in notification payload.
+     */
+    @JsonProperty(value = "recipientId", access = JsonProperty.Access.WRITE_ONLY)
     private String recipientId;
 
     /**
@@ -65,6 +71,11 @@ public abstract class ChatUserEvent extends ChatEvent {
      * Sets the Id of the event recipient.
      */
     ChatUserEvent setRecipient() {
+        if (recipientMri != null) {
+            this.recipient = TrouterUtils.getCommunicationIdentifier(recipientMri);
+            return this;
+        }
+
         this.recipient = TrouterUtils.getCommunicationIdentifier(recipientId);
         return this;
     }

@@ -29,7 +29,7 @@ android {
 }
 
 static def getBuildVariant() {
-    return "Prod"
+    return "Test"
 }
 
 dependencies {

@@ -11,13 +11,16 @@ import com.azure.android.communication.chat.implementation.ChatImpl;
 import com.azure.android.communication.chat.implementation.converters.CommunicationErrorResponseExceptionConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadOptionsConverter;
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
+import com.azure.android.communication.chat.implementation.pushnotification.PushNotificationClient;
 import com.azure.android.communication.chat.implementation.signaling.CommunicationSignalingClient;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatErrorResponseException;
+import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
+import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.implementation.signaling.SignalingClient;
 import com.azure.android.core.logging.ClientLogger;
@@ -43,12 +46,14 @@ public final class ChatAsyncClient {
 
     private final AzureCommunicationChatServiceImpl chatServiceClient;
     private final SignalingClient signalingClient;
+    private final PushNotificationClient pushNotificationClient;
     private final ChatImpl chatClient;
 
     ChatAsyncClient(AzureCommunicationChatServiceImpl chatServiceClient) {
         this.chatServiceClient = chatServiceClient;
         this.signalingClient = new CommunicationSignalingClient();
         this.chatClient = chatServiceClient.getChatClient();
+        this.pushNotificationClient = new PushNotificationClient();
     }
 
     /**
@@ -275,7 +280,67 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Add handler for a chat event.
+     * Register current device for receiving incoming push notifications via FCM.
+     * @param skypeUserToken the skype user token
+     * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @throws RuntimeException if push notifications failed to start.
+     */
+    public void startPushNotifications(String skypeUserToken, String deviceRegistrationToken) {
+        if (this.pushNotificationClient.hasStarted()) {
+            return;
+        }
+
+        this.pushNotificationClient.startPushNotifications(skypeUserToken, deviceRegistrationToken);
+    }
+
+    /**
+     * Unregister current device from receiving incoming push notifications.
+     * All registered handlers would be removed.
+     * @param skypeUserToken the skype user token
+     * @throws RuntimeException if push notifications failed to stop.
+     */
+    public void stopPushNotifications(String skypeUserToken) {
+        this.pushNotificationClient.stopPushNotifications(skypeUserToken);
+    }
+
+    /**
+     * Handle incoming push notification.
+     * Invoke corresponding chat event handle if registered.
+     * @param pushNotification Incoming push notification payload from the FCM SDK.
+     *
+     * @return True if there's registered handler(s) for incoming push notification; otherwise, false.
+     */
+    public boolean handlePushNotification(ChatPushNotification pushNotification) {
+        return this.pushNotificationClient.handlePushNotification(pushNotification);
+    }
+
+    /**
+     * Add handler for a chat event for push notifications.
+     * @param chatEventType the chat event type
+     * @param listener the listener callback function
+     * @throws IllegalStateException if push notifications has not started yet.
+     */
+    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+        if (!this.pushNotificationClient.hasStarted()) {
+            throw logger.logExceptionAsError(new IllegalStateException(
+                "You must call startPushNotifications before you can subscribe to push notifications."
+            ));
+        }
+
+        this.pushNotificationClient.addPushNotificationHandler(chatEventType, listener);
+    }
+
+    /**
+     * Remove handler from a chat event for push notifications.
+     * @param chatEventType the chat event type
+     * @param listener the listener callback function
+     */
+    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+        this.pushNotificationClient.removePushNotificationHandler(chatEventType, listener);
+    }
+
+    /**
+     * Add handler for a chat event for real-time notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      * @throws IllegalStateException if real-time notifications has not started yet.
@@ -291,7 +356,7 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Remove handler from a chat event.
+     * Remove handler from a chat event for real-time notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */

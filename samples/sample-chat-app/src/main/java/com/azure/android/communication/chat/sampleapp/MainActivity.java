@@ -3,12 +3,18 @@
 
 package com.azure.android.communication.chat.sampleapp;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
@@ -19,6 +25,7 @@ import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReceivedEvent;
 import com.azure.android.communication.chat.models.ChatMessageType;
 import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.ChatThreadCreatedEvent;
 import com.azure.android.communication.chat.models.ChatThreadDeletedEvent;
 import com.azure.android.communication.chat.models.ChatThreadProperties;
@@ -29,6 +36,7 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
 import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
+import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
@@ -41,9 +49,11 @@ import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
 import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.rest.util.paging.PagedAsyncStream;
-import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.RequestContext;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.util.ArrayList;
@@ -82,12 +92,27 @@ public class MainActivity extends AppCompatActivity {
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
-    private final String sdkVersion = "1.0.0";
+    private final String sdkVersion = "1.1.0-beta.1";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat Test App";
     private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
     private static RealTimeNotificationCallback messageReceivedHandler;
+
+    private BroadcastReceiver firebaseMessagingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ChatPushNotification pushNotification =
+                (ChatPushNotification) intent.getSerializableExtra("PushNotificationPayload");
+
+            Log.d(TAG, "Push Notification received in MainActivity: " + pushNotification.getPayload());
+
+            if (chatAsyncClient != null) {
+                Log.d(TAG, "Passing push notification to chatAsyncClient.");
+                chatAsyncClient.handlePushNotification(pushNotification);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,6 +121,11 @@ public class MainActivity extends AppCompatActivity {
         AndroidThreeTen.init(this);
 
         createChatAsyncClient();
+        LocalBroadcastManager
+            .getInstance(this)
+            .registerReceiver(
+                firebaseMessagingReceiver,
+                new IntentFilter("com.azure.android.communication.chat.sampleapp.pushnotification"));
     }
 
     public void createChatAsyncClient() {
@@ -160,6 +190,58 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
+    public void startPushNotification(View view) {
+        logAndToast( "Start push notification");
+        try {
+            startFcmPushNotification(firstUserAccessToken);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
+    public void registerPushNotificationListener(View view) {
+        logAndToast("Register push notification listeners");
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification ChatMessageReceivedEvent.");
+            ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
+            Log.i(TAG, "Message received!"
+                + " ThreadId: " + event.getChatThreadId()
+                + " MessageId: " + event.getId()
+                + " Content: " + event.getContent()
+                + " Priority: " + event.getPriority()
+                + " SenderDisplayName: " + event.getSenderDisplayName()
+                + " SenderMri: " + ((CommunicationUserIdentifier)event.getSender()).getId()
+                + " Version: " + event.getVersion()
+                + " CreatedOn: " + event.getCreatedOn()
+                + " Type: " + event.getType()
+                + " RecipientMri: " + ((CommunicationUserIdentifier)event.getRecipient()).getId()
+            );
+        });
+
+        PushNotificationCallback callback = (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification ChatMessageReceivedEvent. #2 handler");
+        };
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, callback);
+
+        chatAsyncClient.addPushNotificationHandler(CHAT_MESSAGE_RECEIVED, (ChatEvent payload) -> {
+            Log.i(TAG, "Push Notification ChatMessageReceivedEvent. #3 handler");
+        });
+
+        chatAsyncClient.removePushNotificationHandler(CHAT_MESSAGE_EDITED, callback);
+        chatAsyncClient.removePushNotificationHandler(CHAT_MESSAGE_RECEIVED, callback);
+    }
+
+    public void stopPushNotification(View view) {
+        logAndToast( "Stop push notification");
+        try {
+            stopFcmPushNotification(firstUserAccessToken);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
     public void startRealTimeNotification(View view) {
         logAndToast( "Starting real time notification");
         try {
@@ -171,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Register a test listener");
-        JacksonSerder jacksonSerder = JacksonSerder.createDefault();
 
         messageReceivedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
@@ -465,6 +546,32 @@ public class MainActivity extends AppCompatActivity {
         } else {
             logAndToast("ChatThreadAsyncClient creation failed");
         }
+    }
+
+    private void startFcmPushNotification(String skypeUserToken) {
+        FirebaseMessaging.getInstance().getToken()
+            .addOnCompleteListener(new OnCompleteListener<String>() {
+                @Override
+                public void onComplete(@NonNull Task<String> task) {
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                        return;
+                    }
+
+                    // Get new FCM registration token
+                    String token = task.getResult();
+
+                    // Log and toast
+                    Log.d(TAG, "Fcm push token generated:" + token);
+                    Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
+
+                    chatAsyncClient.startPushNotifications(skypeUserToken, token);
+                }
+            });
+    }
+
+    private void stopFcmPushNotification(String skypeUserToken) {
+        chatAsyncClient.stopPushNotifications(skypeUserToken);
     }
 
     private static void awaitOnLatch(CountDownLatch latch) {

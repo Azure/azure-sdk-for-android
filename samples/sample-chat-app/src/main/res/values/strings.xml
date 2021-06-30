@@ -10,4 +10,7 @@
   <string name="send_typing_notification">Send Typing Notification</string>
   <string name="send_read_receipts">Send Read Receipts</string>
   <string name="list_read_receipts">List Read Receipts</string>
+  <string name="start_push_notifications">Start push notifications</string>
+  <string name="register_push_notification_listeners">Register push notification listeners</string>
+  <string name="stop_push_notifications">Stop push notifications</string>
 </resources>
