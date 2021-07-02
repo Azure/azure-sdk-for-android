@@ -25,6 +25,6 @@
 ###########
 # Eng Sys
 ###########
-/eng/                                               @mitchdenny @weshaggard
+/eng/                                               @weshaggard
 
-/**/ci.yml                                          @mitchdenny
+/**/ci.yml                                          @weshaggard
