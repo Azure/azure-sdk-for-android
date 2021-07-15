@@ -34,7 +34,7 @@ Restore file chat/models/ChatMessageType.java
 
 ### Code generation settings
 ``` yaml
-input-file: https://int.chatgateway.trafficmanager.net/swagger/2021-03-07/swagger.json
+input-file: https://raw.githubusercontent.com/Azure/azure-rest-api-specs/08ef4099dff05de3ce1682d58cd4e0e2b1565905/specification/communication/data-plane/Microsoft.CommunicationServicesChat/preview/2021-04-05-preview6/communicationserviceschat.json
 java: true
 output-folder: ..\
 license-header: MICROSOFT_MIT_SMALL

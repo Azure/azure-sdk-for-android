@@ -36,6 +36,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.threeten.bp.OffsetDateTime;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -583,13 +584,22 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         SendChatMessageOptions messageRequest = new SendChatMessageOptions()
             .setType(ChatMessageType.HTML)
             .setSenderDisplayName("John")
-            .setContent("<div>test</div>");
+            .setContent("<div>test</div>")
+            .setMetadata(new HashMap<String, String>() {
+                {
+                    put("tags", "");
+                    put("deliveryMode", "deliveryMode value - updated");
+                    put("onedriveReferences", "onedriveReferences - updated");
+                    put("amsreferences", "[\\\"test url file 3\\\"]");
+                }
+            });
 
         final String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         final ChatMessage message = this.chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
+        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
 
@@ -692,6 +702,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
+        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
     @ParameterizedTest
@@ -716,6 +727,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
+        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
     @ParameterizedTest
@@ -906,6 +918,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         this.chatThreadClient.updateMessage(messageId, updateMessageRequest).get();
         final ChatMessage message = chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
+        assertEquals(message.getMetadata().containsKey("tags"), false);
+        assertEquals(message.getMetadata().get("deliveryMode"), updateMessageRequest.getMetadata().get("deliveryMode"));
+        assertEquals(message.getMetadata().get("onedriveReferences"), updateMessageRequest.getMetadata().get("onedriveReferences"));
+        assertEquals(message.getMetadata().get("amsreferences"), messageRequest.getMetadata().get("amsreferences"));
+        assertEquals(message.getMetadata().get("key"), messageRequest.getMetadata().get("key"));
     }
 
     @ParameterizedTest
@@ -961,6 +978,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         ChatMessage message = getResponse.getValue();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
+        assertEquals(message.getMetadata().containsKey("tags"), false);
+        assertEquals(message.getMetadata().get("deliveryMode"), updateMessageRequest.getMetadata().get("deliveryMode"));
+        assertEquals(message.getMetadata().get("onedriveReferences"), updateMessageRequest.getMetadata().get("onedriveReferences"));
+        assertEquals(message.getMetadata().get("amsreferences"), messageRequest.getMetadata().get("amsreferences"));
+        assertEquals(message.getMetadata().get("key"), messageRequest.getMetadata().get("key"));
     }
 
     @ParameterizedTest

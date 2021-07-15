@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
 
+import java.util.Map;
+
 /** The ChatMessage model. */
 @Fluent
 public final class ChatMessage {
@@ -73,6 +75,12 @@ public final class ChatMessage {
      */
     @JsonProperty(value = "editedOn")
     private OffsetDateTime editedOn;
+
+    /*
+     * Message metadata.
+     */
+    @JsonProperty(value = "metadata")
+    private Map<String, String> metadata;
 
     /**
      * Get the id property: The id of the chat message. This id is server generated.
@@ -267,6 +275,26 @@ public final class ChatMessage {
      */
     public ChatMessage setEditedOn(OffsetDateTime editedOn) {
         this.editedOn = editedOn;
+        return this;
+    }
+
+    /**
+     * Get the metadata property: Message metadata.
+     *
+     * @return the metadata value.
+     */
+    public Map<String, String> getMetadata() {
+        return this.metadata;
+    }
+
+    /**
+     * Set the metadata property: Message metadata.
+     *
+     * @param metadata the metadata value to set.
+     * @return the ChatMessage object itself.
+     */
+    public ChatMessage setMetadata(Map<String, String> metadata) {
+        this.metadata = metadata;
         return this;
     }
 }
