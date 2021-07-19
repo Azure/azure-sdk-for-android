@@ -1,42 +1,44 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-04-05-preview6",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
       "Content-Type" : "application/json"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
-      "X-Processing-Time" : "1197ms",
-      "MS-CV" : "84l+J4hpq02piN89STcE2Q.0",
+      "X-Cache" : "CONFIG_NOCACHE",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
       "retry-after" : "0",
-      "X-Azure-Ref" : "06RpaYAAAAAB6HVm8j6Y8S4HKCaLGFXBcWVZSMzBFREdFMDQxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "201",
-      "Body" : "{\"chatThread\":{\"id\":\"19:M1XtunqvscHeChbVZffV-DTFmew9rA-vtN_Z95xtjtk1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-23T16:44:26Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\"}}}}",
-      "Date" : "Tue, 23 Mar 2021 16:44:26 GMT",
+      "Date" : "Thu, 15 Jul 2021 21:17:59 GMT",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "X-Processing-Time" : "831ms",
+      "MS-CV" : "aIJF8EXjKUe22CPEqTzF9Q.0",
+      "X-Azure-Ref" : "0BqbwYAAAAABWM3n+4CXeT5CUagHpsf7xV1NURURHRTA4MDcAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "Body" : "{\"chatThread\":{\"id\":\"19:NlSbytTo6_v8BgLk0r1LdLM64WQkQaeKB0ga44oy4s81@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-15T21:17:58Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3AM1XtunqvscHeChbVZffV-DTFmew9rA-vtN_Z95xtjtk1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3ANlSbytTo6_v8BgLk0r1LdLM64WQkQaeKB0ga44oy4s81@thread.v2"
     },
     "Exception" : null
   }, {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:M1XtunqvscHeChbVZffV-DTFmew9rA-vtN_Z95xtjtk1@thread.v2/typing?api-version=2021-03-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:NlSbytTo6_v8BgLk0r1LdLM64WQkQaeKB0ga44oy4s81@thread.v2/typing?api-version=2021-04-05-preview6",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)"
     },
     "Response" : {
+      "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
-      "X-Processing-Time" : "386ms",
-      "MS-CV" : "Ri5O3J+5yEyYonPVwTtLuQ.0",
+      "api-supported-versions" : "2021-04-05-preview6",
+      "X-Processing-Time" : "384ms",
+      "MS-CV" : "htqRtlnRyEe0J88ehUCq2g.0",
       "retry-after" : "0",
       "Content-Length" : "0",
-      "X-Azure-Ref" : "06hpaYAAAAABCNqhgRem0RJcLu+JKzvCNWVZSMzBFREdFMDQxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
+      "X-Azure-Ref" : "0B6bwYAAAAAAGGF/xLg1uT5wvl0aSC9dmV1NURURHRTA4MDcAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "200",
-      "Date" : "Tue, 23 Mar 2021 16:44:26 GMT"
+      "Date" : "Thu, 15 Jul 2021 21:17:59 GMT"
     },
     "Exception" : null
   } ],

@@ -1,43 +1,45 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-04-05-preview6",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
       "Content-Type" : "application/json"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "Strict-Transport-Security" : "max-age=2592000",
+      "X-Cache" : "CONFIG_NOCACHE",
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
-      "X-Processing-Time" : "879ms",
-      "MS-CV" : "2//os4/csk+u6saaGyJU4w.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0aOFbYAAAAAATGRJf1BWcR5gN1oqXcPinU0pDRURHRTA1MDkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "201",
-      "Body" : "{\"chatThread\":{\"id\":\"19:uD8vsWf9GO13n2Dral6bV1gR_j9D7E2y2BIP22hsVQw1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-25T01:03:36Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\"}}}}",
-      "Date" : "Thu, 25 Mar 2021 01:03:36 GMT",
+      "Date" : "Thu, 15 Jul 2021 21:18:12 GMT",
+      "Strict-Transport-Security" : "max-age=2592000",
+      "X-Processing-Time" : "903ms",
+      "MS-CV" : "+WFMEeJ8w0CkJ6jLa2NExA.0",
+      "X-Azure-Ref" : "0FKbwYAAAAACtc3Uy6kZARqMXF/bVb1scV1NURURHRTA4MTkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "Body" : "{\"chatThread\":{\"id\":\"19:ZFKcqZy-OAlmifdPvpdgDcKuhfBEVn2Nin10zK6oI8Y1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-15T21:18:12Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3AuD8vsWf9GO13n2Dral6bV1gR_j9D7E2y2BIP22hsVQw1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3AZFKcqZy-OAlmifdPvpdgDcKuhfBEVn2Nin10zK6oI8Y1@thread.v2"
     },
     "Exception" : null
   }, {
     "Method" : "DELETE",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:uD8vsWf9GO13n2Dral6bV1gR_j9D7E2y2BIP22hsVQw1@thread.v2/messages/invalid_chat_message_id?api-version=2021-03-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:ZFKcqZy-OAlmifdPvpdgDcKuhfBEVn2Nin10zK6oI8Y1@thread.v2/messages/invalid_chat_message_id?api-version=2021-04-05-preview6",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
+      "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
-      "X-Processing-Time" : "3ms",
-      "MS-CV" : "1Fuw+8Uunk+oldVY5nulng.0",
+      "X-Processing-Time" : "5ms",
+      "MS-CV" : "UKJSXI8xwE2LxToYEDCiTw.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0aeFbYAAAAABenWMpd0zjSoZ++fyAJRcPU0pDRURHRTA1MDkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "X-Azure-Ref" : "0FabwYAAAAAAWWqw+KptKTa+JWtqxA20PV1NURURHRTA4MTkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "400",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"BadRequest\",\r\n    \"Message\": \"Value for MessageId (invalid_chat_message_id) is not valid.\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Thu, 25 Mar 2021 01:03:36 GMT",
+      "Date" : "Thu, 15 Jul 2021 21:18:12 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null

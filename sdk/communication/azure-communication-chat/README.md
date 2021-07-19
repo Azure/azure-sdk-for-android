@@ -199,8 +199,9 @@ Use the `sendMessage` method to sends a chat message to a chat thread identified
 `sendChatMessageOptions` is used to describe the chat message request, an example is shown in the code snippet below.
 
 - Use `content` to provide the chat message content;
-- Use `priority` to specify the chat message priority level, such as 'Normal' or 'High';
+- Use `type` to specify the chat message type;
 - Use `senderDisplayName` to specify the display name of the sender;
+- Use `metadata` to specify the message metadata;
 
 A `SendChatMessageResult` response returned from sending a chat message, it contains an `id`, which is the unique ID of the message.
 

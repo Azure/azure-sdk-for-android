@@ -1,5 +1,6 @@
 # Release History
 ## 1.1.0-beta.1 (Unreleased)
+- Added support for metadata in messages.
 
 ## 1.0.0 (2021-06-15)
 ### New Features
