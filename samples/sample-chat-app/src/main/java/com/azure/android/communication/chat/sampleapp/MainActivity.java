@@ -74,13 +74,13 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "8:acs:fa5c4fc3-a269-43e2-9eb6-0ca17b388993_0000000b-6aa3-5870-92fd-8b3a0d002e2c";
-    private String secondUserId = "8:acs:fa5c4fc3-a269-43e2-9eb6-0ca17b388993_0000000b-6aa3-ab8f-92fd-8b3a0d002e35";
+    private String firstUserId = "";
+    private String secondUserId = "";
     // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMiIsIng1dCI6IjNNSnZRYzhrWVNLd1hqbEIySmx6NTRQVzNBYyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOmZhNWM0ZmMzLWEyNjktNDNlMi05ZWI2LTBjYTE3YjM4ODk5M18wMDAwMDAwYi02YWEzLTU4NzAtOTJmZC04YjNhMGQwMDJlMmMiLCJzY3AiOjE3OTIsImNzaSI6IjE2MjY4OTkzOTYiLCJleHAiOjE2MjY5ODU3OTYsImFjc1Njb3BlIjoiY2hhdCx2b2lwIiwicmVzb3VyY2VJZCI6ImZhNWM0ZmMzLWEyNjktNDNlMi05ZWI2LTBjYTE3YjM4ODk5MyIsImlhdCI6MTYyNjg5OTM5Nn0.Rnri7DY2Xeic-pRAYrjdb6RTc6xUOPDvr4oFdvsrX3ZV7DMyOYQRMs5zbjFJdEoiY-wuAweMN58LHpKtriQcBi4QeBlTOcUT6k8Lgm285K0bFOdYgF0J8qT_dQ5AVcy2ZCrrP2yeSF9167rDZwU5hLogjzsu9Gy5cGfK0_5PxVGwVdQ2jZ5cYSgJkDCzQMehUB5JSu4pDqojeJfp2Z-DwdpD9k9pAcXPR_-wkmxeFQjitHqp0KEFLWs84G2hq5h7I7XE2OvjxQOzWf-e43ExMir8sRrxr0pJPw6K9U3VON8kHXZ-spDKKgQr1IXK-jMrIkx1n8oyBO3-g52Li4zQzA";
+    private final String firstUserAccessToken = "";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "https://chat-prod-e2e.communication.azure.com/";
+    private final String endpoint = "";
     private final String sdkVersion = "1.0.0";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat Test App";
