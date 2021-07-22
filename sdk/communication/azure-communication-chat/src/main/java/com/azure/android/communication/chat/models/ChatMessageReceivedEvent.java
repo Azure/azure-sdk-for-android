@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
 
+import java.util.Map;
+
 /**
  * Event for a received chat message.
  * All chat participants receive this event, including the original sender.
@@ -64,11 +66,24 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     @JsonProperty(value = "version")
     private String version;
 
+    /**
+     * Original metadata of the chat message. A string property in notification payload.
+     */
+    @JsonProperty(value = "acsChatMessageMetadata")
+    private String acsChatMessageMetadata;
+
+    /**
+     * Message metadata.
+     */
+    @JsonProperty(value = "metadata")
+    private Map<String, String> metadata;
+
     static {
         EventAccessorHelper.setChatMessageReceivedEventAccessor(event -> {
             ChatMessageReceivedEvent chatMessageReceivedEvent = (ChatMessageReceivedEvent) event;
             chatMessageReceivedEvent
                 .setType()
+                .setMetadata()
                 .setSender()
                 .setRecipient()
                 .setThreadId();
@@ -143,10 +158,27 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
     }
 
     /**
+     * Gets message metadata.
+     *
+     * @return Value of message metadata.
+     */
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    /**
      * Sets new Type of the chat message.
      */
     private ChatMessageReceivedEvent setType() {
         this.type = TrouterUtils.parseChatMessageType(this.messageType);
+        return this;
+    }
+
+    /**
+     * Sets metadata of the chat message.
+     */
+    private ChatMessageReceivedEvent setMetadata() {
+        this.metadata = TrouterUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
         return this;
     }
 }

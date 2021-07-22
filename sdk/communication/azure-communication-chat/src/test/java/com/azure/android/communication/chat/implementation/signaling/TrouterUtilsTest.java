@@ -17,8 +17,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.util.Map;
+
 public class TrouterUtilsTest {
     private static final String USER_ID = "user_id";
+
+    @Test
+    public void canParseMessageMetadata() {
+        final String messageMetadata = "{\"deliveryMode\":\"deliveryMode value\",\"tags\":\"tag1\"}";
+        Map<String,String> metadataMap = TrouterUtils.parseChatMessageMetadata(messageMetadata);
+
+        assertNotNull(metadataMap);
+        assertEquals(2, metadataMap.size());
+        assertEquals(metadataMap.get("deliveryMode"), "deliveryMode value");
+        assertEquals(metadataMap.get("tags"), "tag1");
+    }
 
     @Test
     public void canParseTeamsPublicUserRawId() {
