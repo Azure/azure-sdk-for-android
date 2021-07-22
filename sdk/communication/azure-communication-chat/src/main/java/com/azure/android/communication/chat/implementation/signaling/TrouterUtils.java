@@ -42,7 +42,6 @@ import org.threeten.bp.ZoneId;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -175,7 +174,7 @@ public final class TrouterUtils {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            metadata = mapper.readValue(rawMetadata, new TypeReference<HashMap<String, String>>() {});
+            metadata = mapper.readValue(rawMetadata, new TypeReference<HashMap<String, String>>() { } );
         } catch (JsonMappingException e) {
             CLIENT_LOGGER.error(e.getMessage());
         } catch (JsonProcessingException e) {
