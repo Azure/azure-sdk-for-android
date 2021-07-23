@@ -461,7 +461,8 @@ public final class ChatThreadClient {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendTypingNotificationWithResponse(TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
+    public Response<Void> sendTypingNotificationWithResponse(
+        TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
         return block(this.client.sendTypingNotification(typingNotificationOptions, requestContext));
     }
 
