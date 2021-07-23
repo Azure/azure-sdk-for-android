@@ -34,6 +34,7 @@ import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
+import com.azure.android.communication.chat.models.TypingNotificationOptions;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.policy.HttpLogDetailLevel;
@@ -392,7 +393,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (chatThreadAsyncClient != null) {
             try {
-                chatThreadAsyncClient.sendTypingNotification().get();
+                TypingNotificationOptions options = new TypingNotificationOptions();
+                options.setSenderDisplayName("Sender Display Name");
+
+                chatThreadAsyncClient.sendTypingNotification(options).get();
 
                 logAndToast("Sent a typing notification successfully");
             } catch (InterruptedException | ExecutionException e) {

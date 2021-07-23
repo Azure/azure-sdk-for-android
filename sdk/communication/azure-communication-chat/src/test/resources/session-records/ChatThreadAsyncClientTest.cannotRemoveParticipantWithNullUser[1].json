@@ -12,14 +12,14 @@
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
       "retry-after" : "0",
       "StatusCode" : "201",
-      "Date" : "Thu, 15 Jul 2021 21:18:00 GMT",
+      "Date" : "Fri, 23 Jul 2021 18:08:59 GMT",
       "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "964ms",
-      "MS-CV" : "v8CW2x3Xf0q39miRR9UhSA.0",
-      "X-Azure-Ref" : "0B6bwYAAAAABAGer4+rRKS60hSKFiE0uFV1NURURHRTA4MTkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
-      "Body" : "{\"chatThread\":{\"id\":\"19:rmDix1FCHaeW9SYJH7plz_T8uyN3IJ-gtSpskgAAN1M1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-15T21:18:00Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
+      "X-Processing-Time" : "838ms",
+      "MS-CV" : "ILd0HWGGJEGbjXs4VaspSQ.0",
+      "X-Azure-Ref" : "0ugX7YAAAAADlCpMUyFEiQZRqIRTLFGa9V1NURURHRTA4MDYAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "Body" : "{\"chatThread\":{\"id\":\"19:Ba6Sg-e9G6r1qMZ_yxSwbJO0lPzYE6U-_n8QMPtu5Qc1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-23T18:08:59Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3ArmDix1FCHaeW9SYJH7plz_T8uyN3IJ-gtSpskgAAN1M1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3ABa6Sg-e9G6r1qMZ_yxSwbJO0lPzYE6U-_n8QMPtu5Qc1@thread.v2"
     },
     "Exception" : null
   } ],
