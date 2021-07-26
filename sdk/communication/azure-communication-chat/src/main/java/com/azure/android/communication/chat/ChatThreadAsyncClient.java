@@ -854,8 +854,8 @@ public final class ChatThreadAsyncClient {
      */
     CompletableFuture<Response<Void>> sendTypingNotification(
         TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
-        typingNotificationOptions = typingNotificationOptions == null ?
-            new TypingNotificationOptions() : typingNotificationOptions;
+        typingNotificationOptions = typingNotificationOptions == null
+            ? new TypingNotificationOptions() : typingNotificationOptions;
         requestContext = requestContext == null ? RequestContext.NONE : requestContext;
         return this.chatThreadClient.sendTypingNotificationWithResponseAsync(
             chatThreadId, typingNotificationOptions, requestContext)
