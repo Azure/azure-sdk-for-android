@@ -175,9 +175,7 @@ public final class TrouterUtils {
         try {
             ObjectMapper mapper = new ObjectMapper();
             metadata = mapper.readValue(rawMetadata, new TypeReference<HashMap<String, String>>() { });
-        } catch (JsonMappingException e) {
-            CLIENT_LOGGER.error(e.getMessage());
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             CLIENT_LOGGER.error(e.getMessage());
         }
 
