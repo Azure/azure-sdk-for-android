@@ -12,6 +12,7 @@ import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;
 import com.microsoft.trouterclient.ITrouterConnectionDataCache;
 import com.microsoft.trouterclient.TrouterClientHost;
+import com.microsoft.trouterclient.UserActivityState;
 import com.microsoft.trouterclient.registration.ISkypetokenProvider;
 import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvider;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
@@ -99,6 +100,7 @@ public class CommunicationSignalingClient implements SignalingClient {
                 new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
             trouter.start();
+            trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
         } catch (Throwable e) {
             logger.error(e.getMessage());
         }
