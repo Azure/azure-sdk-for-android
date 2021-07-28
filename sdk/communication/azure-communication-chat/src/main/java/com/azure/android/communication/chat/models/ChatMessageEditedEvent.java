@@ -4,9 +4,12 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
+
+import java.util.Map;
 
 /**
  * Event for a edited chat message.
@@ -52,10 +55,23 @@ public final class ChatMessageEditedEvent extends ChatUserEvent {
     @JsonProperty(value = "version")
     private String version;
 
+    /**
+     * Original metadata of the chat message. A string property in notification payload.
+     */
+    @JsonProperty(value = "acsChatMessageMetadata")
+    private String acsChatMessageMetadata;
+
+    /**
+     * Message metadata.
+     */
+    @JsonProperty(value = "metadata")
+    private Map<String, String> metadata;
+
     static {
         EventAccessorHelper.setChatMessageEditedEventAccessorAccessor(event -> {
             ChatMessageEditedEvent chatMessageEditedEvent = (ChatMessageEditedEvent) event;
             chatMessageEditedEvent
+                .setMetadata()
                 .setSender()
                 .setRecipient()
                 .setThreadId();
@@ -120,5 +136,22 @@ public final class ChatMessageEditedEvent extends ChatUserEvent {
      */
     public String getVersion() {
         return version;
+    }
+
+    /**
+     * Gets message metadata.
+     *
+     * @return Value of message metadata.
+     */
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * Sets metadata of the chat message.
+     */
+    private ChatMessageEditedEvent setMetadata() {
+        this.metadata = TrouterUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
+        return this;
     }
 }

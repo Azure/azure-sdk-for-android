@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
+import android.text.TextUtils;
+
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
@@ -25,6 +27,8 @@ import com.azure.android.communication.common.UnknownIdentifier;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,6 +38,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -156,6 +161,23 @@ public final class TrouterUtils {
 
         // Return TEXT if fail to parse
         return ChatMessageType.TEXT;
+    }
+
+    public static Map<String, String> parseChatMessageMetadata(String rawMetadata) {
+        Map<String, String> metadata = Collections.<String, String>emptyMap();
+
+        if (rawMetadata == null || TextUtils.isEmpty(rawMetadata)) {
+            return metadata;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            metadata = mapper.readValue(rawMetadata, new TypeReference<HashMap<String, String>>() { });
+        } catch (Exception e) {
+            CLIENT_LOGGER.error(e.getMessage());
+        }
+
+        return metadata;
     }
 
     public static OffsetDateTime parseEpochTime(Long epochMilli) {

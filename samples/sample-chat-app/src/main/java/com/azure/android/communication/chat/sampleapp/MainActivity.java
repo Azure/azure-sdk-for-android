@@ -47,6 +47,7 @@ import com.azure.android.core.util.RequestContext;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
@@ -273,7 +274,13 @@ public class MainActivity extends AppCompatActivity {
             SendChatMessageOptions chatMessageOptions = new SendChatMessageOptions()
                 .setType(ChatMessageType.TEXT)
                 .setContent(content)
-                .setSenderDisplayName(senderDisplayName);
+                .setSenderDisplayName(senderDisplayName)
+                .setMetadata(new HashMap<String, String>() {
+                    {
+                        put("tags", "tag1");
+                        put("deliveryMode", "deliveryMode value");
+                    }
+                });
 
             // A string is the response returned from sending a message, it is an id, which is the unique ID of the
             // message.
