@@ -27,9 +27,7 @@ import com.azure.android.communication.common.UnknownIdentifier;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONArray;
