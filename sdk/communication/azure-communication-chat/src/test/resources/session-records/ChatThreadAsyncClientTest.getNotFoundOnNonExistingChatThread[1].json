@@ -12,14 +12,14 @@
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
       "retry-after" : "0",
       "StatusCode" : "201",
-      "Date" : "Thu, 15 Jul 2021 21:17:40 GMT",
+      "Date" : "Fri, 23 Jul 2021 18:08:35 GMT",
       "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "848ms",
-      "MS-CV" : "5tgK/iUusUeZGcEX/xc+9g.0",
-      "X-Azure-Ref" : "09KXwYAAAAACrlpiP+93URLso3QugtTzAV1NURURHRTA4MTgAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
-      "Body" : "{\"chatThread\":{\"id\":\"19:pWz9ewfG9pUX8_hfWv_ra64U74LW3pQ573jR1k_1kkU1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-15T21:17:40Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
+      "X-Processing-Time" : "862ms",
+      "MS-CV" : "W1mQvPDA60i2qTszGE7wxg.0",
+      "X-Azure-Ref" : "0owX7YAAAAAA6Lw7j4NPfS50zNIkzHYGzV1NURURHRTA4MTIAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "Body" : "{\"chatThread\":{\"id\":\"19:8hErqdOGVkhk4qEd3ku6FGYFhu9NvFGHHYffaUatzKw1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-23T18:08:35Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3ApWz9ewfG9pUX8_hfWv_ra64U74LW3pQ573jR1k_1kkU1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3A8hErqdOGVkhk4qEd3ku6FGYFhu9NvFGHHYffaUatzKw1@thread.v2"
     },
     "Exception" : null
   }, {
@@ -33,13 +33,13 @@
       "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
-      "X-Processing-Time" : "319ms",
-      "MS-CV" : "HextI0EPDUaMaz5hnBYxzA.0",
+      "X-Processing-Time" : "321ms",
+      "MS-CV" : "eGWeeuBaAESQ2e6JSGE5qw.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "09aXwYAAAAACp4/3dtlJNTLp+c/x+AeidV1NURURHRTA4MTgAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "X-Azure-Ref" : "0pAX7YAAAAADhyH30a0LPQoSht4XyhAP/V1NURURHRTA4MTIAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "404",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"NotFound\",\r\n    \"Message\": \"The specified thread id was not found.\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Thu, 15 Jul 2021 21:17:40 GMT",
+      "Date" : "Fri, 23 Jul 2021 18:08:36 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null

@@ -10,13 +10,13 @@
       "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
       "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
-      "X-Processing-Time" : "290ms",
-      "MS-CV" : "YJxoIp3wmEa8UMLzX+xeDw.0",
+      "X-Processing-Time" : "270ms",
+      "MS-CV" : "/DuZDSRaRUa0zeTFKSZMog.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "06aXwYAAAAAAq8TKyo7cYTqLWQXylKfP8V1NURURHRTA4MTkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "X-Azure-Ref" : "0lQX7YAAAAACVOnFqxZZfR4LiIDmbbHeJV1NURURHRTA4MDkAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "400",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"BadRequest\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Thu, 15 Jul 2021 21:17:28 GMT",
+      "Date" : "Fri, 23 Jul 2021 18:08:21 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null

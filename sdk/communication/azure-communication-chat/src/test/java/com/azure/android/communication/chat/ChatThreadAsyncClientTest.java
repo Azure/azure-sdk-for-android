@@ -17,6 +17,7 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
+import com.azure.android.communication.chat.models.TypingNotificationOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpCallback;
@@ -1116,11 +1117,37 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void canSendTypingNotificationWithOptions(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        TypingNotificationOptions options = new TypingNotificationOptions();
+        options.setSenderDisplayName("Sender Display Name");
+
+        this.chatThreadClient.sendTypingNotification(options).get();
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canSendTypingNotificationWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
         CompletableFuture<Response<Void>> completableFuture
             = this.chatThreadClient.sendTypingNotificationWithResponse(null);
+
+        Response<Void> response = completableFuture.get();
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
+    public void canSendTypingNotificationWithOptionsWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
+        setupTest(httpClient);
+
+        TypingNotificationOptions options = new TypingNotificationOptions();
+        options.setSenderDisplayName("Sender Display Name");
+
+        CompletableFuture<Response<Void>> completableFuture
+            = this.chatThreadClient.sendTypingNotificationWithResponse(options, null);
 
         Response<Void> response = completableFuture.get();
         assertEquals(200, response.getStatusCode());

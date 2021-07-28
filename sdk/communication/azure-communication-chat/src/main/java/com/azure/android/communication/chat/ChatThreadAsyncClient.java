@@ -28,6 +28,7 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
+import com.azure.android.communication.chat.models.TypingNotificationOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatThreadOptions;
 import com.azure.android.communication.common.CommunicationIdentifier;
@@ -794,7 +795,23 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Void> sendTypingNotification() {
-        return this.sendTypingNotification(null)
+        return this.sendTypingNotification(null, (RequestContext) null)
+            .thenApply(response -> {
+                return response.getValue();
+            });
+    }
+
+    /**
+     * Posts a typing event to a thread, on behalf of a user.
+     *
+     * @param typingNotificationOptions the options for sending the typing notification.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link CompletableFuture} that signals the result of the operation.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<Void> sendTypingNotification(TypingNotificationOptions typingNotificationOptions) {
+        return this.sendTypingNotification(typingNotificationOptions, null)
             .thenApply(response -> {
                 return response.getValue();
             });
@@ -810,7 +827,22 @@ public final class ChatThreadAsyncClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CompletableFuture<Response<Void>> sendTypingNotificationWithResponse(RequestContext requestContext) {
-        return this.sendTypingNotification(requestContext);
+        return this.sendTypingNotification(null, requestContext);
+    }
+
+    /**
+     * Posts a typing event to a thread, on behalf of a user.
+     *
+     * @param typingNotificationOptions the options for sending the typing notification.
+     * @param requestContext The context to associate with this operation.
+     * @throws ChatErrorResponseException if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link CompletableFuture} that emits response of the operation.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public CompletableFuture<Response<Void>> sendTypingNotificationWithResponse(
+        TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
+        return this.sendTypingNotification(typingNotificationOptions, requestContext);
     }
 
     /**
@@ -820,12 +852,16 @@ public final class ChatThreadAsyncClient {
      *
      * @return the {@link CompletableFuture} that emits response of the operation.
      */
-    CompletableFuture<Response<Void>> sendTypingNotification(RequestContext requestContext) {
+    CompletableFuture<Response<Void>> sendTypingNotification(
+        TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
+        typingNotificationOptions = typingNotificationOptions == null
+            ? new TypingNotificationOptions() : typingNotificationOptions;
         requestContext = requestContext == null ? RequestContext.NONE : requestContext;
-        return this.chatThreadClient.sendTypingNotificationWithResponseAsync(chatThreadId, requestContext)
-            .exceptionally(throwable -> {
-                throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
-            });
+        return this.chatThreadClient.sendTypingNotificationWithResponseAsync(
+            chatThreadId, typingNotificationOptions, requestContext)
+                .exceptionally(throwable -> {
+                    throw logger.logExceptionAsError(CommunicationErrorResponseExceptionConverter.convert(throwable));
+                });
     }
 
     /**
