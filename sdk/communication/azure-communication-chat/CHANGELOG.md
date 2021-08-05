@@ -1,5 +1,5 @@
 # Release History
-## 1.1.0-beta.1 (Unreleased)
+## 1.1.0-beta.1 (2021-08-10)
 - Added support for metadata in messages.
 - Added options class `TypingNotificationOptions` for setting `SenderDisplayName` of the notification sender.
 - Added `SenderDisplayName` to `TypingIndicatorReceivedEvent`.
