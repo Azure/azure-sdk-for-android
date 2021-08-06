@@ -67,8 +67,8 @@ public class PushNotificationClient {
             return;
         }
 
-        if (!this.registrarClient.Register(skypeUserToken, deviceRegistrationToken)) {
-            throw this.logger.logExceptionAsWarning(new RuntimeException("Start push notification failed!"));
+        if (!this.registrarClient.register(skypeUserToken, deviceRegistrationToken)) {
+            throw logger.logExceptionAsWarning(new RuntimeException("Start push notification failed!"));
         }
 
         this.isPushNotificationsStarted = true;
@@ -87,8 +87,8 @@ public class PushNotificationClient {
             return;
         }
 
-        if (!this.registrarClient.Unregister(skypeUserToken)) {
-            throw this.logger.logExceptionAsWarning(new RuntimeException("Stop push notification failed!"));
+        if (!this.registrarClient.unregister(skypeUserToken)) {
+            throw logger.logExceptionAsWarning(new RuntimeException("Stop push notification failed!"));
         }
 
         this.isPushNotificationsStarted = false;
@@ -172,7 +172,7 @@ public class PushNotificationClient {
             }
         }
 
-        throw this.logger.logExceptionAsError(new RuntimeException("Invalid push notification payload."));
+        throw logger.logExceptionAsError(new RuntimeException("Invalid push notification payload."));
     }
 
     private ChatEvent parsePushNotificationEvent(ChatEventType chatEventType, ChatPushNotification pushNotification) {

@@ -21,22 +21,24 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_APPLICATION_ID;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_TEMPLATE_KEY;
+
 /**
  * The registrar client interface
  */
 public class RegistrarClient {
-    private static final String REGISTRAR_SERVICE_URL = "https://edge.skype.net/registrar/testenv/v2/registrations";
     private static final String SKYPE_TOKEN_HEADER = "X-Skypetoken";
     private static final String USER_AGENT_HEADER = "User-Agent";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
 
     private static final String CONTENT_TYPE_JSON = "application/json";
-    private static final String PLATFORM = "Android";
-    private static final String APP_ID = "AcsAndroid";
-    private static final String TEMPLATE_KEY = "AcsAndroid.AcsNotify_3.0";
-    private static final String PLATFORM_UI_VERSION = "0.0.0.0";
+    private static final String LANGUAGE_ID = "en-US";
     private static final String NODE_ID = "";
-    private static final String TTL = "90000";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
     private final HttpClient httpClient;
@@ -100,14 +102,14 @@ public class RegistrarClient {
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 
-    public boolean Register(String skypeUserToken, String deviceRegistrationToken) {
-        HttpRequest request = new HttpRequest(HttpMethod.POST, REGISTRAR_SERVICE_URL);
+    public boolean register(String skypeUserToken, String deviceRegistrationToken) {
+        HttpRequest request = new HttpRequest(HttpMethod.POST, PUSHNOTIFICATION_REGISTRAR_SERVICE_URL);
         request
             .setHeader(USER_AGENT_HEADER, PLATFORM_UI_VERSION)
             .setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_JSON)
             .setHeader(SKYPE_TOKEN_HEADER, skypeUserToken);
 
-        AddRequestBody(request, deviceRegistrationToken);
+        addRequestBody(request, deviceRegistrationToken);
 
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -131,12 +133,12 @@ public class RegistrarClient {
         return requestResult;
     }
 
-    public boolean Unregister(String skypeUserToken) {
+    public boolean unregister(String skypeUserToken) {
         if (registrationId == null) {
             return false;
         }
 
-        String unregisterUrl = REGISTRAR_SERVICE_URL + "/" + registrationId;
+        String unregisterUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL + "/" + registrationId;
         HttpRequest request = new HttpRequest(HttpMethod.DELETE, unregisterUrl);
         request
             .setHeader(USER_AGENT_HEADER, PLATFORM_UI_VERSION)
@@ -165,15 +167,15 @@ public class RegistrarClient {
         return requestResult;
     }
 
-    private void AddRequestBody(HttpRequest request, String deviceRegistrationToken) {
+    private void addRequestBody(HttpRequest request, String deviceRegistrationToken) {
         this.registrationId = "d9013b1b-28bc-4def-8ecd-38e234182e25"; // UUID.randomUUID().toString();
 
         ClientDescription clientDescription = new ClientDescription();
-        clientDescription.languageId = "en-US";
+        clientDescription.languageId = LANGUAGE_ID;
         clientDescription.platform = PLATFORM;
         clientDescription.platformUIVersion = PLATFORM_UI_VERSION;
-        clientDescription.applicationId = APP_ID;
-        clientDescription.templateKey = TEMPLATE_KEY;
+        clientDescription.applicationId = PUSHNOTIFICATION_APPLICATION_ID;
+        clientDescription.templateKey = PUSHNOTIFICATION_TEMPLATE_KEY;
 
         Transports transports = new Transports();
         transports.fcm = new ArrayList<>();
@@ -182,7 +184,7 @@ public class RegistrarClient {
         transport.creationTime = "";
         transport.context = "";
         transport.path = deviceRegistrationToken;
-        transport.ttl = TTL;
+        transport.ttl = PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
         transports.fcm.add(transport);
 
         RegistrarRequestBody registrarRequestBody = new RegistrarRequestBody();
