@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Client Library Chat SDK For Communication Service"
 description = "This package contains the Android client library Chat SDK for Microsoft Azure Communication Service."
-version = "1.1.0-beta.1"
+version = "1.1.0-beta.2"
 ext.versionCode = 1
 
 android {
@@ -42,7 +42,7 @@ dependencies {
 
     api "net.sourceforge.streamsupport:android-retrofuture:$retroFutureVersion"
 
-    api project(":sdk:communication:azure-communication-common")
+    api "com.azure.android:azure-communication-common:$azureCommunicationCommonVersion"
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
