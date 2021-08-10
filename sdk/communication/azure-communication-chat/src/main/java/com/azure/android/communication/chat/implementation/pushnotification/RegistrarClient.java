@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +38,6 @@ public class RegistrarClient {
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
 
     private static final String CONTENT_TYPE_JSON = "application/json";
-    private static final String LANGUAGE_ID = "en-US";
     private static final String NODE_ID = "";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
@@ -47,54 +47,54 @@ public class RegistrarClient {
     private String registrationId;
     private boolean requestResult;
 
-    private class ClientDescription {
+    private static class ClientDescription {
         @JsonProperty(value = "languageId")
-        String languageId;
+        private String languageId;
 
         @JsonProperty(value = "platform")
-        String platform;
+        private String platform;
 
         @JsonProperty(value = "platformUIVersion")
-        String platformUIVersion;
+        private String platformUIVersion;
 
         @JsonProperty(value = "appId")
-        String applicationId;
+        private String applicationId;
 
         @JsonProperty(value = "templateKey")
-        String templateKey;
+        private String templateKey;
     }
 
-    private class FcmTransport {
+    private static class FcmTransport {
         @JsonProperty(value = "context")
-        String context;
+        private String context;
 
         @JsonProperty(value = "creationTime")
-        String creationTime;
+        private String creationTime;
 
         @JsonProperty(value = "path")
-        String path;
+        private String path;
 
         @JsonProperty(value = "ttl")
-        String ttl;
+        private String ttl;
     }
 
-    private class Transports {
+    private static class Transports {
         @JsonProperty(value = "FCM")
-        List<FcmTransport> fcm;
+        private List<FcmTransport> fcm;
     }
 
-    private class RegistrarRequestBody {
+    private static class RegistrarRequestBody {
         @JsonProperty(value = "clientDescription")
-        ClientDescription clientDescription;
+        private ClientDescription clientDescription;
 
         @JsonProperty(value = "nodeId")
-        String nodeId;
+        private String nodeId;
 
         @JsonProperty(value = "registrationId")
-        String registrationId;
+        private String registrationId;
 
         @JsonProperty(value = "transports")
-        Transports transports;
+        private Transports transports;
     }
 
     RegistrarClient() {
@@ -168,10 +168,10 @@ public class RegistrarClient {
     }
 
     private void addRequestBody(HttpRequest request, String deviceRegistrationToken) {
-        this.registrationId = "d9013b1b-28bc-4def-8ecd-38e234182e25"; // UUID.randomUUID().toString();
+        this.registrationId = UUID.randomUUID().toString();
 
         ClientDescription clientDescription = new ClientDescription();
-        clientDescription.languageId = LANGUAGE_ID;
+        clientDescription.languageId = "";
         clientDescription.platform = PLATFORM;
         clientDescription.platformUIVersion = PLATFORM_UI_VERSION;
         clientDescription.applicationId = PUSHNOTIFICATION_APPLICATION_ID;
@@ -201,10 +201,10 @@ public class RegistrarClient {
         }
     }
 
-    private void awaitOnLatch(CountDownLatch latch) {
+    private boolean awaitOnLatch(CountDownLatch latch) {
         long timeoutInSec = 2;
         try {
-            latch.await(timeoutInSec, TimeUnit.MINUTES);
+            return latch.await(timeoutInSec, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
             throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInSec + " minutes"));
         }

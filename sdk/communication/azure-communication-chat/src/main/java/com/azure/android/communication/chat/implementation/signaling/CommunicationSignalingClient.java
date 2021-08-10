@@ -7,6 +7,7 @@ import android.content.Context;
 
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;
@@ -20,6 +21,7 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
@@ -37,11 +39,12 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final ClientLogger logger;
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
-    private String userToken;
+    private final CommunicationTokenCredential communicationTokenCredential;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
 
-    public CommunicationSignalingClient() {
+    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
+        this.communicationTokenCredential = communicationTokenCredential;
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
@@ -57,20 +60,26 @@ public class CommunicationSignalingClient implements SignalingClient {
 
     /**
      * Start the realtime connection.
-     * @param skypeUserToken the skype user token
      * @param context the android application context
      */
-    public void start(String skypeUserToken, Context context) {
+    public void start(Context context) {
         if (this.isRealtimeNotificationsStarted) {
             return;
         }
 
         this.isRealtimeNotificationsStarted = true;
-        this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
-                return userToken;
+                try {
+                    return communicationTokenCredential.getToken().get().getToken();
+                } catch (InterruptedException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Get skype token failed for realtime notification: " + e.getMessage()));
+                } catch (ExecutionException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Get skype token failed for realtime notification: " + e.getMessage()));
+                }
             }
         };
 

@@ -8,6 +8,7 @@ import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.PushNotificationCallback;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import org.json.JSONObject;
@@ -16,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 /**
  * The registrar client interface
@@ -38,11 +40,13 @@ public class PushNotificationClient {
     }};
 
     private final ClientLogger logger = new ClientLogger(PushNotificationClient.class);
+    private final CommunicationTokenCredential communicationTokenCredential;
     private final RegistrarClient registrarClient;
     private final Map<ChatEventType, Set<PushNotificationCallback>> pushNotificationListeners;
     private boolean isPushNotificationsStarted;
 
-    public PushNotificationClient() {
+    public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
+        this.communicationTokenCredential = communicationTokenCredential;
         this.pushNotificationListeners = new HashMap<>();
         this.isPushNotificationsStarted = false;
         this.registrarClient = new RegistrarClient();
@@ -58,13 +62,23 @@ public class PushNotificationClient {
 
     /**
      * Register the current device for receiving incoming push notifications via FCM.
-     * @param skypeUserToken the skype user token
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String skypeUserToken, String deviceRegistrationToken) {
+    public void startPushNotifications(String deviceRegistrationToken) {
         if (this.isPushNotificationsStarted) {
             return;
+        }
+
+        String skypeUserToken;
+        try {
+            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+        } catch (InterruptedException e) {
+            throw logger.logExceptionAsError(
+                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+        } catch (ExecutionException e) {
+            throw logger.logExceptionAsError(
+                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
         }
 
         if (!this.registrarClient.register(skypeUserToken, deviceRegistrationToken)) {
@@ -79,12 +93,22 @@ public class PushNotificationClient {
     /**
      * Unregister the current device from receiving incoming push notifications.
      * All registered handlers would be removed.
-     * @param skypeUserToken the skype user token
      * @throws RuntimeException if push notifications failed to stop.
      */
-    public void stopPushNotifications(String skypeUserToken) {
+    public void stopPushNotifications() {
         if (!this.isPushNotificationsStarted) {
             return;
+        }
+
+        String skypeUserToken;
+        try {
+            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+        } catch (InterruptedException e) {
+            throw logger.logExceptionAsError(
+                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+        } catch (ExecutionException e) {
+            throw logger.logExceptionAsError(
+                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
         }
 
         if (!this.registrarClient.unregister(skypeUserToken)) {
@@ -188,10 +212,9 @@ public class PushNotificationClient {
      */
     private void listPushNotificationHandlers() {
         this.logger.info(" Listing all push notification handlers.");
-        for (ChatEventType chatEventType: this.pushNotificationListeners.keySet()) {
-            Set<PushNotificationCallback> callbacks = this.pushNotificationListeners.get(chatEventType);
-            for (PushNotificationCallback callback: callbacks) {
-                this.logger.info(" " + chatEventType + " : " + callback);
+        for (Map.Entry<ChatEventType, Set<PushNotificationCallback>> entry: this.pushNotificationListeners.entrySet()) {
+            for (PushNotificationCallback callback: entry.getValue()) {
+                this.logger.info(" " + entry.getKey() + " : " + callback);
             }
         }
     }

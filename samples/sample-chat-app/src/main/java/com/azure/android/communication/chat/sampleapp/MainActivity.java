@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     public void startPushNotification(View view) {
         logAndToast( "Start push notification");
         try {
-            startFcmPushNotification(firstUserAccessToken);
+            startFcmPushNotification();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity {
     public void stopPushNotification(View view) {
         logAndToast( "Stop push notification");
         try {
-            stopFcmPushNotification(firstUserAccessToken);
+            stopFcmPushNotification();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -332,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
     public void startRealTimeNotification(View view) {
         logAndToast( "Starting real time notification");
         try {
-            chatAsyncClient.startRealtimeNotifications(firstUserAccessToken, getApplicationContext());
+            chatAsyncClient.startRealtimeNotifications(getApplicationContext());
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -635,7 +635,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startFcmPushNotification(String skypeUserToken) {
+    private void startFcmPushNotification() {
         FirebaseMessaging.getInstance().getToken()
             .addOnCompleteListener(new OnCompleteListener<String>() {
                 @Override
@@ -652,13 +652,13 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Fcm push token generated:" + token);
                     Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
 
-                    chatAsyncClient.startPushNotifications(skypeUserToken, token);
+                    chatAsyncClient.startPushNotifications(token);
                 }
             });
     }
 
-    private void stopFcmPushNotification(String skypeUserToken) {
-        chatAsyncClient.stopPushNotifications(skypeUserToken);
+    private void stopFcmPushNotification() {
+        chatAsyncClient.stopPushNotifications();
     }
 
     private static void awaitOnLatch(CountDownLatch latch) {

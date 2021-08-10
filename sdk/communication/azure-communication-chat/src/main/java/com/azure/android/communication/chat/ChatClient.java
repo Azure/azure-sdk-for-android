@@ -179,12 +179,11 @@ public final class ChatClient {
 
     /**
      * Receive real-time notifications.
-     * @param skypeUserToken the skype user token
      * @param context the Android app context
      * @throws RuntimeException if real-time notifications failed to start.
      */
-    public void startRealtimeNotifications(String skypeUserToken, Context context) {
-        this.client.startRealtimeNotifications(skypeUserToken, context);
+    public void startRealtimeNotifications(Context context) {
+        this.client.startRealtimeNotifications(context);
     }
 
     /**
@@ -197,22 +196,20 @@ public final class ChatClient {
 
     /**
      * Register current device for receiving incoming push notifications via FCM.
-     * @param skypeUserToken the skype user token
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String skypeUserToken, String deviceRegistrationToken) {
-        client.startPushNotifications(skypeUserToken, deviceRegistrationToken);
+    public void startPushNotifications(String deviceRegistrationToken) {
+        client.startPushNotifications(deviceRegistrationToken);
     }
 
     /**
      * Unregister current device from receiving incoming push notifications.
      * All registered handlers would be removed.
-     * @param skypeUserToken the skype user token
      * @throws RuntimeException if push notifications failed to stop.
      */
-    public void stopPushNotifications(String skypeUserToken) {
-        client.stopPushNotifications(skypeUserToken);
+    public void stopPushNotifications() {
+        client.stopPushNotifications();
     }
 
     /**

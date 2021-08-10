@@ -12,7 +12,9 @@ import java.util.Map;
  * The chat push notification payload from FCM.
  */
 @Fluent
-public class ChatPushNotification implements Serializable {
+public final class ChatPushNotification implements Serializable {
+    private static final long serialVersionUID = 8290334213243591699L;
+
     /**
      * The payload for incoming chat push notification.
      */

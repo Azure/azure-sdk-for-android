@@ -230,7 +230,7 @@ public final class ChatClientBuilder {
             .endpoint(this.endpoint)
             .pipeline(pipeline);
 
-        return new ChatAsyncClient(clientBuilder.buildClient());
+        return new ChatAsyncClient(clientBuilder.buildClient(), this.communicationTokenCredential);
     }
 
     private HttpPipeline createHttpPipeline(HttpClient httpClient,
