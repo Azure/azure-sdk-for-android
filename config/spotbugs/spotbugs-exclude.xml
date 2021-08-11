@@ -2,6 +2,17 @@
 
 <FindBugsFilter>
 
+  <!-- The fields are used in Jackson for constructing http request payload. -->
+  <Match>
+    <Or>
+      <Class name="com.azure.android.communication.chat.implementation.pushnotification.RegistrarClient$ClientDescription"/>
+      <Class name="com.azure.android.communication.chat.implementation.pushnotification.RegistrarClient$FcmTransport"/>
+      <Class name="com.azure.android.communication.chat.implementation.pushnotification.RegistrarClient$Transports"/>
+      <Class name="com.azure.android.communication.chat.implementation.pushnotification.RegistrarClient$RegistrarRequestBody"/>
+    </Or>
+    <Bug pattern="URF_UNREAD_FIELD"/>
+  </Match>
+
   <Match>
     <Class
         name="~com\.azure\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
