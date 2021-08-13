@@ -8,8 +8,8 @@ Setup:
 4. Replace the userAccessToken with an access token generated for the first user.
 5. If you want to enable FCM push notification feature, use the following instructions:
 5.1 Follow this link https://firebase.google.com/docs/cloud-messaging/android/client#create_a_firebase_project to create your own Firebase project, Register this test app with Firebase, then download the Firebase config file "google-services.json" to replace the existing empty file with the same name under sample-chat-app folder.
-5.2 Follow this link https://docs.microsoft.com/en-us/azure/notification-hubs/notification-hubs-android-push-notification-google-fcm-get-started#configure-a-hub to create a Notification Hub under the same Azure Subscription as your ACS resource and link your Firebase project to this Notification Hub. 
-5.3 Follow this link https://docs.microsoft.com/en-us/azure/communication-services/concepts/notifications#notification-hub-provisioning to link your ACS resource with your ACS resource.
+5.2 Follow this link https://docs.microsoft.com/azure/notification-hubs/notification-hubs-android-push-notification-google-fcm-get-started#configure-a-hub to create a Notification Hub under the same Azure Subscription as your ACS resource and link your Firebase project to this Notification Hub. 
+5.3 Follow this link https://docs.microsoft.com/azure/communication-services/concepts/notifications#notification-hub-provisioning to link your ACS resource with your ACS resource.
 6. Run "sample-chat-app" from the IDE by clicking the run button on the top right corner.
 
 Functions:
