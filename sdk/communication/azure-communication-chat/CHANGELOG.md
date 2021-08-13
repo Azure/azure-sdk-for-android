@@ -1,5 +1,29 @@
 # Release History
 ## 1.1.0-beta.3 (Unreleased)
+### New Features
+- Added support push notifications via FCM
+    - ChatAsyncClient:
+        - Added `startPushNotifications`
+        - Added `stopPushNotifications`
+        - Added `handlePushNotification`
+        - Added `addPushNotificationHandler`
+        - Added `removePushNotificationHandler`
+    - ChatClient:
+        - Added `startPushNotifications`
+        - Added `stopPushNotifications`
+        - Added `handlePushNotification`
+        - Added `addPushNotificationHandler`
+        - Added `removePushNotificationHandler`
+     - Added `ChatPushNotification` as the type for passing push notification payload
+     - Added `PushNotificationCallback` as the type for customized push notification handler
+     - Added instruction in README.md in sample app for steps to setup FCM push notification
+     - Added code in sample app for FCM push notification end to end scenario
+        
+### Breaking Changes
+- ChatAsyncClient:
+    - Changed `startRealtimeNotifications(String skypeUserToken, Context context)` to `startRealtimeNotifications(Context context)`
+- ChatClient:
+    - Changes `startRealtimeNotifications(String skypeUserToken, Context context)` to `startRealtimeNotifications(Context context)`
 
 ## 1.1.0-beta.2 (2021-08-10)
 - Version update.
