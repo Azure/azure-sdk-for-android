@@ -1,7 +1,7 @@
 # Release History
 ## 1.1.0-beta.3 (Unreleased)
 ### New Features
-- Added support push notifications via FCM
+- Added support FCM push notifications
     - ChatAsyncClient:
         - Added `startPushNotifications`
         - Added `stopPushNotifications`
