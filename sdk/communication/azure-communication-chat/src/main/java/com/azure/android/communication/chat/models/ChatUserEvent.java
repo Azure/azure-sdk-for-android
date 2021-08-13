@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -63,7 +63,7 @@ public abstract class ChatUserEvent extends ChatEvent {
      * Sets the Id of the event sender.
      */
     ChatUserEvent setSender() {
-        this.sender = TrouterUtils.getCommunicationIdentifier(senderId);
+        this.sender = NotificationUtils.getCommunicationIdentifier(senderId);
         return this;
     }
 
@@ -72,11 +72,11 @@ public abstract class ChatUserEvent extends ChatEvent {
      */
     ChatUserEvent setRecipient() {
         if (recipientMri != null) {
-            this.recipient = TrouterUtils.getCommunicationIdentifier(recipientMri);
+            this.recipient = NotificationUtils.getCommunicationIdentifier(recipientMri);
             return this;
         }
 
-        this.recipient = TrouterUtils.getCommunicationIdentifier(recipientId);
+        this.recipient = NotificationUtils.getCommunicationIdentifier(recipientId);
         return this;
     }
 }

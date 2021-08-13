@@ -4,4 +4,4 @@
 //
 
 /** Package containing the classes for Signaling. Real time notification service. */
-package com.azure.android.communication.chat.implementation.signaling;
+package com.azure.android.communication.chat.implementation.notifications.signaling;

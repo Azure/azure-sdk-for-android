@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.pushnotification;
+package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatPushNotification;
@@ -23,22 +23,6 @@ import java.util.concurrent.ExecutionException;
  * The registrar client interface
  */
 public class PushNotificationClient {
-    /**
-     * Mapping chat event id to trouter event id code
-     */
-    static final Map<Integer, ChatEventType> EVENT_TYPE_MAPPING = new HashMap<Integer, ChatEventType>() {{
-        put(200, ChatEventType.CHAT_MESSAGE_RECEIVED);
-        put(245, ChatEventType.TYPING_INDICATOR_RECEIVED);
-        put(246, ChatEventType.READ_RECEIPT_RECEIVED);
-        put(247, ChatEventType.CHAT_MESSAGE_EDITED);
-        put(248, ChatEventType.CHAT_MESSAGE_DELETED);
-        put(257, ChatEventType.CHAT_THREAD_CREATED);
-        put(258, ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED);
-        put(259, ChatEventType.CHAT_THREAD_DELETED);
-        put(260, ChatEventType.PARTICIPANTS_ADDED);
-        put(261, ChatEventType.PARTICIPANTS_REMOVED);
-    }};
-
     private final ClientLogger logger = new ClientLogger(PushNotificationClient.class);
     private final CommunicationTokenCredential communicationTokenCredential;
     private final RegistrarClient registrarClient;
@@ -165,8 +149,6 @@ public class PushNotificationClient {
 
         callbacks.add(listener);
         this.pushNotificationListeners.put(chatEventType, callbacks);
-
-        listPushNotificationHandlers();
     }
 
     /**
@@ -184,15 +166,13 @@ public class PushNotificationClient {
                 this.pushNotificationListeners.put(chatEventType, callbacks);
             }
         }
-
-        listPushNotificationHandlers();
     }
 
     private ChatEventType parsePushNotificationEventType(ChatPushNotification pushNotification) {
         if (pushNotification.getPayload().containsKey("eventId")) {
             int eventId = Integer.parseInt(pushNotification.getPayload().get("eventId"));
-            if (EVENT_TYPE_MAPPING.containsKey(eventId)) {
-                return EVENT_TYPE_MAPPING.get(eventId);
+            if (NotificationUtils.isValidEventId(eventId)) {
+                return NotificationUtils.getChatEventTypeByEventId(eventId);
             }
         }
 
@@ -204,18 +184,6 @@ public class PushNotificationClient {
         JSONObject obj = new JSONObject(pushNotification.getPayload());
         String jsonString = obj.toString();
         this.logger.info(" Result: " + jsonString);
-        return TrouterUtils.toEventPayload(chatEventType, jsonString);
-    }
-
-    /**
-     * For test only.
-     */
-    private void listPushNotificationHandlers() {
-        this.logger.info(" Listing all push notification handlers.");
-        for (Map.Entry<ChatEventType, Set<PushNotificationCallback>> entry: this.pushNotificationListeners.entrySet()) {
-            for (PushNotificationCallback callback: entry.getValue()) {
-                this.logger.info(" " + entry.getKey() + " : " + callback);
-            }
-        }
+        return NotificationUtils.toEventPayload(chatEventType, jsonString);
     }
 }

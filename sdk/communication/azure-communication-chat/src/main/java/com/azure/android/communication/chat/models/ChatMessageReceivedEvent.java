@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
@@ -170,7 +170,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
      * Sets new Type of the chat message.
      */
     private ChatMessageReceivedEvent setType() {
-        this.type = TrouterUtils.parseChatMessageType(this.messageType);
+        this.type = NotificationUtils.parseChatMessageType(this.messageType);
         return this;
     }
 
@@ -178,7 +178,7 @@ public final class ChatMessageReceivedEvent extends ChatUserEvent {
      * Sets metadata of the chat message.
      */
     private ChatMessageReceivedEvent setMetadata() {
-        this.metadata = TrouterUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
+        this.metadata = NotificationUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
         return this;
     }
 }

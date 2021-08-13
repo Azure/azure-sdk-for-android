@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -138,7 +138,7 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
 
         try {
             JSONObject createdByJsonObject = new JSONObject(this.createdByJsonString);
-            CommunicationIdentifier createdByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
+            CommunicationIdentifier createdByCommunicationIdentifier = NotificationUtils.getCommunicationIdentifier(
                 createdByJsonObject.getString("participantId"));
 
             this.createdBy
@@ -161,7 +161,7 @@ public class ChatThreadCreatedEvent extends ChatThreadEvent {
             JSONArray participantsJsonArray = new JSONArray(this.participantsJsonString);
             for (int i = 0; i < participantsJsonArray.length(); i++) {
                 JSONObject participant = participantsJsonArray.getJSONObject(i);
-                CommunicationIdentifier communicationUser = TrouterUtils.getCommunicationIdentifier(
+                CommunicationIdentifier communicationUser = NotificationUtils.getCommunicationIdentifier(
                     participant.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();

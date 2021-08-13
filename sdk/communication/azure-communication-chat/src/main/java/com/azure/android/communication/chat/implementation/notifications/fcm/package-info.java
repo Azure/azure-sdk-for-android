@@ -3,5 +3,5 @@
 // license information.
 //
 
-/** Package containing the classes for Push Notification. */
-package com.azure.android.communication.chat.implementation.pushnotification;
+/** Package containing the classes for FCM Push Notifications. */
+package com.azure.android.communication.chat.implementation.notifications.fcm;
