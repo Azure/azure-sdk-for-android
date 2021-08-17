@@ -19,6 +19,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
+import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
@@ -36,7 +37,6 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.ParticipantsAddedEvent;
 import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
-import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
@@ -59,6 +59,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.StringJoiner;
@@ -92,12 +93,12 @@ public class MainActivity extends AppCompatActivity {
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
-    private final String sdkVersion = "1.1.0-beta.1";
+    private final String sdkVersion = "1.1.0-beta.2";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
-    private static final String APPLICATION_ID = "Chat Test App";
+    private static final String APPLICATION_ID = "Chat_Test_App";
     private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
-    private static RealTimeNotificationCallback messageReceivedHandler;
+    private static Map<RealTimeNotificationCallback, ChatEventType> realTimeNotificationCallbacks = new HashMap<>();
 
     private BroadcastReceiver firebaseMessagingReceiver = new BroadcastReceiver() {
         @Override
@@ -341,92 +342,113 @@ public class MainActivity extends AppCompatActivity {
     public void registerRealTimeNotificationListener(View view) {
         logAndToast("Register a test listener");
 
-        messageReceivedHandler = (ChatEvent payload) -> {
+        RealTimeNotificationCallback messageReceivedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageReceivedEvent event = (ChatMessageReceivedEvent) payload;
             Log.i(TAG, "Message created! ThreadId: " + event.getChatThreadId());
         };
-
         chatAsyncClient.addEventHandler(CHAT_MESSAGE_RECEIVED, messageReceivedHandler);
+        realTimeNotificationCallbacks.put(messageReceivedHandler, CHAT_MESSAGE_RECEIVED);
 
-        chatAsyncClient.addEventHandler(CHAT_MESSAGE_EDITED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback messageEditedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageEditedEvent event = (ChatMessageEditedEvent) payload;
             Log.i(TAG, "Message edited! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(CHAT_MESSAGE_EDITED, messageEditedHandler);
+        realTimeNotificationCallbacks.put(messageEditedHandler, CHAT_MESSAGE_EDITED);
 
-        chatAsyncClient.addEventHandler(CHAT_MESSAGE_DELETED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback messageDeletedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatMessageDeletedEvent event = (ChatMessageDeletedEvent) payload;
             Log.i(TAG, "Message deleted! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(CHAT_MESSAGE_DELETED, messageDeletedHandler);
+        realTimeNotificationCallbacks.put(messageDeletedHandler, CHAT_MESSAGE_DELETED);
 
-        chatAsyncClient.addEventHandler(TYPING_INDICATOR_RECEIVED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback typingIndicatorHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             TypingIndicatorReceivedEvent event = (TypingIndicatorReceivedEvent) payload;
             Log.i(TAG, "Typing indicator received! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(TYPING_INDICATOR_RECEIVED, typingIndicatorHandler);
+        realTimeNotificationCallbacks.put(typingIndicatorHandler, TYPING_INDICATOR_RECEIVED);
 
-        chatAsyncClient.addEventHandler(READ_RECEIPT_RECEIVED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback readReceiptHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ReadReceiptReceivedEvent event = (ReadReceiptReceivedEvent) payload;
             Log.i(TAG, "Read receipt received! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(READ_RECEIPT_RECEIVED, readReceiptHandler);
+        realTimeNotificationCallbacks.put(readReceiptHandler, READ_RECEIPT_RECEIVED);
 
-        chatAsyncClient.addEventHandler(CHAT_THREAD_CREATED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback threadCreatedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadCreatedEvent event = (ChatThreadCreatedEvent) payload;
             Log.i(TAG, "Chat thread created! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(CHAT_THREAD_CREATED, threadCreatedHandler);
+        realTimeNotificationCallbacks.put(threadCreatedHandler, CHAT_THREAD_CREATED);
 
-        chatAsyncClient.addEventHandler(CHAT_THREAD_DELETED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback threadDeletedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadDeletedEvent event = (ChatThreadDeletedEvent) payload;
             Log.i(TAG, "Chat thread deleted! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(CHAT_THREAD_DELETED, threadDeletedHandler);
+        realTimeNotificationCallbacks.put(threadDeletedHandler, CHAT_THREAD_DELETED);
 
-        chatAsyncClient.addEventHandler(CHAT_THREAD_PROPERTIES_UPDATED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback threadUpdatedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ChatThreadPropertiesUpdatedEvent event = (ChatThreadPropertiesUpdatedEvent) payload;
             Log.i(TAG, "Chat thread properties updated! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(CHAT_THREAD_PROPERTIES_UPDATED, threadUpdatedHandler);
+        realTimeNotificationCallbacks.put(threadUpdatedHandler, CHAT_THREAD_PROPERTIES_UPDATED);
 
-        chatAsyncClient.addEventHandler(PARTICIPANTS_ADDED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback participantAddedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ParticipantsAddedEvent event = (ParticipantsAddedEvent) payload;
             Log.i(TAG, "Participants added! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(PARTICIPANTS_ADDED, participantAddedHandler);
+        realTimeNotificationCallbacks.put(participantAddedHandler, PARTICIPANTS_ADDED);
 
-        chatAsyncClient.addEventHandler(PARTICIPANTS_REMOVED, (ChatEvent payload) -> {
+        RealTimeNotificationCallback participantRemovedHandler = (ChatEvent payload) -> {
             eventHandlerCalled++;
 
             Log.i(TAG, eventHandlerCalled + " messages handled.");
             ParticipantsRemovedEvent event = (ParticipantsRemovedEvent) payload;
             Log.i(TAG, "Participants removed! ThreadId: " + event.getChatThreadId());
-        });
+        };
+        chatAsyncClient.addEventHandler(PARTICIPANTS_REMOVED, participantRemovedHandler);
+        realTimeNotificationCallbacks.put(participantRemovedHandler, PARTICIPANTS_REMOVED);
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
-        logAndToast("Unregister a test listener");
-        chatAsyncClient.removeEventHandler(CHAT_MESSAGE_RECEIVED, messageReceivedHandler);
+        logAndToast("Unregister real time notification listeners");
+        for (Map.Entry<RealTimeNotificationCallback, ChatEventType> entry: realTimeNotificationCallbacks.entrySet()) {
+            chatAsyncClient.removeEventHandler(entry.getValue(), entry.getKey());
+        }
+        realTimeNotificationCallbacks.clear();
     }
 
     public void sendChatMessage(View view) {

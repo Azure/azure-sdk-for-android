@@ -8,7 +8,6 @@ import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
@@ -98,7 +97,7 @@ public class RegistrarClient {
     }
 
     RegistrarClient() {
-        this.httpClient = new OkHttpAsyncHttpClientBuilder().build();
+        this.httpClient = HttpClient.createDefault();
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 

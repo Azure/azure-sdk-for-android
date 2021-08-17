@@ -76,7 +76,7 @@ public class PushNotificationClient {
 
     /**
      * Unregister the current device from receiving incoming push notifications.
-     * All registered handlers would be removed.
+     * All registered handlers will be removed.
      * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {

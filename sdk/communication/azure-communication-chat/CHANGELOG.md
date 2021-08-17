@@ -16,7 +16,7 @@
         - Added `removePushNotificationHandler`
      - Added `ChatPushNotification` as the type for passing push notification payload
      - Added `PushNotificationCallback` as the type for customized push notification handler
-     - Added instruction in README.md in sample app for steps to setup FCM push notification
+     - Added instructions in README.md in sample app for steps to setup FCM push notifications
      - Added code in sample app for FCM push notification end to end scenario
         
 ### Breaking Changes
