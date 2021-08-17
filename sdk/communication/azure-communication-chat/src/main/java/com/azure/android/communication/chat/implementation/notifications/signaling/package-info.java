@@ -3,5 +3,5 @@
 // license information.
 //
 
-/** Package containing the classes for Signaling. Real time notification service. */
+/** Package containing the classes for Signaling. Realtime notification service. */
 package com.azure.android.communication.chat.implementation.notifications.signaling;

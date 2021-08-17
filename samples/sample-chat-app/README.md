@@ -13,13 +13,13 @@ Setup:
 7. Run the _"sample-chat-app"_ from the IDE by clicking the 'Run' button in the top right corner.
 
 Functions:
-* Use the button 'Start real time notifications', to start the real time notifications.
-* Use the button 'Register real time notifications listener' to register listeners for all events.
-* Use the button 'Unregister real time notifications listener' to unregister listeners for all events.
+* Use the button 'Start Realtime Notifications', to start the realtime notifications.
+* Use the button 'Register Realtime Notifications listener' to register listeners for all events.
+* Use the button 'Unregister Realtime Notifications listener' to unregister listeners for all events.
 
-* Use the button 'Start push notifications', to start FCM push notifications.
-* Use the button 'Register push notifications listener' to register listeners for all FCM push notifications events.
-* Use the button 'Stop push notifications' to stop FCM push notifications.
+* Use the button 'Start Push Notifications', to start FCM push notifications.
+* Use the button 'Register Push Notifications listener' to register listeners for all FCM push notifications events.
+* Use the button 'Stop Push Notifications' to stop FCM push notifications.
 
 
-> After registering a listener for a specific type of event, you'll need to use Postman or a JS client to create a thread with the same token you used in the test app and then send a message to the thread. Observe logs and your app's UI to see if the test app receives real time/push notifications.
+> After registering a listener for a specific type of event, you'll need to use Postman or a JS client to create a thread with the same token you used in the test app and then send a message to the thread. Observe logs and your app's UI to see if the test app receives realtime/push notifications.

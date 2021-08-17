@@ -331,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startRealTimeNotification(View view) {
-        logAndToast( "Starting real time notification");
+        logAndToast( "Starting realtime notification");
         try {
             chatAsyncClient.startRealtimeNotifications(getApplicationContext());
         } catch (Exception e) {
@@ -444,7 +444,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void unregisterRealTimeNotificationListener(View view) {
-        logAndToast("Unregister real time notification listeners");
+        logAndToast("Unregister realtime notification listeners");
         for (Map.Entry<RealTimeNotificationCallback, ChatEventType> entry: realTimeNotificationCallbacks.entrySet()) {
             chatAsyncClient.removeEventHandler(entry.getValue(), entry.getKey());
         }

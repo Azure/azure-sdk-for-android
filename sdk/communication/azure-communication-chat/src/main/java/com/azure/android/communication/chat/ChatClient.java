@@ -178,17 +178,17 @@ public final class ChatClient {
     }
 
     /**
-     * Receive real-time notifications.
+     * Receive realtime notifications.
      * @param context the Android app context
-     * @throws RuntimeException if real-time notifications failed to start.
+     * @throws RuntimeException if realtime notifications failed to start.
      */
     public void startRealtimeNotifications(Context context) {
         this.client.startRealtimeNotifications(context);
     }
 
     /**
-     * Stop receiving real-time notifications.
-     * All registered handlers would be removed.
+     * Stop receiving realtime notifications.
+     * All registered handlers will be removed.
      */
     public void stopRealtimeNotifications() {
         client.stopRealtimeNotifications();
@@ -205,7 +205,7 @@ public final class ChatClient {
 
     /**
      * Unregister current device from receiving incoming push notifications.
-     * All registered handlers would be removed.
+     * All registered handlers will be removed.
      * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {
@@ -244,17 +244,17 @@ public final class ChatClient {
     }
 
     /**
-     * Add handler for a chat event for real-time notifications.
+     * Add handler for a chat event for realtime notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException if real-time notifications has not started yet.
+     * @throws IllegalStateException if realtime notifications has not started yet.
      */
     public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         this.client.addEventHandler(chatEventType, listener);
     }
 
     /**
-     * Remove handler from a chat event for real-time notifications.
+     * Remove handler from a chat event for realtime notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */

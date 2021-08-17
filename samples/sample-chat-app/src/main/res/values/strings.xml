@@ -1,8 +1,8 @@
 <resources>
   <string name="app_name">sample-chat-app</string>
-    <string name="start_real_time_notifications">Start real time notifications</string>
-  <string name="register_real_time_notification">Register real time notification</string>
-  <string name="unregister_real_time_notification">Unregister real time notification</string>
+    <string name="start_real_time_notifications">Start Realtime Notifications</string>
+  <string name="register_real_time_notification">Register Realtime Notification</string>
+  <string name="unregister_real_time_notification">Unregister Realtime Notification</string>
   <string name="send_chat_message">Send chat message</string>
   <string name="add_second_user">Add second user</string>
   <string name="list_users">List users</string>
@@ -10,7 +10,7 @@
   <string name="send_typing_notification">Send Typing Notification</string>
   <string name="send_read_receipts">Send Read Receipts</string>
   <string name="list_read_receipts">List Read Receipts</string>
-  <string name="start_push_notifications">Start push notifications</string>
-  <string name="register_push_notification_listeners">Register push notification listeners</string>
-  <string name="stop_push_notifications">Stop push notifications</string>
+  <string name="start_push_notifications">Start Push Notifications</string>
+  <string name="register_push_notification_listeners">Register Push Notification listeners</string>
+  <string name="stop_push_notifications">Stop Push Notifications</string>
 </resources>

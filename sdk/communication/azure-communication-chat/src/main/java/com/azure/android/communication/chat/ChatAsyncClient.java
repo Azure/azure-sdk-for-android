@@ -262,9 +262,9 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Receive real-time notifications.
+     * Receive realtime notifications.
      * @param context the Android app context
-     * @throws RuntimeException if real-time notifications failed to start.
+     * @throws RuntimeException if realtime notifications failed to start.
      */
     public void startRealtimeNotifications(Context context) {
         if (this.signalingClient.hasStarted()) {
@@ -275,7 +275,8 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Stop receiving real-time notifications.
+     * Stop receiving realtime notifications.
+     * All registered handlers will be removed.
      */
     public void stopRealtimeNotifications() {
         this.signalingClient.stop();
@@ -296,7 +297,7 @@ public final class ChatAsyncClient {
 
     /**
      * Unregister current device from receiving incoming push notifications.
-     * All registered handlers would be removed.
+     * All registered handlers will be removed.
      * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {
@@ -323,7 +324,7 @@ public final class ChatAsyncClient {
     public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
         if (!this.pushNotificationClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
-                "You must call startPushNotifications before you can subscribe to push notifications."
+                "You must call startPushNotifications(String) before you can subscribe to push notifications."
             ));
         }
 
@@ -340,15 +341,15 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Add handler for a chat event for real-time notifications.
+     * Add handler for a chat event for realtime notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException if real-time notifications has not started yet.
+     * @throws IllegalStateException if realtime notifications has not started yet.
      */
     public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         if (!this.signalingClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
-                "You must call startRealtimeNotifications before you can subscribe to events."
+                "You must call startRealtimeNotifications(Context) before you can subscribe to events."
             ));
         }
 
@@ -356,7 +357,7 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Remove handler from a chat event for real-time notifications.
+     * Remove handler from a chat event for realtime notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */

@@ -155,11 +155,11 @@
 - Added chat basic operations in test app
 
 ### Bug Fixes
-- Fixed real time notification connection URL.
+- Fixed realtime notification connection URL.
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Added
-- Support real time notifications with new methods in ChatClient/ChatAsyncClient:
+- Support realtime notifications with new methods in ChatClient/ChatAsyncClient:
     - startRealtimeNotifications
     - stopRealtimeNotifications
     - on(chatEventId, listenerId, listener)
