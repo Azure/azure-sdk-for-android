@@ -1,6 +1,5 @@
 ext.publishName = "Microsoft Azure Android Core Test Library"
 description = "This package contains core types for testing Azure Android clients."
-version = "1.0.0-beta.7"
 ext.versionCode = 1
 
 android {
