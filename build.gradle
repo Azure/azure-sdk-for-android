@@ -183,6 +183,14 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         archiveClassifier.set("javadoc")
     }
 
+    task updatePackageVersion(type: WriteProperties) {
+        if (project.properties["newVersion"])
+        {
+            outputFile = file('gradle.properties')
+            property 'version', project.getProperty("newVersion")
+        }
+    }
+
     project.afterEvaluate {
         javadoc.classpath += files(android.libraryVariants.collect { variant ->
             variant.javaCompileProvider.get().classpath.files
