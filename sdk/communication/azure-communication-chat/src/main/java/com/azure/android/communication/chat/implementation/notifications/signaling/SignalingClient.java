@@ -21,9 +21,17 @@ public interface SignalingClient {
 
     /**
      * Start the realtime connection.
+     * @param skypeUserToken the skype user token
+     * @param context the android application context
+     */
+    void start(String skypeUserToken, Context context);
+
+    /**
+     * Start the realtime connection.
      * @param context the android application context
      */
     void start(Context context);
+
     /**
      * Stop the realtime connection and unsubscribe all event handlers.
      */

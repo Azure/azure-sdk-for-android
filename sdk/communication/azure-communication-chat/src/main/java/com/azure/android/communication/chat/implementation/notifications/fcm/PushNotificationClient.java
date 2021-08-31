@@ -59,19 +59,19 @@ public class PushNotificationClient {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
         } catch (InterruptedException e) {
             throw logger.logExceptionAsError(
-                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
         } catch (ExecutionException e) {
             throw logger.logExceptionAsError(
-                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
         }
 
-        if (!this.registrarClient.register(skypeUserToken, deviceRegistrationToken)) {
-            throw logger.logExceptionAsWarning(new RuntimeException("Start push notification failed!"));
+        this.isPushNotificationsStarted = this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
+        if (!this.isPushNotificationsStarted) {
+            logger.logExceptionAsWarning(new RuntimeException("Start push notification failed!"));
+        } else {
+            this.pushNotificationListeners.clear();
+            this.logger.info(" Registered push notification successfully!");
         }
-
-        this.isPushNotificationsStarted = true;
-        this.pushNotificationListeners.clear();
-        this.logger.info(" Registered push notification successfully!");
     }
 
     /**

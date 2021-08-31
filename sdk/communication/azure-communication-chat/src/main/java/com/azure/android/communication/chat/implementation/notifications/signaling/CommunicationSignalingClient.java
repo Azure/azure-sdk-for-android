@@ -36,12 +36,15 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_
  * The concrete class of signaling client for communication
  */
 public class CommunicationSignalingClient implements SignalingClient {
+    private static int MAX_NUMBER_OF_TOKEN_FETCH_RETRIES = 3;
+
     private final ClientLogger logger;
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
     private final CommunicationTokenCredential communicationTokenCredential;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
+    private int tokenFetchRetries = 0;
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -60,59 +63,62 @@ public class CommunicationSignalingClient implements SignalingClient {
 
     /**
      * Start the realtime connection.
+     * @param skypeUserToken the skype user token
+     * @param context the android application context
+     */
+    public void start(String skypeUserToken, Context context) {
+        ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
+            @Override
+            public String getSkypetoken(boolean forceRefresh) {
+                if (forceRefresh) {
+                    logger.logExceptionAsError(new RuntimeException("Skype user token is expired."));
+                    stop();
+                }
+                return skypeUserToken;
+            }
+        };
+
+        start(context, skypetokenProvider);
+    }
+
+    /**
+     * Start the realtime connection.
      * @param context the android application context
      */
     public void start(Context context) {
-        if (this.isRealtimeNotificationsStarted) {
-            return;
-        }
-
-        this.isRealtimeNotificationsStarted = true;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
                 try {
+                    if (forceRefresh) {
+                        tokenFetchRetries += 1;
+                        if (tokenFetchRetries > MAX_NUMBER_OF_TOKEN_FETCH_RETRIES) {
+                            logger.error("Skype user token is expired and failed to fetch a valid one after "
+                                + MAX_NUMBER_OF_TOKEN_FETCH_RETRIES
+                                + " retries.");
+                            try {
+                                trouter.close();
+                            } catch (IllegalStateException e) {
+                                logger.error("Trouter client failed to start with invalid skype user token.");
+                            }
+                            trouterListeners.clear();
+                            return null;
+                        }
+                    } else {
+                        tokenFetchRetries = 0;
+                    }
                     return communicationTokenCredential.getToken().get().getToken();
                 } catch (InterruptedException e) {
                     throw logger.logExceptionAsError(
-                        new RuntimeException("Get skype token failed for realtime notification: " + e.getMessage()));
+                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
                 } catch (ExecutionException e) {
                     throw logger.logExceptionAsError(
-                        new RuntimeException("Get skype token failed for realtime notification: " + e.getMessage()));
+                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
                 }
             }
         };
 
-        ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
-            new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
-
-        TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
-            null,
-            TROUTER_APPLICATION_ID,
-            PLATFORM,
-            PLATFORM_UI_VERSION,
-            TROUTER_TEMPLATE_KEY,
-            null,
-            ""
-        );
-        final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
-            skypetokenProvider,
-            registrationData,
-            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
-            Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
-        );
-
-        try {
-            trouterListeners.clear();
-            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
-            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
-                new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
-            trouter.withRegistrar(registrar);
-            trouter.start();
-            trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
-        }
+        start(context, skypetokenProvider);
     }
 
     /**
@@ -124,7 +130,10 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        this.trouter.close();
+        for (CommunicationListener listener: this.trouterListeners.values()) {
+            trouter.unregisterListener(trouterListeners.get(listener));
+        }
+        this.trouter.stop();
         this.trouterListeners.clear();
     }
 
@@ -182,4 +191,41 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
     }
 
+    private void start(Context context, ISkypetokenProvider skypetokenProvider) {
+        if (this.isRealtimeNotificationsStarted) {
+            return;
+        }
+
+        ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
+            new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
+
+        TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
+            null,
+            TROUTER_APPLICATION_ID,
+            PLATFORM,
+            PLATFORM_UI_VERSION,
+            TROUTER_TEMPLATE_KEY,
+            null,
+            ""
+        );
+        final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
+            skypetokenProvider,
+            registrationData,
+            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
+            Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
+        );
+
+        try {
+            trouterListeners.clear();
+            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
+            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
+                new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
+            trouter.withRegistrar(registrar);
+            trouter.start();
+            trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
+            this.isRealtimeNotificationsStarted = true;
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+        }
+    }
 }

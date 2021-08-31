@@ -4,14 +4,17 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import com.azure.android.core.http.HttpCallback;
-import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
+import com.azure.android.core.http.HttpPipeline;
+import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.RequestContext;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;
@@ -40,7 +43,7 @@ public class RegistrarClient {
     private static final String NODE_ID = "";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
-    private final HttpClient httpClient;
+    private final HttpPipeline httpPipeline;
     private final JacksonSerder jacksonSerder;
 
     private String registrationId;
@@ -97,7 +100,9 @@ public class RegistrarClient {
     }
 
     RegistrarClient() {
-        this.httpClient = HttpClient.createDefault();
+        this.httpPipeline = new HttpPipelineBuilder()
+            .policies(RetryPolicy.withExponentialBackoff())
+            .build();
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 
@@ -112,7 +117,7 @@ public class RegistrarClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
+        this.httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -127,8 +132,8 @@ public class RegistrarClient {
         });
 
         awaitOnLatch(latch);
-        logger.info("Registrar request result:" + requestResult);
-        logger.info("registrationId:" + registrationId);
+        this.logger.info("Registrar request result:" + requestResult);
+        this.logger.info("registrationId:" + registrationId);
         return requestResult;
     }
 
@@ -146,7 +151,7 @@ public class RegistrarClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
+        this.httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -201,11 +206,11 @@ public class RegistrarClient {
     }
 
     private boolean awaitOnLatch(CountDownLatch latch) {
-        long timeoutInSec = 2;
+        long timeoutInMin = 1;
         try {
-            return latch.await(timeoutInSec, TimeUnit.MINUTES);
+            return latch.await(timeoutInMin, TimeUnit.MINUTES);
         } catch (InterruptedException e) {
-            throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInSec + " minutes"));
+            throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInMin + " minutes"));
         }
     }
 }

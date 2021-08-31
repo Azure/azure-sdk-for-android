@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             ChatPushNotification pushNotification =
-                (ChatPushNotification) intent.getSerializableExtra("PushNotificationPayload");
+                (ChatPushNotification) intent.getParcelableExtra("PushNotificationPayload");
 
             Log.d(TAG, "Push Notification received in MainActivity: " + pushNotification.getPayload());
 
