@@ -64,11 +64,15 @@ public class CommunicationSignalingClient implements SignalingClient {
             return;
         }
 
-        this.isRealtimeNotificationsStarted = true;
         this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
+                if (forceRefresh) {
+                    logger.logExceptionAsError(new RuntimeException("Skype user token is expired."));
+                    stop();
+                }
+
                 return userToken;
             }
         };
@@ -99,6 +103,7 @@ public class CommunicationSignalingClient implements SignalingClient {
                 new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
             trouter.start();
+            this.isRealtimeNotificationsStarted = true;
         } catch (Throwable e) {
             logger.error(e.getMessage());
         }
@@ -113,7 +118,10 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        this.trouter.close();
+        for (CommunicationListener listener: this.trouterListeners.values()) {
+            trouter.unregisterListener(listener);
+        }
+        this.trouter.stop();
         this.trouterListeners.clear();
     }
 

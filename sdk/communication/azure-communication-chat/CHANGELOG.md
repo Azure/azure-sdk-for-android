@@ -1,4 +1,8 @@
 # Release History
+## 1.0.1 (2021-09-03)
+- Version update.
+- Stop realtime notifications properly after the provided skype user token expired.
+
 ## 1.0.0 (2021-06-15)
 ### New Features
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.
