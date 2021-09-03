@@ -21,22 +21,25 @@ public final class ChatPushNotification implements Parcelable {
      */
     private Map<String, String> payload;
 
-    public ChatPushNotification() {}
+    /**
+     * Constructs a new ChatPushNotification
+     */
+    public ChatPushNotification() { }
 
     protected ChatPushNotification(Parcel in) {
         int size = in.readInt();
         this.payload = new HashMap<>(size);
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             String key = in.readString();
             String value = in.readString();
-            this.payload.put(key,value);
+            this.payload.put(key, value);
         }
     }
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(this.payload.size());
-        for(Map.Entry<String, String> entry : this.payload.entrySet()){
+        for (Map.Entry<String, String> entry : this.payload.entrySet()) {
             out.writeString(entry.getKey());
             out.writeString(entry.getValue());
         }

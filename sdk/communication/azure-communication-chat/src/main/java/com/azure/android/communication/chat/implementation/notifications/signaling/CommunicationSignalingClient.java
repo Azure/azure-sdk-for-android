@@ -36,15 +36,13 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_
  * The concrete class of signaling client for communication
  */
 public class CommunicationSignalingClient implements SignalingClient {
-    private static int MAX_NUMBER_OF_TOKEN_FETCH_RETRIES = 3;
-
     private final ClientLogger logger;
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
+    private String userToken;
     private final CommunicationTokenCredential communicationTokenCredential;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
-    private int tokenFetchRetries = 0;
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -67,14 +65,11 @@ public class CommunicationSignalingClient implements SignalingClient {
      * @param context the android application context
      */
     public void start(String skypeUserToken, Context context) {
+        this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
-                if (forceRefresh) {
-                    logger.logExceptionAsError(new RuntimeException("Skype user token is expired."));
-                    stop();
-                }
-                return skypeUserToken;
+                return userToken;
             }
         };
 
@@ -90,23 +85,6 @@ public class CommunicationSignalingClient implements SignalingClient {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
                 try {
-                    if (forceRefresh) {
-                        tokenFetchRetries += 1;
-                        if (tokenFetchRetries > MAX_NUMBER_OF_TOKEN_FETCH_RETRIES) {
-                            logger.error("Skype user token is expired and failed to fetch a valid one after "
-                                + MAX_NUMBER_OF_TOKEN_FETCH_RETRIES
-                                + " retries.");
-                            try {
-                                trouter.close();
-                            } catch (IllegalStateException e) {
-                                logger.error("Trouter client failed to start with invalid skype user token.");
-                            }
-                            trouterListeners.clear();
-                            return null;
-                        }
-                    } else {
-                        tokenFetchRetries = 0;
-                    }
                     return communicationTokenCredential.getToken().get().getToken();
                 } catch (InterruptedException e) {
                     throw logger.logExceptionAsError(
@@ -130,10 +108,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        for (CommunicationListener listener: this.trouterListeners.values()) {
-            trouter.unregisterListener(trouterListeners.get(listener));
-        }
-        this.trouter.stop();
+        this.trouter.close();
         this.trouterListeners.clear();
     }
 
