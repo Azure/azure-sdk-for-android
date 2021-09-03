@@ -18,12 +18,8 @@
      - Added `PushNotificationCallback` as the type for customized push notification handler
      - Added instructions in README.md in sample app for steps to setup FCM push notifications
      - Added code in sample app for FCM push notification end to end scenario
-        
-### Breaking Changes
-- ChatAsyncClient:
-    - Changed `startRealtimeNotifications(String skypeUserToken, Context context)` to `startRealtimeNotifications(Context context)`
-- ChatClient:
-    - Changes `startRealtimeNotifications(String skypeUserToken, Context context)` to `startRealtimeNotifications(Context context)`
+- Added `startRealtimeNotifications(Context context)` to ChatAsyncClient
+- Added `startRealtimeNotifications(Context context)` to ChatClient
 
 ## 1.1.0-beta.2 (2021-08-10)
 - Version update.

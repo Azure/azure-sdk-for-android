@@ -4,17 +4,14 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import com.azure.android.core.http.HttpCallback;
+import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
-import com.azure.android.core.http.HttpPipeline;
-import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.RequestContext;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.IOException;
@@ -43,7 +40,7 @@ public class RegistrarClient {
     private static final String NODE_ID = "";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
-    private final HttpPipeline httpPipeline;
+    private final HttpClient httpClient;
     private final JacksonSerder jacksonSerder;
 
     private String registrationId;
@@ -100,9 +97,7 @@ public class RegistrarClient {
     }
 
     RegistrarClient() {
-        this.httpPipeline = new HttpPipelineBuilder()
-            .policies(RetryPolicy.withExponentialBackoff())
-            .build();
+        this.httpClient = HttpClient.createDefault();
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 
@@ -117,7 +112,7 @@ public class RegistrarClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        this.httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
+        this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -151,7 +146,7 @@ public class RegistrarClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        this.httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
+        this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
