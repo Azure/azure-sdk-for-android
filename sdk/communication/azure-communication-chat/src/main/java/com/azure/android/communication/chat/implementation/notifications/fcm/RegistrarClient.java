@@ -115,14 +115,26 @@ public class RegistrarClient {
         this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
+                int statusCode = response.getStatusCode();
+                if (statusCode == 202) {
+                    requestResult = true;
+                } else {
+                    logger.warning("Registrar request failed with http status code "
+                        + statusCode
+                        + ". Error message: "
+                        + response.getBodyAsString()
+                    );
+                    requestResult = false;
+                }
+
                 latch.countDown();
-                requestResult = true;
             }
 
             @Override
             public void onError(Throwable error) {
-                latch.countDown();
                 requestResult = false;
+                logger.logThrowableAsWarning(error);
+                latch.countDown();
             }
         });
 
@@ -149,14 +161,26 @@ public class RegistrarClient {
         this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
+                int statusCode = response.getStatusCode();
+                if (statusCode == 202) {
+                    requestResult = true;
+                } else {
+                    logger.warning("Registrar request failed with http status code "
+                        + statusCode
+                        + ". Error message: "
+                        + response.getBodyAsString()
+                    );
+                    requestResult = false;
+                }
+
                 latch.countDown();
-                requestResult = true;
             }
 
             @Override
             public void onError(Throwable error) {
-                latch.countDown();
                 requestResult = false;
+                logger.logThrowableAsWarning(error);
+                latch.countDown();
             }
         });
 

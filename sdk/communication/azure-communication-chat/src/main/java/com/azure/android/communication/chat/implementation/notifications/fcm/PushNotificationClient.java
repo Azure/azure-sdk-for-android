@@ -67,7 +67,7 @@ public class PushNotificationClient {
 
         this.isPushNotificationsStarted = this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
         if (!this.isPushNotificationsStarted) {
-            logger.logExceptionAsWarning(new RuntimeException("Start push notification failed!"));
+            throw logger.logExceptionAsError(new RuntimeException("Register push notification failed!"));
         } else {
             this.pushNotificationListeners.clear();
             this.logger.info(" Registered push notification successfully!");
@@ -77,7 +77,6 @@ public class PushNotificationClient {
     /**
      * Unregister the current device from receiving incoming push notifications.
      * All registered handlers will be removed.
-     * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {
         if (!this.isPushNotificationsStarted) {
@@ -86,22 +85,28 @@ public class PushNotificationClient {
 
         String skypeUserToken;
         try {
-            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-        } catch (InterruptedException e) {
-            throw logger.logExceptionAsError(
-                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
-        } catch (ExecutionException e) {
-            throw logger.logExceptionAsError(
-                new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
-        }
+            try {
+                skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+            } catch (InterruptedException e) {
+                throw logger.logExceptionAsError(
+                    new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+            } catch (ExecutionException e) {
+                throw logger.logExceptionAsError(
+                    new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+            }
 
-        if (!this.registrarClient.unregister(skypeUserToken)) {
-            throw logger.logExceptionAsWarning(new RuntimeException("Stop push notification failed!"));
+            if (!this.registrarClient.unregister(skypeUserToken)) {
+                throw logger.logExceptionAsWarning(new RuntimeException("Unregister push notification failed!"));
+            }
+            this.logger.info("Unregistered push notification successfully!");
+        } catch (Exception e) {
+            this.logger.warning("Unregistered push notification with error: "
+                + e.getMessage()
+                + ". Would just clear local push notification listeners.");
         }
 
         this.isPushNotificationsStarted = false;
         this.pushNotificationListeners.clear();
-        this.logger.info(" Unregistered push notification successfully!");
     }
 
     /**
