@@ -8,7 +8,6 @@ import android.os.Build;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.util.CoreUtils;
 
 /**
  * Pipeline policy that adds "User-Agent" header to a request.
@@ -42,7 +41,7 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
     public UserAgentPolicy(String applicationId, String sdkName, String sdkVersion) {
         StringBuilder userAgentBuilder = new StringBuilder();
 
-        if (!CoreUtils.isNullOrEmpty(applicationId)) {
+        if (applicationId != null && applicationId.length() != 0) {
             if (applicationId.length() > MAX_APPLICATION_ID_LENGTH) {
                 throw new IllegalArgumentException(INVALID_APPLICATION_ID_LENGTH);
             } else if (applicationId.contains(" ")) {
