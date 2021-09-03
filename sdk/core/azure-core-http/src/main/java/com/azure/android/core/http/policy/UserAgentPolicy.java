@@ -20,7 +20,7 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
     private static final String INVALID_APPLICATION_ID_LENGTH = "'applicationId' length cannot be greater than "
         + MAX_APPLICATION_ID_LENGTH;
     private static final String INVALID_APPLICATION_ID_SPACE = "'applicationId' cannot contain spaces.";
-    public static final String DEFAULT_USER_AGENT_HEADER = "azsdk-android";
+    private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-android";
 
     private final String userAgent;
 
