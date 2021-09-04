@@ -37,6 +37,9 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
      * @param applicationId User specified application Id.
      * @param sdkName Name of the client library.
      * @param sdkVersion Version of the client library.
+     *
+     * @throws IllegalArgumentException If the given {@code applicationId} is longer than 24 characters or contains
+     * spaces.
      */
     public UserAgentPolicy(String applicationId, String sdkName, String sdkVersion) {
         StringBuilder userAgentBuilder = new StringBuilder();
