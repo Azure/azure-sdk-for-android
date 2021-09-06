@@ -57,10 +57,7 @@ public class PushNotificationClient {
         String skypeUserToken;
         try {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-        } catch (InterruptedException e) {
-            throw logger.logExceptionAsError(
-                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
-        } catch (ExecutionException e) {
+        } catch (ExecutionException | InterruptedException e) {
             throw logger.logExceptionAsError(
                 new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
         }
@@ -87,19 +84,16 @@ public class PushNotificationClient {
         try {
             try {
                 skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-            } catch (InterruptedException e) {
+            } catch (ExecutionException | InterruptedException e) {
                 throw logger.logExceptionAsError(
-                    new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
-            } catch (ExecutionException e) {
-                throw logger.logExceptionAsError(
-                    new RuntimeException("Get skype token failed for push notification: " + e.getMessage()));
+                    new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
             }
 
             if (!this.registrarClient.unregister(skypeUserToken)) {
                 throw logger.logExceptionAsWarning(new RuntimeException("Unregister push notification failed!"));
             }
             this.logger.info("Unregistered push notification successfully!");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             this.logger.warning("Unregistered push notification with error: "
                 + e.getMessage()
                 + ". Would just clear local push notification listeners.");

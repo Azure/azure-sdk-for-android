@@ -108,10 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "Push Notification received in MainActivity: " + pushNotification.getPayload());
 
-            if (chatAsyncClient != null) {
-                Log.d(TAG, "Passing push notification to chatAsyncClient.");
-                chatAsyncClient.handlePushNotification(pushNotification);
-            }
+            chatAsyncClient.handlePushNotification(pushNotification);
         }
     };
 
