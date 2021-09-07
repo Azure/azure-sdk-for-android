@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.signaling;
+package com.azure.android.communication.chat.implementation.notification;
 
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
@@ -19,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Map;
 
-public class TrouterUtilsTest {
+public class NotificationUtilsTest {
     private static final String USER_ID = "user_id";
 
     @Test
     public void canParseMessageMetadata() {
         final String messageMetadata = "{\"deliveryMode\":\"deliveryMode value\",\"tags\":\"tag1\"}";
-        Map<String,String> metadataMap = TrouterUtils.parseChatMessageMetadata(messageMetadata);
+        Map<String,String> metadataMap = NotificationUtils.parseChatMessageMetadata(messageMetadata);
 
         assertNotNull(metadataMap);
         assertEquals(2, metadataMap.size());
@@ -36,7 +37,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseTeamsPublicUserRawId() {
         final String teamsPublicUserRawId = "8:orgid:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsPublicUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(teamsPublicUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -51,7 +52,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseTeamsDodUserRawId() {
         final String teamsDodUserRawId = "8:dod:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsDodUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(teamsDodUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -66,7 +67,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseTeamsGcchUserRawId() {
         final String teamsGcchUserRawId = "8:gcch:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsGcchUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(teamsGcchUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -81,7 +82,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseTeamsVisitorUserRawId() {
         final String teamsVisitorUserRawId = "8:teamsvisitor:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(teamsVisitorUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(teamsVisitorUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof MicrosoftTeamsUserIdentifier);
@@ -96,7 +97,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseAcsUserRawId() {
         final String acsUserRawId = "8:acs:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(acsUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(acsUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
@@ -108,7 +109,7 @@ public class TrouterUtilsTest {
     @Test
     public void canParseSpoolUserRawId() {
         final String spoolUserRawId = "8:spool:" + USER_ID;
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(spoolUserRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(spoolUserRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
@@ -122,7 +123,7 @@ public class TrouterUtilsTest {
         final String phoneNumber = "+1234567890";
         final String phoneNumberRawId = "4:" + phoneNumber;
 
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(phoneNumberRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(phoneNumberRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof PhoneNumberIdentifier);
@@ -135,7 +136,7 @@ public class TrouterUtilsTest {
     public void fallbackToUnknownIdentifierForUnknownRawId() {
         final String unknownRawId = "unknown_raw_id";
 
-        CommunicationIdentifier communicationIdentifier = TrouterUtils.getCommunicationIdentifier(unknownRawId);
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(unknownRawId);
 
         assertNotNull(communicationIdentifier);
         assertTrue(communicationIdentifier instanceof UnknownIdentifier);

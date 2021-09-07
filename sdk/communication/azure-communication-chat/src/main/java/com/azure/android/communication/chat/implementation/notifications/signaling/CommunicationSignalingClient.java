@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.signaling;
+package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 import android.content.Context;
 
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;
@@ -20,6 +21,7 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
@@ -38,10 +40,12 @@ public class CommunicationSignalingClient implements SignalingClient {
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
     private String userToken;
+    private final CommunicationTokenCredential communicationTokenCredential;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
 
-    public CommunicationSignalingClient() {
+    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
+        this.communicationTokenCredential = communicationTokenCredential;
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
@@ -61,11 +65,6 @@ public class CommunicationSignalingClient implements SignalingClient {
      * @param context the android application context
      */
     public void start(String skypeUserToken, Context context) {
-        if (this.isRealtimeNotificationsStarted) {
-            return;
-        }
-
-        this.isRealtimeNotificationsStarted = true;
         this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
@@ -74,36 +73,30 @@ public class CommunicationSignalingClient implements SignalingClient {
             }
         };
 
-        ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
-            new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
+        start(context, skypetokenProvider);
+    }
 
-        TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
-            null,
-            TROUTER_APPLICATION_ID,
-            PLATFORM,
-            PLATFORM_UI_VERSION,
-            TROUTER_TEMPLATE_KEY,
-            null,
-            ""
-        );
-        final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
-            skypetokenProvider,
-            registrationData,
-            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
-            Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
-        );
+    /**
+     * Start the realtime connection.
+     * @param context the android application context
+     */
+    public void start(Context context) {
+        ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
+            @Override
+            public String getSkypetoken(boolean forceRefresh) {
+                try {
+                    return communicationTokenCredential.getToken().get().getToken();
+                } catch (InterruptedException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
+                } catch (ExecutionException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
+                }
+            }
+        };
 
-        try {
-            trouterListeners.clear();
-            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
-            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
-                new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
-            trouter.withRegistrar(registrar);
-            trouter.start();
-            trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
-        } catch (Throwable e) {
-            logger.error(e.getMessage());
-        }
+        start(context, skypetokenProvider);
     }
 
     /**
@@ -173,4 +166,41 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
     }
 
+    private void start(Context context, ISkypetokenProvider skypetokenProvider) {
+        if (this.isRealtimeNotificationsStarted) {
+            return;
+        }
+
+        ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
+            new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
+
+        TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
+            null,
+            TROUTER_APPLICATION_ID,
+            PLATFORM,
+            PLATFORM_UI_VERSION,
+            TROUTER_TEMPLATE_KEY,
+            null,
+            ""
+        );
+        final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
+            skypetokenProvider,
+            registrationData,
+            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
+            Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
+        );
+
+        try {
+            trouterListeners.clear();
+            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
+            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
+                new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
+            trouter.withRegistrar(registrar);
+            trouter.start();
+            trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
+            this.isRealtimeNotificationsStarted = true;
+        } catch (Throwable e) {
+            logger.error(e.getMessage());
+        }
+    }
 }

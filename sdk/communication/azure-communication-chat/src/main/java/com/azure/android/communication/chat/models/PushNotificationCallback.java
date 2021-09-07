@@ -4,15 +4,13 @@
 package com.azure.android.communication.chat.models;
 
 /**
- *  Functional interface of realtime notification callback
+ *  Functional interface of push notification callback
  */
 @FunctionalInterface
-public interface RealTimeNotificationCallback {
-
+public interface PushNotificationCallback {
     /**
      * the call back method
      * @param chatEvent the chat event json object
      */
     void onChatEvent(ChatEvent chatEvent);
-
 }

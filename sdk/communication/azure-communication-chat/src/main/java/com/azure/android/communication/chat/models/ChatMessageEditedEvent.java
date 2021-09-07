@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
@@ -151,7 +151,7 @@ public final class ChatMessageEditedEvent extends ChatUserEvent {
      * Sets metadata of the chat message.
      */
     private ChatMessageEditedEvent setMetadata() {
-        this.metadata = TrouterUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
+        this.metadata = NotificationUtils.parseChatMessageMetadata(this.acsChatMessageMetadata);
         return this;
     }
 }

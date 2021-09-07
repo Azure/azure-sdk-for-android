@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.signaling;
+package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 import android.content.Context;
 
@@ -25,6 +25,13 @@ public interface SignalingClient {
      * @param context the android application context
      */
     void start(String skypeUserToken, Context context);
+
+    /**
+     * Start the realtime connection.
+     * @param context the android application context
+     */
+    void start(Context context);
+
     /**
      * Stop the realtime connection and unsubscribe all event handlers.
      */
