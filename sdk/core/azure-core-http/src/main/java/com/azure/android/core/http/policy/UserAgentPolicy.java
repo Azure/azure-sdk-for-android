@@ -16,13 +16,19 @@ import com.azure.android.core.http.HttpRequest;
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
 public class UserAgentPolicy implements HttpPipelinePolicy {
+    private static final int MAX_APPLICATION_ID_LENGTH = 24;
+    private static final String INVALID_APPLICATION_ID_LENGTH = "'applicationId' length cannot be greater than "
+        + MAX_APPLICATION_ID_LENGTH;
+    private static final String INVALID_APPLICATION_ID_SPACE = "'applicationId' cannot contain spaces.";
+    private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-android";
+
     private final String userAgent;
 
     /**
      * Creates a {@link UserAgentPolicy} with a default user agent string i.e. "azsdk-android".
      */
     public UserAgentPolicy() {
-        this.userAgent = "azsdk-android";
+        this.userAgent = DEFAULT_USER_AGENT_HEADER;
     }
 
     /**
@@ -31,21 +37,25 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
      * @param applicationId User specified application Id.
      * @param sdkName Name of the client library.
      * @param sdkVersion Version of the client library.
+     *
+     * @throws IllegalArgumentException If the given {@code applicationId} is longer than 24 characters or contains
+     * spaces.
      */
     public UserAgentPolicy(String applicationId, String sdkName, String sdkVersion) {
         StringBuilder userAgentBuilder = new StringBuilder();
 
-        //The application ID is optional.
-        if (applicationId != null) {
-            // Maximum length of application id is limited to 24 by the design guidelines.
-            applicationId = applicationId.length() > 24
-                ? applicationId.substring(0, 24)
-                : applicationId;
-            userAgentBuilder.append(applicationId).append(" ");
+        if (applicationId != null && applicationId.length() != 0) {
+            if (applicationId.length() > MAX_APPLICATION_ID_LENGTH) {
+                throw new IllegalArgumentException(INVALID_APPLICATION_ID_LENGTH);
+            } else if (applicationId.contains(" ")) {
+                throw new IllegalArgumentException(INVALID_APPLICATION_ID_SPACE);
+            } else {
+                userAgentBuilder.append(applicationId).append(" ");
+            }
         }
 
         // Add the required default User-Agent string.
-        userAgentBuilder.append("azsdk-android")
+        userAgentBuilder.append(DEFAULT_USER_AGENT_HEADER)
             .append("-")
             .append(sdkName)
             .append("/")

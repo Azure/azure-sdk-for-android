@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -96,7 +96,7 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
 
         try {
             JSONObject removedByJsonObject = new JSONObject(this.removedByJsonString);
-            CommunicationIdentifier removedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
+            CommunicationIdentifier removedByCommunicationIdentifier = NotificationUtils.getCommunicationIdentifier(
                 removedByJsonObject.getString("participantId"));
 
             this.removedBy
@@ -119,14 +119,14 @@ public class ParticipantsRemovedEvent extends ChatThreadEvent {
             JSONArray participantsRemovedJsonArray = new JSONArray(this.participantsRemovedJsonString);
             for (int i = 0; i < participantsRemovedJsonArray.length(); i++) {
                 JSONObject participant = participantsRemovedJsonArray.getJSONObject(i);
-                CommunicationIdentifier communicationUser = TrouterUtils.getCommunicationIdentifier(
+                CommunicationIdentifier communicationUser = NotificationUtils.getCommunicationIdentifier(
                     participant.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(participant.getString("displayName"));
                 chatParticipant.setShareHistoryTime(
-                    TrouterUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
+                    NotificationUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
 
                 this.participantsRemoved.add(chatParticipant);
             }

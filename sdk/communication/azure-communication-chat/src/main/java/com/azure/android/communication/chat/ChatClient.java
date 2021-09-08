@@ -5,10 +5,12 @@ package com.azure.android.communication.chat;
 
 import android.content.Context;
 
+import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
+import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatErrorResponseException;
@@ -176,34 +178,93 @@ public final class ChatClient {
     }
 
     /**
-     * Receive real-time notifications.
+     * Receive realtime notifications.
+     * @param context the Android app context
+     * @throws RuntimeException if realtime notifications failed to start.
+     */
+    public void startRealtimeNotifications(Context context) {
+        this.client.startRealtimeNotifications(context);
+    }
+
+    /**
+     * Receive realtime notifications.
      * @param skypeUserToken the skype user token
      * @param context the Android app context
-     * @throws RuntimeException if real-time notifications failed to start.
+     * @throws RuntimeException if realtime notifications failed to start.
      */
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
         this.client.startRealtimeNotifications(skypeUserToken, context);
     }
 
     /**
-     * Stop receiving real-time notifications.
+     * Stop receiving realtime notifications.
+     * All registered handlers will be removed.
      */
     public void stopRealtimeNotifications() {
         client.stopRealtimeNotifications();
     }
 
     /**
-     * Add handler for a chat event.
+     * Register current device for receiving incoming push notifications via FCM.
+     * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @throws RuntimeException if push notifications failed to start.
+     */
+    public void startPushNotifications(String deviceRegistrationToken) {
+        client.startPushNotifications(deviceRegistrationToken);
+    }
+
+    /**
+     * Unregister current device from receiving incoming push notifications.
+     * All registered handlers will be removed.
+     * @throws RuntimeException if push notifications failed to stop.
+     */
+    public void stopPushNotifications() {
+        client.stopPushNotifications();
+    }
+
+    /**
+     * Handle incoming push notification.
+     * Invoke corresponding chat event handle if registered.
+     * @param pushNotification Incoming push notification payload from the FCM SDK.
+     * @throws IllegalStateException if push notifications has not started yet.
+     *
+     * @return True if there's registered handler(s) for incoming push notification; otherwise, false.
+     */
+    public boolean handlePushNotification(ChatPushNotification pushNotification) {
+        return client.handlePushNotification(pushNotification);
+    }
+
+    /**
+     * Add handler for a chat event for push notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException if real-time notifications has not started yet.
+     * @throws IllegalStateException if push notifications has not started yet.
+     */
+    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+        client.addPushNotificationHandler(chatEventType, listener);
+    }
+
+    /**
+     * Remove handler from a chat event for push notifications.
+     * @param chatEventType the chat event type
+     * @param listener the listener callback function
+     */
+    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+        client.removePushNotificationHandler(chatEventType, listener);
+    }
+
+    /**
+     * Add handler for a chat event for realtime notifications.
+     * @param chatEventType the chat event type
+     * @param listener the listener callback function
+     * @throws IllegalStateException if realtime notifications has not started yet.
      */
     public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         this.client.addEventHandler(chatEventType, listener);
     }
 
     /**
-     * Remove handler from a chat event.
+     * Remove handler from a chat event for realtime notifications.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */

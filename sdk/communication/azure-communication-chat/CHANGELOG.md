@@ -1,5 +1,25 @@
 # Release History
 ## 1.1.0-beta.3 (Unreleased)
+### Features Added
+- Added support FCM push notifications:
+    - Added methods to `ChatAsyncClient`:
+        - `startPushNotifications`
+        - `stopPushNotifications`
+        - `handlePushNotification`
+        - `addPushNotificationHandler`
+        - `removePushNotificationHandler`
+    - Added methods to `ChatClient`:
+        - `startPushNotifications`
+        - `stopPushNotifications`
+        - `handlePushNotification`
+        - `addPushNotificationHandler`
+        - `removePushNotificationHandler`
+     - Added `ChatPushNotification` as the type for passing a push notification payload.
+     - Added `PushNotificationCallback` as the type for a customized push notification handler.
+     - Added instructions in README.md in sample app for steps to setup FCM push notifications.
+     - Added code in sample app for FCM push notification end to end scenario.
+- Added `startRealtimeNotifications(Context context)` to `ChatAsyncClient`.
+- Added `startRealtimeNotifications(Context context)` to `ChatClient`.
 
 ## 1.1.0-beta.2 (2021-08-10)
 - Version update.
@@ -131,11 +151,11 @@
 - Added chat basic operations in test app
 
 ### Bug Fixes
-- Fixed real time notification connection URL.
+- Fixed realtime notification connection URL.
 
 ## 1.0.0-beta.7 (2021-03-09)
 ### Added
-- Support real time notifications with new methods in ChatClient/ChatAsyncClient:
+- Support realtime notifications with new methods in ChatClient/ChatAsyncClient:
     - startRealtimeNotifications
     - stopRealtimeNotifications
     - on(chatEventId, listenerId, listener)

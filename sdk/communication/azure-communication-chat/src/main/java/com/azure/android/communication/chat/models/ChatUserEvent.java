@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,6 +21,12 @@ public abstract class ChatUserEvent extends ChatEvent {
      * The Id of the event recipient. A string property in notification payload.
      */
     @JsonProperty(value = "recipientMri", access = JsonProperty.Access.WRITE_ONLY)
+    private String recipientMri;
+
+    /**
+     * The Id of the event recipient. A string property in notification payload.
+     */
+    @JsonProperty(value = "recipientId", access = JsonProperty.Access.WRITE_ONLY)
     private String recipientId;
 
     /**
@@ -57,7 +63,7 @@ public abstract class ChatUserEvent extends ChatEvent {
      * Sets the Id of the event sender.
      */
     ChatUserEvent setSender() {
-        this.sender = TrouterUtils.getCommunicationIdentifier(senderId);
+        this.sender = NotificationUtils.getCommunicationIdentifier(senderId);
         return this;
     }
 
@@ -65,7 +71,12 @@ public abstract class ChatUserEvent extends ChatEvent {
      * Sets the Id of the event recipient.
      */
     ChatUserEvent setRecipient() {
-        this.recipient = TrouterUtils.getCommunicationIdentifier(recipientId);
+        if (recipientMri != null) {
+            this.recipient = NotificationUtils.getCommunicationIdentifier(recipientMri);
+            return this;
+        }
+
+        this.recipient = NotificationUtils.getCommunicationIdentifier(recipientId);
         return this;
     }
 }

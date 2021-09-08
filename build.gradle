@@ -10,6 +10,7 @@ buildscript {
     }
 
     ext {
+        googleGmsServicesPluginVersion = "4.3.8"
         gradleAndroidBuildToolsPluginVersion = "30.0.3"
         gradleAndroidToolsPluginVersion = "4.2.1"
         gradleJunitJacocoPluginVersion = "0.16.0"
@@ -35,6 +36,7 @@ buildscript {
         classpath ("com.getkeepsafe.dexcount:dexcount-gradle-plugin:$gradleDexcountPluginVersion")
         classpath ("com.vanniktech:gradle-android-junit-jacoco-plugin:$gradleJunitJacocoPluginVersion")
         classpath ("gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$gradleSpotbugsPluginVersion")
+        classpath ("com.google.gms:google-services:$googleGmsServicesPluginVersion")
     }
 }
 

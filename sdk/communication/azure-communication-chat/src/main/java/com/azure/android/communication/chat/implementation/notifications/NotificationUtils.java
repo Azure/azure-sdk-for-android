@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.signaling;
+package com.azure.android.communication.chat.implementation.notifications;
 
 import android.text.TextUtils;
 
+import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
@@ -41,9 +42,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-public final class TrouterUtils {
+public final class NotificationUtils {
 
     private static final String ACS_USER_PREFIX = "8:acs:";
     private static final String SPOOL_USER_PREFIX = "8:spool:";
@@ -53,14 +53,13 @@ public final class TrouterUtils {
     private static final String TEAMS_VISITOR_USER_PREFIX = "8:teamsvisitor:";
     private static final String PHONE_NUMBER_PREFIX = "4:";
 
-    private static final ClientLogger CLIENT_LOGGER = new ClientLogger(TrouterUtils.class);
+    private static final ClientLogger CLIENT_LOGGER = new ClientLogger(NotificationUtils.class);
     private static final JacksonSerder JACKSON_SERDER = JacksonSerder.createDefault();
-    private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
 
     /**
-     * Mapping chat event id to trouter event id code
+     * Mapping chat event id to notification event id code
      */
-    static final Map<ChatEventType, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventType, Integer>() {{
+    private static final Map<ChatEventType, Integer> EVENT_IDS_MAPPING = new HashMap<ChatEventType, Integer>() {{
             put(ChatEventType.CHAT_MESSAGE_RECEIVED, 200);
             put(ChatEventType.TYPING_INDICATOR_RECEIVED, 245);
             put(ChatEventType.READ_RECEIPT_RECEIVED, 246);
@@ -73,7 +72,23 @@ public final class TrouterUtils {
             put(ChatEventType.PARTICIPANTS_REMOVED, 261);
         }};
 
-    public static ChatEvent parsePayload(ChatEventType chatEventType, String body) {
+    /**
+     * Mapping notification event id code to chat event id
+     */
+    private static final Map<Integer, ChatEventType> EVENT_TYPE_MAPPING = new HashMap<Integer, ChatEventType>() {{
+        put(200, ChatEventType.CHAT_MESSAGE_RECEIVED);
+        put(245, ChatEventType.TYPING_INDICATOR_RECEIVED);
+        put(246, ChatEventType.READ_RECEIPT_RECEIVED);
+        put(247, ChatEventType.CHAT_MESSAGE_EDITED);
+        put(248, ChatEventType.CHAT_MESSAGE_DELETED);
+        put(257, ChatEventType.CHAT_THREAD_CREATED);
+        put(258, ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED);
+        put(259, ChatEventType.CHAT_THREAD_DELETED);
+        put(260, ChatEventType.PARTICIPANTS_ADDED);
+        put(261, ChatEventType.PARTICIPANTS_REMOVED);
+    }};
+
+    public static ChatEvent parseTrouterNotificationPayload(ChatEventType chatEventType, String body) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
@@ -143,6 +158,18 @@ public final class TrouterUtils {
         } else {
             return new UnknownIdentifier(rawId);
         }
+    }
+
+    public static boolean isValidEventId(int eventId) {
+        return EVENT_TYPE_MAPPING.containsKey(eventId);
+    }
+
+    public static ChatEventType getChatEventTypeByEventId(int eventId) {
+        if (EVENT_TYPE_MAPPING.containsKey(eventId)) {
+            return EVENT_TYPE_MAPPING.get(eventId);
+        }
+
+        return null;
     }
 
     public static OffsetDateTime extractReadTimeFromConsumptionHorizon(String consumptionHorizon) {
