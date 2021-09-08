@@ -15,7 +15,7 @@ Azure Communication Chat contains the APIs used in chat applications for Azure C
 - A deployed Communication Services resource. You can use the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp) or the [Azure PowerShell](https://docs.microsoft.com/powershell/module/az.communication/new-azcommunicationservice) to set it up.
 
 ### Versions available
-The current version of this library is **1.0.0**.
+The current version of this library is **1.1.0**.
 
 ### Include the package
 To install the Azure Communication Chat libraries for Android, add them as dependencies within your
@@ -31,13 +31,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0"
+    implementation "com.azure.android:azure-communication-chat:1.1.0"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0")
+    implementation("com.azure.android:azure-communication-chat:1.1.0")
 }
 ```
 
@@ -48,7 +48,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -97,6 +97,8 @@ The following sections provide several code snippets covering some of the most c
 
 ## Create the chat client
 
+To create a chat client, you will use the Communications Service endpoint and the access token that was generated as part of pre-requisite steps. User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Once you generate these tokens on your server, pass them back to a client device. You need to use the CommunicationTokenCredential class from the Common SDK to pass the token to your chat client.
+
 <!-- embedme ./src/samples/java/com/azure/communication/chat/ReadmeSamples.java#L41-L51 -->
 ```Java
 String endpoint = "https://<RESOURCE_NAME>.communcationservices.azure.com";
@@ -115,8 +117,6 @@ ChatClient chatClient = builder.buildClient();
 ### Chat Thread Operations
 
 #### Create a chat thread
-
-To create a chat client, you will use the Communications Service endpoint and the access token that was generated as part of pre-requisite steps. User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Once you generate these tokens on your server, pass them back to a client device. You need to use the CommunicationTokenCredential class from the Common SDK to pass the token to your chat client.
 
 Use the `createChatThread` method to create a chat thread.
 `createChatThreadOptions` is used to describe the thread request, an example is shown in the code snippet below.
