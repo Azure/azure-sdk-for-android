@@ -22,7 +22,7 @@ buildscript {
         mockitoVersion = "3.12.4"
         orgtestngVersion = "7.4.0"
         okHttpVersion = "4.9.1"
-        qualityReportsPuppycrawlVersion = "9.0"
+        qualityReportsPuppycrawlVersion = "8.45.1"
         qualityReportsJunitVersion = "4.13.2"
         reactorCoreVersion = "3.3.11.RELEASE"
         reactorTestVersion = "3.3.11.RELEASE"
