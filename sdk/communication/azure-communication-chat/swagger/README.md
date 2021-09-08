@@ -34,7 +34,7 @@ Restore file chat/models/ChatMessageType.java
 
 ### Code generation settings
 ``` yaml
-input-file: https://github.com/Azure/azure-rest-api-specs/blob/2737ef83c687cd61721ece7af713921d0df2485a/specification/communication/data-plane/Chat/preview/2021-04-05-preview6/communicationserviceschat.json
+input-file: https://raw.githubusercontent.com/Azure/azure-rest-api-specs/8dbeba81f3a838cd4b7efd70234f29cc1cdc7374/specification/communication/data-plane/Chat/stable/2021-09-07/communicationserviceschat.json
 java: true
 output-folder: ..\
 license-header: MICROSOFT_MIT_SMALL
@@ -158,7 +158,7 @@ directive:
       delete $.SendTypingNotificationRequest;
     }
 - from: swagger-document
-  where: $["paths"]["/chat/threads/{chatThreadId}/typing"].patch.parameters[2]
+  where: $["paths"]["/chat/threads/{chatThreadId}/typing"].post.parameters[2]
   transform: >
     if ($.schema && $.schema.$ref && $.schema.$ref.endsWith("SendTypingNotificationRequest")) {
         const path = $.schema.$ref.replace(/[#].*$/, "#/definitions/TypingNotificationOptions");
