@@ -11,7 +11,7 @@ buildscript {
 
     ext {
         gradleAndroidBuildToolsPluginVersion = "30.0.3"
-        gradleAndroidToolsPluginVersion = "4.2.0"
+        gradleAndroidToolsPluginVersion = "4.2.1"
         gradleJunitJacocoPluginVersion = "0.16.0"
         gradleDexcountPluginVersion = "3.0.0"
         gradleSpotbugsPluginVersion = "4.7.4"
