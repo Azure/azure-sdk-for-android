@@ -1,7 +1,7 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-04-05-preview6",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-09-07",
     "Headers" : {
       "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
       "Content-Type" : "application/json"
@@ -9,22 +9,22 @@
     "Response" : {
       "Transfer-Encoding" : "chunked",
       "X-Cache" : "CONFIG_NOCACHE",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
       "retry-after" : "0",
       "StatusCode" : "201",
-      "Date" : "Fri, 23 Jul 2021 18:08:36 GMT",
+      "Date" : "Tue, 07 Sep 2021 19:57:24 GMT",
       "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "898ms",
-      "MS-CV" : "fvvDWIcck0aIMx92fEgF7Q.0",
-      "X-Azure-Ref" : "0pAX7YAAAAABaVKK1g2urRbJcEctMo9F2V1NURURHRTA4MDcAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
-      "Body" : "{\"chatThread\":{\"id\":\"19:grzOPBl9GRBtR5n3O_aboRM1F5JVlzJm-JYSgnqky101@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-07-23T18:08:36Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000b-4bde-6320-9c58-373a0d000ed7\"}}}}",
+      "X-Processing-Time" : "584ms",
+      "MS-CV" : "EJAJf9P6j0iID/6GZsA6Yg.0",
+      "X-Azure-Ref" : "0JMQ3YQAAAAC98U66bZ3pTLcWoj2jsgOXUERYMzFFREdFMDIxOAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
+      "Body" : "{\"chatThread\":{\"id\":\"19:zjA7ooV04tXkbTtqitqLCMX8TmKz0hxCDCTi-X44wu01@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-09-07T19:57:24Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\",\"communicationUser\":{\"id\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\"}}}}",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3AgrzOPBl9GRBtR5n3O_aboRM1F5JVlzJm-JYSgnqky101@thread.v2"
+      "Location" : "https://chat-sdktester-e2e.communication.azure.com/chat/threads/19%3AzjA7ooV04tXkbTtqitqLCMX8TmKz0hxCDCTi-X44wu01@thread.v2"
     },
     "Exception" : null
   }, {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:grzOPBl9GRBtR5n3O_aboRM1F5JVlzJm-JYSgnqky101@thread.v2/participants/:add?api-version=2021-04-05-preview6",
+    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:zjA7ooV04tXkbTtqitqLCMX8TmKz0hxCDCTi-X44wu01@thread.v2/participants/:add?api-version=2021-09-07",
     "Headers" : {
       "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
       "Content-Type" : "application/json"
@@ -33,14 +33,14 @@
       "Transfer-Encoding" : "chunked",
       "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
-      "X-Processing-Time" : "6ms",
-      "MS-CV" : "cId4wic6oE6Sy3oOjrnGEQ.0",
+      "api-supported-versions" : "2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
+      "X-Processing-Time" : "67ms",
+      "MS-CV" : "IcgXLtXGhkSBgoqD9uWdvg.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0pQX7YAAAAACbzIXeK09eRZghxZYvF+NGV1NURURHRTA4MDcAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
+      "X-Azure-Ref" : "0JMQ3YQAAAABZfIrVUum2TZnio27TFo/tUERYMzFFREdFMDIxOAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
       "StatusCode" : "400",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"BadRequest\",\r\n    \"Message\": \"Identifier format is invalid (8:acs:invalidUserId).\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Fri, 23 Jul 2021 18:08:36 GMT",
+      "Date" : "Tue, 07 Sep 2021 19:57:24 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null
