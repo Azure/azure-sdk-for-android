@@ -1,6 +1,7 @@
 # Release History
 
-## 1.0.0-beta.7 (Unreleased)
+
+## 1.0.0-beta.7 (2021-09-08)
 
 ### Breaking Changes
 - Changed `UserAgentPolicy` to throw if a user-given `applicationId` is longer than 24 characters or contain spaces, according to the design guidelines.
