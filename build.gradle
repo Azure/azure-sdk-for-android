@@ -266,7 +266,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
         azureCommunicationCommonVersion = "1.0.1"
-        azureCoreVersion = "1.0.0-beta.6"
+        azureCoreVersion = "1.0.0-beta.7"
         concurrentFuturesVersion = "1.0.0"
         dataproviderVersion =  "2.6"
         jacksonVersion = "2.12.5"
