@@ -8,6 +8,8 @@ import android.content.Context;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 
+import java9.util.function.Consumer;
+
 /**
  * The signaling client interface
  */
@@ -29,8 +31,9 @@ public interface SignalingClient {
     /**
      * Start the realtime connection.
      * @param context the android application context
+     * @param errorHandler error handler callback for registration failures
      */
-    void start(Context context);
+    void start(Context context, Consumer<Throwable> errorHandler);
 
     /**
      * Stop the realtime connection and unsubscribe all event handlers.

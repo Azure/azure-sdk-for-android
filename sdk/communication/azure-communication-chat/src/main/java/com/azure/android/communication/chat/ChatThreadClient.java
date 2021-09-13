@@ -467,18 +467,6 @@ public final class ChatThreadClient {
     }
 
     /**
-     * Posts a typing event to a thread, on behalf of a user.
-     *
-     * @param typingNotificationOptions the options for sending the typing notification.
-     * @throws ChatErrorResponseException if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void sendTypingNotification(TypingNotificationOptions typingNotificationOptions) {
-        block(this.client.sendTypingNotification(typingNotificationOptions));
-    }
-
-    /**
      * Posts a read receipt event to a thread, on behalf of a user.
      *
      * @param chatMessageId The id of the chat message that was read.

@@ -37,6 +37,7 @@ import com.azure.android.core.util.RequestContext;
 import com.azure.android.core.util.Function;
 
 import java9.util.concurrent.CompletableFuture;
+import java9.util.function.Consumer;
 
 /**
  * Async Client that supports chat operations.
@@ -262,20 +263,28 @@ public final class ChatAsyncClient {
     }
 
     /**
-     * Receive realtime notifications.
+     * Start receiving realtime notifications.
+     * Until {@link ChatAsyncClient#stopRealtimeNotifications()} is called,
+     * realtime notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal,
+     * realtime notification will be disabled and errorHandler will be called.
      * @param context the Android app context
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if realtime notifications failed to start.
      */
-    public void startRealtimeNotifications(Context context) {
+    public void startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler) {
         if (this.signalingClient.hasStarted()) {
             return;
         }
 
-        this.signalingClient.start(context);
+        this.signalingClient.start(context, errorHandler);
     }
 
     /**
-     * Receive realtime notifications.
+     * Start receiving realtime notifications.
+     * Until {@link ChatAsyncClient#stopRealtimeNotifications()} is called,
+     * realtime notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal, realtime notification will be disabled.
      * @param skypeUserToken the skype user token
      * @param context the Android app context
      * @throws RuntimeException if realtime notifications failed to start.
@@ -298,21 +307,25 @@ public final class ChatAsyncClient {
 
     /**
      * Register current device for receiving incoming push notifications via FCM.
+     * Until {@link ChatAsyncClient#stopPushNotifications()} is called,
+     * push notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal,
+     * push notifications will be disabled and errorHandler will be called.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken) {
+    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         if (this.pushNotificationClient.hasStarted()) {
             return;
         }
 
-        this.pushNotificationClient.startPushNotifications(deviceRegistrationToken);
+        this.pushNotificationClient.startPushNotifications(deviceRegistrationToken, errorHandler);
     }
 
     /**
      * Unregister current device from receiving incoming push notifications.
      * All registered handlers will be removed.
-     * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {
         this.pushNotificationClient.stopPushNotifications();
@@ -324,6 +337,7 @@ public final class ChatAsyncClient {
      * @param pushNotification Incoming push notification payload from the FCM SDK.
      *
      * @return True if there's registered handler(s) for incoming push notification; otherwise, false.
+     * @throws RuntimeException if push notifications failed to handle.
      */
     public boolean handlePushNotification(ChatPushNotification pushNotification) {
         return this.pushNotificationClient.handlePushNotification(pushNotification);

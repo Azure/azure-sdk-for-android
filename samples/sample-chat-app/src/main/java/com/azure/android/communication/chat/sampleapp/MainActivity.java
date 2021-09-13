@@ -68,6 +68,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import java9.util.function.Consumer;
+
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_DELETED;
@@ -335,7 +337,12 @@ public class MainActivity extends AppCompatActivity {
     public void startRealTimeNotification(View view) {
         logAndToast( "Starting realtime notification");
         try {
-            chatAsyncClient.startRealtimeNotifications(getApplicationContext());
+            chatAsyncClient.startRealtimeNotifications(getApplicationContext(), new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    Log.e(TAG, "Start realtime notification failed!", throwable);
+                }
+            });
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -595,7 +602,7 @@ public class MainActivity extends AppCompatActivity {
                 TypingNotificationOptions options = new TypingNotificationOptions();
                 options.setSenderDisplayName("Sender Display Name");
 
-                chatThreadAsyncClient.sendTypingNotification(options).get();
+                chatThreadAsyncClient.sendTypingNotificationWithResponse(options, RequestContext.NONE).get();
 
                 logAndToast("Sent a typing notification successfully");
             } catch (InterruptedException | ExecutionException e) {
@@ -676,7 +683,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Fcm push token generated:" + token);
                     Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
 
-                    chatAsyncClient.startPushNotifications(token);
+                    chatAsyncClient.startPushNotifications(token, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) {
+                            Log.w(TAG, "Registration failed for push notifications!", throwable);
+                        }
+                    });
                 }
             });
     }

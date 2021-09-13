@@ -30,6 +30,7 @@ import com.azure.android.core.test.TestMode;
 import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -1123,7 +1124,7 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         TypingNotificationOptions options = new TypingNotificationOptions();
         options.setSenderDisplayName("Sender Display Name");
 
-        this.chatThreadClient.sendTypingNotification(options).get();
+        this.chatThreadClient.sendTypingNotification(options, RequestContext.NONE).get();
     }
 
     @ParameterizedTest

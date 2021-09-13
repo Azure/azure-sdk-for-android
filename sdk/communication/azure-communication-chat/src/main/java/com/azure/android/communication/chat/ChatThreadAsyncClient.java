@@ -804,22 +804,6 @@ public final class ChatThreadAsyncClient {
     /**
      * Posts a typing event to a thread, on behalf of a user.
      *
-     * @param typingNotificationOptions the options for sending the typing notification.
-     * @throws ChatErrorResponseException if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link CompletableFuture} that signals the result of the operation.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public CompletableFuture<Void> sendTypingNotification(TypingNotificationOptions typingNotificationOptions) {
-        return this.sendTypingNotification(typingNotificationOptions, null)
-            .thenApply(response -> {
-                return response.getValue();
-            });
-    }
-
-    /**
-     * Posts a typing event to a thread, on behalf of a user.
-     *
      * @param requestContext The context to associate with this operation.
      * @throws ChatErrorResponseException if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.

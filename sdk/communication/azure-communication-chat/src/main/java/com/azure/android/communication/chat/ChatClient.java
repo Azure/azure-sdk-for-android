@@ -28,6 +28,7 @@ import com.azure.android.core.util.Function;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
+import java9.util.function.Consumer;
 
 /**
  * Sync Client that supports chat operations.
@@ -178,16 +179,24 @@ public final class ChatClient {
     }
 
     /**
-     * Receive realtime notifications.
+     * Start receiving realtime notifications.
+     * Until {@link ChatClient#stopRealtimeNotifications()} is called,
+     * realtime notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal,
+     * realtime notification will be disabled and errorHandler will be called.
      * @param context the Android app context
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if realtime notifications failed to start.
      */
-    public void startRealtimeNotifications(Context context) {
-        this.client.startRealtimeNotifications(context);
+    public void startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler) {
+        this.client.startRealtimeNotifications(context, errorHandler);
     }
 
     /**
-     * Receive realtime notifications.
+     * Start receiving realtime notifications.
+     * Until {@link ChatClient#stopRealtimeNotifications()} is called,
+     * realtime notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal, realtime notification will be disabled.
      * @param skypeUserToken the skype user token
      * @param context the Android app context
      * @throws RuntimeException if realtime notifications failed to start.
@@ -206,17 +215,21 @@ public final class ChatClient {
 
     /**
      * Register current device for receiving incoming push notifications via FCM.
+     * Until {@link ChatClient#stopPushNotifications()} is called,
+     * push notifications will be enabled and the corresponding registration will auto-renew.
+     * If there's error during registration initialization or renewal,
+     * push notifications will be disabled and errorHandler will be called.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken) {
-        client.startPushNotifications(deviceRegistrationToken);
+    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
+        client.startPushNotifications(deviceRegistrationToken, errorHandler);
     }
 
     /**
      * Unregister current device from receiving incoming push notifications.
      * All registered handlers will be removed.
-     * @throws RuntimeException if push notifications failed to stop.
      */
     public void stopPushNotifications() {
         client.stopPushNotifications();
