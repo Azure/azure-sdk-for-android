@@ -126,6 +126,10 @@ public class PushNotificationClient {
 
         this.isPushNotificationsStarted = false;
         this.pushNotificationListeners.clear();
+        if (this.registrationRenewScheduleTimer != null) {
+            this.registrationRenewScheduleTimer.cancel();
+            this.registrationRenewScheduleTimer = null;
+        }
     }
 
     /**

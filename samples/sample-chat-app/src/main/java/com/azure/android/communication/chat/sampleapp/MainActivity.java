@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
             chatAsyncClient.startRealtimeNotifications(getApplicationContext(), new Consumer<Throwable>() {
                 @Override
                 public void accept(Throwable throwable) {
-                    Log.e(TAG, "Start realtime notification failed!", throwable);
+                    Log.e(TAG, "Renew realtime notification registration failed!", throwable);
                 }
             });
         } catch (Exception e) {
