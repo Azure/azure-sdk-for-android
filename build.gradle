@@ -247,7 +247,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
         azureCommunicationCommonVersion = "1.0.1"
-        azureCoreVersion = "1.0.0-beta.6"
+        azureCoreVersion = "1.0.0-beta.7"
         concurrentFuturesVersion = "1.0.0"
         dataproviderVersion =  "2.6"
         jacksonVersion = "2.11.2"
@@ -261,7 +261,7 @@ allprojects {
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.3.0"
         threeTenBpVersion = "1.5.0"
-        trouterVersion = "0.0.1-beta.3"
+        trouterVersion = "0.1.1"
         workVersion = "2.4.0"
     }
 }

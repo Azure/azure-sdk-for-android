@@ -1,7 +1,6 @@
 # Release History
-## 1.0.1 (2021-09-03)
+## 1.0.1 (2021-09-15)
 - Version update.
-- Stop realtime notifications properly after the provided skype user token expired.
 
 ## 1.0.0 (2021-06-15)
 ### New Features

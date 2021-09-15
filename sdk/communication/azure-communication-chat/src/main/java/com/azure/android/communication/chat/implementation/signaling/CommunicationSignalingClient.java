@@ -39,11 +39,13 @@ public class CommunicationSignalingClient implements SignalingClient {
     private String userToken;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
+    private int tokenFetchRetries;
 
     public CommunicationSignalingClient() {
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
+        tokenFetchRetries = 0;
     }
 
     /**
@@ -69,10 +71,18 @@ public class CommunicationSignalingClient implements SignalingClient {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
                 if (forceRefresh) {
-                    logger.logExceptionAsError(new RuntimeException("Skype user token is expired."));
-                    stop();
+                    tokenFetchRetries += 1;
+                    if (tokenFetchRetries > TrouterUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
+                        stop();
+                        logger.error("Access token is expired and failed to fetch a valid one after "
+                            + TrouterUtils.MAX_TOKEN_FETCH_RETRY_COUNT
+                            + " retries.");
+                        return null;
+                    }
+                } else {
+                    tokenFetchRetries = 0;
                 }
-
+                
                 return userToken;
             }
         };
