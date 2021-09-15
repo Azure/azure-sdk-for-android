@@ -39,11 +39,13 @@ public class CommunicationSignalingClient implements SignalingClient {
     private String userToken;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
+    private int tokenFetchRetries;
 
     public CommunicationSignalingClient() {
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
+        tokenFetchRetries = 0;
     }
 
     /**
@@ -64,11 +66,23 @@ public class CommunicationSignalingClient implements SignalingClient {
             return;
         }
 
-        this.isRealtimeNotificationsStarted = true;
         this.userToken = skypeUserToken;
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
+                if (forceRefresh) {
+                    tokenFetchRetries += 1;
+                    if (tokenFetchRetries > TrouterUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
+                        stop();
+                        logger.error("Access token is expired and failed to fetch a valid one after "
+                            + TrouterUtils.MAX_TOKEN_FETCH_RETRY_COUNT
+                            + " retries.");
+                        return null;
+                    }
+                } else {
+                    tokenFetchRetries = 0;
+                }
+                
                 return userToken;
             }
         };
@@ -99,6 +113,7 @@ public class CommunicationSignalingClient implements SignalingClient {
                 new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
             trouter.start();
+            this.isRealtimeNotificationsStarted = true;
         } catch (Throwable e) {
             logger.error(e.getMessage());
         }
@@ -113,7 +128,10 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        this.trouter.close();
+        for (CommunicationListener listener: this.trouterListeners.values()) {
+            trouter.unregisterListener(listener);
+        }
+        this.trouter.stop();
         this.trouterListeners.clear();
     }
 

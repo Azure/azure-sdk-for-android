@@ -52,6 +52,8 @@ public final class TrouterUtils {
     private static final JacksonSerder JACKSON_SERDER = JacksonSerder.createDefault();
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
 
+    public static final int MAX_TOKEN_FETCH_RETRY_COUNT = 3;
+
     /**
      * Mapping chat event id to trouter event id code
      */

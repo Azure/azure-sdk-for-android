@@ -1,4 +1,7 @@
 # Release History
+## 1.0.1 (2021-09-15)
+- Version update.
+
 ## 1.0.0 (2021-06-15)
 ### New Features
 - Added `ChatServiceVersion` and the ability to set it on `ChatClientBuilder` and `ChatThreadClientBuilder`.

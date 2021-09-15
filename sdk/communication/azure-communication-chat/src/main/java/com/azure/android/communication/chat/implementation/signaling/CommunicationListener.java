@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.signaling;
 
+import android.text.TextUtils;
+
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
@@ -11,6 +13,8 @@ import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;
 import com.microsoft.trouterclient.ITrouterRequest;
 import com.microsoft.trouterclient.ITrouterResponse;
+
+import java.util.List;
 
 final class CommunicationListener implements ITrouterListener {
 
@@ -57,4 +61,15 @@ final class CommunicationListener implements ITrouterListener {
         logger.info(msg);
     }
 
+    @Override
+    public void onTrouterUserActivityStateAccepted(String correlationVector) {
+        final String msg = "onTrouterUserActivityStateAccepted(): correlationVector=" + correlationVector;
+        logger.info(msg);
+    }
+
+    @Override
+    public void onTrouterMessageLoss(List<String> flowTags) {
+        final String msg = "onTrouterMessageLoss(): flowTags=" + TextUtils.join(",", flowTags);
+        logger.info(msg);
+    }
 }
