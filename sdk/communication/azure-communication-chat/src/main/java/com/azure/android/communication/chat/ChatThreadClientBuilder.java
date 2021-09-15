@@ -273,7 +273,7 @@ public final class ChatThreadClientBuilder {
 
     private void applyRequiredPolicies(List<HttpPipelinePolicy> policies, HttpPipelinePolicy authorizationPolicy) {
         policies.add(
-            new UserAgentPolicy(null, "azure-communication-chat", "1.0.0"));
+            new UserAgentPolicy(null, "azure-communication-chat", "1.1.0-beta.3"));
         policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.add(authorizationPolicy);
