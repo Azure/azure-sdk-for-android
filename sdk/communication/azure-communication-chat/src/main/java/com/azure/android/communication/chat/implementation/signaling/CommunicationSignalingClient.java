@@ -128,9 +128,6 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        for (CommunicationListener listener: this.trouterListeners.values()) {
-            trouter.unregisterListener(listener);
-        }
         this.trouter.close();
         this.trouterListeners.clear();
     }
