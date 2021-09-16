@@ -82,7 +82,7 @@ public class CommunicationSignalingClient implements SignalingClient {
                 } else {
                     tokenFetchRetries = 0;
                 }
-                
+
                 return userToken;
             }
         };
@@ -131,7 +131,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         for (CommunicationListener listener: this.trouterListeners.values()) {
             trouter.unregisterListener(listener);
         }
-        this.trouter.stop();
+        this.trouter.close();
         this.trouterListeners.clear();
     }
 
