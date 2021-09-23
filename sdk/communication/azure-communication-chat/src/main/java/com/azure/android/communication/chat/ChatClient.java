@@ -201,7 +201,7 @@ public final class ChatClient {
      * @param context the Android app context
      * @throws RuntimeException if realtime notifications failed to start.
      *
-     * @deprecated Use {@link ChatClient#startRealtimeNotifications(Context, Consumer)}
+     * @deprecated Use {@link ChatClient#startRealtimeNotifications(Context, Consumer)} instead.
      */
     @Deprecated
     public void startRealtimeNotifications(String skypeUserToken, Context context) {

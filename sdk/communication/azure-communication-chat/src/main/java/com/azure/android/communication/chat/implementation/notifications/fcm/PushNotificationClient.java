@@ -214,7 +214,7 @@ public class PushNotificationClient {
 
     private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
         if (!this.isPushNotificationsStarted) {
-            this.logger.info("Push notification has already been stopped! No need to renew registration.");
+            this.logger.info("Push notifications have already been stopped! No need to renew registration.");
             return;
         }
 
@@ -241,7 +241,7 @@ public class PushNotificationClient {
             return;
         }
 
-        this.logger.info("Scheduling Registrar registration to automatically renew in " + delayMs + "ms");
+        this.logger.info("Scheduling Registrar registration to automatically renew in " + delayMs + " ms");
 
         TimerTask task = new TimerTask() {
             @Override
