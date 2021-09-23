@@ -13,6 +13,7 @@ import com.azure.android.communication.chat.implementation.converters.CreateChat
 import com.azure.android.communication.chat.implementation.converters.CreateChatThreadResultConverter;
 import com.azure.android.communication.chat.implementation.notifications.fcm.PushNotificationClient;
 import com.azure.android.communication.chat.implementation.notifications.signaling.CommunicationSignalingClient;
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatErrorResponseException;
 import com.azure.android.communication.chat.models.ChatPushNotification;
@@ -20,7 +21,6 @@ import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
-import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.implementation.notifications.signaling.SignalingClient;
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -352,7 +352,7 @@ public final class ChatAsyncClient {
      * @param listener the listener callback function
      * @throws IllegalStateException if push notifications has not started yet.
      */
-    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void addPushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         if (!this.pushNotificationClient.hasStarted()) {
             throw logger.logExceptionAsError(new IllegalStateException(
                 "You must call startPushNotifications(String) before you can subscribe to push notifications."
@@ -367,7 +367,7 @@ public final class ChatAsyncClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void removePushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         this.pushNotificationClient.removePushNotificationHandler(chatEventType, listener);
     }
 

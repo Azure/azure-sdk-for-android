@@ -7,7 +7,6 @@ import com.azure.android.communication.chat.implementation.notifications.Notific
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatPushNotification;
-import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
@@ -32,7 +31,7 @@ public class PushNotificationClient {
     private final ClientLogger logger = new ClientLogger(PushNotificationClient.class);
     private final CommunicationTokenCredential communicationTokenCredential;
     private final RegistrarClient registrarClient;
-    private final Map<ChatEventType, Set<PushNotificationCallback>> pushNotificationListeners;
+    private final Map<ChatEventType, Set<Consumer<ChatEvent>>> pushNotificationListeners;
     private boolean isPushNotificationsStarted;
     private String deviceRegistrationToken;
     private Consumer<Throwable> registrationErrorHandler;
@@ -145,14 +144,12 @@ public class PushNotificationClient {
         ChatEventType chatEventType = parsePushNotificationEventType(pushNotification);
         this.logger.info(" " + chatEventType + " received.");
 
-        this.parsePushNotificationEvent(chatEventType, pushNotification);
-
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
             ChatEvent event = this.parsePushNotificationEvent(chatEventType, pushNotification);
-            Set<PushNotificationCallback> callbacks = this.pushNotificationListeners.get(chatEventType);
-            for (PushNotificationCallback callback: callbacks) {
+            Set<Consumer<ChatEvent>> callbacks = this.pushNotificationListeners.get(chatEventType);
+            for (Consumer<ChatEvent> callback: callbacks) {
                 this.logger.info(" invoke callback " + callback + " for " + chatEventType);
-                callback.onChatEvent(event);
+                callback.accept(event);
             }
 
             return true;
@@ -166,9 +163,9 @@ public class PushNotificationClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void addPushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         this.logger.info(" Add push notification handler.");
-        Set<PushNotificationCallback> callbacks;
+        Set<Consumer<ChatEvent>> callbacks;
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
             callbacks = this.pushNotificationListeners.get(chatEventType);
         } else {
@@ -184,9 +181,9 @@ public class PushNotificationClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void removePushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
-            Set<PushNotificationCallback> callbacks = this.pushNotificationListeners.get(chatEventType);
+            Set<Consumer<ChatEvent>> callbacks = this.pushNotificationListeners.get(chatEventType);
             callbacks.remove(listener);
             if (callbacks.isEmpty()) {
                 this.pushNotificationListeners.remove(chatEventType);

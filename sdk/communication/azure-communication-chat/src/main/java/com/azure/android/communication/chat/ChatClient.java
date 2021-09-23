@@ -5,12 +5,12 @@ package com.azure.android.communication.chat;
 
 import android.content.Context;
 
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
 import com.azure.android.communication.chat.models.ListChatThreadsOptions;
-import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatErrorResponseException;
@@ -256,7 +256,7 @@ public final class ChatClient {
      * @param listener the listener callback function
      * @throws IllegalStateException if push notifications has not started yet.
      */
-    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void addPushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         client.addPushNotificationHandler(chatEventType, listener);
     }
 
@@ -265,7 +265,7 @@ public final class ChatClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void removePushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         client.removePushNotificationHandler(chatEventType, listener);
     }
 
