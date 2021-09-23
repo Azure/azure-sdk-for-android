@@ -22,6 +22,8 @@
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatClient`.
 
 ### Other Changes
+- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatAsyncClient`.
+- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatClient`.
 
 #### Dependency Updates
 - Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.7`.
