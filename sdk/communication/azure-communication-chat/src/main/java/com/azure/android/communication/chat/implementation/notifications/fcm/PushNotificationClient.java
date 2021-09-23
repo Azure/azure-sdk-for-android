@@ -81,14 +81,14 @@ public class PushNotificationClient {
         try {
             this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
         } catch (Throwable throwable) {
-            this.logger.error("Start push notification failed!");
+            this.logger.error("Failed to start push notifications!");
             errorHandler.accept(throwable);
             return;
         }
 
         this.isPushNotificationsStarted = true;
         this.pushNotificationListeners.clear();
-        this.logger.info("Start push notification successfully!");
+        this.logger.info("Successfully started push notifications!");
 
         long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL) - 30);
         this.scheduleRegistrationRenew(delayInMS, 0);
@@ -114,7 +114,7 @@ public class PushNotificationClient {
 
             try {
                 this.registrarClient.unregister(skypeUserToken);
-                this.logger.info("Stop push notification successfully!");
+                this.logger.info("Successfully stopped push notification!");
             } catch (Throwable throwable) {
                 throw logger.logExceptionAsError(new RuntimeException(throwable));
             }
@@ -223,28 +223,28 @@ public class PushNotificationClient {
 
         if (this.deviceRegistrationToken == null) {
             stopPushNotifications();
-            Throwable throwable = new Throwable("No device registration token stored!");
-            this.logger.logThrowableAsError(throwable);
+            IllegalStateException exception = new IllegalStateException("No device registration token stored!");
+            this.logger.logExceptionAsError(exception);
             if (this.registrationErrorHandler != null) {
-                this.registrationErrorHandler.accept(throwable);
+                this.registrationErrorHandler.accept(exception);
             }
             return;
         }
 
         if (tryCount > NotificationUtils.MAX_REGISTRATION_RETRY_COUNT) {
             stopPushNotifications();
-            Throwable throwable = new Throwable(
+            RuntimeException exception = new RuntimeException(
                 "Registration renew request failed after "
                 + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
                 + "retries.");
-            this.logger.logThrowableAsError(throwable);
+            this.logger.logExceptionAsError(exception);
             if (this.registrationErrorHandler != null) {
-                this.registrationErrorHandler.accept(throwable);
+                this.registrationErrorHandler.accept(exception);
             }
             return;
         }
 
-        this.logger.info("Scheduling Registrar registration automatically renew in " + delayMs + "ms");
+        this.logger.info("Scheduling Registrar registration to automatically renew in " + delayMs + "ms");
 
         TimerTask task = new TimerTask() {
             @Override
@@ -259,7 +259,7 @@ public class PushNotificationClient {
                     PushNotificationClient.this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
                 } catch (ExecutionException | InterruptedException e) {
                     PushNotificationClient.this.logger.logExceptionAsError(
-                        new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
+                        new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
                     retry = true;
                 } catch (Throwable throwable) {
                     PushNotificationClient.this.logger.logThrowableAsError(throwable);
@@ -269,7 +269,7 @@ public class PushNotificationClient {
                 if (retry) {
                     long delayInMS = 1000L * (long) Math.min(
                         (int) Math.pow(2.0D, (double) tryCount), NotificationUtils.MAX_REGISTRATION_RETRY_DELAY_S);
-                    PushNotificationClient.this.logger.info("Registration renew failed, will retry in " + delayInMS + "ms");
+                    PushNotificationClient.this.logger.info("Registration renew failed, will retry in " + delayInMS + " ms");
                     PushNotificationClient.this.scheduleRegistrationRenew(delayInMS, tryCount + 1);
                 } else {
                     long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL)

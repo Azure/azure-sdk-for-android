@@ -41,7 +41,6 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_
 public class CommunicationSignalingClient implements SignalingClient {
     private final ClientLogger logger;
     private TrouterClientHost trouterClientHost;
-    private TrouterUrlRegistrar registrar;
     private ISelfHostedTrouterClient trouter;
     private String userToken;
     private final CommunicationTokenCredential communicationTokenCredential;
@@ -144,9 +143,6 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         this.isRealtimeNotificationsStarted = false;
-        for (CommunicationListener listener: trouterListeners.values()) {
-            trouter.unregisterListener(listener);
-        }
         this.trouter.close();
         this.trouterListeners.clear();
     }
@@ -222,7 +218,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             null,
             ""
         );
-        registrar = new TrouterUrlRegistrar(
+        TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
             TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,

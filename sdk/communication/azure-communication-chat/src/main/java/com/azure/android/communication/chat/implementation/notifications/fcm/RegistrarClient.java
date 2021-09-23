@@ -118,7 +118,7 @@ public class RegistrarClient {
                 int statusCode = response.getStatusCode();
                 RegistrarClient.this.logger.info("Registrar register http response code:" + statusCode);
                 if (statusCode != 202) {
-                    requestError[0] = new Throwable("Registrar register request failed with http status code "
+                    requestError[0] = new RuntimeException("Registrar register request failed with http status code "
                         + statusCode
                         + ". Error message: "
                         + response.getBodyAsString()
@@ -165,7 +165,7 @@ public class RegistrarClient {
                 int statusCode = response.getStatusCode();
                 RegistrarClient.this.logger.info("Registrar unregister http response code:" + statusCode);
                 if (statusCode != 202) {
-                    requestError[0] = new Throwable("Registrar unregister request failed with http status code "
+                    requestError[0] = new RuntimeException("Registrar unregister request failed with http status code "
                         + statusCode
                         + ". Error message: "
                         + response.getBodyAsString()

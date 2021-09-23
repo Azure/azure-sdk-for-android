@@ -20,6 +20,10 @@
      - Added code in sample app for FCM push notification end to end scenario.
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient`.
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatClient`.
+
+### Other Changes
+
+#### Dependency Updates
 - Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.7`.
 
 ## 1.1.0-beta.2 (2021-08-10)
