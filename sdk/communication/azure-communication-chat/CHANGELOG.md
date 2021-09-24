@@ -1,5 +1,5 @@
 # Release History
-## 1.1.0 (2021-09-15)
+## 1.1.0-beta.4 (Unreleased)
 ### Features Added
 - Added support FCM push notifications:
     - Added methods to `ChatAsyncClient`:
