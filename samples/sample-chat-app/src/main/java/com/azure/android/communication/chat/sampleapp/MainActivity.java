@@ -68,6 +68,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import java9.util.function.Consumer;
+
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_DELETED;
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
-    private final String sdkVersion = "1.1.0-beta.2";
+    private final String sdkVersion = "1.1.0-beta.4";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat_Test_App";
     private static final String TAG = "[Chat Test App]";
@@ -108,7 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "Push Notification received in MainActivity: " + pushNotification.getPayload());
 
-            chatAsyncClient.handlePushNotification(pushNotification);
+            boolean isHandled = chatAsyncClient.handlePushNotification(pushNotification);
+            if (!isHandled) {
+                Log.d(TAG, "No listener registered for incoming push notification!");
+            }
         }
     };
 
@@ -335,7 +340,12 @@ public class MainActivity extends AppCompatActivity {
     public void startRealTimeNotification(View view) {
         logAndToast( "Starting realtime notification");
         try {
-            chatAsyncClient.startRealtimeNotifications(getApplicationContext());
+            chatAsyncClient.startRealtimeNotifications(getApplicationContext(), new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) {
+                    Log.e(TAG, "Renew realtime notification registration failed!", throwable);
+                }
+            });
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());
         }
@@ -595,7 +605,7 @@ public class MainActivity extends AppCompatActivity {
                 TypingNotificationOptions options = new TypingNotificationOptions();
                 options.setSenderDisplayName("Sender Display Name");
 
-                chatThreadAsyncClient.sendTypingNotification(options).get();
+                chatThreadAsyncClient.sendTypingNotificationWithResponse(options, RequestContext.NONE).get();
 
                 logAndToast("Sent a typing notification successfully");
             } catch (InterruptedException | ExecutionException e) {
@@ -676,7 +686,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Fcm push token generated:" + token);
                     Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
 
-                    chatAsyncClient.startPushNotifications(token);
+                    chatAsyncClient.startPushNotifications(token, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) {
+                            Log.w(TAG, "Registration failed for push notifications!", throwable);
+                        }
+                    });
                 }
             });
     }

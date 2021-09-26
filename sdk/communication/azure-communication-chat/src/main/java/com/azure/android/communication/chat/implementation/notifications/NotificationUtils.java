@@ -56,6 +56,11 @@ public final class NotificationUtils {
     private static final ClientLogger CLIENT_LOGGER = new ClientLogger(NotificationUtils.class);
     private static final JacksonSerder JACKSON_SERDER = JacksonSerder.createDefault();
 
+    public static final int MAX_TOKEN_FETCH_RETRY_COUNT = 3;
+    public static final int MAX_REGISTRATION_RETRY_COUNT = 3;
+    public static final int MAX_REGISTRATION_RETRY_DELAY_S = 30;
+    public static final int REGISTRATION_RENEW_IN_ADVANCE_S = 30;
+
     /**
      * Mapping chat event id to notification event id code
      */

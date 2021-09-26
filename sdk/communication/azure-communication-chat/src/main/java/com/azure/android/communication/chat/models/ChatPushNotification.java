@@ -26,6 +26,10 @@ public final class ChatPushNotification implements Parcelable {
      */
     public ChatPushNotification() { }
 
+    /**
+     * Constructs a new ChatPushNotification
+     * @param in Parcel model to construct ChatPushNotification
+     */
     protected ChatPushNotification(Parcel in) {
         int size = in.readInt();
         this.payload = new HashMap<>(size);
@@ -36,6 +40,9 @@ public final class ChatPushNotification implements Parcelable {
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(this.payload.size());
@@ -45,6 +52,9 @@ public final class ChatPushNotification implements Parcelable {
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     @Override
     public int describeContents() {
         return 0;

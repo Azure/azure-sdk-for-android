@@ -44,7 +44,6 @@ public class RegistrarClient {
     private final JacksonSerder jacksonSerder;
 
     private String registrationId;
-    private boolean requestResult;
 
     private static class ClientDescription {
         @JsonProperty(value = "languageId")
@@ -101,7 +100,7 @@ public class RegistrarClient {
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 
-    public boolean register(String skypeUserToken, String deviceRegistrationToken) {
+    public void register(String skypeUserToken, String deviceRegistrationToken) throws Throwable {
         HttpRequest request = new HttpRequest(HttpMethod.POST, PUSHNOTIFICATION_REGISTRAR_SERVICE_URL);
         request
             .setHeader(USER_AGENT_HEADER, PLATFORM_UI_VERSION)
@@ -111,20 +110,19 @@ public class RegistrarClient {
         addRequestBody(request, deviceRegistrationToken);
 
         CountDownLatch latch = new CountDownLatch(1);
+        final Throwable[] requestError = { null };
 
         this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 int statusCode = response.getStatusCode();
-                if (statusCode == 202) {
-                    requestResult = true;
-                } else {
-                    logger.warning("Registrar request failed with http status code "
+                RegistrarClient.this.logger.info("Registrar register http response code:" + statusCode);
+                if (statusCode != 202) {
+                    requestError[0] = new RuntimeException("Registrar register request failed with http status code "
                         + statusCode
                         + ". Error message: "
                         + response.getBodyAsString()
                     );
-                    requestResult = false;
                 }
 
                 latch.countDown();
@@ -132,21 +130,22 @@ public class RegistrarClient {
 
             @Override
             public void onError(Throwable error) {
-                requestResult = false;
-                logger.logThrowableAsWarning(error);
+                requestError[0] = error;
                 latch.countDown();
             }
         });
 
         awaitOnLatch(latch);
-        this.logger.info("Registrar request result:" + requestResult);
-        this.logger.info("registrationId:" + registrationId);
-        return requestResult;
+        if (requestError[0] != null) {
+            throw logger.logThrowableAsError(requestError[0]);
+        }
+
+        this.logger.info("Register succeed! RegistrationId:" + registrationId);
     }
 
-    public boolean unregister(String skypeUserToken) {
+    public void unregister(String skypeUserToken) throws Throwable {
         if (registrationId == null) {
-            return false;
+            return;
         }
 
         String unregisterUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL + "/" + registrationId;
@@ -158,19 +157,19 @@ public class RegistrarClient {
 
         CountDownLatch latch = new CountDownLatch(1);
 
+        final Throwable[] requestError = { null };
+
         this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 int statusCode = response.getStatusCode();
-                if (statusCode == 202) {
-                    requestResult = true;
-                } else {
-                    logger.warning("Registrar request failed with http status code "
+                RegistrarClient.this.logger.info("Registrar unregister http response code:" + statusCode);
+                if (statusCode != 202) {
+                    requestError[0] = new RuntimeException("Registrar unregister request failed with http status code "
                         + statusCode
                         + ". Error message: "
                         + response.getBodyAsString()
                     );
-                    requestResult = false;
                 }
 
                 latch.countDown();
@@ -178,16 +177,17 @@ public class RegistrarClient {
 
             @Override
             public void onError(Throwable error) {
-                requestResult = false;
-                logger.logThrowableAsWarning(error);
+                requestError[0] = error;
                 latch.countDown();
             }
         });
 
         awaitOnLatch(latch);
-        logger.info("Registrar unregistered request result:" + requestResult);
-        logger.info("registrationId:" + registrationId);
-        return requestResult;
+        if (requestError[0] != null) {
+            throw logger.logThrowableAsError(requestError[0]);
+        }
+
+        logger.info("Unregister succeed! RegistrationId:" + registrationId);
     }
 
     private void addRequestBody(HttpRequest request, String deviceRegistrationToken) {

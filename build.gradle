@@ -280,7 +280,7 @@ allprojects {
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.3.1"
         threeTenBpVersion = "1.5.1"
-        trouterVersion = "0.0.1-beta.3"
+        trouterVersion = "0.1.1"
         workVersion = "2.4.0"
     }
 }

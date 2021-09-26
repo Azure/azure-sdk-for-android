@@ -5,6 +5,7 @@ package com.azure.android.communication.chat.implementation.notifications.signal
 
 import android.content.Context;
 
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -22,6 +23,8 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+
+import java9.util.function.Consumer;
 
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
@@ -43,12 +46,14 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final CommunicationTokenCredential communicationTokenCredential;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
+    private int tokenFetchRetries;
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
         this.logger = new ClientLogger(this.getClass());
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
+        tokenFetchRetries = 0;
     }
 
     /**
@@ -69,6 +74,19 @@ public class CommunicationSignalingClient implements SignalingClient {
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
+                if (forceRefresh) {
+                    tokenFetchRetries += 1;
+                    if (tokenFetchRetries > NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
+                        stop();
+                        logger.error("Access token is expired and failed to fetch a valid one after "
+                            + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT
+                            + " retries.");
+                        return null;
+                    }
+                } else {
+                    tokenFetchRetries = 0;
+                }
+
                 return userToken;
             }
         };
@@ -79,20 +97,37 @@ public class CommunicationSignalingClient implements SignalingClient {
     /**
      * Start the realtime connection.
      * @param context the android application context
+     * @param errorHandler error handler callback for registration failures
      */
-    public void start(Context context) {
+    public void start(Context context, Consumer<Throwable> errorHandler) {
         ISkypetokenProvider skypetokenProvider = new ISkypetokenProvider() {
             @Override
             public String getSkypetoken(boolean forceRefresh) {
-                try {
-                    return communicationTokenCredential.getToken().get().getToken();
-                } catch (InterruptedException e) {
-                    throw logger.logExceptionAsError(
-                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
-                } catch (ExecutionException e) {
-                    throw logger.logExceptionAsError(
-                        new RuntimeException("Get skype user token failed for realtime notification: " + e.getMessage()));
+                if (forceRefresh) {
+                    tokenFetchRetries += 1;
+                    if (tokenFetchRetries > NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
+                        stop();
+                        Throwable throwable = new Throwable("Access token is expired and failed to fetch a valid one after "
+                            + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT
+                            + " retries.");
+                        logger.logThrowableAsError(throwable);
+                        errorHandler.accept(throwable);
+                        return null;
+                    }
+                } else {
+                    tokenFetchRetries = 0;
                 }
+
+                String skypeUserToken = null;
+                try {
+                    skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.error("Get skype user token failed for realtime notification: " + e.getMessage());
+                    // Return a empty but not null skype user token to trigger retry
+                    skypeUserToken = "";
+                }
+
+                return skypeUserToken;
             }
         };
 
@@ -183,7 +218,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             null,
             ""
         );
-        final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
+        TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
             TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,

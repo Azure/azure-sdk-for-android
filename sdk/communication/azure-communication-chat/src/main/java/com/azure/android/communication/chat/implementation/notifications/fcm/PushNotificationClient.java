@@ -7,7 +7,6 @@ import com.azure.android.communication.chat.implementation.notifications.Notific
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatPushNotification;
-import com.azure.android.communication.chat.models.PushNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
@@ -17,7 +16,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+
+import java9.util.function.Consumer;
+
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
 
 /**
  * The registrar client interface
@@ -26,14 +31,20 @@ public class PushNotificationClient {
     private final ClientLogger logger = new ClientLogger(PushNotificationClient.class);
     private final CommunicationTokenCredential communicationTokenCredential;
     private final RegistrarClient registrarClient;
-    private final Map<ChatEventType, Set<PushNotificationCallback>> pushNotificationListeners;
+    private final Map<ChatEventType, Set<Consumer<ChatEvent>>> pushNotificationListeners;
     private boolean isPushNotificationsStarted;
+    private String deviceRegistrationToken;
+    private Consumer<Throwable> registrationErrorHandler;
+    private Timer registrationRenewScheduleTimer;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
         this.pushNotificationListeners = new HashMap<>();
         this.isPushNotificationsStarted = false;
         this.registrarClient = new RegistrarClient();
+        this.deviceRegistrationToken = null;
+        this.registrationErrorHandler = null;
+        this.registrationRenewScheduleTimer = null;
     }
 
     /**
@@ -47,9 +58,13 @@ public class PushNotificationClient {
     /**
      * Register the current device for receiving incoming push notifications via FCM.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken) {
+    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
+        this.deviceRegistrationToken = deviceRegistrationToken;
+        this.registrationErrorHandler = errorHandler;
+
         if (this.isPushNotificationsStarted) {
             return;
         }
@@ -62,13 +77,20 @@ public class PushNotificationClient {
                 new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
         }
 
-        this.isPushNotificationsStarted = this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
-        if (!this.isPushNotificationsStarted) {
-            throw logger.logExceptionAsError(new RuntimeException("Register push notification failed!"));
-        } else {
-            this.pushNotificationListeners.clear();
-            this.logger.info(" Registered push notification successfully!");
+        try {
+            this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
+        } catch (Throwable throwable) {
+            this.logger.error("Failed to start push notifications!");
+            errorHandler.accept(throwable);
+            return;
         }
+
+        this.isPushNotificationsStarted = true;
+        this.pushNotificationListeners.clear();
+        this.logger.info("Successfully started push notifications!");
+
+        long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL) - 30);
+        this.scheduleRegistrationRenew(delayInMS, 0);
     }
 
     /**
@@ -89,10 +111,12 @@ public class PushNotificationClient {
                     new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
             }
 
-            if (!this.registrarClient.unregister(skypeUserToken)) {
-                throw logger.logExceptionAsWarning(new RuntimeException("Unregister push notification failed!"));
+            try {
+                this.registrarClient.unregister(skypeUserToken);
+                this.logger.info("Successfully stopped push notification!");
+            } catch (Throwable throwable) {
+                throw logger.logExceptionAsError(new RuntimeException(throwable));
             }
-            this.logger.info("Unregistered push notification successfully!");
         } catch (RuntimeException e) {
             this.logger.warning("Unregistered push notification with error: "
                 + e.getMessage()
@@ -101,6 +125,10 @@ public class PushNotificationClient {
 
         this.isPushNotificationsStarted = false;
         this.pushNotificationListeners.clear();
+        if (this.registrationRenewScheduleTimer != null) {
+            this.registrationRenewScheduleTimer.cancel();
+            this.registrationRenewScheduleTimer = null;
+        }
     }
 
     /**
@@ -116,14 +144,12 @@ public class PushNotificationClient {
         ChatEventType chatEventType = parsePushNotificationEventType(pushNotification);
         this.logger.info(" " + chatEventType + " received.");
 
-        this.parsePushNotificationEvent(chatEventType, pushNotification);
-
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
             ChatEvent event = this.parsePushNotificationEvent(chatEventType, pushNotification);
-            Set<PushNotificationCallback> callbacks = this.pushNotificationListeners.get(chatEventType);
-            for (PushNotificationCallback callback: callbacks) {
+            Set<Consumer<ChatEvent>> callbacks = this.pushNotificationListeners.get(chatEventType);
+            for (Consumer<ChatEvent> callback: callbacks) {
                 this.logger.info(" invoke callback " + callback + " for " + chatEventType);
-                callback.onChatEvent(event);
+                callback.accept(event);
             }
 
             return true;
@@ -137,9 +163,9 @@ public class PushNotificationClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void addPushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void addPushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         this.logger.info(" Add push notification handler.");
-        Set<PushNotificationCallback> callbacks;
+        Set<Consumer<ChatEvent>> callbacks;
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
             callbacks = this.pushNotificationListeners.get(chatEventType);
         } else {
@@ -155,9 +181,9 @@ public class PushNotificationClient {
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */
-    public void removePushNotificationHandler(ChatEventType chatEventType, PushNotificationCallback listener) {
+    public void removePushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
-            Set<PushNotificationCallback> callbacks = this.pushNotificationListeners.get(chatEventType);
+            Set<Consumer<ChatEvent>> callbacks = this.pushNotificationListeners.get(chatEventType);
             callbacks.remove(listener);
             if (callbacks.isEmpty()) {
                 this.pushNotificationListeners.remove(chatEventType);
@@ -184,5 +210,78 @@ public class PushNotificationClient {
         String jsonString = obj.toString();
         this.logger.info(" Result: " + jsonString);
         return NotificationUtils.toEventPayload(chatEventType, jsonString);
+    }
+
+    private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
+        if (!this.isPushNotificationsStarted) {
+            this.logger.info("Push notifications have already been stopped! No need to renew registration.");
+            return;
+        }
+
+        if (this.deviceRegistrationToken == null) {
+            stopPushNotifications();
+            IllegalStateException exception = new IllegalStateException("No device registration token stored!");
+            this.logger.logExceptionAsError(exception);
+            if (this.registrationErrorHandler != null) {
+                this.registrationErrorHandler.accept(exception);
+            }
+            return;
+        }
+
+        if (tryCount > NotificationUtils.MAX_REGISTRATION_RETRY_COUNT) {
+            stopPushNotifications();
+            RuntimeException exception = new RuntimeException(
+                "Registration renew request failed after "
+                + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
+                + "retries.");
+            this.logger.logExceptionAsError(exception);
+            if (this.registrationErrorHandler != null) {
+                this.registrationErrorHandler.accept(exception);
+            }
+            return;
+        }
+
+        this.logger.info("Scheduling Registrar registration to automatically renew in " + delayMs + " ms");
+
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                boolean retry = false;
+
+                PushNotificationClient.this.logger.info("Renew Registrar registration attempt #" + tryCount);
+
+                String skypeUserToken;
+                try {
+                    skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+                    PushNotificationClient.this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
+                } catch (ExecutionException | InterruptedException e) {
+                    PushNotificationClient.this.logger.logExceptionAsError(
+                        new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
+                    retry = true;
+                } catch (Throwable throwable) {
+                    PushNotificationClient.this.logger.logThrowableAsError(throwable);
+                    retry = true;
+                }
+
+                if (retry) {
+                    long delayInMS = 1000L * (long) Math.min(
+                        (int) Math.pow(2.0D, (double) tryCount), NotificationUtils.MAX_REGISTRATION_RETRY_DELAY_S);
+                    PushNotificationClient.this.logger.info("Registration renew failed, will retry in " + delayInMS + " ms");
+                    PushNotificationClient.this.scheduleRegistrationRenew(delayInMS, tryCount + 1);
+                } else {
+                    long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL)
+                        - NotificationUtils.REGISTRATION_RENEW_IN_ADVANCE_S);
+                    PushNotificationClient.this.logger.info("Registration successfully renewed!");
+                    PushNotificationClient.this.scheduleRegistrationRenew(delayInMS, 0);
+                }
+            }
+        };
+
+        if (this.registrationRenewScheduleTimer != null) {
+            this.registrationRenewScheduleTimer.cancel();
+        }
+
+        this.registrationRenewScheduleTimer = new Timer("PushNotificationRegistrarRenewTimer");
+        this.registrationRenewScheduleTimer.schedule(task, delayMs);
     }
 }
