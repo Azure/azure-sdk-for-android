@@ -28,6 +28,12 @@
 #### Dependency Updates
 - Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.7`.
 
+## 1.1.0-beta.3 (2021-09-15)
+- Version update.
+
+## 1.0.1 (2021-09-15)
+- Version update.
+
 ## 1.1.0-beta.2 (2021-08-10)
 - Version update.
 - Fix `azure-communication-common` dependency issue.
