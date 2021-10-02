@@ -1,6 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    ext.kotlin_version = '1.6.0-M1'
     repositories {
         google()
         mavenCentral()
@@ -37,6 +38,7 @@ buildscript {
         classpath ("com.vanniktech:gradle-android-junit-jacoco-plugin:$gradleJunitJacocoPluginVersion")
         classpath ("gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$gradleSpotbugsPluginVersion")
         classpath ("com.google.gms:google-services:$googleGmsServicesPluginVersion")
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
