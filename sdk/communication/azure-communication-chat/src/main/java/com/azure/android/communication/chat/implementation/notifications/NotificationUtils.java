@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat.implementation.notifications;
 
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
 import com.azure.android.communication.chat.models.ChatEvent;
@@ -28,8 +29,10 @@ import com.azure.android.communication.common.UnknownIdentifier;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +42,7 @@ import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,11 +59,31 @@ public final class NotificationUtils {
 
     private static final ClientLogger CLIENT_LOGGER = new ClientLogger(NotificationUtils.class);
     private static final JacksonSerder JACKSON_SERDER = JacksonSerder.createDefault();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     public static final int MAX_TOKEN_FETCH_RETRY_COUNT = 3;
     public static final int MAX_REGISTRATION_RETRY_COUNT = 3;
     public static final int MAX_REGISTRATION_RETRY_DELAY_S = 30;
     public static final int REGISTRATION_RENEW_IN_ADVANCE_S = 30;
+
+    public enum CloudType {
+        Public,
+        Gcch,
+        Dod
+    }
+
+    /**
+     * Mapping skype id prefix to cloud type
+     */
+    private static final Map<String, CloudType> SKYPE_ID_CLOUD_TYPES_MAPPING = new HashMap<String, CloudType>() {{
+        put("acs", CloudType.Public);
+        put("spool", CloudType.Public);
+        put("orgid", CloudType.Public);
+        put("gcch", CloudType.Gcch);
+        put("gcch-acs", CloudType.Gcch);
+        put("dod", CloudType.Dod);
+        put("dod-acs", CloudType.Dod);
+    }};
 
     /**
      * Mapping chat event id to notification event id code
@@ -218,12 +242,15 @@ public final class NotificationUtils {
             ZoneId.of("UTC"));
     }
 
-    public static JSONObject getJSONObject(JSONObject payload, String property) throws JSONException {
-        return new JSONObject(payload.getString(property));
-    }
+    public static CloudType getUserCloudTypeFromSkypeToken(String skypeToken) {
+        String skypeId = decodeSkypeIdFromJwtToken(skypeToken);
+        String prefix = skypeId.substring(0, skypeId.indexOf(":"));
 
-    public static JSONArray getJSONArray(JSONObject payload, String property) throws JSONException {
-        return new JSONArray(payload.getString(property));
+        if (SKYPE_ID_CLOUD_TYPES_MAPPING.containsKey(prefix)) {
+            return SKYPE_ID_CLOUD_TYPES_MAPPING.get(prefix);
+        }
+
+        return  CloudType.Public;
     }
 
     private static ChatEvent getParticipantsRemoved(String body) {
@@ -353,6 +380,21 @@ public final class NotificationUtils {
         } catch (IOException e) {
             CLIENT_LOGGER.error(e.getMessage());
             return null;
+        }
+    }
+
+    private static String decodeSkypeIdFromJwtToken(String jwtToken) {
+        try {
+            String[] tokenParts = jwtToken.split("\\.");
+            String tokenPayload = tokenParts[1];
+            byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
+            String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
+
+            ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
+
+            return payloadObj.get("skypeid").asText();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
         }
     }
 }
