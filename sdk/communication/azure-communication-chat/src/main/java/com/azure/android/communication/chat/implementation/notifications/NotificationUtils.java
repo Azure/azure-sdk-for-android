@@ -34,7 +34,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.threeten.bp.Instant;
@@ -393,7 +392,7 @@ public final class NotificationUtils {
             ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
 
             return payloadObj.get("skypeid").asText();
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
         }
     }
