@@ -3,6 +3,7 @@
 
 package com.azure.android.core.logging.implementation;
 
+import android.os.Build;
 import android.util.Log;
 
 import org.slf4j.helpers.MarkerIgnoringBase;
@@ -14,6 +15,8 @@ import org.slf4j.helpers.MessageFormatter;
  */
 public final class DefaultLogger extends MarkerIgnoringBase {
     private static final long serialVersionUID = 1L;
+    private static final String ANONYMOUS_TAG = "null";
+    private static final int TAG_MAX_LENGTH = 23;
 
     /**
      * Construct DefaultLogger for the given class.
@@ -279,5 +282,76 @@ public final class DefaultLogger extends MarkerIgnoringBase {
 
     private String format(final String format, final Object[] args) {
         return MessageFormatter.arrayFormat(format, args).getMessage();
+    }
+
+    /**
+     * Tag names cannot be longer than {@value #TAG_MAX_LENGTH} characters on Android API levels <= 25.
+     *
+     * <p>Returns the short logger tag (up to {@value #TAG_MAX_LENGTH} characters) for the given logger name if the devices
+     * API level is <= 25, otherwise, the tag is unchanged. Traditionally loggers are named by fully-qualified Java
+     * classes; this method attempts to return a concise identifying part of such names.</p>
+     *
+     * <p>Credit to Andrey Korzhevskiy. <a.korzhevskiy@gmail.com></p>
+     */
+    private static String loggerNameToTag(String loggerName) {
+        // Anonymous logger.
+        if (loggerName == null) {
+            return ANONYMOUS_TAG;
+        }
+
+        int length = loggerName.length();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O || length <= TAG_MAX_LENGTH) {
+            return loggerName;
+        }
+
+        int tagLength = 0;
+        int lastTokenIndex = 0;
+        int lastPeriodIndex;
+        StringBuilder tagName = new StringBuilder(TAG_MAX_LENGTH + 3);
+
+        while ((lastPeriodIndex = loggerName.indexOf('.', lastTokenIndex)) != -1) {
+            tagName.append(loggerName.charAt(lastTokenIndex));
+
+            // Token of one character appended as is otherwise truncate it to one character.
+            int tokenLength = lastPeriodIndex - lastTokenIndex;
+
+            if (tokenLength > 1) {
+                tagName.append('*');
+            }
+
+            tagName.append('.');
+            lastTokenIndex = lastPeriodIndex + 1;
+
+            // Check if name is already too long
+            tagLength = tagName.length();
+
+            if (tagLength > TAG_MAX_LENGTH) {
+                return getSimpleName(loggerName);
+            }
+        }
+
+        // Either we had no useful dot location at all or last token would exceed TAG_MAX_LENGTH
+        int tokenLength = length - lastTokenIndex;
+
+        if (tagLength == 0 || (tagLength + tokenLength) > TAG_MAX_LENGTH) {
+            return getSimpleName(loggerName);
+        }
+
+        // Last token (usually class name) appended as is.
+        tagName.append(loggerName, lastTokenIndex, length);
+
+        return tagName.toString();
+    }
+
+    private static String getSimpleName(String loggerName) {
+        // Take leading part and append '*' to indicate that it was truncated.
+        int length = loggerName.length();
+        int lastPeriodIndex = loggerName.lastIndexOf('.');
+
+        return lastPeriodIndex != -1
+            && length - (lastPeriodIndex + 1) <= TAG_MAX_LENGTH
+                ? loggerName.substring(lastPeriodIndex + 1)
+                : '*' + loggerName.substring(length - TAG_MAX_LENGTH + 1);
     }
 }
