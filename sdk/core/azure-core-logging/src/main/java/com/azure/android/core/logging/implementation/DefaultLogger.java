@@ -33,7 +33,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      * @param name The tag name.
      */
     public DefaultLogger(final String name) {
-        this.name = name;
+        this.name = loggerNameToTag(name);
     }
 
     /**
