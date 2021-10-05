@@ -241,7 +241,7 @@ public class RegistrarClient {
 
     private String getRegistrarServiceUrl(String skypeUserToken) {
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
-        String registrarUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
+        String registrarUrl;
 
         switch (cloudType) {
             case Dod:
@@ -254,6 +254,7 @@ public class RegistrarClient {
 
             case Public:
             default:
+                registrarUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
                 break;
         }
 

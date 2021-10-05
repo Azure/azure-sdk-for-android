@@ -221,8 +221,8 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
-        String trouterUrl = TROUTER_HOSTNAME;
-        String registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
+        String trouterUrl;
+        String registrarUrl;
 
         switch (cloudType) {
             case Dod:
@@ -237,6 +237,8 @@ public class CommunicationSignalingClient implements SignalingClient {
 
             case Public:
             default:
+                trouterUrl = TROUTER_HOSTNAME;
+                registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
                 break;
         }
 

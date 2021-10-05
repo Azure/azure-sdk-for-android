@@ -249,7 +249,7 @@ public final class NotificationUtils {
             return SKYPE_ID_CLOUD_TYPES_MAPPING.get(prefix);
         }
 
-        return  CloudType.Public;
+        return CloudType.Public;
     }
 
     private static ChatEvent getParticipantsRemoved(String body) {
