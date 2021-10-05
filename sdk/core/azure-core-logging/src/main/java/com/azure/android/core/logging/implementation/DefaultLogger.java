@@ -287,11 +287,9 @@ public final class DefaultLogger extends MarkerIgnoringBase {
     /**
      * Tag names cannot be longer than {@value #TAG_MAX_LENGTH} characters on Android API levels <= 25.
      *
-     * <p>Returns the short logger tag (up to {@value #TAG_MAX_LENGTH} characters) for the given logger name if the devices
-     * API level is <= 25, otherwise, the tag is unchanged. Traditionally loggers are named by fully-qualified Java
-     * classes; this method attempts to return a concise identifying part of such names.</p>
-     *
-     * <p>Credit to Andrey Korzhevskiy. <a.korzhevskiy@gmail.com></p>
+     * <p>Returns the short logger tag (up to {@value #TAG_MAX_LENGTH} characters) for the given logger name if the
+     * devices API level is <= 25, otherwise, the tag is unchanged. Traditionally loggers are named by fully-qualified
+     * Java classes; this method attempts to return a concise identifying part of such names.</p>
      */
     private static String loggerNameToTag(String loggerName) {
         // Anonymous logger.
