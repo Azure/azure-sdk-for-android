@@ -3,15 +3,14 @@
 
 package com.azure.android.core.logging;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class ClientLoggerTests {
+import org.junit.jupiter.api.Test;
 
+public class ClientLoggerTest {
     @Test
     public void canCreateClientLogger() {
-        ClientLogger clientLogger = new ClientLogger(ClientLoggerTests.class);
+        ClientLogger clientLogger = new ClientLogger(ClientLoggerTest.class);
         assertNotNull(clientLogger);
     }
 }

@@ -291,7 +291,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      * devices API level is <= 25, otherwise, the tag is unchanged. Traditionally loggers are named by fully-qualified
      * Java classes; this method attempts to return a concise identifying part of such names.</p>
      */
-    private static String loggerNameToTag(String loggerName) {
+    static String loggerNameToTag(String loggerName) {
         // Anonymous logger.
         if (loggerName == null) {
             return ANONYMOUS_TAG;
@@ -342,7 +342,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
         return tagName.toString();
     }
 
-    private static String getSimpleName(String loggerName) {
+    static String getSimpleName(String loggerName) {
         // Take leading part and append '*' to indicate that it was truncated.
         int length = loggerName.length();
         int lastPeriodIndex = loggerName.lastIndexOf('.');
