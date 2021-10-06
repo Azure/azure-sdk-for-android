@@ -22,6 +22,7 @@ buildscript {
         mockitoVersion = "3.12.4"
         orgtestngVersion = "7.4.0"
         okHttpVersion = "4.9.1"
+        powerMockVersion = "2.0.9"
         qualityReportsPuppycrawlVersion = "8.29"
         qualityReportsJunitVersion = "4.13.2"
         reactorCoreVersion = "3.3.11.RELEASE"
@@ -106,10 +107,9 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         testOptions {
             unitTests {
                 includeAndroidResources = true
-                unitTests.returnDefaultValues = true
+                returnDefaultValues = true
             }
         }
-
     }
 
     junitJacoco {
@@ -247,7 +247,6 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             }
         }
     }
-
 }
 
 allprojects {

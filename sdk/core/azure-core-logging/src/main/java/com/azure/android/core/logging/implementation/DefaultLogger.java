@@ -30,7 +30,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      * @param name The tag name.
      */
     public DefaultLogger(final String name) {
-        this.name = name;
+        this.name = LogUtils.ensureValidLoggerName(name);
     }
 
     /**
@@ -269,7 +269,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      * {@inheritDoc}
      */
     @Override
-    public void error(final String msg, final Throwable t)  {
+    public void error(final String msg, final Throwable t) {
         Log.e(name, msg, t);
     }
 

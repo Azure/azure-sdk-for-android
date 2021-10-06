@@ -170,4 +170,7 @@
   <!-- Parcel types are allowed to be exposed in public API -->
   <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
       files="com.azure.android.communication.chat.models.ChatPushNotification.java"/>
+
+  <!-- This class requires an additional header to attribute credit to the original authors -->
+  <suppress checks="Header" files="com.azure.android.core.logging.implementation.LogUtils"/>
 </suppressions>
