@@ -2,6 +2,8 @@
 
 ## 1.0.0-beta.8 (Unreleased)
 
+### Bugs Fixed
+- Modified `DefaultLogger`
 
 ## 1.0.0-beta.7 (2021-09-08)
 
