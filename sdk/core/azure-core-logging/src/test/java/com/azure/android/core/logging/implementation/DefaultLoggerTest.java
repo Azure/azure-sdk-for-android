@@ -21,14 +21,14 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("com.example.MyClass",
-            DefaultLogger.forceValidLoggerName("com.example.MyClass"));
+            LogUtils.ensureValidLoggerName("com.example.MyClass"));
     }
 
     public void processLongTagForOlderAndroidVersion() {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("c*.e*.l*.MyClass",
-            DefaultLogger.forceValidLoggerName("com.example.logging.MyClass"));
+            LogUtils.ensureValidLoggerName("com.example.logging.MyClass"));
     }
 
     @Test
@@ -36,7 +36,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("c*.e*.l*.MyLongClassNa*",
-            DefaultLogger.forceValidLoggerName("com.example.logging.MyLongClassName"));
+            LogUtils.ensureValidLoggerName("com.example.logging.MyLongClassName"));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("c.e.l*.MyLongClassName",
-            DefaultLogger.forceValidLoggerName("c.e.logging.MyLongClassName"));
+            LogUtils.ensureValidLoggerName("c.e.logging.MyLongClassName"));
     }
 
     @Test
@@ -52,7 +52,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("c.e.l*.MyVeryLongClass*",
-            DefaultLogger.forceValidLoggerName("c.e.logging.MyVeryLongClassName"));
+            LogUtils.ensureValidLoggerName("c.e.logging.MyVeryLongClassName"));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 23);
 
         assertEquals("MyVeryLongClassNameWit*",
-            DefaultLogger.forceValidLoggerName("MyVeryLongClassNameWithoutPackage"));
+            LogUtils.ensureValidLoggerName("MyVeryLongClassNameWithoutPackage"));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("com.example.MyClass",
-            DefaultLogger.forceValidLoggerName("com.example.MyClass"));
+            LogUtils.ensureValidLoggerName("com.example.MyClass"));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("com.example.logging.MyClass",
-            DefaultLogger.forceValidLoggerName("com.example.logging.MyClass"));
+            LogUtils.ensureValidLoggerName("com.example.logging.MyClass"));
     }
 
     @Test
@@ -84,7 +84,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("com.example.logging.MyLongClassName",
-            DefaultLogger.forceValidLoggerName("com.example.logging.MyLongClassName"));
+            LogUtils.ensureValidLoggerName("com.example.logging.MyLongClassName"));
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("c.e.logging.MyLongClassName",
-            DefaultLogger.forceValidLoggerName("c.e.logging.MyLongClassName"));
+            LogUtils.ensureValidLoggerName("c.e.logging.MyLongClassName"));
     }
 
     @Test
@@ -100,7 +100,7 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("c.e.logging.MyVeryLongClassName",
-            DefaultLogger.forceValidLoggerName("c.e.logging.MyVeryLongClassName"));
+            LogUtils.ensureValidLoggerName("c.e.logging.MyVeryLongClassName"));
     }
 
     @Test
@@ -108,6 +108,6 @@ public class DefaultLoggerTest {
         setInternalState(Build.VERSION.class, "SDK_INT", 26);
 
         assertEquals("MyVeryLongClassNameWithoutPackage",
-            DefaultLogger.forceValidLoggerName("MyVeryLongClassNameWithoutPackage"));
+            LogUtils.ensureValidLoggerName("MyVeryLongClassNameWithoutPackage"));
     }
 }
