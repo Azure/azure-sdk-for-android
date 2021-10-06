@@ -11,7 +11,7 @@ android {
 
 dependencies {
     // <!-- begin: implementation Dependencies -->
-    implementation "org.slf4j:slf4j-android:$slf4jApiVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jApiVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
