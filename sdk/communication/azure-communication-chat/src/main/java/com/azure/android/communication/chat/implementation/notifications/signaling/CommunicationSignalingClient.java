@@ -6,6 +6,7 @@ package com.azure.android.communication.chat.implementation.notifications.signal
 import android.content.Context;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -31,8 +32,12 @@ import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSI
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
 
 /**
@@ -91,7 +96,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             }
         };
 
-        start(context, skypetokenProvider);
+        start(context, skypetokenProvider, skypeUserToken);
     }
 
     /**
@@ -131,7 +136,16 @@ public class CommunicationSignalingClient implements SignalingClient {
             }
         };
 
-        start(context, skypetokenProvider);
+        String skypeUserToken = null;
+        try {
+            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+        } catch (InterruptedException | ExecutionException e) {
+            logger.error("Get skype user token failed for realtime notification: " + e.getMessage());
+            errorHandler.accept(e);
+            return;
+        }
+
+        start(context, skypetokenProvider, skypeUserToken);
     }
 
     /**
@@ -201,9 +215,31 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
     }
 
-    private void start(Context context, ISkypetokenProvider skypetokenProvider) {
+    private void start(Context context, ISkypetokenProvider skypetokenProvider, String skypeUserToken) {
         if (this.isRealtimeNotificationsStarted) {
             return;
+        }
+
+        CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
+        String trouterUrl;
+        String registrarUrl;
+
+        switch (cloudType) {
+            case Dod:
+                trouterUrl = TROUTER_HOSTNAME_DOD;
+                registrarUrl = TROUTER_REGISTRATION_HOSTNAME_DOD;
+                break;
+
+            case Gcch:
+                trouterUrl = TROUTER_HOSTNAME_GCCH;
+                registrarUrl = TROUTER_REGISTRATION_HOSTNAME_GCCH;
+                break;
+
+            case Public:
+            default:
+                trouterUrl = TROUTER_HOSTNAME;
+                registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
+                break;
         }
 
         ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
@@ -221,7 +257,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
-            TROUTER_REGISTRATION_HOSTNAME_AND_BASE_PATH,
+            registrarUrl,
             Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
         );
 
@@ -229,7 +265,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             trouterListeners.clear();
             trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
             trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
-                new InMemoryConnectionDataCache(), TROUTER_HOSTNAME);
+                new InMemoryConnectionDataCache(), trouterUrl);
             trouter.withRegistrar(registrar);
             trouter.start();
             trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);

@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat.implementation.notification;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
 import com.azure.android.communication.common.CommunicationCloudEnvironment;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
@@ -142,5 +143,34 @@ public class NotificationUtilsTest {
         assertTrue(communicationIdentifier instanceof UnknownIdentifier);
         UnknownIdentifier unknownIdentifier = (UnknownIdentifier) communicationIdentifier;
         assertEquals(unknownRawId, unknownIdentifier.getId());
+    }
+
+    @Test
+    public void canResolvePublicSkypeToken() {
+        final String spoolSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoic3Bvb2w6bXktcmVzb3VyY2UtaWRfYWJjZGVmLTAxMjM0NTY3ODkifQ.";
+        final String acsSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOm15LXJlc291cmNlLWlkX2FiY2RlZi0wMTIzNDU2Nzg5In0.";
+        final String teamsSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoib3JnaWQ6bXktcmVzb3VyY2UtaWRfYWJjZGVmLTAxMjM0NTY3ODkifQ.";
+
+        assertEquals(CloudType.Public, NotificationUtils.getUserCloudTypeFromSkypeToken(spoolSkypeToken));
+        assertEquals(CloudType.Public, NotificationUtils.getUserCloudTypeFromSkypeToken(acsSkypeToken));
+        assertEquals(CloudType.Public, NotificationUtils.getUserCloudTypeFromSkypeToken(teamsSkypeToken));
+    }
+
+    @Test
+    public void canResolveDodSkypeToken() {
+        final String dodSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiZG9kOm15LXJlc291cmNlLWlkX2FiY2RlZi0wMTIzNDU2Nzg5In0.";
+        final String dodAcsSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiZG9kLWFjczpteS1yZXNvdXJjZS1pZF9hYmNkZWYtMDEyMzQ1Njc4OSJ9.";
+
+        assertEquals(CloudType.Dod, NotificationUtils.getUserCloudTypeFromSkypeToken(dodSkypeToken));
+        assertEquals(CloudType.Dod, NotificationUtils.getUserCloudTypeFromSkypeToken(dodAcsSkypeToken));
+    }
+
+    @Test
+    public void canResolveGcchSkypeToken() {
+        final String gcchSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiZ2NjaDpteS1yZXNvdXJjZS1pZF9hYmNkZWYtMDEyMzQ1Njc4OSJ9.";
+        final String gcchAcsSkypeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiZ2NjaC1hY3M6bXktcmVzb3VyY2UtaWRfYWJjZGVmLTAxMjM0NTY3ODkifQ.";
+
+        assertEquals(CloudType.Gcch, NotificationUtils.getUserCloudTypeFromSkypeToken(gcchSkypeToken));
+        assertEquals(CloudType.Gcch, NotificationUtils.getUserCloudTypeFromSkypeToken(gcchAcsSkypeToken));
     }
 }

@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
@@ -24,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_DOD;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_APPLICATION_ID;
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_TEMPLATE_KEY;
@@ -101,7 +105,8 @@ public class RegistrarClient {
     }
 
     public void register(String skypeUserToken, String deviceRegistrationToken) throws Throwable {
-        HttpRequest request = new HttpRequest(HttpMethod.POST, PUSHNOTIFICATION_REGISTRAR_SERVICE_URL);
+        String registrarServiceUrl = getRegistrarServiceUrl(skypeUserToken);
+        HttpRequest request = new HttpRequest(HttpMethod.POST, registrarServiceUrl);
         request
             .setHeader(USER_AGENT_HEADER, PLATFORM_UI_VERSION)
             .setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_JSON)
@@ -148,7 +153,8 @@ public class RegistrarClient {
             return;
         }
 
-        String unregisterUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL + "/" + registrationId;
+        String registrarServiceUrl = getRegistrarServiceUrl(skypeUserToken);
+        String unregisterUrl = registrarServiceUrl + "/" + registrationId;
         HttpRequest request = new HttpRequest(HttpMethod.DELETE, unregisterUrl);
         request
             .setHeader(USER_AGENT_HEADER, PLATFORM_UI_VERSION)
@@ -231,5 +237,27 @@ public class RegistrarClient {
         } catch (InterruptedException e) {
             throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInMin + " minutes"));
         }
+    }
+
+    private String getRegistrarServiceUrl(String skypeUserToken) {
+        CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
+        String registrarUrl;
+
+        switch (cloudType) {
+            case Dod:
+                registrarUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_DOD;
+                break;
+
+            case Gcch:
+                registrarUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_GCCH;
+                break;
+
+            case Public:
+            default:
+                registrarUrl = PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
+                break;
+        }
+
+        return registrarUrl;
     }
 }
