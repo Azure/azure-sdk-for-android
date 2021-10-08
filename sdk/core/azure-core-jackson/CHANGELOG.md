@@ -1,7 +1,13 @@
 # Release History
 
-## 1.0.0-beta.8 (Unreleased)
+## 1.0.0-beta.8 (2021-10-08)
 
+### Other changes
+
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.8`.
+- Updated `jackson-dataformat-xml` dependency version to `2.13.0`.
+- Updated `jackson-datatype-jsr310` dependency version to `2.13.0`.
 
 ## 1.0.0-beta.7 (2021-09-08)
 
