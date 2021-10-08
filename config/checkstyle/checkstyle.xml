@@ -26,13 +26,11 @@ page at http://checkstyle.sourceforge.net/config.html -->
     <property name="fileExtensions" value="java"/>
   </module>
 
-  <module name="FileTabCharacter">
-    <!-- Checks that there are no tab characters in the file. -->
-  </module>
+  <!-- Checks that there are no tab characters in the file. -->
+  <module name="FileTabCharacter" />
 
-  <module name="NewlineAtEndOfFile">
-    <property name="lineSeparator" value="lf"/>
-  </module>
+  <!-- Checks that files end with a newline character. -->
+  <module name="NewlineAtEndOfFile" />
 
   <module name="RegexpSingleline">
     <!-- Checks that FIXME is not used in comments.  TODO is preferred. -->

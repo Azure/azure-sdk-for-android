@@ -10,25 +10,20 @@ buildscript {
     }
 
     ext {
+        // Updating the dependency below throws a 'java.lang.OutOfMemoryError: Metaspace' during build time.
         googleGmsServicesPluginVersion = "4.3.8"
         gradleAndroidBuildToolsPluginVersion = "30.0.3"
-        gradleAndroidToolsPluginVersion = "4.0.1"
+        // Need to make many changes before being able to update the gradle plugin version below.
+        gradleAndroidToolsPluginVersion = "4.0.2"
         gradleJunitJacocoPluginVersion = "0.16.0"
         gradleDexcountPluginVersion = "3.0.0"
-        gradleSpotbugsPluginVersion = "4.7.4"
-        gradleAndroidJunit5PluginVersion = "1.7.1.1"
+        gradleSpotbugsPluginVersion = "4.7.5"
+        gradleAndroidJunit5PluginVersion = "1.8.0.0"
         jacocoVersion = "0.8.7"
-        junitJupiterVersion = "5.7.2"
-        mockitoVersion = "3.12.4"
-        orgtestngVersion = "7.4.0"
-        okHttpVersion = "4.9.1"
-        powerMockVersion = "2.0.9"
-        qualityReportsPuppycrawlVersion = "8.29"
+        // Updating the dependency below causes a ClassDefNotFound exception with the current CheckStyle implementation
+        // in the /eng/ directory.
+        qualityReportsPuppycrawlVersion = "8.34"
         qualityReportsJunitVersion = "4.13.2"
-        reactorCoreVersion = "3.3.11.RELEASE"
-        reactorTestVersion = "3.3.11.RELEASE"
-        slf4jApiVersion = "1.7.32"
-        wireMockVersion = "2.27.2"
     }
 
     dependencies {
@@ -261,26 +256,23 @@ allprojects {
 
     ext {
         androidxTestVersion = "1.4.0"
-        annotationsVersion = "1.1.0"
         appCompatVersion = "1.2.0"
-        archCoreTestVersion = "2.1.0"
         azureCommunicationCommonVersion = "1.0.1"
         azureCoreVersion = "1.0.0-beta.7"
-        concurrentFuturesVersion = "1.0.0"
-        dataproviderVersion =  "2.6"
-        jacksonVersion = "2.12.5"
-        jUnitVersion = "5.7.0"
-        lifecycleVersion = "2.2.0"
-        nimbusJoseJwtTestVersion = "9.13"
-        okHttpVersion = "3.14.9"
-        retrofitVersion = "2.9.0"
-        retroFutureVersion = "1.7.3"
-        roomVersion = "2.2.5"
+        jacksonVersion = "2.13.0"
+        junitJupiterVersion = "5.7.2"
+        mockitoVersion = "4.0.0"
+        nimbusJoseJwtTestVersion = "9.15.2"
+        okHttpVersion = "3.14.9" // Do not upgrade, newer versions require a higher Android minSdkLevel
+        orgtestngVersion = "7.4.0"
+        powerMockVersion = "2.0.9"
+        retroFutureVersion = "1.7.4"
         staxApiVersion = "1.0-2"
+        slf4jApiVersion = "1.7.32"
         threeTenAbpVersion = "1.3.1"
         threeTenBpVersion = "1.5.1"
         trouterVersion = "0.1.1"
-        workVersion = "2.4.0"
+        wireMockVersion = "2.27.2"
     }
 }
 

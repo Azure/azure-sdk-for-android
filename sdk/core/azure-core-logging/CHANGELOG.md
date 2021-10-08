@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.8 (Unreleased)
+## 1.0.0-beta.8 (2021-10-08)
 
 ### Bugs Fixed
 - `DefaultLogger` will no longer cause the Android `Log` API to throw an exception when using an instance created with a tag longer than 23 characters for Android API levels <= 25; instead, it will shorten the tag as best as possible in such cases. For example: 
