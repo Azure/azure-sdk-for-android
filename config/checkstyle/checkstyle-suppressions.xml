@@ -7,11 +7,12 @@
   <!-- Add Javadoc suppression for any test files (ie. ones that live under src/test/java). -->
   <suppress checks="Javadoc" files="src[/\\]test[/\\]java[/\\].*.java"/>
 
-
   <suppress checks="Javadoc" files=".*CoverageReporter\.java"/>
   <suppress checks="Javadoc" files=".*[/\\]implementation[/\\].*\.java"/>
-  <suppress checks="Javadoc" files=".*[/\\]com[/\\]microsoft[/\\].*"/>
   <suppress checks="Header" files=".*package-info.java"/>
+
+  <!-- Suppress all checkstyle rules for Track 1/management libraries. -->
+  <suppress checks="[a-zA-Z0-9]*" files=".*[/\\]com[/\\]microsoft[/\\].*"/>
 
   <!-- ignore missing javadoc in samples -->
   <suppress checks="MissingJavadocMethod" files=".*[/\\]samples[/\\].*\.java"/>
@@ -73,9 +74,12 @@
   <suppress checks="MethodName" files="SerdeJacksonAnnotationIntrospector.java"/>
 
   <!-- Some classes are named *Builder but are not @ServiceClientBuilder -->
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck"
+      files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder"/>
+
   <!-- Some classes are named *Builder but are not @ServiceClientBuilder -->
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck"
+      files="com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder"/>
 
   <!-- Files licensed with alternate license in the header -->
   <suppress checks="Header" files="com.azure.android.core.util.CancellationToken.java"/>
@@ -87,7 +91,8 @@
   <!-- false positive, the field needs to be non-final for copy api to work -->
   <suppress checks="EnforceFinalFields" files="com.azure.android.core.http.HttpRequest.java"/>
 
-  <suppress checks="VisibilityModifier" files="com.azure.android.core.rest.implementation.HttpResponseExceptionInfo.java"/>
+  <suppress checks="VisibilityModifier"
+      files="com.azure.android.core.rest.implementation.HttpResponseExceptionInfo.java"/>
 
   <!-- Do not worry about leaking implementation API out of azure-core-test -->
   <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.core.test.*"/>
@@ -158,14 +163,20 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder.java"/>
 
-  <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
-  <suppress checks="Indentation" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+  <suppress checks="LineLength"
+      files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+  <suppress checks="Indentation"
+      files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
 
-  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatImpl.java"/>
-  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.communication.chat.implementation.ChatThreadImpl.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.communication.chat.implementation.ChatImpl.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.communication.chat.implementation.ChatThreadImpl.java"/>
 
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadAsyncClient.java"/>
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck"
+      files="com.azure.android.communication.chat.ChatThreadAsyncClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck"
+      files="com.azure.android.communication.chat.ChatThreadClient.java"/>
 
   <!-- Parcel types are allowed to be exposed in public API -->
   <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
