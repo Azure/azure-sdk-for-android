@@ -18,7 +18,7 @@ To use this package, add the following to your _pom.xml_.
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-test</artifactId>
-    <version>1.0.0-beta.8</version>
+    <version>1.0.0-beta.9</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
