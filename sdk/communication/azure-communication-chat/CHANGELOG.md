@@ -26,7 +26,7 @@
 - Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatClient`.
 
 #### Dependency Updates
-- Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.7`.
+- Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.8`.
 
 ## 1.1.0-beta.3 (2021-09-15)
 - Version update.
