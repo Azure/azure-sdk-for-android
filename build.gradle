@@ -259,7 +259,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         azureCommunicationCommonVersion = "1.0.1"
         azureCoreVersion = "1.0.0-beta.8"
-        jacksonVersion = "2.13.0"
+        jacksonVersion = "2.12.5" // Do not upgrade to 2.13, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2
         junitJupiterVersion = "5.7.2"
         mockitoVersion = "4.0.0"
         nimbusJoseJwtTestVersion = "9.15.2"
@@ -267,7 +267,7 @@ allprojects {
         orgtestngVersion = "7.4.0"
         powerMockVersion = "2.0.9"
         retroFutureVersion = "1.7.4"
-        staxApiVersion = "1.0-2"
+        staxApiVersion = "1.0-2" // Need this instead of using the JDK due to: https://stackoverflow.com/a/47371517/1473510
         slf4jApiVersion = "1.7.32"
         threeTenAbpVersion = "1.3.1"
         threeTenBpVersion = "1.5.1"
