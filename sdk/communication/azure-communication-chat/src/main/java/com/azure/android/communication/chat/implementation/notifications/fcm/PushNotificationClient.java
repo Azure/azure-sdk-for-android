@@ -9,6 +9,7 @@ import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.util.Base64Util;
 
 import org.json.JSONObject;
 
@@ -19,6 +20,9 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
 
@@ -36,6 +40,13 @@ public class PushNotificationClient {
     private String deviceRegistrationToken;
     private Consumer<Throwable> registrationErrorHandler;
     private Timer registrationRenewScheduleTimer;
+    private KeyGenerator keyGenerator;
+    private SecretKey cryptoKey;
+    private SecretKey authKey;
+    private SecretKey previousCryptoKey;
+    private SecretKey previousAuthKey;
+
+    private static final int KEY_SIZE = 256;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -78,7 +89,8 @@ public class PushNotificationClient {
         }
 
         try {
-            this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
+            this.refreshEncryptionKeys();
+            this.registrarClient.register(skypeUserToken, deviceRegistrationToken, this.cryptoKey, this.authKey);
         } catch (Throwable throwable) {
             this.logger.error("Failed to start push notifications!");
             errorHandler.accept(throwable);
@@ -141,7 +153,7 @@ public class PushNotificationClient {
     public boolean handlePushNotification(ChatPushNotification pushNotification) {
         this.logger.info(" Receive handle push notification request.");
 
-        ChatEventType chatEventType = parsePushNotificationEventType(pushNotification);
+        ChatEventType chatEventType = this.parsePushNotificationEventType(pushNotification);
         this.logger.info(" " + chatEventType + " received.");
 
         if (this.pushNotificationListeners.containsKey(chatEventType)) {
@@ -207,9 +219,18 @@ public class PushNotificationClient {
     private ChatEvent parsePushNotificationEvent(ChatEventType chatEventType, ChatPushNotification pushNotification) {
         this.logger.info(" Try Jsonlize input.");
         JSONObject obj = new JSONObject(pushNotification.getPayload());
-        String jsonString = obj.toString();
-        this.logger.info(" Result: " + jsonString);
-        return NotificationUtils.toEventPayload(chatEventType, jsonString);
+        String decrypted;
+        try {
+            String encrypted = obj.getString("e");
+            this.logger.info(" Encrypted payload: " + encrypted);
+
+            decrypted = decryptPayload(encrypted);
+            this.logger.info(" Decrypted payload: " + decrypted);
+        } catch (Throwable e) {
+            throw logger.logExceptionAsError(new RuntimeException("Failed to parse push notification payload: " + e));
+        }
+
+        return NotificationUtils.toEventPayload(chatEventType, decrypted);
     }
 
     private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
@@ -253,7 +274,12 @@ public class PushNotificationClient {
                 String skypeUserToken;
                 try {
                     skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-                    PushNotificationClient.this.registrarClient.register(skypeUserToken, deviceRegistrationToken);
+                    PushNotificationClient.this.refreshEncryptionKeys();
+                    PushNotificationClient.this.registrarClient.register(
+                        skypeUserToken,
+                        deviceRegistrationToken,
+                        PushNotificationClient.this.cryptoKey,
+                        PushNotificationClient.this.authKey);
                 } catch (ExecutionException | InterruptedException e) {
                     PushNotificationClient.this.logger.logExceptionAsError(
                         new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
@@ -283,5 +309,43 @@ public class PushNotificationClient {
 
         this.registrationRenewScheduleTimer = new Timer("PushNotificationRegistrarRenewTimer");
         this.registrationRenewScheduleTimer.schedule(task, delayMs);
+    }
+
+    private void refreshEncryptionKeys() throws Throwable {
+        if (this.keyGenerator == null) {
+            this.keyGenerator = KeyGenerator.getInstance("AES");
+            this.keyGenerator.init(KEY_SIZE);
+        }
+
+        this.previousCryptoKey = this.cryptoKey;
+        this.previousAuthKey = this.authKey;
+
+        this.cryptoKey = this.keyGenerator.generateKey();
+        this.authKey = this.keyGenerator.generateKey();
+    }
+
+    private String decryptPayload(String encryptedPayload) throws Throwable {
+        this.logger.info(" Decrypting payload.");
+
+        byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
+        byte[] f = NotificationUtils.extractEncryptionKey(encryptedBytes);
+        byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
+        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+        byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
+
+        if (NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, this.authKey)) {
+            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.cryptoKey);
+        }
+
+        // When client has registered a new key, because of eventual consistency, latencies and concurrency,
+        // the old key can still be used by server side for some notifications
+        // Try old key if the new key failed to decrypt the payload.
+        if (NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, this.previousAuthKey)) {
+            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.previousCryptoKey);
+        }
+
+        // Reject the push when computed signature does not match the included signature - it can not be trusted
+        throw logger.logExceptionAsError(
+            new RuntimeException("Invalid encrypted push notification payload! Drop the request."));
     }
 }
