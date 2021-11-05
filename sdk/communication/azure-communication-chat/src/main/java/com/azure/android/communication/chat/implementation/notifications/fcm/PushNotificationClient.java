@@ -45,8 +45,10 @@ public class PushNotificationClient {
     private SecretKey authKey;
     private SecretKey previousCryptoKey;
     private SecretKey previousAuthKey;
+    private long keyRotateTimeMillis;
 
     private static final int KEY_SIZE = 256;
+    private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -217,15 +219,15 @@ public class PushNotificationClient {
     }
 
     private ChatEvent parsePushNotificationEvent(ChatEventType chatEventType, ChatPushNotification pushNotification) {
-        this.logger.info(" Try Jsonlize input.");
+        this.logger.verbose(" Try Jsonlize input.");
         JSONObject obj = new JSONObject(pushNotification.getPayload());
         String decrypted;
         try {
             String encrypted = obj.getString("e");
-            this.logger.info(" Encrypted payload: " + encrypted);
+            this.logger.verbose(" Encrypted payload: " + encrypted);
 
             decrypted = decryptPayload(encrypted);
-            this.logger.info(" Decrypted payload: " + decrypted);
+            this.logger.verbose(" Decrypted payload: " + decrypted);
         } catch (Throwable e) {
             throw logger.logExceptionAsError(new RuntimeException("Failed to parse push notification payload: " + e));
         }
@@ -322,30 +324,44 @@ public class PushNotificationClient {
 
         this.cryptoKey = this.keyGenerator.generateKey();
         this.authKey = this.keyGenerator.generateKey();
+
+        this.keyRotateTimeMillis = System.currentTimeMillis();
     }
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
-        this.logger.info(" Decrypting payload.");
+        this.logger.verbose(" Decrypting payload.");
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
-        byte[] f = NotificationUtils.extractEncryptionKey(encryptedBytes);
+        byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
         byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
         byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
-        if (NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, this.authKey)) {
+        if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.authKey)) {
             return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.cryptoKey);
         }
 
         // When client has registered a new key, because of eventual consistency, latencies and concurrency,
         // the old key can still be used by server side for some notifications
         // Try old key if the new key failed to decrypt the payload.
-        if (NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, this.previousAuthKey)) {
+        if (inKeyRotationGracePeriod()
+            && NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.previousAuthKey)) {
             return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.previousCryptoKey);
         }
 
         // Reject the push when computed signature does not match the included signature - it can not be trusted
         throw logger.logExceptionAsError(
             new RuntimeException("Invalid encrypted push notification payload! Drop the request."));
+    }
+
+    private boolean inKeyRotationGracePeriod() {
+        if (this.previousAuthKey != null) {
+            long currentTimeMillis = System.currentTimeMillis();
+            if (currentTimeMillis - this.keyRotateTimeMillis <= KEY_ROTATE_GRACE_PERIOD_MILLIS) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

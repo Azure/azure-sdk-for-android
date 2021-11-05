@@ -267,21 +267,22 @@ public final class NotificationUtils {
     }
 
     public static boolean verifyEncryptedPayload(
-        byte[] f,
+        byte[] encryptionKey,
         byte[] iv,
         byte[] cipherText,
         byte[] hmac,
         SecretKey authKey) throws Throwable {
-        byte[] fIvCipherText = new byte[f.length + iv.length + cipherText.length];
-        System.arraycopy(f, 0, fIvCipherText, 0, f.length);
-        System.arraycopy(iv, 0, fIvCipherText, f.length, iv.length);
-        System.arraycopy(cipherText, 0, fIvCipherText, f.length + iv.length, cipherText.length);
+        byte[] encryptionKeyIvCipherText = new byte[encryptionKey.length + iv.length + cipherText.length];
+        System.arraycopy(encryptionKey, 0, encryptionKeyIvCipherText, 0, encryptionKey.length);
+        System.arraycopy(iv, 0, encryptionKeyIvCipherText, encryptionKey.length, iv.length);
+        System.arraycopy(cipherText, 0, encryptionKeyIvCipherText,
+            encryptionKey.length + iv.length, cipherText.length);
 
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] sha256Hash = digest.digest(authKey.getEncoded());
         Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
         hmacSHA256.init(new SecretKeySpec(sha256Hash, "HmacSHA256"));
-        byte[] result = hmacSHA256.doFinal(fIvCipherText);
+        byte[] result = hmacSHA256.doFinal(encryptionKeyIvCipherText);
 
         return Arrays.equals(hmac, result);
     }

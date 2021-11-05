@@ -43,7 +43,7 @@ public class RegistrarClient {
     private static final String USER_AGENT_HEADER = "User-Agent";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String CONTENT_TYPE_JSON = "application/json";
-    private static final String CRYPTO_METHOD = "0x70";
+    private static final String ENCRYPTION_KEY = "0x70";
     private static final String NODE_ID = "";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
@@ -228,7 +228,7 @@ public class RegistrarClient {
 
         clientDescription.aesKey = Base64Util.encodeToString(cryptoKey.getEncoded());
         clientDescription.authKey = Base64Util.encodeToString(authKey.getEncoded());
-        clientDescription.cryptoMethod = CRYPTO_METHOD;
+        clientDescription.cryptoMethod = ENCRYPTION_KEY;
 
         Transports transports = new Transports();
         transports.fcm = new ArrayList<>();
