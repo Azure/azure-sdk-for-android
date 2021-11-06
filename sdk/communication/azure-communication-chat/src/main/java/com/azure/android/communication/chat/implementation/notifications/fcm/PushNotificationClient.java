@@ -351,7 +351,7 @@ public class PushNotificationClient {
 
         // Reject the push when computed signature does not match the included signature - it can not be trusted
         throw logger.logExceptionAsError(
-            new RuntimeException("Invalid encrypted push notification payload! Drop the request."));
+            new RuntimeException("Invalid or expired authorization key. Drop the request!"));
     }
 
     private boolean inKeyRotationGracePeriod() {
