@@ -1,7 +1,11 @@
 # Release History
 
-## 1.0.0-beta.9 (Unreleased)
+## 1.0.0-beta.9 (2021-11-08)
 
+### Other changes
+
+#### Dependency updates
+- Downgraded `azure-core-logging` dependency version to `1.0.0-beta.9`.
 
 ## 1.0.0-beta.8 (2021-10-08)
 
