@@ -13,6 +13,7 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
+import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.CancellationToken;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -22,6 +23,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import javax.crypto.SecretKey;
 
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
@@ -39,8 +42,8 @@ public class RegistrarClient {
     private static final String SKYPE_TOKEN_HEADER = "X-Skypetoken";
     private static final String USER_AGENT_HEADER = "User-Agent";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
-
     private static final String CONTENT_TYPE_JSON = "application/json";
+    private static final String ENCRYPTION_KEY = "0x70";
     private static final String NODE_ID = "";
 
     private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
@@ -64,6 +67,15 @@ public class RegistrarClient {
 
         @JsonProperty(value = "templateKey")
         private String templateKey;
+
+        @JsonProperty(value = "cryptoMethod")
+        private String cryptoMethod;
+
+        @JsonProperty(value = "aesKey")
+        private String aesKey;
+
+        @JsonProperty(value = "authKey")
+        private String authKey;
     }
 
     private static class FcmTransport {
@@ -104,7 +116,11 @@ public class RegistrarClient {
         this.jacksonSerder = JacksonSerder.createDefault();
     }
 
-    public void register(String skypeUserToken, String deviceRegistrationToken) throws Throwable {
+    public void register(
+        String skypeUserToken,
+        String deviceRegistrationToken,
+        SecretKey cryptoKey,
+        SecretKey authKey) throws Throwable {
         String registrarServiceUrl = getRegistrarServiceUrl(skypeUserToken);
         HttpRequest request = new HttpRequest(HttpMethod.POST, registrarServiceUrl);
         request
@@ -112,7 +128,7 @@ public class RegistrarClient {
             .setHeader(CONTENT_TYPE_HEADER, CONTENT_TYPE_JSON)
             .setHeader(SKYPE_TOKEN_HEADER, skypeUserToken);
 
-        addRequestBody(request, deviceRegistrationToken);
+        addRequestBody(request, deviceRegistrationToken, cryptoKey, authKey);
 
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] requestError = { null };
@@ -196,7 +212,11 @@ public class RegistrarClient {
         logger.info("Unregister succeed! RegistrationId:" + registrationId);
     }
 
-    private void addRequestBody(HttpRequest request, String deviceRegistrationToken) {
+    private void addRequestBody(
+        HttpRequest request,
+        String deviceRegistrationToken,
+        SecretKey cryptoKey,
+        SecretKey authKey) {
         this.registrationId = UUID.randomUUID().toString();
 
         ClientDescription clientDescription = new ClientDescription();
@@ -205,6 +225,10 @@ public class RegistrarClient {
         clientDescription.platformUIVersion = PLATFORM_UI_VERSION;
         clientDescription.applicationId = PUSHNOTIFICATION_APPLICATION_ID;
         clientDescription.templateKey = PUSHNOTIFICATION_TEMPLATE_KEY;
+
+        clientDescription.aesKey = Base64Util.encodeToString(cryptoKey.getEncoded());
+        clientDescription.authKey = Base64Util.encodeToString(authKey.getEncoded());
+        clientDescription.cryptoMethod = ENCRYPTION_KEY;
 
         Transports transports = new Transports();
         transports.fcm = new ArrayList<>();

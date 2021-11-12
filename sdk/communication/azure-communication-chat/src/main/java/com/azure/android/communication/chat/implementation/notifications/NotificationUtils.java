@@ -42,9 +42,18 @@ import org.threeten.bp.ZoneId;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public final class NotificationUtils {
 
@@ -64,6 +73,11 @@ public final class NotificationUtils {
     public static final int MAX_REGISTRATION_RETRY_COUNT = 3;
     public static final int MAX_REGISTRATION_RETRY_DELAY_S = 30;
     public static final int REGISTRATION_RENEW_IN_ADVANCE_S = 30;
+
+    private static final String CIPHER_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+    private static final int INITIALIZATION_VECTOR_SIZE = 16;
+    private static final int CIPHER_MODE_SIZE = 1;
+    private static final int HMAC_SIZE = 32;
 
     public enum CloudType {
         Public,
@@ -250,6 +264,61 @@ public final class NotificationUtils {
         }
 
         return CloudType.Public;
+    }
+
+    public static boolean verifyEncryptedPayload(
+        byte[] encryptionKey,
+        byte[] iv,
+        byte[] cipherText,
+        byte[] hmac,
+        SecretKey authKey) throws Throwable {
+        byte[] encryptionKeyIvCipherText = new byte[encryptionKey.length + iv.length + cipherText.length];
+        System.arraycopy(encryptionKey, 0, encryptionKeyIvCipherText, 0, encryptionKey.length);
+        System.arraycopy(iv, 0, encryptionKeyIvCipherText, encryptionKey.length, iv.length);
+        System.arraycopy(cipherText, 0, encryptionKeyIvCipherText,
+            encryptionKey.length + iv.length, cipherText.length);
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] sha256Hash = digest.digest(authKey.getEncoded());
+        Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+        hmacSHA256.init(new SecretKeySpec(sha256Hash, "HmacSHA256"));
+        byte[] result = hmacSHA256.doFinal(encryptionKeyIvCipherText);
+
+        return Arrays.equals(hmac, result);
+    }
+
+    public static String decryptPushNotificationPayload(
+        byte[] iv,
+        byte[] cipherText,
+        SecretKey cryptoKey) throws Throwable {
+        Cipher cipher = Cipher.getInstance(CIPHER_TRANSFORMATION);
+        cipher.init(Cipher.DECRYPT_MODE, cryptoKey, new IvParameterSpec(iv));
+
+        byte[] plainText = cipher.doFinal(cipherText);
+        return new String(plainText, StandardCharsets.UTF_8);
+    }
+
+    public static byte[] extractEncryptionKey(byte[] result) {
+        return Arrays.copyOfRange(result, 0, CIPHER_MODE_SIZE);
+    }
+
+    public static byte[] extractInitializationVector(byte[] result) {
+        return Arrays.copyOfRange(result, CIPHER_MODE_SIZE, CIPHER_MODE_SIZE + INITIALIZATION_VECTOR_SIZE);
+    }
+
+    public static byte[] extractCipherText(byte[] result) {
+        return Arrays.copyOfRange(
+            result,
+            CIPHER_MODE_SIZE + INITIALIZATION_VECTOR_SIZE,
+            CIPHER_MODE_SIZE + INITIALIZATION_VECTOR_SIZE + getCipherTextSize(result));
+    }
+
+    public static byte[] extractHmac(byte[] result) {
+        return Arrays.copyOfRange(result, result.length - HMAC_SIZE, result.length);
+    }
+
+    public static int getCipherTextSize(byte[] result) {
+        return result.length - HMAC_SIZE - CIPHER_MODE_SIZE - INITIALIZATION_VECTOR_SIZE;
     }
 
     private static ChatEvent getParticipantsRemoved(String body) {

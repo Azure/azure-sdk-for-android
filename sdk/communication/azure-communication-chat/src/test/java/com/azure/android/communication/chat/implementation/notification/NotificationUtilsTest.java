@@ -11,6 +11,7 @@ import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.communication.common.MicrosoftTeamsUserIdentifier;
 import com.azure.android.communication.common.PhoneNumberIdentifier;
 import com.azure.android.communication.common.UnknownIdentifier;
+import com.azure.android.core.util.Base64Util;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +22,31 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.Map;
 
+import javax.crypto.spec.SecretKeySpec;
+
 public class NotificationUtilsTest {
     private static final String USER_ID = "user_id";
+    private static final String VALID_ENCRYPTED_PUSH_NOTIFICATION_PAYLOAD = "cHypjvRkIsqImAf98fJcBxRjpwL69uB6jObZc" +
+        "ohMkgS0/VKs96/YuesHi6Hzz/AJ7eHHW3YQLeAJZKUFoTGUij7i/4m7fsT8C/GN/ZaXPe9SmqtUJXWC97TlOU+OtimNhy+BzWEwOC4aXq" +
+        "GU79TIznZ9x11Ri0KRG6xrCddVbFbHyKeMiXAtAKPl2EAQ9sQzp24CHvHu+yvpWfiGl15KS2KKfP78nV6JO7Oe7FbMfnO3iI7PpojvGHM" +
+        "T61XNvsB+vB7f+AgxdzklKZzOTfgtamoy6r2odYYygyKZIfpON/aYGx+L3VY/0bXyKfE4A7HMH/jUCmL0KiGw2OPnOZK7/8oCjvgaT+hL" +
+        "yikJfmFG06yawrsAi7I1s+2Yx7vZf4ZIKviB1QY0RWXUJa22b5QsNg5JcQPsLIEZic+ytldikP1QfUtyE9Huk9Vzr0yQ2MPOR28nu2bV6" +
+        "pvQ7yn30GgqGQP/b4pL6Vq3q3qJQ6vQCaGqaXfQaxKieT4K3kC9/VYFsYDLunObSwkgmLrFg/PpuUmaqx25WnzJD/fd0eAjQb8EaqKN2n" +
+        "U6UnXtEL/hr8+MnExCSfV7dh9du2xM7t16/KppetJO0xDlR0EZG1kD/Nq9dnzfb5wdPVLNQ9hQqrgH/xUL2wYh5CMpwJsOSfQLqbJUlWc" +
+        "EhZ8MfDY38HLOVdXp9aqf+CRthHjqiRVWhyHSOLRLHWItHaYrJG6mr8EOms5eWOpXKYdfC4PyobPLpT86oQSCLaKmv9AqaisML6ZYrgQv" +
+        "itcPnf9R5S5bsG3OMubAGkFvhT1N8YHvl9fjPmrkrDHZj3jBugVc2OUNb68j+Vv+FVhRfL1HOpyYgnYB8eQybiPEUsFeeOm1Ho0ROXU59" +
+        "fcRhJZL0NKNZ7oQ0j0ZkNT5jt6zdDKJeuLjUNJxovN5HzKYigaSrii9yJAnlKYZ7gNCHTCfTVhuMsHf3Qco/U5jJ+POSooJOOPtQYQE4a" +
+        "jYCs8hu+IwQqJrwJ/hJzxF";
+    private static final String VALID_DECRYPTED_PUSH_NOTIFICATION_PAYLOAD = "{" +
+        "\"senderId\": \"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000d-58e9-9adb-b0b7-3a3a0d0021b2\"," +
+        "\"recipientId\": \"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_0000000d-58e9-9adb-b0b7-3a3a0d0021b2\"," +
+        "\"transactionId\": \"9E3//s5sCEyPMTUeGqWQIg.1.1.1.1.1316030596.1.0\"," +
+        "\"groupId\": \"19:47b098d56d084eb4a790726c93ac03a0@thread.v2\"," +
+        "\"messageId\": \"1636001350674\",\"collapseId\":\"W3wRKlXaL6ZKuFkxHnaRL3Kk+BTEAjAoSndseSpL5dg=\"," +
+        "\"messageType\": \"Text\",\"messageBody\": \"Test message 1\",\"senderDisplayName\": \"First participant\"," +
+        "\"clientMessageId\": \"\",\"originalArrivalTime\": \"2021-11-04T04:49:10.674Z\",\"priority\": \"\"," +
+        "\"version\": \"1636001350674\"," +
+        "\"acsChatMessageMetadata\": \"{\\\"deliveryMode\\\":\\\"deliveryMode value\\\",\\\"tags\\\":\\\"tag1\\\"}\"}";
 
     @Test
     public void canParseMessageMetadata() {
@@ -172,5 +196,47 @@ public class NotificationUtilsTest {
 
         assertEquals(CloudType.Gcch, NotificationUtils.getUserCloudTypeFromSkypeToken(gcchSkypeToken));
         assertEquals(CloudType.Gcch, NotificationUtils.getUserCloudTypeFromSkypeToken(gcchAcsSkypeToken));
+    }
+
+    @Test
+    public void canVerifyValidEncryptedPayload() throws Throwable {
+        final byte[] authKeyBytes = Base64Util.decodeString("AVj04vV5fTriO33yPz6+ZdrM1rv/n+dNHcKiCA29V1I=");
+        final String encryptedPayload = VALID_ENCRYPTED_PUSH_NOTIFICATION_PAYLOAD;
+
+        byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
+        byte[] f = NotificationUtils.extractEncryptionKey(encryptedBytes);
+        byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
+        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+        byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
+
+        assertTrue(NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, new SecretKeySpec(authKeyBytes, "AES")));
+    }
+
+
+    @Test
+    public void canVerifyInvalidEncryptedPayload() throws Throwable {
+        final byte[] authKeyBytes = Base64Util.decodeString("AVj04vV5fTriO33yPz6+ZdrM1rv/n+dNHcKiCA29V1I=");
+        final String encryptedPayload = VALID_ENCRYPTED_PUSH_NOTIFICATION_PAYLOAD + "INVALID";
+
+        byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
+        byte[] f = NotificationUtils.extractEncryptionKey(encryptedBytes);
+        byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
+        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+        byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
+
+        assertFalse(NotificationUtils.verifyEncryptedPayload(f, iv, cipherText, hmac, new SecretKeySpec(authKeyBytes, "AES")));
+    }
+
+    @Test
+    public void canDecryptEncryptedPayload() throws Throwable {
+        final byte[] cryptoKeyBytes = Base64Util.decodeString("hhAWluHcNoBmt18D92+AquAELFLlK7WZEuPHzJ2jc+s=");
+        final String encryptedPayload = VALID_ENCRYPTED_PUSH_NOTIFICATION_PAYLOAD;
+
+        byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
+        byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
+        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+
+        String decryptedPayload = NotificationUtils.decryptPushNotificationPayload(iv, cipherText, new SecretKeySpec(cryptoKeyBytes, "AES"));
+        assertEquals(VALID_DECRYPTED_PUSH_NOTIFICATION_PAYLOAD, decryptedPayload);
     }
 }
