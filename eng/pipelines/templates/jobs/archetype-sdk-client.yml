@@ -13,8 +13,9 @@ jobs:
       vmImage: $(OSVmImage)
 
     steps:
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
@@ -44,8 +45,9 @@ jobs:
           Directory: ''
           CheckLinkGuidance: $true
 
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:check
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:check'
         displayName: Run code quality tools (lint, checkstyle and spotbug)
 
       - task: Gradle@2
@@ -90,26 +92,9 @@ jobs:
         parameters:
           AgentImage: $(OSVmImage)
 
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
-        displayName: Build and test
-
-      - ${{ each artifact in parameters.Artifacts }}:
-        - script: |
-            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/test-results/testDebugUnitTest/*.xml \
-               $(Build.ArtifactStagingDirectory)/
-          displayName: Stage test results for ${{artifact.name}}
-
-        - task: PublishCodeCoverageResults@1
-          inputs:
-            codeCoverageTool: 'JaCoCo'
-            summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
-            pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
-          displayName: Publish code coverage for ${{artifact.name}}
-
-      - task: PublishTestResults@2
+      - task: Gradle@2
         inputs:
-          searchFolder: '$(Build.ArtifactStagingDirectory)'
-          testResultsFiles: '*.xml'
-          testRunTitle: 'Unit Tests'
-        displayName: 'Publish unit test results'
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
+          publishJUnitResults: true
+          codeCoverageToolOption: 'jaCoCo'
+        displayName: Build and test
