@@ -96,5 +96,11 @@ jobs:
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
           publishJUnitResults: true
-          codeCoverageToolOption: 'jaCoCo'
         displayName: Build and test
+
+      - task: PublishCodeCoverageResults@1
+        inputs:
+          codeCoverageTool: 'JaCoCo'
+          summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
+          pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
+        displayName: Publish code coverage for ${{artifact.name}}
