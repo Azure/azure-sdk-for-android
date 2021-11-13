@@ -81,7 +81,7 @@ jobs:
   - job: 'UnitTest'
 
     variables:
-      - template: /eng/common/pipelines/templates/steps/verify-links.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
