@@ -29,6 +29,7 @@ stages:
           - task: Gradle@2
             inputs:
               tasks: 'dependencies --write-locks'
+              jdkVersion: $(JavaBuildVersion)
             displayName: Generate lockfiles
 
           - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0

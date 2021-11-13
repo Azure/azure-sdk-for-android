@@ -16,6 +16,7 @@ jobs:
       - task: Gradle@2
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
+          jdkVersion: $(JavaBuildVersion)
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
@@ -48,11 +49,13 @@ jobs:
       - task: Gradle@2
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:check'
+          jdkVersion: $(JavaBuildVersion)
         displayName: Run code quality tools (lint, checkstyle and spotbug)
 
       - task: Gradle@2
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
+          jdkVersion: $(JavaBuildVersion)
           publishJUnitResults: false
           checkStyleRunAnalysis: true
           findBugsRunAnalysis: false
@@ -95,6 +98,7 @@ jobs:
       - task: Gradle@2
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
+          jdkVersion: $(JavaTestVersion)
           publishJUnitResults: true
         displayName: Build and test
 
