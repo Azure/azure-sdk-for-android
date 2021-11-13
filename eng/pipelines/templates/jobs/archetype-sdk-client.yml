@@ -6,7 +6,7 @@ jobs:
   - job: 'Build'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
@@ -32,7 +32,7 @@ jobs:
   - job: 'Analyze'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
@@ -40,9 +40,9 @@ jobs:
 
     steps:
 
-      - template: ../../../common/pipelines/templates/steps/verify-links.yml
+      - template: /eng/common/pipelines/templates/steps/verify-links.yml
         parameters:
-          Directory: ''
+          Directory: sdk/${{ parameters.ServiceDirectory }}
           CheckLinkGuidance: $true
 
       - task: Gradle@2
@@ -81,7 +81,7 @@ jobs:
   - job: 'UnitTest'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/common/pipelines/templates/steps/verify-links.yml
 
     pool:
       name: $(Pool)
