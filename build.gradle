@@ -242,6 +242,11 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             }
         }
     }
+
+    // Used by aggregate-report pipeline to generate .lockfiles
+    dependencyLocking {
+        lockAllConfigurations()
+    }
 }
 
 allprojects {

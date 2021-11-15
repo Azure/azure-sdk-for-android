@@ -6,15 +6,17 @@ jobs:
   - job: 'Build'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
       vmImage: $(OSVmImage)
 
     steps:
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
+          jdkVersion: $(JavaBuildVersion)
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
@@ -31,7 +33,7 @@ jobs:
   - job: 'Analyze'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
@@ -39,18 +41,21 @@ jobs:
 
     steps:
 
-      - template: ../../../common/pipelines/templates/steps/verify-links.yml
+      - template: /eng/common/pipelines/templates/steps/verify-links.yml
         parameters:
           Directory: ''
           CheckLinkGuidance: $true
 
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:check
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:check'
+          jdkVersion: $(JavaBuildVersion)
         displayName: Run code quality tools (lint, checkstyle and spotbug)
 
       - task: Gradle@2
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
+          jdkVersion: $(JavaBuildVersion)
           publishJUnitResults: false
           checkStyleRunAnalysis: true
           findBugsRunAnalysis: false
@@ -79,7 +84,7 @@ jobs:
   - job: 'UnitTest'
 
     variables:
-      - template: ../variables/globals.yml
+      - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
       name: $(Pool)
@@ -90,26 +95,17 @@ jobs:
         parameters:
           AgentImage: $(OSVmImage)
 
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
+          jdkVersion: $(JavaTestVersion)
+          publishJUnitResults: true
         displayName: Build and test
 
       - ${{ each artifact in parameters.Artifacts }}:
-        - script: |
-            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/test-results/testDebugUnitTest/*.xml \
-               $(Build.ArtifactStagingDirectory)/
-          displayName: Stage test results for ${{artifact.name}}
-
         - task: PublishCodeCoverageResults@1
           inputs:
             codeCoverageTool: 'JaCoCo'
             summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
             pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
           displayName: Publish code coverage for ${{artifact.name}}
-
-      - task: PublishTestResults@2
-        inputs:
-          searchFolder: '$(Build.ArtifactStagingDirectory)'
-          testResultsFiles: '*.xml'
-          testRunTitle: 'Unit Tests'
-        displayName: 'Publish unit test results'

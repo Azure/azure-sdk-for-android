@@ -1,0 +1,48 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - eng/pipelines/aggregate-reports.yml
+
+variables:
+  - template: /eng/pipelines/templates/variables/globals.yml
+
+stages:
+  - stage: AggregateReports
+    displayName: Aggregate Reports
+
+    jobs:
+      - job: 'ComponentGovernance'
+
+        variables:
+          - template: /eng/pipelines/templates/variables/globals.yml
+
+        pool:
+          name: $(Pool)
+          vmImage: $(OSVmImage)
+
+        steps:
+          - task: Gradle@2
+            inputs:
+              tasks: 'dependencies --write-locks'
+              jdkVersion: $(JavaBuildVersion)
+            displayName: Generate lockfiles
+
+          - task: ms.vss-governance-buildtask.governance-build-task-component-detection.ComponentGovernanceComponentDetection@0
+            # ComponentGovernance is currently unable to run on pull requests of public projects. Running on non-PR
+            # builds should be sufficient.
+            # Only run if building all libraries succeeded.
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
+            displayName: 'Component Detection'
+
+          # Run link verification at the end as it will run no matter the pipeline passing or failing.
+          # If this task fails with an error it shouldn't prevent aggregate reports from being generated.
+          - template: /eng/common/pipelines/templates/steps/verify-links.yml
+            parameters:
+              Directory: ""
+              CheckLinkGuidance: $true
+              Condition: succeededOrFailed()
