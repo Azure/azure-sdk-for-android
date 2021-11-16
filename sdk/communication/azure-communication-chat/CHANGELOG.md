@@ -1,5 +1,5 @@
 # Release History
-## 1.1.0-beta.4 (Unreleased)
+## 1.1.0-beta.4 (2021-11-16)
 ### Features Added
 - Added support FCM push notifications:
     - Added methods to `ChatAsyncClient`:
@@ -15,7 +15,6 @@
         - `addPushNotificationHandler`
         - `removePushNotificationHandler`
      - Added `ChatPushNotification` as the type for passing a push notification payload.
-     - Added `PushNotificationCallback` as the type for a customized push notification handler.
      - Added instructions in README.md in sample app for steps to setup FCM push notifications.
      - Added code in sample app for FCM push notification end to end scenario.
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient`.
@@ -26,7 +25,7 @@
 - Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatClient`.
 
 #### Dependency Updates
-- Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.7`.
+- Updated `com.azure.android.core` from `1.0.0-beta.6` to `1.0.0-beta.9`.
 
 ## 1.1.0-beta.3 (2021-09-15)
 - Version update.
