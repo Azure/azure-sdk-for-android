@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "";
-    private final String sdkVersion = "1.1.0-beta.4";
+    private final String sdkVersion = "1.1.0-beta.5";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat_Test_App";
     private static final String TAG = "[Chat Test App]";

@@ -1,4 +1,6 @@
 # Release History
+## 1.1.0-beta.5 (Unreleased)
+
 ## 1.1.0-beta.4 (2021-11-16)
 ### Features Added
 - Added support FCM push notifications:
