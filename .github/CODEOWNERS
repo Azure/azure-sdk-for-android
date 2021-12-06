@@ -20,7 +20,7 @@
 /sdk/storage/                                       @vcolin7 @anuchandy
 
 # PRLabel: %EngSys
-/sdk/template/                                      @Azure/azure-sdk-eng
+/sdk/template/                                      @benbp @weshaggard
 
 ###########
 # Eng Sys
