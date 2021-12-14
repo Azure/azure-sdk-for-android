@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public final class UrlBuilder {
     private static final Map<String, UrlBuilder> PARSED_URLS = new HashMap<>();
+    private static final int MAX_CACHE_SIZE = 10000;
     private static final Object PARSED_URLS_LOCK = new Object();
 
     private String scheme;
@@ -306,7 +307,15 @@ public final class UrlBuilder {
          */
         // ConcurrentHashMap doesn't allow for null keys, coerce it into an empty string.
         final String safeUrl = (url == null) ? "" : url;
+
         synchronized (PARSED_URLS_LOCK) {
+            // If the number of parsed URLs are above the threshold clear the map and start fresh.
+            // This prevents the map from growing without bounds if too many unique URLs are parsed.
+            // TODO (alzimmer): consider using an LRU cache to evict selectively.
+            if (PARSED_URLS.size() >= MAX_CACHE_SIZE) {
+                PARSED_URLS.clear();
+            }
+
             UrlBuilder urlBuilder = PARSED_URLS.get(safeUrl);
             if (urlBuilder == null) {
                 urlBuilder = new UrlBuilder().with(safeUrl, UrlTokenizerState.SCHEME_OR_HOST);

@@ -345,10 +345,10 @@ final class HttpRequestMapper {
                     String serializedElement = this.jacksonSerder.serializeRaw(element);
                     if (serializedElement != null) {
                         if (shouldEncode) {
-                            formDataEntryBuilder.append(encodedEntryKey + "="
-                                + UrlEscapers.FORM_ESCAPER.escape(serializedElement));
+                            formDataEntryBuilder.append(encodedEntryKey).append("=")
+                                .append(UrlEscapers.FORM_ESCAPER.escape(serializedElement));
                         } else {
-                            formDataEntryBuilder.append(encodedEntryKey + "=" + serializedElement);
+                            formDataEntryBuilder.append(encodedEntryKey).append("=").append(serializedElement);
                         }
                         formDataEntryBuilder.append("&");
                     }

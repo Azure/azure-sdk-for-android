@@ -4,9 +4,9 @@
 package com.azure.android.core.serde.jackson;
 
 import android.text.TextUtils;
-
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenModule;
+import com.azure.android.core.util.Function;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -40,7 +41,11 @@ import java.util.regex.Pattern;
  */
 public final class JacksonSerder {
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
-    private static JacksonSerder jacksonSerder;
+
+    private static final int CACHE_SIZE_LIMIT = 10000;
+
+    private static final Map<Type, JavaType> TYPE_TO_JAVA_TYPE_CACHE = new HashMap<>();
+    private static final Object TYPE_TO_JAVA_TYPE_CACHE_LOCK = new Object();
 
     private final ClientLogger logger = new ClientLogger(JacksonSerder.class);
 
@@ -49,16 +54,21 @@ public final class JacksonSerder {
     private final ObjectMapper xmlMapper;
 
 
+    private static final class JacksonSerderHolder {
+        /*
+         * The lazily-created JacksonSerder that is a constant.
+         */
+        private static final JacksonSerder JACKSON_SERDER = new JacksonSerder();
+    }
+
+
     /**
      * maintain singleton instance of the default serializer adapter.
      *
      * @return the default serializer
      */
-    public static synchronized JacksonSerder createDefault() {
-        if (jacksonSerder == null) {
-            jacksonSerder = new JacksonSerder();
-        }
-        return jacksonSerder;
+    public static JacksonSerder createDefault() {
+        return JacksonSerderHolder.JACKSON_SERDER;
     }
 
     /**
@@ -339,11 +349,10 @@ public final class JacksonSerder {
     }
 
     private JavaType createJavaType(Type type) {
-        JavaType result;
         if (type == null) {
-            result = null;
+            return null;
         } else if (type instanceof JavaType) {
-            result = (JavaType) type;
+            return (JavaType) type;
         } else if (type instanceof ParameterizedType) {
             final ParameterizedType parameterizedType = (ParameterizedType) type;
             final Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
@@ -351,14 +360,30 @@ public final class JacksonSerder {
             for (int i = 0; i != actualTypeArguments.length; i++) {
                 javaTypeArguments[i] = createJavaType(actualTypeArguments[i]);
             }
-            result = this.mapper
-                .getTypeFactory()
-                .constructParametricType((Class<?>) parameterizedType.getRawType(), javaTypeArguments);
+
+            return getFromCache(type, t -> mapper.getTypeFactory()
+                .constructParametricType((Class<?>) parameterizedType.getRawType(), javaTypeArguments));
         } else {
-            result = this.mapper
-                .getTypeFactory().constructType(type);
+            return getFromCache(type, t -> mapper.getTypeFactory().constructType(type));
         }
-        return result;
     }
 
+    /*
+     * Helper method that gets the value for the given key from the cache.
+     */
+    private static JavaType getFromCache(Type key, Function<Type, JavaType> compute) {
+        synchronized (TYPE_TO_JAVA_TYPE_CACHE_LOCK) {
+            if (TYPE_TO_JAVA_TYPE_CACHE.size() >= CACHE_SIZE_LIMIT) {
+                TYPE_TO_JAVA_TYPE_CACHE.clear();
+            }
+
+            JavaType javaType = TYPE_TO_JAVA_TYPE_CACHE.get(key);
+            if (javaType == null) {
+                javaType = compute.call(key);
+                TYPE_TO_JAVA_TYPE_CACHE.put(key, javaType);
+            }
+
+            return javaType;
+        }
+    }
 }

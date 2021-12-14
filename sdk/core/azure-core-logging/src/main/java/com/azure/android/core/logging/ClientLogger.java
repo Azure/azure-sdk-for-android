@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
+
+import static com.azure.android.core.logging.implementation.LogUtils.removeNewLinesFromLogMessage;
 
 /**
  * This is a fluent logger helper class that wraps a pluggable {@link Logger}.
@@ -27,7 +28,6 @@ import java.util.regex.Pattern;
  * </ol>
  */
 public class ClientLogger {
-    private static final Pattern CRLF_PATTERN = Pattern.compile("[\r\n]");
     private static final String LINE_SEPARATOR;
     private final Logger logger;
 
@@ -67,7 +67,7 @@ public class ClientLogger {
      */
     public void verbose(String message) {
         if (logger.isDebugEnabled()) {
-            logger.debug(sanitizeLogMessageInput(message));
+            logger.debug(removeNewLinesFromLogMessage(message));
         }
     }
 
@@ -91,7 +91,7 @@ public class ClientLogger {
      */
     public void info(String message) {
         if (logger.isInfoEnabled()) {
-            logger.info(sanitizeLogMessageInput(message));
+            logger.info(removeNewLinesFromLogMessage(message));
         }
     }
 
@@ -115,7 +115,7 @@ public class ClientLogger {
      */
     public void warning(String message) {
         if (logger.isWarnEnabled()) {
-            logger.warn(sanitizeLogMessageInput(message));
+            logger.warn(removeNewLinesFromLogMessage(message));
         }
     }
 
@@ -139,7 +139,7 @@ public class ClientLogger {
      */
     public void error(String message) {
         if (logger.isErrorEnabled()) {
-            logger.error(sanitizeLogMessageInput(message));
+            logger.error(removeNewLinesFromLogMessage(message));
         }
     }
 
@@ -259,7 +259,8 @@ public class ClientLogger {
             }
         }
 
-        sanitizeLogMessageInput(format);
+        format = removeNewLinesFromLogMessage(format);
+
         switch (logLevel) {
             case VERBOSE:
                 logger.debug(format, args);
@@ -333,16 +334,6 @@ public class ClientLogger {
      */
     private Object[] removeThrowable(Object... args) {
         return Arrays.copyOf(args, args.length - 1);
-    }
-
-    /**
-     * Removes CRLF pattern in the {@code logMessage}.
-     *
-     * @param logMessage The log message to sanitize.
-     * @return The updated logMessage.
-     */
-    private static String sanitizeLogMessageInput(String logMessage) {
-        return CRLF_PATTERN.matcher(logMessage).replaceAll("");
     }
 
     /**
