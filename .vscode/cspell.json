@@ -9,12 +9,18 @@
       "en_US",
       "en-gb"
     ],
+    "ignorePaths": [
+      "eng/common/**"
+    ],
     "words": [
         "azsdk",
         "NOCACHE",
         "mockito",
         "okhttp",
-        "Deserialization"
+        "Deserialization",
+        "jacoco",
+        "gcch",
+        "odata"
     ],
     "allowCompoundWords": true
 }
