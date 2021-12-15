@@ -11,6 +11,8 @@
 # Azure Tooling #
 node_modules
 .vscode
+**/.vscode/*
+!.vscode/cspell.json
 
 # Eclipse #
 *.pydevproject
