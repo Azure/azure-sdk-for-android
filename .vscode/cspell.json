@@ -1,0 +1,20 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "languageId": "java",
+    "dictionaries": [
+      "powershell",
+      "java",
+      "softwareTerms",
+      "en_US",
+      "en-gb"
+    ],
+    "words": [
+        "azsdk",
+        "NOCACHE",
+        "mockito",
+        "okhttp",
+        "Deserialization"
+    ],
+    "allowCompoundWords": true
+}
