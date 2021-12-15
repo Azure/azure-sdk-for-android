@@ -10,7 +10,8 @@
       "en-gb"
     ],
     "ignorePaths": [
-      "eng/common/**"
+      "eng/common/**",
+      ".vscode/cspell.json"
     ],
     "words": [
         "azsdk",
