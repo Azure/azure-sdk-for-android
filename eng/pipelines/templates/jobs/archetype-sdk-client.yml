@@ -30,6 +30,15 @@ jobs:
         artifact: packages
         displayName: Publish packages
 
+      - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
+        displayName: 'Generate BOM'
+        inputs:
+          BuildDropPath: $(Build.ArtifactStagingDirectory)
+
+      - publish: $(Build.ArtifactStagingDirectory)/_manifest
+        displayName: 'Publish BOM'
+        artifact: 'manifest'
+
   - job: 'Analyze'
 
     variables:
