@@ -1,6 +1,11 @@
 # Release History
 ## 1.1.0-beta.1 (Unreleased)
 
+### Other updates
+
+#### Dependency updates
+- Updated `jackson-databind` dependency to `2.12.6`
+
 ## 1.0.1 (2021-06-15)
 ### Dependency Updates
 - Updated `com.azure.android.core` from `1.0.0-beta.5` to `1.0.0-beta.6`

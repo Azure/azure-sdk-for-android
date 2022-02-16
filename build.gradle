@@ -264,7 +264,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         azureCommunicationCommonVersion = "1.0.1"
         azureCoreVersion = "1.0.0-beta.9"
-        jacksonVersion = "2.12.5" // Do not upgrade to 2.13, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2
+        jacksonVersion = "2.12.6" // Do not upgrade to 2.13, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2
         junitJupiterVersion = "5.7.2"
         mockitoVersion = "4.0.0"
         nimbusJoseJwtTestVersion = "9.15.2"
