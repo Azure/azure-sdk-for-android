@@ -1,5 +1,13 @@
 # Release History
 
+## 1.0.0-beta.9 (Unreleased)
+
+### Other changes
+
+#### Dependency updates
+- Updated `jackson-dataformat-xml` dependency to `2.12.6`.
+- Updated `jackson-datatype-jsr310` dependency to `2.12.6`.
+
 ## 1.0.0-beta.9 (2021-11-08)
 
 ### Other changes
