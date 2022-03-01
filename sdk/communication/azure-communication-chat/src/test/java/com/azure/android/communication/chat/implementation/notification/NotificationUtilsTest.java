@@ -132,6 +132,30 @@ public class NotificationUtilsTest {
     }
 
     @Test
+    public void canParseAcsGcchUserRawId() {
+        final String acsUserRawId = "8:gcch-acs:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(acsUserRawId);
+
+        assertNotNull(communicationIdentifier);
+        assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
+        CommunicationUserIdentifier communicationUserIdentifier =
+            (CommunicationUserIdentifier) communicationIdentifier;
+        assertEquals(acsUserRawId, communicationUserIdentifier.getId());
+    }
+
+    @Test
+    public void canParseAcsDodUserRawId() {
+        final String acsUserRawId = "8:dod-acs:" + USER_ID;
+        CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(acsUserRawId);
+
+        assertNotNull(communicationIdentifier);
+        assertTrue(communicationIdentifier instanceof CommunicationUserIdentifier);
+        CommunicationUserIdentifier communicationUserIdentifier =
+            (CommunicationUserIdentifier) communicationIdentifier;
+        assertEquals(acsUserRawId, communicationUserIdentifier.getId());
+    }
+
+    @Test
     public void canParseSpoolUserRawId() {
         final String spoolUserRawId = "8:spool:" + USER_ID;
         CommunicationIdentifier communicationIdentifier = NotificationUtils.getCommunicationIdentifier(spoolUserRawId);
