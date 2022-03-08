@@ -17,7 +17,7 @@ Azure Core library for serialization and deserialization using Jackson.
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-jackson</artifactId>
-    <version>1.0.0-beta.9</version>
+    <version>1.0.0-beta.10</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})

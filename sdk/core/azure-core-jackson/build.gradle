@@ -13,7 +13,10 @@ dependencies {
     // <!-- begin: api Dependencies -->
     compileOnly project (":sdk:core:azure-core") // provided scope
 
+    // We can't upgrade Jackson to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
+    //noinspection GradleDependency
     api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    //noinspection GradleDependency
     api "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
     api "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
     // <!-- end: api Dependencies -->
