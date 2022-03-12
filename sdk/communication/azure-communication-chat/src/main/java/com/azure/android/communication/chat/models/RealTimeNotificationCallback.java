@@ -4,7 +4,7 @@
 package com.azure.android.communication.chat.models;
 
 /**
- *  Functional interface of realtime notification callback
+ *  Functional interface of real time notification callback
  */
 @FunctionalInterface
 public interface RealTimeNotificationCallback {

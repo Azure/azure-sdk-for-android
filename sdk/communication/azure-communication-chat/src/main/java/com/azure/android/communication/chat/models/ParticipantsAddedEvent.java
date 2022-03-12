@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -96,7 +96,7 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
 
         try {
             JSONObject addedByJsonObject = new JSONObject(this.addedByJsonString);
-            CommunicationIdentifier addedByCommunicationIdentifier = NotificationUtils.getCommunicationIdentifier(
+            CommunicationIdentifier addedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
                 addedByJsonObject.getString("participantId"));
 
             this.addedBy
@@ -119,14 +119,14 @@ public class ParticipantsAddedEvent extends ChatThreadEvent {
             JSONArray participantsAddedJsonArray = new JSONArray(this.participantsAddedJsonString);
             for (int i = 0; i < participantsAddedJsonArray.length(); i++) {
                 JSONObject participant = participantsAddedJsonArray.getJSONObject(i);
-                CommunicationIdentifier communicationUser = NotificationUtils.getCommunicationIdentifier(
+                CommunicationIdentifier communicationUser = TrouterUtils.getCommunicationIdentifier(
                     participant.getString("participantId"));
 
                 ChatParticipant chatParticipant = new ChatParticipant();
                 chatParticipant.setCommunicationIdentifier(communicationUser);
                 chatParticipant.setDisplayName(participant.getString("displayName"));
                 chatParticipant.setShareHistoryTime(
-                    NotificationUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
+                    TrouterUtils.parseEpochTime(participant.getLong("shareHistoryTime")));
 
                 this.participantsAdded.add(chatParticipant);
             }

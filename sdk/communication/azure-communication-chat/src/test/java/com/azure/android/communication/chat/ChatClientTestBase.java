@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
@@ -137,15 +136,6 @@ public class ChatClientTestBase extends TestBase {
         options.setContent("Content");
         options.setSenderDisplayName("Tester");
         options.setType(ChatMessageType.TEXT);
-        options.setMetadata(new HashMap<String, String>() {
-            {
-                put("tags", "tags value");
-                put("deliveryMode", "deliveryMode value");
-                put("onedriveReferences", "onedriveReferences");
-                put("amsreferences", "[\\\"test url file 3\\\"]");
-                put("key", "value key");
-            }
-        });
 
         return options;
     }
@@ -153,14 +143,6 @@ public class ChatClientTestBase extends TestBase {
     public static UpdateChatMessageOptions updateMessageOptions() {
         UpdateChatMessageOptions options = new UpdateChatMessageOptions();
         options.setContent("Update Test");
-        options.setMetadata(new HashMap<String, String>() {
-            {
-                put("tags", "");
-                put("deliveryMode", "deliveryMode value - updated");
-                put("onedriveReferences", "onedriveReferences - updated");
-                put("amsreferences", "[\\\"test url file 3\\\"]");
-            }
-        });
 
         return options;
     }

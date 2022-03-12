@@ -17,7 +17,6 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.TypingNotificationOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.HttpCallback;
@@ -30,7 +29,6 @@ import com.azure.android.core.test.TestMode;
 import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.android.core.util.AsyncStreamHandler;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.util.RequestContext;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,7 +36,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.threeten.bp.OffsetDateTime;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -586,22 +583,13 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         SendChatMessageOptions messageRequest = new SendChatMessageOptions()
             .setType(ChatMessageType.HTML)
             .setSenderDisplayName("John")
-            .setContent("<div>test</div>")
-            .setMetadata(new HashMap<String, String>() {
-                {
-                    put("tags", "");
-                    put("deliveryMode", "deliveryMode value - updated");
-                    put("onedriveReferences", "onedriveReferences - updated");
-                    put("amsreferences", "[\\\"test url file 3\\\"]");
-                }
-            });
+            .setContent("<div>test</div>");
 
         final String messageId = this.chatThreadClient.sendMessage(messageRequest).get().getId();
         final ChatMessage message = this.chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
-        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
 
@@ -704,7 +692,6 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
-        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
     @ParameterizedTest
@@ -729,7 +716,6 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         assertEquals(message.getContent().getMessage(), messageRequest.getContent());
         assertEquals(message.getType(), messageRequest.getType());
         assertEquals(message.getSenderDisplayName(), messageRequest.getSenderDisplayName());
-        assertEquals(message.getMetadata(), messageRequest.getMetadata());
     }
 
     @ParameterizedTest
@@ -920,11 +906,6 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
         this.chatThreadClient.updateMessage(messageId, updateMessageRequest).get();
         final ChatMessage message = chatThreadClient.getMessage(messageId).get();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
-        assertEquals(message.getMetadata().containsKey("tags"), false);
-        assertEquals(message.getMetadata().get("deliveryMode"), updateMessageRequest.getMetadata().get("deliveryMode"));
-        assertEquals(message.getMetadata().get("onedriveReferences"), updateMessageRequest.getMetadata().get("onedriveReferences"));
-        assertEquals(message.getMetadata().get("amsreferences"), messageRequest.getMetadata().get("amsreferences"));
-        assertEquals(message.getMetadata().get("key"), messageRequest.getMetadata().get("key"));
     }
 
     @ParameterizedTest
@@ -980,11 +961,6 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
         ChatMessage message = getResponse.getValue();
         assertEquals(message.getContent().getMessage(), updateMessageRequest.getContent());
-        assertEquals(message.getMetadata().containsKey("tags"), false);
-        assertEquals(message.getMetadata().get("deliveryMode"), updateMessageRequest.getMetadata().get("deliveryMode"));
-        assertEquals(message.getMetadata().get("onedriveReferences"), updateMessageRequest.getMetadata().get("onedriveReferences"));
-        assertEquals(message.getMetadata().get("amsreferences"), messageRequest.getMetadata().get("amsreferences"));
-        assertEquals(message.getMetadata().get("key"), messageRequest.getMetadata().get("key"));
     }
 
     @ParameterizedTest
@@ -1118,37 +1094,11 @@ public class ChatThreadAsyncClientTest extends ChatClientTestBase {
 
     @ParameterizedTest
     @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
-    public void canSendTypingNotificationWithOptions(HttpClient httpClient) throws ExecutionException, InterruptedException {
-        setupTest(httpClient);
-
-        TypingNotificationOptions options = new TypingNotificationOptions();
-        options.setSenderDisplayName("Sender Display Name");
-
-        this.chatThreadClient.sendTypingNotification(options, RequestContext.NONE).get();
-    }
-
-    @ParameterizedTest
-    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
     public void canSendTypingNotificationWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
         setupTest(httpClient);
 
         CompletableFuture<Response<Void>> completableFuture
             = this.chatThreadClient.sendTypingNotificationWithResponse(null);
-
-        Response<Void> response = completableFuture.get();
-        assertEquals(200, response.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @MethodSource("com.azure.android.core.test.TestBase#getHttpClients")
-    public void canSendTypingNotificationWithOptionsWithResponse(HttpClient httpClient) throws ExecutionException, InterruptedException {
-        setupTest(httpClient);
-
-        TypingNotificationOptions options = new TypingNotificationOptions();
-        options.setSenderDisplayName("Sender Display Name");
-
-        CompletableFuture<Response<Void>> completableFuture
-            = this.chatThreadClient.sendTypingNotificationWithResponse(options, null);
 
         Response<Void> response = completableFuture.get();
         assertEquals(200, response.getStatusCode());

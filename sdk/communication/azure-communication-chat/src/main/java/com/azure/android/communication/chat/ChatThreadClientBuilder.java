@@ -26,9 +26,6 @@ import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
 
-import static com.azure.android.communication.chat.BuildConfig.LIBRARY_PACKAGE_NAME;
-import static com.azure.android.communication.chat.BuildConfig.VERSION_NAME;
-
 /**
  * Builder for creating clients of Azure Communication Service Chat
  */
@@ -276,7 +273,7 @@ public final class ChatThreadClientBuilder {
 
     private void applyRequiredPolicies(List<HttpPipelinePolicy> policies, HttpPipelinePolicy authorizationPolicy) {
         policies.add(
-            new UserAgentPolicy(null, LIBRARY_PACKAGE_NAME, VERSION_NAME));
+            new UserAgentPolicy(null, "azure-communication-chat", "1.0.1"));
         policies.add(retryPolicy == null ? RetryPolicy.withExponentialBackoff() : retryPolicy);
         policies.add(new CookiePolicy());
         policies.add(authorizationPolicy);

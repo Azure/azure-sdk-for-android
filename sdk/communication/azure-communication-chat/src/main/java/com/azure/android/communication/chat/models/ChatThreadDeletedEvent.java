@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -70,7 +70,7 @@ public class ChatThreadDeletedEvent extends ChatThreadEvent {
 
         try {
             JSONObject deletedByJsonObject = new JSONObject(this.deletedByJsonString);
-            CommunicationIdentifier deletedByCommunicationIdentifier = NotificationUtils.getCommunicationIdentifier(
+            CommunicationIdentifier deletedByCommunicationIdentifier = TrouterUtils.getCommunicationIdentifier(
                 deletedByJsonObject.getString("participantId"));
 
             this.deletedBy

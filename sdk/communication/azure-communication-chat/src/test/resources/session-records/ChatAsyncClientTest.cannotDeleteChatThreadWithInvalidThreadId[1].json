@@ -1,22 +1,21 @@
 {
   "networkCallRecords" : [ {
     "Method" : "DELETE",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/invalid_chat_thread_id?api-version=2021-09-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/invalid_chat_thread_id?api-version=2021-03-07",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)"
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
-      "X-Processing-Time" : "466ms",
-      "MS-CV" : "e3rf3P0gFUOWT1hgZ0mFLg.0",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6",
+      "X-Processing-Time" : "286ms",
+      "MS-CV" : "HefhD++RoUarZPknap6vVQ.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0DMQ3YQAAAABGDf6NkD2mQq8dwFeA/r0PUERYMzFFREdFMDIwOAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
+      "X-Azure-Ref" : "0Q9RbYAAAAAAr2pYQoBbNTaady7t20x0LU0pDRURHRTAzMjAAY2M5Mjc1OGQtMDVmNy00YWQ2LWFhNWUtMGZhOTcxOGQ4OTg1",
       "StatusCode" : "400",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"BadRequest\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Tue, 07 Sep 2021 19:57:00 GMT",
+      "Date" : "Thu, 25 Mar 2021 00:07:31 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null

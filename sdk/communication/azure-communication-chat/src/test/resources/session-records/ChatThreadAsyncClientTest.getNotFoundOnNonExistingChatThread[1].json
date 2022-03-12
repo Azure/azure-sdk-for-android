@@ -1,45 +1,43 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-09-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
       "Content-Type" : "application/json"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
-      "retry-after" : "0",
-      "StatusCode" : "201",
-      "Date" : "Tue, 07 Sep 2021 19:57:23 GMT",
       "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "929ms",
-      "MS-CV" : "4E/ivvjh/0W5G8tRseLP2A.0",
-      "X-Azure-Ref" : "0IsQ3YQAAAAAXgTOEuQnSTpUKwX16/ubKUERYMzFFREdFMDIxNgA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
-      "Body" : "{\"chatThread\":{\"id\":\"19:OESH-qAP9843FgDTw7gwhU365xTP1ZxOhMC4ouD7BFg1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-09-07T19:57:23Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\",\"communicationUser\":{\"id\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\"}}}}",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "849ms",
+      "MS-CV" : "BFZV9IhtfE+jOcFnYau7xA.0",
+      "retry-after" : "0",
+      "X-Azure-Ref" : "02xpaYAAAAAApGTaTFeLyTraYwTttfbtuWVZSMzBFREdFMDQxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
+      "StatusCode" : "201",
+      "Body" : "{\"chatThread\":{\"id\":\"19:ZHd6iAENW0viWfTockamv6AVGNSs1u7dKlD-DkvCayU1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-23T16:44:12Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\"}}}}",
+      "Date" : "Tue, 23 Mar 2021 16:44:12 GMT",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-sdktester-e2e.communication.azure.com/chat/threads/19%3AOESH-qAP9843FgDTw7gwhU365xTP1ZxOhMC4ouD7BFg1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3AZHd6iAENW0viWfTockamv6AVGNSs1u7dKlD-DkvCayU1@thread.v2"
     },
     "Exception" : null
   }, {
     "Method" : "GET",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads/19:00000000000000000000000000000000@thread.v2?api-version=2021-09-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads/19:00000000000000000000000000000000@thread.v2?api-version=2021-03-07",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)"
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
-      "X-Processing-Time" : "189ms",
-      "MS-CV" : "kqoTyLXw60q2H7/dD3Q+Ug.0",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "315ms",
+      "MS-CV" : "3SFgOW7Pt0uBuL5M0Enm4g.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0I8Q3YQAAAABwdrPPkmZDSZDNpcSN5rlhUERYMzFFREdFMDIxNgA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
+      "X-Azure-Ref" : "03BpaYAAAAADbqmvtkqThTr+ypcdswz2VWVZSMzBFREdFMDQxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "404",
       "Body" : "{\r\n  \"CommunicationError\": {\r\n    \"Code\": \"NotFound\",\r\n    \"Message\": \"The specified thread id was not found.\",\r\n    \"Details\": []\r\n  }\r\n}",
-      "Date" : "Tue, 07 Sep 2021 19:57:23 GMT",
+      "Date" : "Tue, 23 Mar 2021 16:44:12 GMT",
       "Content-Type" : "application/json"
     },
     "Exception" : null

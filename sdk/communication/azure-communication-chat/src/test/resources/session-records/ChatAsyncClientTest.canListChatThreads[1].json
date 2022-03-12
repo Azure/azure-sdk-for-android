@@ -1,68 +1,43 @@
 {
   "networkCallRecords" : [ {
     "Method" : "POST",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-09-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)",
       "Content-Type" : "application/json"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
-      "retry-after" : "0",
-      "StatusCode" : "201",
-      "Date" : "Tue, 07 Sep 2021 19:57:08 GMT",
       "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "703ms",
-      "MS-CV" : "N7pvRMhIWk6MqP9g0TeD7w.0",
-      "X-Azure-Ref" : "0FMQ3YQAAAAAKKIYhjaqURoOjuR4Gc80MUERYMzFFREdFMDIxOAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
-      "Body" : "{\"chatThread\":{\"id\":\"19:7GbLPC1SpDyMcje3N9b0O-Lt1foA90E6ZusjpYICjns1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-09-07T19:57:08Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\",\"communicationUser\":{\"id\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\"}}}}",
-      "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-sdktester-e2e.communication.azure.com/chat/threads/19%3A7GbLPC1SpDyMcje3N9b0O-Lt1foA90E6ZusjpYICjns1@thread.v2"
-    },
-    "Exception" : null
-  }, {
-    "Method" : "POST",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-09-07",
-    "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)",
-      "Content-Type" : "application/json"
-    },
-    "Response" : {
-      "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "847ms",
+      "MS-CV" : "KxjnU4Jz3UOgIp4nJzErsg.0",
       "retry-after" : "0",
+      "X-Azure-Ref" : "0yxpaYAAAAADjT8sKsFRwSr9vZi3nchw7WVZSMzBFREdFMDMxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "201",
-      "Date" : "Tue, 07 Sep 2021 19:57:09 GMT",
-      "Strict-Transport-Security" : "max-age=2592000",
-      "X-Processing-Time" : "381ms",
-      "MS-CV" : "mbJJHFH4n0+tBljvdQD3iw.0",
-      "X-Azure-Ref" : "0FcQ3YQAAAADq5o034PKbRIOnvfTWk00OUERYMzFFREdFMDIxOAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
-      "Body" : "{\"chatThread\":{\"id\":\"19:7GbLPC1SpDyMcje3N9b0O-Lt1foA90E6ZusjpYICjns1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-09-07T19:57:08Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\",\"communicationUser\":{\"id\":\"8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_0000000c-005a-9fcc-ac00-343a0d007710\"}}}}",
+      "Body" : "{\"chatThread\":{\"id\":\"19:9wl38tWTp4nHOsYsBP2o_mZW8Wcsi8HQSXMFNoRHwEQ1@thread.v2\",\"topic\":\"Test\",\"createdOn\":\"2021-03-23T16:43:55Z\",\"createdByCommunicationIdentifier\":{\"rawId\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\",\"communicationUser\":{\"id\":\"8:acs:188d4cea-0a9b-4840-8fdc-7a5c71fe9bd0_00000008-fc3d-3058-b0b7-3a3a0d00b98f\"}}}}",
+      "Date" : "Tue, 23 Mar 2021 16:43:55 GMT",
       "Content-Type" : "application/json; charset=utf-8",
-      "Location" : "https://chat-sdktester-e2e.communication.azure.com/chat/threads/19%3A7GbLPC1SpDyMcje3N9b0O-Lt1foA90E6ZusjpYICjns1@thread.v2"
+      "Location" : "https://chat-int-runner.int.communication.azure.net/chat/threads/19%3A9wl38tWTp4nHOsYsBP2o_mZW8Wcsi8HQSXMFNoRHwEQ1@thread.v2"
     },
     "Exception" : null
   }, {
     "Method" : "GET",
-    "Uri" : "https://REDACTED.communication.azure.com/chat/threads?api-version=2021-09-07",
+    "Uri" : "https://REDACTED.int.communication.azure.net/chat/threads?api-version=2021-03-07",
     "Headers" : {
-      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0 (null; null)"
+      "User-Agent" : "azsdk-android-azure-communication-chat/1.0.0-beta.8 (null; null)"
     },
     "Response" : {
       "Transfer-Encoding" : "chunked",
-      "X-Cache" : "CONFIG_NOCACHE",
       "Strict-Transport-Security" : "max-age=2592000",
-      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07, 2021-04-05-preview6, 2021-09-07",
-      "X-Processing-Time" : "440ms",
-      "MS-CV" : "l8mxOtO+yUmmr1cqyqsuJg.0",
+      "api-supported-versions" : "2020-09-21-preview2, 2020-11-01-preview3, 2021-01-27-preview4, 2021-03-01-preview5, 2021-03-07",
+      "X-Processing-Time" : "269ms",
+      "MS-CV" : "hVqUrwhZbk+2kyMZ9+Nt5g.0",
       "retry-after" : "0",
-      "X-Azure-Ref" : "0FcQ3YQAAAAAwIXLKlaiPQL1rk7AC/luLUERYMzFFREdFMDIxNAA5ZmM3YjUxOS1hOGNjLTRmODktOTM1ZS1jOTE0OGFlMDllODE=",
+      "X-Azure-Ref" : "0zBpaYAAAAAAmzRHkuUCQRbjJcIZWHIMXWVZSMzBFREdFMDMxMQBjYzkyNzU4ZC0wNWY3LTRhZDYtYWE1ZS0wZmE5NzE4ZDg5ODU=",
       "StatusCode" : "200",
-      "Body" : "{\"value\":[{\"id\":\"19:7GbLPC1SpDyMcje3N9b0O-Lt1foA90E6ZusjpYICjns1@thread.v2\",\"topic\":\"Test\",\"lastMessageReceivedOn\":\"2021-09-07T19:57:09Z\"},{\"id\":\"19:1oldiuywCJSz3gznQmcHq4vZ_jysnF3jz5CDnGXrCzE1@thread.v2\",\"topic\":\"Test\",\"lastMessageReceivedOn\":\"2021-09-07T19:57:04Z\"},{\"id\":\"19:jGD5gZ8A3KbmWIBWjLp1M7OJeHaLVUdO8zEpiTU2ANA1@thread.v2\",\"topic\":\"Test\",\"deletedOn\":\"2021-09-07T19:57:03Z\",\"lastMessageReceivedOn\":\"2021-09-07T19:57:03Z\"},{\"id\":\"19:EuuYe44sGjmcc7Jkh4b8jFbFRNIv99Q0C_ramZ0lejE1@thread.v2\",\"topic\":\"Test\",\"deletedOn\":\"2021-09-07T19:57:02Z\",\"lastMessageReceivedOn\":\"2021-09-07T19:57:02Z\"},{\"id\":\"19:15d105e8555c449f83c010db02d45e71@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-07T17:24:13Z\"},{\"id\":\"19:f9c9bb5214f841da8c049c598fc054aa@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:24:50Z\"},{\"id\":\"19:72f212501cb9421c8a213aafefaa8fe6@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:24:26Z\"},{\"id\":\"19:a88ecfa095e640c49946f37136a4c4a4@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:24:03Z\"},{\"id\":\"19:902f2be9125b454fa385f34ecda6e2ee@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:22:08Z\"},{\"id\":\"19:728b9eb2d70540549d30a5b86f6cd97a@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:04:54Z\"},{\"id\":\"19:7218b2fa809f4260a80dfd0533aa31a3@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-03T23:04:26Z\"},{\"id\":\"19:615331e4e76148a488c6da017a1ddb26@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T22:22:41Z\"},{\"id\":\"19:dc33b38102eb45f49e103d012f07887d@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:58:58Z\"},{\"id\":\"19:a5d3109941124ff5ba7822ff6b329473@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:58:50Z\"},{\"id\":\"19:e1c5b23179d247d18fd57685555851cb@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:58:41Z\"},{\"id\":\"19:f520a58ac78c4e13bf932381b7166106@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:58:10Z\"},{\"id\":\"19:9e6eb727537d4d1d8507bc4690d99d88@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:57:52Z\"},{\"id\":\"19:10d01ceeb5624ce5b0a0883406bc7f1b@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:57:35Z\"},{\"id\":\"19:9ee70453b1494a38be1e3c21299917fe@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:57:05Z\"},{\"id\":\"19:ff607adfe3a54e8e941c389703d07a34@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T18:56:38Z\"},{\"id\":\"19:e2385c4ba092456e9b7b1065dd5746d5@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T17:04:13Z\"},{\"id\":\"19:237dcf9d802841539fb0152d43f47a4e@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T17:03:05Z\"},{\"id\":\"19:f08d70f5f7014a4680db3487f77bc954@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T01:55:45Z\"},{\"id\":\"19:c67a63d24f2e468e967edfed9c2f656d@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T01:54:09Z\"},{\"id\":\"19:24da9f24642945d9bfaeeb83df680ea0@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T01:53:50Z\"},{\"id\":\"19:501a0e8ef6684670b8a2874dd1471ba5@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T01:53:02Z\"},{\"id\":\"19:1e44976be535476f85af76a3fa14454a@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T00:40:34Z\"},{\"id\":\"19:7d9a30b7bbc047c3ac01413ee4ac4ca4@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T00:39:45Z\"},{\"id\":\"19:1aa38741412f48aa8bc523eb400fabd2@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T00:33:26Z\"},{\"id\":\"19:abc460222e434a0aa7638794517b28ce@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T00:26:44Z\"},{\"id\":\"19:4cb4fc5b06344ed89e1ba727f5ea5c34@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-09-01T00:26:23Z\"},{\"id\":\"19:eb2f23ce4c9e4d34a2636b2b22d7e501@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-30T22:54:39Z\"},{\"id\":\"19:32a006547ccc45278da00a56bfdb833e@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-30T22:52:46Z\"},{\"id\":\"19:08191c1819724cca92a48c689f6f27a2@thread.v2\",\"topic\":\"Postman update\",\"lastMessageReceivedOn\":\"2021-08-30T21:04:13Z\"},{\"id\":\"19:50d2cfdc2d8346b5a26e3f4f1d949879@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-30T05:09:57Z\"},{\"id\":\"19:69a976d11eaa4bdc8dd0313acbca440c@thread.v2\",\"topic\":\"Postman update\",\"deletedOn\":\"2021-08-30T00:11:03Z\",\"lastMessageReceivedOn\":\"2021-08-30T00:09:22Z\"},{\"id\":\"19:5abe6b9ee49743d7a50419db91686245@thread.v2\",\"topic\":\"Postman update\",\"deletedOn\":\"2021-08-29T21:05:29Z\",\"lastMessageReceivedOn\":\"2021-08-29T20:59:05Z\"},{\"id\":\"19:1ad284aa41224e3e901348f486bd6411@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-26T05:30:16Z\"},{\"id\":\"19:7f8ad4583fad4483815c4cefbfc2edfd@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-26T05:27:15Z\"},{\"id\":\"19:26466197dcb94a2b923fbe420f50a19c@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-26T00:18:42Z\"},{\"id\":\"19:15742dea92e8411fa62a2757a7e2bc14@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-24T21:58:46Z\"},{\"id\":\"19:0247c374c8ab439f9bdab93644c07974@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-24T21:55:46Z\"},{\"id\":\"19:9704b56b202e4a36af36a03ac632696a@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-24T21:53:01Z\"},{\"id\":\"19:3f926a89ba6e4b07ab7043c0b82c7404@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-24T21:52:16Z\"},{\"id\":\"19:0417b1f27dcf45e4b471ba7186d82177@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-20T23:39:53Z\"},{\"id\":\"19:f1b0dd5d561b4050883ed0d5d657744d@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-20T23:39:34Z\"},{\"id\":\"19:688d712dda8b45019d03d3105db5f6fb@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-20T23:39:20Z\"},{\"id\":\"19:89badfc6cdd048749c6bb9bb6f8c8457@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-20T23:39:07Z\"},{\"id\":\"19:ecbd7c46528b4b13872357c45870025b@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-19T22:13:57Z\"},{\"id\":\"19:75badacf2d874815862060692d38a22a@thread.v2\",\"topic\":\"http://foo.example.com/path/path/path/path/path/pfad¿\",\"lastMessageReceivedOn\":\"2021-08-19T22:13:32Z\"}]}",
-      "Date" : "Tue, 07 Sep 2021 19:57:10 GMT",
+      "Body" : "{\"value\":[]}",
+      "Date" : "Tue, 23 Mar 2021 16:43:55 GMT",
       "Content-Type" : "application/json; charset=utf-8"
     },
     "Exception" : null

@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;

@@ -5,8 +5,6 @@ package com.azure.android.communication.chat;
 
 import android.content.Context;
 
-import com.azure.android.communication.chat.models.ChatEvent;
-import com.azure.android.communication.chat.models.ChatPushNotification;
 import com.azure.android.communication.chat.models.ChatThreadItem;
 import com.azure.android.communication.chat.models.CreateChatThreadOptions;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
@@ -28,7 +26,6 @@ import com.azure.android.core.util.Function;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.concurrent.CompletableFuture;
-import java9.util.function.Consumer;
 
 /**
  * Sync Client that supports chat operations.
@@ -179,108 +176,34 @@ public final class ChatClient {
     }
 
     /**
-     * Start receiving realtime notifications.
-     * Until {@link ChatClient#stopRealtimeNotifications()} is called,
-     * realtime notifications will be enabled and the corresponding registration will auto-renew.
-     * If there's an error during registration initialization or renewal,
-     * realtime notifications will be disabled and {@code errorHandler} will be called.
-     * @param context the Android app context
-     * @param errorHandler error handler callback for registration failures
-     * @throws RuntimeException if realtime notifications failed to start.
-     */
-    public void startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler) {
-        this.client.startRealtimeNotifications(context, errorHandler);
-    }
-
-    /**
-     * Start receiving realtime notifications.
-     * Until {@link ChatClient#stopRealtimeNotifications()} is called,
-     * realtime notifications will be enabled and the corresponding registration will auto-renew.
-     * If there's an error during registration initialization or renewal, realtime notifications will be disabled.
+     * Receive real-time notifications.
      * @param skypeUserToken the skype user token
      * @param context the Android app context
-     * @throws RuntimeException if realtime notifications failed to start.
-     *
-     * @deprecated Use {@link ChatClient#startRealtimeNotifications(Context, Consumer)} instead.
+     * @throws RuntimeException if real-time notifications failed to start.
      */
-    @Deprecated
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
         this.client.startRealtimeNotifications(skypeUserToken, context);
     }
 
     /**
-     * Stop receiving realtime notifications.
-     * All registered handlers will be removed.
+     * Stop receiving real-time notifications.
      */
     public void stopRealtimeNotifications() {
         client.stopRealtimeNotifications();
     }
 
     /**
-     * Register current device for receiving incoming push notifications via FCM.
-     * Until {@link ChatClient#stopPushNotifications()} is called,
-     * push notifications will be enabled and the corresponding registration will auto-renew.
-     * If there's an error during registration initialization or renewal,
-     * push notifications will be disabled and {@code errorHandler} will be called.
-     * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
-     * @param errorHandler error handler callback for registration failures
-     * @throws RuntimeException if push notifications failed to start.
-     */
-    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
-        client.startPushNotifications(deviceRegistrationToken, errorHandler);
-    }
-
-    /**
-     * Unregister current device from receiving incoming push notifications.
-     * All registered handlers will be removed.
-     */
-    public void stopPushNotifications() {
-        client.stopPushNotifications();
-    }
-
-    /**
-     * Handle incoming push notification.
-     * Invoke corresponding chat event handle if registered.
-     * @param pushNotification Incoming push notification payload from the FCM SDK.
-     * @throws IllegalStateException if the push notification could not be handled.
-     *
-     * @return True if there's registered handler(s) for incoming push notification; otherwise, false.
-     */
-    public boolean handlePushNotification(ChatPushNotification pushNotification) {
-        return client.handlePushNotification(pushNotification);
-    }
-
-    /**
-     * Add handler for a chat event for push notifications.
+     * Add handler for a chat event.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
-     * @throws IllegalStateException if push notifications has not started yet.
-     */
-    public void addPushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
-        client.addPushNotificationHandler(chatEventType, listener);
-    }
-
-    /**
-     * Remove handler from a chat event for push notifications.
-     * @param chatEventType the chat event type
-     * @param listener the listener callback function
-     */
-    public void removePushNotificationHandler(ChatEventType chatEventType, Consumer<ChatEvent> listener) {
-        client.removePushNotificationHandler(chatEventType, listener);
-    }
-
-    /**
-     * Add handler for a chat event for realtime notifications.
-     * @param chatEventType the chat event type
-     * @param listener the listener callback function
-     * @throws IllegalStateException if realtime notifications has not started yet.
+     * @throws IllegalStateException if real-time notifications has not started yet.
      */
     public void addEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         this.client.addEventHandler(chatEventType, listener);
     }
 
     /**
-     * Remove handler from a chat event for realtime notifications.
+     * Remove handler from a chat event.
      * @param chatEventType the chat event type
      * @param listener the listener callback function
      */

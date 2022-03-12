@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.chat.implementation.notifications.signaling;
+package com.azure.android.communication.chat.implementation.signaling;
 
 import android.content.Context;
 
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
-
-import java9.util.function.Consumer;
 
 /**
  * The signaling client interface
@@ -27,14 +25,6 @@ public interface SignalingClient {
      * @param context the android application context
      */
     void start(String skypeUserToken, Context context);
-
-    /**
-     * Start the realtime connection.
-     * @param context the android application context
-     * @param errorHandler error handler callback for registration failures
-     */
-    void start(Context context, Consumer<Throwable> errorHandler);
-
     /**
      * Stop the realtime connection and unsubscribe all event handlers.
      */

@@ -3,8 +3,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
-import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.TrouterUtils;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.json.JSONException;
@@ -70,7 +70,7 @@ public final class ReadReceiptReceivedEvent extends ChatUserEvent {
     ReadReceiptReceivedEvent setReadOn() {
         try {
             JSONObject messageBodyJsonObject = new JSONObject(this.messageBody);
-            this.readOn = NotificationUtils.extractReadTimeFromConsumptionHorizon(
+            this.readOn = TrouterUtils.extractReadTimeFromConsumptionHorizon(
                 messageBodyJsonObject.getString("consumptionhorizon"));
 
         } catch (JSONException e) {

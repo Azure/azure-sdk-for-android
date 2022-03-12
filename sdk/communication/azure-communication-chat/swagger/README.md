@@ -34,13 +34,13 @@ Restore file chat/models/ChatMessageType.java
 
 ### Code generation settings
 ``` yaml
-input-file: https://raw.githubusercontent.com/Azure/azure-rest-api-specs/8dbeba81f3a838cd4b7efd70234f29cc1cdc7374/specification/communication/data-plane/Chat/stable/2021-09-07/communicationserviceschat.json
+input-file: https://int.chatgateway.trafficmanager.net/swagger/2021-03-07/swagger.json
 java: true
 output-folder: ..\
 license-header: MICROSOFT_MIT_SMALL
 namespace: com.azure.android.communication.chat
 generate-client-as-impl: true
-custom-types: ChatMessagePriority,ChatThreadItem,PostReadReceiptOptions,SendChatMessageOptions,UpdateChatMessageOptions,UpdateChatThreadOptions,ChatMessageType,SendChatMessageResult,TypingNotificationOptions
+custom-types: ChatMessagePriority,ChatThreadItem,PostReadReceiptOptions,SendChatMessageOptions,UpdateChatMessageOptions,UpdateChatThreadOptions,ChatMessageType,SendChatMessageResult
 custom-types-subpackage: models
 models-subpackage: implementation.models
 generate-client-interfaces: false
@@ -147,21 +147,3 @@ directive:
     }
 ```
 
-### Rename SendTypingNotificationRequest to TypingNotificationOptions
-``` yaml
-directive:
-- from: swagger-document
-  where: $.definitions
-  transform: >
-    if (!$.TypingNotificationOptions) {
-      $.TypingNotificationOptions = $.SendTypingNotificationRequest;
-      delete $.SendTypingNotificationRequest;
-    }
-- from: swagger-document
-  where: $["paths"]["/chat/threads/{chatThreadId}/typing"].post.parameters[2]
-  transform: >
-    if ($.schema && $.schema.$ref && $.schema.$ref.endsWith("SendTypingNotificationRequest")) {
-        const path = $.schema.$ref.replace(/[#].*$/, "#/definitions/TypingNotificationOptions");
-        $.schema = { "$ref": path };
-    }
-```

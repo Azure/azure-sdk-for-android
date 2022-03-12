@@ -9,8 +9,7 @@ import com.azure.android.core.util.ServiceVersion;
  * The versions of Chat Service supported by this client library.
  */
 public enum ChatServiceVersion implements ServiceVersion {
-    V2021_03_07("2021-03-07"),
-    V2021_09_07("2021-09-07");
+    V2021_03_07("2021-03-07");
 
     private final String version;
 
@@ -32,6 +31,6 @@ public enum ChatServiceVersion implements ServiceVersion {
      * @return The latest {@link ChatServiceVersion}
      */
     public static ChatServiceVersion getLatest() {
-        return V2021_09_07;
+        return V2021_03_07;
     }
 }

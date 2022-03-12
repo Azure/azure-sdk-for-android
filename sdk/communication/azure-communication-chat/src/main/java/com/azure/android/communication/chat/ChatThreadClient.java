@@ -15,7 +15,6 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.TypingNotificationOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationIdentifier;
 import com.azure.android.core.logging.ClientLogger;
@@ -437,7 +436,7 @@ public final class ChatThreadClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> sendTypingNotificationWithResponse(RequestContext requestContext) {
-        return block(this.client.sendTypingNotification(null, requestContext));
+        return block(this.client.sendTypingNotification(requestContext));
     }
 
     /**
@@ -449,21 +448,6 @@ public final class ChatThreadClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sendTypingNotification() {
         block(this.client.sendTypingNotification());
-    }
-
-    /**
-     * Posts a typing event to a thread, on behalf of a user.
-     *
-     * @param typingNotificationOptions the options for sending the typing notification.
-     * @param requestContext the context to associate with this operation.
-     * @throws ChatErrorResponseException if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the completion.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> sendTypingNotificationWithResponse(
-        TypingNotificationOptions typingNotificationOptions, RequestContext requestContext) {
-        return block(this.client.sendTypingNotification(typingNotificationOptions, requestContext));
     }
 
     /**

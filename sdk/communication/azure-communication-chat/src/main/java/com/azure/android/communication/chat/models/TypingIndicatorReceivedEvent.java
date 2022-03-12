@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.chat.implementation.notifications.signaling.EventAccessorHelper;
+import com.azure.android.communication.chat.implementation.signaling.EventAccessorHelper;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
@@ -25,12 +25,6 @@ public final class TypingIndicatorReceivedEvent extends ChatUserEvent {
      */
     @JsonProperty(value = "originalArrivalTime")
     private OffsetDateTime receivedOn;
-
-    /**
-     * The display name of the event sender.
-     */
-    @JsonProperty(value = "senderDisplayName")
-    private String senderDisplayName;
 
     static {
         EventAccessorHelper.setTypingIndicatorReceivedEventAccessor(event -> {
@@ -60,14 +54,5 @@ public final class TypingIndicatorReceivedEvent extends ChatUserEvent {
      */
     public OffsetDateTime getReceivedOn() {
         return receivedOn;
-    }
-
-    /**
-     * Gets the display name of the event sender.
-     *
-     * @return Value of The display name of the event sender.
-     */
-    public String getSenderDisplayName() {
-        return senderDisplayName;
     }
 }
