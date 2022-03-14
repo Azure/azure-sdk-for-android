@@ -1,14 +1,18 @@
 # Release History
 
-## 1.1.0-beta.1 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 1.0.2 (2022-03-14)
 
 ### Other Changes
+
+#### Dependency updates
+- Updated `azure-core` dependency to `1.0.0-beta.10`
+- Updated `azure-core-credential` dependency to `1.0.0-beta.10`
+- Updated `azure-core-http` dependency to `1.0.0-beta.10`
+- Updated `azure-core-http-okhttp` dependency to `1.0.0-beta.10`
+- Updated `azure-core-logging` dependency to `1.0.0-beta.10`
+- Updated `azure-core-rest` dependency to `1.0.0-beta.10`
+- Updated `azure-communication-common` dependency to `1.0.2`
+- Updated `android-retrofuture` dependency to `1.7.4`
 
 ## 1.0.1 (2021-09-15)
 - Version update.
