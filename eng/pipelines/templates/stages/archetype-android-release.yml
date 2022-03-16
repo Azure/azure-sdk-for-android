@@ -114,13 +114,10 @@ stages:
                 runOnce:
                   deploy:
                     steps:
-                      - checkout: azure-sdk-build-tools
-                        path: azure-sdk-build-tools
-                      - template: /tools/generic-blob-upload/publish-blobs.yml@azure-sdk-build-tools
+                      - checkout: self
+                      - template: /eng/common/pipelines/templates/steps/publish-blobs.yml
                         parameters:
                           FolderForUpload: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}'
                           BlobSASKey: '$(azure-sdk-docs-prod-sas)'
                           BlobName: '$(azure-sdk-docs-prod-blob-name)'
-                          TargetLanguage: 'android'
-                          # we override the regular script path because we have cloned the build tools repo as a separate artifact.
-                          ScriptPath: '$(Pipeline.Workspace)/azure-sdk-build-tools/scripts/copy-docs-to-blobstorage.ps1'
+                          ScriptPath: 'eng/common/scripts/copy-docs-to-blobstorage.ps1'
