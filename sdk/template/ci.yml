@@ -1,0 +1,42 @@
+resources:
+  repositories:
+    - repository: azure-sdk-build-tools
+      type: git
+      name: internal/azure-sdk-build-tools
+      ref: refs/tags/azure-sdk-build-tools_20211215.1
+
+    - repository: azure-sdk-tools
+      type: github
+      name: Azure/azure-sdk-tools
+      endpoint: azure
+
+trigger:
+  branches:
+    include:
+      - main
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:
+    include:
+      - sdk/template/
+
+pr:
+  branches:
+    include:
+      - main
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:
+    include:
+      - sdk/template/
+
+stages:
+  - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
+    parameters:
+      ServiceDirectory: template
+      Artifacts:
+        - name: azure-sdk-template
+          safeName: azuresdktemplate
+          groupId: com.azure.android
