@@ -10,4 +10,5 @@ include ":sdk:core:azure-core-http-httpurlconnection"
 include ":sdk:core:azure-core-rest"
 include ":sdk:core:azure-core-test"
 include ":eng:code-quality-reports"
-include ':samples:sample-chat-app'
+include ":sdk:template:azure-sdk-template"
+include ":samples:sample-chat-app"

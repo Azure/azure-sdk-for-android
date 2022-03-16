@@ -1,0 +1,14 @@
+ext.publishName = "Microsoft Azure Android Template Library"
+description = "This package is a template placeholder for the Azure SDK for Android clients."
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
