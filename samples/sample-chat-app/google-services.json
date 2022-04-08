@@ -1,0 +1,39 @@
+{
+    "project_info": {
+        "project_number": "1097045460936",
+        "project_id": "acsandroidtestapp",
+        "storage_bucket": "acsandroidtestapp.appspot.com"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:1097045460936:android:4c36a9f613ca67097962fd",
+                "android_client_info": {
+                    "package_name": "com.azure.android.communication.chat.sampleapp"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "1097045460936-rvfnrjuh9c8440m71m4an9omjov191do.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyBB8lYCkHeT5EGW3mRrEpLdvBqb2c7ZOLk"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "1097045460936-rvfnrjuh9c8440m71m4an9omjov191do.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
