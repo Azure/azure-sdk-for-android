@@ -35,7 +35,7 @@ The following libraries are currently **generally available**:
 
 #### Azure Communication Services
 - [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 1.0.0
-- [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-chat): 1.0.1
+- [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-chat): 1.1.0
 - [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-common): 1.0.1
 
 ### Install the libraries
@@ -52,13 +52,13 @@ For each library you wish to use, add an `implementation` configuration to the `
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.1"
+    implementation "com.azure.android:azure-communication-chat:1.1.0"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.1")
+    implementation("com.azure.android:azure-communication-chat:1.1.0")
 }
 ```
 
@@ -69,7 +69,7 @@ To import one or more client libraries into your project using the [Maven](https
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 

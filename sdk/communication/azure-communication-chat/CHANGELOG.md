@@ -9,6 +9,11 @@
 
 ### Other Changes
 
+## 1.1.0 (2022-04-08)
+
+### Bugs Fixed
+Fix a BUG in real-time notification payload for GCCH
+
 ## 1.0.2 (2022-03-14)
 
 ### Other Changes
