@@ -10,9 +10,36 @@
 ### Other Changes
 
 ## 1.1.0 (2022-04-11)
+### Features Added
+- Added support for metadata in messages.
+- Added options class `TypingNotificationOptions` for setting `SenderDisplayName` of the notification sender.
+- Added `SenderDisplayName` to `TypingIndicatorReceivedEvent`.
+- Added support FCM push notifications:
+    - Added methods to `ChatAsyncClient`:
+        - `startPushNotifications`
+        - `stopPushNotifications`
+        - `handlePushNotification`
+        - `addPushNotificationHandler`
+        - `removePushNotificationHandler`
+    - Added methods to `ChatClient`:
+        - `startPushNotifications`
+        - `stopPushNotifications`
+        - `handlePushNotification`
+        - `addPushNotificationHandler`
+        - `removePushNotificationHandler`
+     - Added `ChatPushNotification` as the type for passing a push notification payload.
+     - Added instructions in README.md in sample app for steps to setup FCM push notifications.
+     - Added code in sample app for FCM push notification end to end scenario.
+- Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient`.
+- Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatClient`.
 
 ### Bugs Fixed
-Fix a BUG in real-time notification payload for GCCH
+- Fix `azure-communication-common` dependency issue.
+- Fix a BUG in real-time notification payload for GCCH
+
+### Other Changes
+- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatAsyncClient`.
+- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatClient`.
 
 ## 1.0.2 (2022-03-14)
 
