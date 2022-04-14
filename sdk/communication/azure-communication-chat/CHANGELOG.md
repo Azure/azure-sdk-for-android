@@ -28,7 +28,7 @@
         - `addPushNotificationHandler`
         - `removePushNotificationHandler`
      - Added `ChatPushNotification` as the type for passing a push notification payload.
-     - Added instructions in README.md in sample app for steps to setup FCM push notifications.
+     - Added instructions in the README.md of our sample app on how to setup FCM push notifications.
      - Added code in sample app for FCM push notification end to end scenario.
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient`.
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatClient`.
