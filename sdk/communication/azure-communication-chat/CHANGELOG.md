@@ -37,8 +37,7 @@
 - Fix a BUG in real-time notification payload for GCCH
 
 ### Other Changes
-- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatAsyncClient`.
-- Deprecate `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatClient`.
+- Deprecated `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatAsyncClient` and `ChatClient`. Users should utilize `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` instead.
 
 ## 1.0.2 (2022-03-14)
 
