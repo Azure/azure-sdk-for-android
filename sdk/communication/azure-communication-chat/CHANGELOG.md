@@ -27,8 +27,8 @@
 - Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient` and `ChatClient`.
 
 ### Bugs Fixed
-- Fix `azure-communication-common` dependency issue.
-- Fix a BUG in real-time notification payload for GCCH
+- Fixed a dependency issue with `azure-communication-common`.
+- Fixed a BUG in real-time notification payload for GCCH.
 
 ### Other Changes
 - Deprecated `startRealtimeNotifications(String skypeUserToken, Context context)` in `ChatAsyncClient` and `ChatClient`. Users should utilize `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` instead.
