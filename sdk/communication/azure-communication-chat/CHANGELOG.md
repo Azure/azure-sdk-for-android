@@ -30,8 +30,7 @@
      - Added `ChatPushNotification` as the type for passing a push notification payload.
      - Added instructions in the README.md of our sample app on how to setup FCM push notifications.
      - Added code in sample app for FCM push notification end to end scenario.
-- Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient`.
-- Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatClient`.
+- Added `startRealtimeNotifications(Context context, Consumer<Throwable> errorHandler)` to `ChatAsyncClient` and `ChatClient`.
 
 ### Bugs Fixed
 - Fix `azure-communication-common` dependency issue.
