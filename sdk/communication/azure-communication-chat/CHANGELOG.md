@@ -15,13 +15,7 @@
 - Added options class `TypingNotificationOptions` for setting `SenderDisplayName` of the notification sender.
 - Added `SenderDisplayName` to `TypingIndicatorReceivedEvent`.
 - Added support FCM push notifications:
-    - Added methods to `ChatAsyncClient`:
-        - `startPushNotifications`
-        - `stopPushNotifications`
-        - `handlePushNotification`
-        - `addPushNotificationHandler`
-        - `removePushNotificationHandler`
-    - Added methods to `ChatClient`:
+    - Added the following methods to `ChatAsyncClient` and `ChatClient`:
         - `startPushNotifications`
         - `stopPushNotifications`
         - `handlePushNotification`
