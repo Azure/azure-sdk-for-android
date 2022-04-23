@@ -1,6 +1,17 @@
+resources:
+  repositories:
+    - repository: azure-sdk-build-tools
+      type: git
+      name: internal/azure-sdk-build-tools
+      ref: refs/tags/azure-sdk-build-tools_20220329.1
+
 parameters:
-  Artifacts: []
-  ServiceDirectory: not-specified
+  - name: Artifacts
+    type: object
+    default: []
+  - name: ServiceDirectory
+    type: string
+    default: not-specified
   
 stages:
   - stage: Build
@@ -14,6 +25,7 @@ stages:
   - ${{if and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'))}}:
     - template: archetype-android-release.yml
       parameters:
+        ServiceDirectory: ${{parameters.ServiceDirectory}}
         DependsOn: Build
         Artifacts: ${{parameters.Artifacts}}
         ArtifactName: packages
