@@ -12,7 +12,7 @@ function Get-AllPackageInfoFromRepo ($serviceDirectory)
 
   if ($serviceDirectory)
   {
-    $properties = gradle ":sdk:$serviceDirectory:retrieveProjectProperties" -q
+    $properties = gradle ":sdk:${serviceDirectory}:retrieveProjectProperties" -q
   }
   else
   {

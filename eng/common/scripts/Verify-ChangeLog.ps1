@@ -3,8 +3,8 @@
 param (
   [String]$ChangeLogLocation,
   [String]$VersionString,
-  [string]$PackageName,
-  [string]$ServiceDirectory,
+  [string]$PackageName="azure-sdk-template",
+  [string]$ServiceDirectory="template",
   [boolean]$ForRelease = $False
 )
 Set-StrictMode -Version 3
