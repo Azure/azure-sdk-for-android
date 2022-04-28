@@ -3,6 +3,15 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+
+import android.util.Log;
+
+import androidx.work.BackoffPolicy;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
@@ -20,13 +29,13 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import java9.util.function.Consumer;
-
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
 
 /**
  * The registrar client interface
@@ -46,6 +55,7 @@ public class PushNotificationClient {
     private SecretKey previousCryptoKey;
     private SecretKey previousAuthKey;
     private long keyRotateTimeMillis;
+    private WorkManager workManager;
 
     private static final int KEY_SIZE = 256;
     private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
@@ -58,6 +68,7 @@ public class PushNotificationClient {
         this.deviceRegistrationToken = null;
         this.registrationErrorHandler = null;
         this.registrationRenewScheduleTimer = null;
+        this.workManager = WorkManager.getInstance();
     }
 
     /**
@@ -104,7 +115,9 @@ public class PushNotificationClient {
         this.logger.info("Successfully started push notifications!");
 
         long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL) - 30);
-        this.scheduleRegistrationRenew(delayInMS, 0);
+//        long delayInMS = (long) 9000;
+//        this.scheduleRegistrationRenew2();
+        startRegistrationRenewalWorker();
     }
 
     /**
@@ -143,6 +156,7 @@ public class PushNotificationClient {
             this.registrationRenewScheduleTimer.cancel();
             this.registrationRenewScheduleTimer = null;
         }
+        workManager.cancelAllWork();
     }
 
     /**
@@ -235,7 +249,48 @@ public class PushNotificationClient {
         return NotificationUtils.toEventPayload(chatEventType, decrypted);
     }
 
-    private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
+    private void startRegistrationRenewalWorker() {
+        Log.i("RenewTokenWorker", "Initialize RenewTokenWorker in background");
+        Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
+
+        PeriodicWorkRequest renewTokenRequest =
+            new PeriodicWorkRequest.Builder(RenewTokenWorker.class, 15, TimeUnit.MINUTES)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setInputData(inputData)
+                .build();
+        workManager.enqueue(renewTokenRequest);
+
+        //Checking the output of each worker result and handle with registrationErrorHandler.
+        //We check the boolean value in output data for the result.
+        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
+            if (workInfo != null) {
+                Data outputData = workInfo.getOutputData();
+                //Updating credentials
+                String strCryptoKey = outputData.getString("strCryptoKey");
+                String strAuthKey = outputData.getString("strAuthKey");
+                this.previousCryptoKey = secretKeyFromStr(strCryptoKey);
+                this.previousAuthKey = secretKeyFromStr(strAuthKey);
+                this.keyRotateTimeMillis = System.currentTimeMillis();
+
+                //We assume result is success unless getting false from output
+                boolean result = outputData.getBoolean("success", true);
+                if (!result) {
+                    RuntimeException exception = new RuntimeException(
+                        "Registration renew request failed after "
+                            + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
+                            + "retries.");
+                    this.registrationErrorHandler.accept(exception);
+                    stopPushNotifications();
+                    Log.i("RenewTokenWorker", "Renew token failed");
+                } else {
+                    Log.i("RenewTokenWorker", "Renew token succeeded");
+                }
+            }
+        });
+    }
+
+    private void scheduleRegistrationRenew( long delayMs, final int tryCount) {
+        delayMs = 60000l;
         if (!this.isPushNotificationsStarted) {
             this.logger.info("Push notifications have already been stopped! No need to renew registration.");
             return;
@@ -276,6 +331,7 @@ public class PushNotificationClient {
                 String skypeUserToken;
                 try {
                     skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+                    Log.i("renew token", "get renewed push notification token: " + skypeUserToken);
                     PushNotificationClient.this.refreshEncryptionKeys();
                     PushNotificationClient.this.registrarClient.register(
                         skypeUserToken,
@@ -283,11 +339,13 @@ public class PushNotificationClient {
                         PushNotificationClient.this.cryptoKey,
                         PushNotificationClient.this.authKey);
                 } catch (ExecutionException | InterruptedException e) {
+                    Log.i("exception", e.getMessage());
                     PushNotificationClient.this.logger.logExceptionAsError(
                         new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
                     retry = true;
                 } catch (Throwable throwable) {
                     PushNotificationClient.this.logger.logThrowableAsError(throwable);
+                    Log.i("exception", throwable.getMessage());
                     retry = true;
                 }
 
@@ -363,5 +421,13 @@ public class PushNotificationClient {
         }
 
         return false;
+    }
+
+    private SecretKey secretKeyFromStr(String str) {
+        byte[] decodedKey = Base64Util.decodeString(str);
+        if (decodedKey == null) {
+            return null;
+        }
+        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
 }

@@ -4,21 +4,27 @@
 package com.azure.android.communication.chat.sampleapp;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
+import com.azure.android.communication.chat.implementation.notifications.fcm.RenewTokenWorkerFactory;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
@@ -80,25 +86,15 @@ import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THR
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.*;
 
-public class MainActivity extends AppCompatActivity {
-
+public class MainActivity extends AppCompatActivity
+{
+    private String threadId = "<to be updated below>";
+    private String chatMessageId = "<to be updated below>";
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
     private int eventHandlerCalled;
-
-    // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "";
-    private String secondUserId = "";
-    // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "";
-    private String threadId = "<to-be-updated-below>";
-    private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "";
-    private final String sdkVersion = "1.2.0-beta.1";
-    private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
-    private static final String APPLICATION_ID = "Chat_Test_App";
-    private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
     private static Map<RealTimeNotificationCallback, ChatEventType> realTimeNotificationCallbacks = new HashMap<>();
 
@@ -214,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                     + " ThreadId: " + event.getChatThreadId()
                     + " MessageId: " + event.getId()
                     + " Content: " + event.getContent()
+                    + " Metadata: " + event.getMetadata()
                     + " Priority: " + event.getPriority()
                     + " SenderDisplayName: " + event.getSenderDisplayName()
                     + " SenderMri: " + ((CommunicationUserIdentifier)event.getSender()).getId()
@@ -708,4 +705,11 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "List operation didn't complete within " + timeoutInSec + " minutes");
         }
     }
+
+//    @NonNull
+//    @Override
+//    public Configuration getWorkManagerConfiguration() {
+//        return new Configuration.Builder().
+//            setWorkerFactory(new RenewTokenWorkerFactory(new CommunicationTokenCredential(firstUserAccessToken))).build();
+//    }
 }
