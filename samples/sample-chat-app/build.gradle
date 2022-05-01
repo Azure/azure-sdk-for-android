@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.azure.android.communication.chat.sampleapp"
-        minSdkVersion 24
+        minSdkVersion 21
         targetSdkVersion 30
     }
 

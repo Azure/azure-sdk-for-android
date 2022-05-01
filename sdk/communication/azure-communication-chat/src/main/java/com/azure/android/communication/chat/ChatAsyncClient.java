@@ -395,4 +395,11 @@ public final class ChatAsyncClient {
     public void removeEventHandler(ChatEventType chatEventType, RealTimeNotificationCallback listener) {
         this.signalingClient.off(chatEventType, listener);
     }
+
+    /**
+     * Enable worker manager which renews registra token
+     */
+    public void enableWorkerManager() {
+        this.pushNotificationClient.setEnableWorkManager(true);
+    }
 }

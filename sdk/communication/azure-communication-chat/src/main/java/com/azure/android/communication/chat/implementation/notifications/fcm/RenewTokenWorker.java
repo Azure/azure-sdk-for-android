@@ -12,26 +12,22 @@ import com.azure.android.communication.chat.implementation.notifications.Notific
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.util.Base64Util;
 
-import java.util.Base64;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import java9.util.function.Consumer;
-import lombok.Setter;
-
+/**
+ * Worker for renewing registra token. This worker could execute when APP closed. This is introduced to allow renewal
+ * happen even when APP gets closed.
+ * https://skype.visualstudio.com/SPOOL/_queries/query/af989357-74be-49b6-833a-d4359cd1cbd4/
+ */
 public class RenewTokenWorker extends Worker {
     private RegistrarClient registrarClient;
 
     private CommunicationTokenCredential communicationTokenCredential;
 
-    private SecretKey cryptoKey;
-
-    private SecretKey authKey;
-
-    private static final int KEY_SIZE = 256;
+    private RenewalWorkerDataContainer renewalWorkerDataContainer;
 
     public RenewTokenWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -42,6 +38,7 @@ public class RenewTokenWorker extends Worker {
         super(context, workerParams);
         this.registrarClient = new RegistrarClient();
         this.communicationTokenCredential = communicationTokenCredential;
+        this.renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
     }
 
     @NonNull
@@ -52,6 +49,7 @@ public class RenewTokenWorker extends Worker {
         // Checking retry times
         if (attempts > NotificationUtils.MAX_REGISTRATION_RETRY_COUNT) {
             Data failedData = new Data.Builder().putBoolean("success", false).build();
+            renewalWorkerDataContainer.setExecutionFail(true);
             return Result.failure(failedData);
         }
 
@@ -61,13 +59,13 @@ public class RenewTokenWorker extends Worker {
         String deviceRegistrationToken =  inputData.getString("deviceRegistrationToken");
         try {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-            Log.i("renew token", "get renewed push notification token: " + skypeUserToken);
-            refreshEncryptionKeys();
+            Log.i("RenewTokenWorker", "get renewed push notification token: " + skypeUserToken);
+            renewalWorkerDataContainer.refreshCredentials();
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
-                cryptoKey,
-                authKey);
+                renewalWorkerDataContainer.getCurCryptoKey(),
+                renewalWorkerDataContainer.getCurAuthKey());
         } catch (ExecutionException | InterruptedException e) {
             Log.i("exception", e.getMessage());
             return Result.retry();
@@ -75,19 +73,7 @@ public class RenewTokenWorker extends Worker {
             Log.i("exception", throwable.getMessage());
             return Result.retry();
         }
-        //Returning processing result and renewed keys
-        String strCryptoKey = Base64Util.encodeToString(cryptoKey.getEncoded());
-        String strAuthKey = Base64Util.encodeToString(authKey.getEncoded());
-        Data successData = new Data.Builder()
-            .putBoolean("success", true).putString("strCryptoKey", strCryptoKey).putString("strAuthKey", strAuthKey).build();
-        return Result.success(successData);
-    }
-
-    private void refreshEncryptionKeys() throws Throwable {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(KEY_SIZE);
-
-        cryptoKey = keyGenerator.generateKey();
-        authKey = keyGenerator.generateKey();
+        renewalWorkerDataContainer.setExecutionFail(false);
+        return Result.success();
     }
 }

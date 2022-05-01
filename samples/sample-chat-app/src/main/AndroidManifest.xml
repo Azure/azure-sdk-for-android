@@ -13,7 +13,8 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:theme="@style/Theme.AppCompat"
       android:supportsRtl="true"
-      android:name=".MyAppConfiguration">
+      android:name=".MyAppConfiguration"
+      >
     <activity android:name="com.azure.android.communication.chat.sampleapp.MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -30,6 +31,20 @@
       </intent-filter>
     </service>
     <!-- [END firebase_service] -->
+
+    <!-- Disable the default initializer of  WorkManager so that we could override it in MyAppConfiguration  -->
+    <provider
+        android:name="androidx.startup.InitializationProvider"
+        android:authorities="${applicationId}.androidx-startup"
+        android:exported="false"
+        tools:node="merge">
+      <!-- If you are using androidx.startup to initialize other components -->
+      <meta-data
+          android:name="androidx.work.WorkManagerInitializer"
+          android:value="androidx.startup"
+          tools:node="remove" />
+    </provider>
+    <!--  End of Disabling  default initializer of  WorkManager -->
   </application>
 
 </manifest>

@@ -10,6 +10,8 @@ import androidx.work.WorkerParameters;
 
 import com.azure.android.communication.common.CommunicationTokenCredential;
 
+import java9.util.function.Consumer;
+
 public class RenewTokenWorkerFactory extends WorkerFactory {
     private CommunicationTokenCredential communicationTokenCredential;
 

@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
                     .addAllowedHeaderName("MS-CV"))
                 .buildAsyncClient();
-
+            chatAsyncClient.enableWorkerManager();
             Log.d(TAG, "Created ChatAsyncClient");
         } catch (Exception e) {
             Log.e("ChatAsyncClient creation failed", Objects.requireNonNull(e.getMessage()));
@@ -705,11 +705,4 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "List operation didn't complete within " + timeoutInSec + " minutes");
         }
     }
-
-//    @NonNull
-//    @Override
-//    public Configuration getWorkManagerConfiguration() {
-//        return new Configuration.Builder().
-//            setWorkerFactory(new RenewTokenWorkerFactory(new CommunicationTokenCredential(firstUserAccessToken))).build();
-//    }
 }
