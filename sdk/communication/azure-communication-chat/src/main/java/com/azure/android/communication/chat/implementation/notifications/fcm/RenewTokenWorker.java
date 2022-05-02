@@ -48,9 +48,9 @@ public class RenewTokenWorker extends Worker {
         Log.i("RenewTokenWorker", "RenewTokenWorker execution in background: " + attempts);
         // Checking retry times
         if (attempts > NotificationUtils.MAX_REGISTRATION_RETRY_COUNT) {
-            Data failedData = new Data.Builder().putBoolean("success", false).build();
+            Log.i("RenewTokenWorker", "execution failed");
             renewalWorkerDataContainer.setExecutionFail(true);
-            return Result.failure(failedData);
+            return Result.failure();
         }
 
         // Registration
@@ -73,6 +73,7 @@ public class RenewTokenWorker extends Worker {
             Log.i("exception", throwable.getMessage());
             return Result.retry();
         }
+        Log.i("RenewTokenWorker", "execution succeeded");
         renewalWorkerDataContainer.setExecutionFail(false);
         return Result.success();
     }

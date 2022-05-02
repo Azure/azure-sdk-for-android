@@ -10,9 +10,9 @@ import lombok.Setter;
 
 /**
  * A singleton wrapper which contains KeyGenerator, secret keys and execution result related to #{RenewalTokenWorker}.
- * The major reason for having this class is that Peoriodic Worker only has ENQUEUED and RUNNING state. So that the
- * output data would be empty by design. We use this shared instance to maintain values that we need by both PushNotificationClient
- * and RenewalTokenWorker.
+ * The major reason for having this class is that Peoriodic Worker only has ENQUEUED and RUNNING state. There is no
+ * approach to pass execution result data by design. We use this shared instance to maintain values that we need by
+ * both PushNotificationClient and RenewalTokenWorker.
  */
 public class RenewalWorkerDataContainer {
     private static RenewalWorkerDataContainer renewalWorkerDataContainer;

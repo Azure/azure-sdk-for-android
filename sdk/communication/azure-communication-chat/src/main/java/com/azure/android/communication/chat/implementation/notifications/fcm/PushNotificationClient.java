@@ -51,19 +51,13 @@ public class PushNotificationClient {
     private String deviceRegistrationToken;
     private Consumer<Throwable> registrationErrorHandler;
     private Timer registrationRenewScheduleTimer;
-//    private KeyGenerator keyGenerator;
-//    private SecretKey cryptoKey;
-//    private SecretKey authKey;
-//    private SecretKey previousCryptoKey;
-//    private SecretKey previousAuthKey;
-//    private long keyRotateTimeMillis;
     private WorkManager workManager;
     private boolean enableWorkManager;
     private RenewalWorkerDataContainer renewalWorkerDataContainer;
 
     private static final int KEY_SIZE = 256;
     private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
-    private static final String DEFAULT_REGISTRATION_TTL_SECONDS = "3600";
+    private static final String DEFAULT_REGISTRATION_TTL_MINUTES = "45";
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -115,7 +109,6 @@ public class PushNotificationClient {
         }
 
         try {
-//            this.refreshEncryptionKeys();
             renewalWorkerDataContainer.refreshCredentials();
             this.registrarClient.register(skypeUserToken, deviceRegistrationToken, renewalWorkerDataContainer.getCurCryptoKey(), renewalWorkerDataContainer.getCurAuthKey());
         } catch (Throwable throwable) {
@@ -128,8 +121,8 @@ public class PushNotificationClient {
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
 
-        //default value is 1 hour
-        long delayInMS = 1000L * (long) (Integer.parseInt(DEFAULT_REGISTRATION_TTL_SECONDS));
+        //default value is 45 minutes
+        long delayInMS = 1000L * 60 * (long) (Integer.parseInt(DEFAULT_REGISTRATION_TTL_MINUTES));
 
         // We use TimerTask to renew token if enableWorkManager is false. The renewal does not happen while APP gets
         // closed in this case. We use workerManager to take this action if enableWorkManager is ture. This ensures
@@ -285,20 +278,14 @@ public class PushNotificationClient {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
+        //Ensure only one work executed.
+        workManager.cancelAllWork();
         workManager.enqueue(renewTokenRequest);
-        workManager.enqueueUniquePeriodicWork("unique work", ExistingPeriodicWorkPolicy.KEEP, renewTokenRequest);
 
         //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
         //for every ENQUEUED state, meaning last execution has completed.
         workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
             if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
-//                Data outputData = workInfo.getOutputData();
-//
-//                String strCryptoKey = outputData.getString("strCryptoKey");
-//                String strAuthKey = outputData.getString("strAuthKey");
-//                Log.i("pushNotificationClient", "strCrypto: " + strCryptoKey + ", strAuth:" + strAuthKey);
-//                this.keyRotateTimeMillis = System.currentTimeMillis();
-//                boolean result = outputData.getBoolean("success", true);
                 boolean failed = renewalWorkerDataContainer.isExecutionFail();
                 if (failed) {
                     RuntimeException exception = new RuntimeException(
@@ -393,21 +380,6 @@ public class PushNotificationClient {
         this.registrationRenewScheduleTimer.schedule(task, delayMs);
     }
 
-//    private void refreshEncryptionKeys() throws Throwable {
-//        if (this.keyGenerator == null) {
-//            this.keyGenerator = KeyGenerator.getInstance("AES");
-//            this.keyGenerator.init(KEY_SIZE);
-//        }
-//
-//        this.previousCryptoKey = this.cryptoKey;
-//        this.previousAuthKey = this.authKey;
-//
-//        this.cryptoKey = this.keyGenerator.generateKey();
-//        this.authKey = this.keyGenerator.generateKey();
-//
-//        this.keyRotateTimeMillis = System.currentTimeMillis();
-//    }
-
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
         Log.i("decryption", "cypto: " + renewalWorkerDataContainer.getCurAuthKey() + ", auth: " + renewalWorkerDataContainer.getCurAuthKey());
@@ -443,13 +415,5 @@ public class PushNotificationClient {
         }
 
         return false;
-    }
-
-    private SecretKey secretKeyFromStr(String str) {
-        byte[] decodedKey = Base64Util.decodeString(str);
-        if (decodedKey == null) {
-            return null;
-        }
-        return new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
     }
 }
