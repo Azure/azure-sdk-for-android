@@ -9,7 +9,6 @@ import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -32,10 +31,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import java9.util.function.Consumer;
 

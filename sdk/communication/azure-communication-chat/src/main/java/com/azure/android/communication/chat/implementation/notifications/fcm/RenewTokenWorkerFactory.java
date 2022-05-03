@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
@@ -9,8 +11,6 @@ import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 
 import com.azure.android.communication.common.CommunicationTokenCredential;
-
-import java9.util.function.Consumer;
 
 public class RenewTokenWorkerFactory extends WorkerFactory {
     private CommunicationTokenCredential communicationTokenCredential;
