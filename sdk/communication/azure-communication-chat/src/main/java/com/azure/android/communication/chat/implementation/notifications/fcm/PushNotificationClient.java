@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -27,6 +28,12 @@ import javax.crypto.SecretKey;
 import java9.util.function.Consumer;
 
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+
+import androidx.work.BackoffPolicy;
+import androidx.work.Data;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 /**
  * The registrar client interface
@@ -46,6 +53,9 @@ public class PushNotificationClient {
     private SecretKey previousCryptoKey;
     private SecretKey previousAuthKey;
     private long keyRotateTimeMillis;
+    private WorkManager workManager;
+    private boolean enableWorkManager;
+    private RenewalWorkerDataContainer renewalWorkerDataContainer;
 
     private static final int KEY_SIZE = 256;
     private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
@@ -233,6 +243,41 @@ public class PushNotificationClient {
         }
 
         return NotificationUtils.toEventPayload(chatEventType, decrypted);
+    }
+
+    private void startRegistrationRenewalWorker(long intervalInMs) {
+        this.logger.info("Initialize RenewTokenWorker in background");
+        this.workManager = WorkManager.getInstance();
+        this.renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
+        Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
+
+        PeriodicWorkRequest renewTokenRequest =
+            new PeriodicWorkRequest.Builder(RenewTokenWorker.class, intervalInMs, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setInputData(inputData)
+                .build();
+        //Ensure only one work executed.
+        workManager.cancelAllWork();
+        workManager.enqueue(renewTokenRequest);
+
+        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
+        //for every ENQUEUED state, meaning last execution has completed.
+        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
+            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
+                boolean failed = renewalWorkerDataContainer.isExecutionFail();
+                if (failed) {
+                    RuntimeException exception = new RuntimeException(
+                        "Registration renew request failed after "
+                            + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
+                            + "retries.");
+                    this.registrationErrorHandler.accept(exception);
+                    stopPushNotifications();
+                    this.logger.info("Renew token failed");
+                } else {
+                    this.logger.info("Renew token succeeded");
+                }
+            }
+        });
     }
 
     private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
