@@ -1,5 +1,25 @@
 # Release History
+
 ## 1.1.0-beta.1 (Unreleased)
+
+### Features Added
+
+### Breaking Changes
+
+### Bugs Fixed
+
+### Other Changes
+
+## 1.0.2 (2022-03-11)
+
+### Other updates
+
+#### Dependency updates
+- Updated `azure-core` dependency to `1.0.0-beta.10`
+- Updated `azure-core-logging` dependency to `1.0.0-beta.10`
+- Updated `android-retrofuture` dependency to `1.7.4`
+- Updated `jackson-databind` dependency to `2.12.6`
+- Updated `threetenabp` dependency to `1.3.1`
 
 ## 1.0.1 (2021-06-15)
 ### Dependency Updates

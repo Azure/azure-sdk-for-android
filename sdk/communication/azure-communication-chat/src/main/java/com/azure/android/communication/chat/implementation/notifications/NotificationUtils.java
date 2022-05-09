@@ -58,6 +58,8 @@ import javax.crypto.spec.SecretKeySpec;
 public final class NotificationUtils {
 
     private static final String ACS_USER_PREFIX = "8:acs:";
+    private static final String ACS_GCCH_USER_PREFIX = "8:gcch-acs:";
+    private static final String ACS_DOD_USER_PREFIX = "8:dod-acs:";
     private static final String SPOOL_USER_PREFIX = "8:spool:";
     private static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
     private static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
@@ -195,7 +197,10 @@ public final class NotificationUtils {
         } else if (rawId.startsWith(PHONE_NUMBER_PREFIX)) {
             return new PhoneNumberIdentifier(rawId.substring(PHONE_NUMBER_PREFIX.length()))
                 .setRawId(rawId);
-        } else if (rawId.startsWith(ACS_USER_PREFIX) || rawId.startsWith(SPOOL_USER_PREFIX)) {
+        } else if (rawId.startsWith(ACS_USER_PREFIX)
+            || rawId.startsWith(ACS_GCCH_USER_PREFIX)
+            || rawId.startsWith(ACS_DOD_USER_PREFIX)
+            || rawId.startsWith(SPOOL_USER_PREFIX)) {
             return new CommunicationUserIdentifier(rawId);
         } else {
             return new UnknownIdentifier(rawId);

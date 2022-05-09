@@ -4,3 +4,4 @@ variables:
     DocWardenVersion: '0.4.2'
     JavaBuildVersion: '1.8'
     JavaTestVersion: '1.8'
+    Package.EnableSBOMSigning: true
