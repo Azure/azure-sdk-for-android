@@ -43,7 +43,6 @@ public final class LogUtils {
     private LogUtils() {
     }
 
-
     private static final int TAG_MAX_LENGTH = 23;
 
     /**

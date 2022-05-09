@@ -3,9 +3,13 @@
 
 package com.azure.android.core.util;
 
+import com.azure.android.core.logging.ClientLogger;
 import org.threeten.bp.DateTimeException;
+import org.threeten.bp.DayOfWeek;
+import org.threeten.bp.Month;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
+import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.format.DateTimeFormatter;
 
 import java.util.Locale;
@@ -15,6 +19,8 @@ import java.util.Locale;
  * during serialization and deserialization.
  */
 public final class DateTimeRfc1123 {
+    private static final ClientLogger LOGGER = new ClientLogger(DateTimeRfc1123.class);
+
     /**
      * The pattern of the datetime used for RFC1123 datetime format.
      */
@@ -146,6 +152,71 @@ public final class DateTimeRfc1123 {
             case 'D': return 12; // Dec
             default: throw new IllegalArgumentException("Unknown month " + date);
         }
+    }
+
+    /**
+     * Convert the {@link OffsetDateTime dateTime} to date time string in RFC1123 format.
+     *
+     * @param dateTime The date time in OffsetDateTime format.
+     * @return The date time string in RFC1123 format.
+     * @throws IllegalArgumentException If {@link OffsetDateTime#getDayOfWeek()} or
+     * {@link OffsetDateTime#getDayOfMonth()} is an unknown value.
+     */
+    public static String toRfc1123String(OffsetDateTime dateTime) {
+        // ensure datetime is UTC offset.
+        dateTime = dateTime.withOffsetSameInstant(ZoneOffset.UTC);
+
+        StringBuilder sb = new StringBuilder(32);
+
+        final DayOfWeek dayOfWeek = dateTime.getDayOfWeek();
+        switch (dayOfWeek) {
+            case MONDAY: sb.append("Mon, "); break;
+            case TUESDAY: sb.append("Tue, "); break;
+            case WEDNESDAY: sb.append("Wed, "); break;
+            case THURSDAY: sb.append("Thu, "); break;
+            case FRIDAY: sb.append("Fri, "); break;
+            case SATURDAY: sb.append("Sat, "); break;
+            case SUNDAY: sb.append("Sun, "); break;
+            default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown day of week " + dayOfWeek));
+        }
+
+        zeroPad(dateTime.getDayOfMonth(), sb);
+
+        final Month month = dateTime.getMonth();
+        switch (month) {
+            case JANUARY: sb.append(" Jan "); break;
+            case FEBRUARY: sb.append(" Feb "); break;
+            case MARCH: sb.append(" Mar "); break;
+            case APRIL: sb.append(" Apr "); break;
+            case MAY: sb.append(" May "); break;
+            case JUNE: sb.append(" Jun "); break;
+            case JULY: sb.append(" Jul "); break;
+            case AUGUST: sb.append(" Aug "); break;
+            case SEPTEMBER: sb.append(" Sep "); break;
+            case OCTOBER: sb.append(" Oct "); break;
+            case NOVEMBER: sb.append(" Nov "); break;
+            case DECEMBER: sb.append(" Dec "); break;
+            default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown month " + month));
+        }
+
+        sb.append(dateTime.getYear());
+        sb.append(" ");
+
+        zeroPad(dateTime.getHour(), sb);
+        sb.append(":");
+        zeroPad(dateTime.getMinute(), sb);
+        sb.append(":");
+        zeroPad(dateTime.getSecond(), sb);
+        sb.append(" GMT");
+
+        return sb.toString();
+    }
+
+    private static void zeroPad(int value, StringBuilder sb) {
+        if (value < 10) {
+            sb.append("0");
+        }
+        sb.append(value);
     }
 
     @Override
