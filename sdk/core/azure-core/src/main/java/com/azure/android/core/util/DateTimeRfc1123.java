@@ -97,7 +97,7 @@ public final class DateTimeRfc1123 {
         for (int i = beginIndex; i < endIndex; i++) {
             final char c = date.charAt(i);
             if (c < '0' || c > '9') {
-                throw new DateTimeException("Invalid date time: " + date);
+                throw LOGGER.logExceptionAsError(new DateTimeException("Invalid date time: " + date));
             }
             num = num * 10 + (c - '0');
         }
@@ -129,7 +129,7 @@ public final class DateTimeRfc1123 {
                             case 'l': return 7; // Jul
                             default: throw new IllegalArgumentException("Unknown month " + date);
                         }
-                    default: throw new IllegalArgumentException("Unknown month " + date);
+                    default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown month " + date));
                 }
             case 'F': return 2; // Feb
             case 'M':
@@ -137,20 +137,20 @@ public final class DateTimeRfc1123 {
                 switch (date.charAt(beginIndex + 2)) {
                     case 'r': return 3; // Mar
                     case 'y': return 5; // May
-                    default: throw new IllegalArgumentException("Unknown month " + date);
+                    default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown month " + date));
                 }
             case 'A':
                 // Apr, Aug
                 switch (date.charAt(beginIndex + 2)) {
                     case 'r': return 4; // Apr
                     case 'g': return 8; // Aug
-                    default: throw new IllegalArgumentException("Unknown month " + date);
+                    default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown month " + date));
                 }
             case 'S': return 9; //Sep
             case 'O': return 10; // Oct
             case 'N': return 11; // Nov
             case 'D': return 12; // Dec
-            default: throw new IllegalArgumentException("Unknown month " + date);
+            default: throw LOGGER.logExceptionAsError(new IllegalArgumentException("Unknown month " + date));
         }
     }
 
