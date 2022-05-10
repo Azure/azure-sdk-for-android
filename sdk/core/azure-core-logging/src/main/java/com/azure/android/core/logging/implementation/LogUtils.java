@@ -36,7 +36,13 @@ import android.os.Build;
 
 import java.util.StringTokenizer;
 
-public class LogUtils {
+public final class LogUtils {
+    private static final char CR = '\r';
+    private static final char LF = '\n';
+
+    private LogUtils() {
+    }
+
     private static final int TAG_MAX_LENGTH = 23;
 
     /**
@@ -82,5 +88,41 @@ public class LogUtils {
         }
 
         return name;
+    }
+
+    /**
+     * Removes CR, LF or CRLF pattern in the {@code logMessage}.
+     * <p>
+     * This is more performant than using {@code Pattern.compile("[\r\n]")}.
+     *
+     * @param logMessage The log message to sanitize.
+     * @return The updated logMessage.
+     */
+    public static String removeNewLinesFromLogMessage(String logMessage) {
+        if (logMessage == null || logMessage.isEmpty()) {
+            return logMessage;
+        }
+
+        StringBuilder sb = null;
+        int prevStart = 0;
+
+        for (int i = 0; i < logMessage.length(); i++) {
+            if (logMessage.charAt(i) == CR || logMessage.charAt(i) == LF) {
+                if (sb == null) {
+                    sb = new StringBuilder(logMessage.length());
+                }
+
+                if (prevStart != i) {
+                    sb.append(logMessage, prevStart, i);
+                }
+                prevStart = i + 1;
+            }
+        }
+
+        if (sb == null) {
+            return logMessage;
+        }
+        sb.append(logMessage, prevStart, logMessage.length());
+        return sb.toString();
     }
 }

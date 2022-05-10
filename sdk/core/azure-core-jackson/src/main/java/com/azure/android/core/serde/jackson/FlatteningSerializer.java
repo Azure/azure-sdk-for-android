@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.regex.Pattern;
 
 /**
  * Custom serializer for serializing types with wrapped properties.
@@ -43,6 +44,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 class FlatteningSerializer extends StdSerializer<Object> implements ResolvableSerializer {
     private static final long serialVersionUID = -6130180289951110573L;
 //    private final ClientLogger logger = new ClientLogger(FlatteningSerializer.class);
+
+    private static final Pattern CHECK_IF_FLATTEN_PROPERTY_PATTERN = Pattern.compile(".+[^\\\\]\\..+");
+    private static final Pattern UNESCAPED_PERIOD_PATTERN = Pattern.compile("((?<!\\\\))\\.");
+
+    private static final Pattern CHECK_IF_ESCAPED_MAP_PATTERN = Pattern.compile(".*[^\\\\]\\\\..+");
+    private static final Pattern REPLACE_ESCAPED_MAP_PATTERN = Pattern.compile("\\\\.");
 
     /**
      * The default mapperAdapter for the current type.
@@ -131,7 +138,7 @@ class FlatteningSerializer extends StdSerializer<Object> implements ResolvableSe
         if (value instanceof Map<?, ?>) {
             for (String key : new HashSet<>(((Map<String, Object>) value).keySet())) {
                 if (key.contains(".")) {
-                    String newKey = key.replaceAll("((?<!\\\\))\\.", "\\\\.");
+                    String newKey = UNESCAPED_PERIOD_PATTERN.matcher(key).replaceAll("\\\\.");
                     Object val = ((Map<String, Object>) value).remove(key);
                     ((Map<String, Object>) value).put(newKey, val);
                 }
@@ -176,10 +183,10 @@ class FlatteningSerializer extends StdSerializer<Object> implements ResolvableSe
                 ObjectNode node = resCurrent;
                 String key = field.getKey();
                 JsonNode outNode = resCurrent.get(key);
-                if (key.matches(".+[^\\\\]\\..+")) {
+                if (CHECK_IF_FLATTEN_PROPERTY_PATTERN.matcher(key).matches()) {
                     // Handle flattening properties
                     //
-                    String[] values = key.split("((?<!\\\\))\\.");
+                    String[] values = UNESCAPED_PERIOD_PATTERN.split(key);
                     for (int i = 0; i < values.length; ++i) {
                         values[i] = values[i].replace("\\.", ".");
                         if (i == values.length - 1) {
@@ -197,10 +204,10 @@ class FlatteningSerializer extends StdSerializer<Object> implements ResolvableSe
                     node.set(values[values.length - 1], resCurrent.get(key));
                     resCurrent.remove(key);
                     outNode = node.get(values[values.length - 1]);
-                } else if (key.matches(".*[^\\\\]\\\\..+")) {
+                } else if (CHECK_IF_ESCAPED_MAP_PATTERN.matcher(key).matches()) {
                     // Handle escaped map key
                     //
-                    String originalKey = key.replaceAll("\\\\.", ".");
+                    String originalKey = REPLACE_ESCAPED_MAP_PATTERN.matcher(key).replaceAll(".");
                     resCurrent.remove(key);
                     resCurrent.put(originalKey, outNode);
                 }
