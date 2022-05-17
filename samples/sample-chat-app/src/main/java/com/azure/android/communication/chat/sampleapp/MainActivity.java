@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 package com.azure.android.communication.chat.sampleapp;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.communicationTokenCredential;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -88,10 +89,10 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
 
     // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_00000011-4290-60f0-7f07-113a0d009f7a";
+    private String firstUserId = "8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_00000011-7159-7845-4ff7-343a0d006488";
     private String secondUserId = "";
     // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwNCIsIng1dCI6IlJDM0NPdTV6UENIWlVKaVBlclM0SUl4Szh3ZyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOjM1N2UzOWQyLWEyOWEtNGJmNi04OGNjLWZkYTBhZmMyYzBlZF8wMDAwMDAxMS00MjkwLTYwZjAtN2YwNy0xMTNhMGQwMDlmN2EiLCJzY3AiOjE3OTIsImNzaSI6IjE2NTIwNzcyOTIiLCJleHAiOjE2NTIxNjM2OTIsImFjc1Njb3BlIjoiY2hhdCIsInJlc291cmNlSWQiOiIzNTdlMzlkMi1hMjlhLTRiZjYtODhjYy1mZGEwYWZjMmMwZWQiLCJpYXQiOjE2NTIwNzcyOTJ9.uHegEmZh-Pd6647SE85DE6YZdrTY-13ra7Vb0YtvSq8BccFPX7YFCPwsXrD-zJOiumDcGoRr2nQeZpinWyugtXyYRmPYySF8fLgVO2m43cgpqNcF2iEWYVteyv2l8vwTk6hn96p0lJvvUs2N5RpmgWDtDf3i2nCUGwcT1POMfWEq8NiHu0Q72nfvwDbkXnYDOLQ_T_twTEOJq5TtbkF8DoOKWtU1hZdH_QiEKFAnVrIhzrz4BEtf7kVJo_v6obP6MKgheb1LsqXZtBmj1ZeUC0OQxk-fVequVBxiF1AQISWru1gXv7ZjtKM3nklMnhVGj8Ct5bgsfBqIeyyrHa_Y3A";
+    private final String firstUserAccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwNCIsIng1dCI6IlJDM0NPdTV6UENIWlVKaVBlclM0SUl4Szh3ZyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOjM1N2UzOWQyLWEyOWEtNGJmNi04OGNjLWZkYTBhZmMyYzBlZF8wMDAwMDAxMS03MTU5LTc4NDUtNGZmNy0zNDNhMGQwMDY0ODgiLCJzY3AiOjE3OTIsImNzaSI6IjE2NTI3ODE3MzIiLCJleHAiOjE2NTI4NjgxMzIsImFjc1Njb3BlIjoiY2hhdCIsInJlc291cmNlSWQiOiIzNTdlMzlkMi1hMjlhLTRiZjYtODhjYy1mZGEwYWZjMmMwZWQiLCJpYXQiOjE2NTI3ODE3MzJ9.ezdYqCzk-q4w6JtfvEhT_91P5Ks9wL-wPE_tgemUHXOXRlx1uP61oMk3NNvUFceZPVBB_KN7e6EC3YridmmPCb54YIyCI60L3m59M-4VtRaFsApCo02tfGmuQKyUMLhIDb_vSUtCuMvZCVoajWCzYZEJPnx76yRP48G0fC3gE8L7uPrlJ4ee_CqoOKYugsrN88ryqGHkcYCLx-R4Im1j2SMxFKEwfT3kMCVopYU-9NKv1BpJ60m-6TrCPDyH_oyNc8iqPSQYU_StseKDo2WkyVPFsGalEXGhe3gPidiVKpbbGJM_vFP-nkn1vUYP5NCV6YW8j-u9WXZMvgyUH6iEdA";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
     private final String endpoint = "https://chat-sdktester-e2e.communication.azure.com";
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             chatAsyncClient = new ChatClientBuilder()
                 .endpoint(endpoint)
-                .credential(new CommunicationTokenCredential(firstUserAccessToken))
+                .credential(communicationTokenCredential)
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
                 .httpLogOptions(new HttpLogOptions()
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)

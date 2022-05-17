@@ -29,6 +29,8 @@ import java9.util.function.Consumer;
 
 import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
 
+import android.util.Log;
+
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.PeriodicWorkRequest;
@@ -87,34 +89,41 @@ public class PushNotificationClient {
     public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         this.deviceRegistrationToken = deviceRegistrationToken;
         this.registrationErrorHandler = errorHandler;
-
+        Log.i("device_id: ", deviceRegistrationToken);
         if (this.isPushNotificationsStarted) {
             return;
         }
+        this.workManager = WorkManager.getInstance();
+        this.renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
+        stopPushNotifications();
 
-        String skypeUserToken;
-        try {
-            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-        } catch (ExecutionException | InterruptedException e) {
-            throw logger.logExceptionAsError(
-                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
-        }
-
-        try {
-            this.refreshEncryptionKeys();
-            this.registrarClient.register(skypeUserToken, deviceRegistrationToken, this.cryptoKey, this.authKey);
-        } catch (Throwable throwable) {
-            this.logger.error("Failed to start push notifications!");
-            errorHandler.accept(throwable);
-            return;
-        }
+//        String skypeUserToken;
+//        try {
+//            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
+//        } catch (ExecutionException | InterruptedException e) {
+//            throw logger.logExceptionAsError(
+//                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
+//        }
+//
+//        try {
+//            this.refreshEncryptionKeys();
+//            renewalWorkerDataContainer.refreshCredentials();
+//            Log.i("renew", "skype: " + skypeUserToken + ", \ndevice: " + deviceRegistrationToken + ", \ncrypto: " + Base64Util.encodeToString(renewalWorkerDataContainer.getCurCryptoKey().getEncoded()) + ",\n auth:" + Base64Util.encodeToString(renewalWorkerDataContainer.getCurAuthKey().getEncoded()));
+//            this.registrarClient.register(skypeUserToken, deviceRegistrationToken, renewalWorkerDataContainer.getCurCryptoKey(), renewalWorkerDataContainer.getCurAuthKey());
+//        } catch (Throwable throwable) {
+//            this.logger.error("Failed to start push notifications!");
+//            errorHandler.accept(throwable);
+//            return;
+//        }
 
         this.isPushNotificationsStarted = true;
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
 
-        long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL) - 30);
-        this.scheduleRegistrationRenew(delayInMS, 0);
+//        long delayInMS = 1000L * (long) (Integer.parseInt("60"));
+//        this.scheduleRegistrationRenew(delayInMS, 0);
+        long delay = 15;
+        this.startRegistrationRenewalWorker(delay);
     }
 
     /**
@@ -152,6 +161,9 @@ public class PushNotificationClient {
         if (this.registrationRenewScheduleTimer != null) {
             this.registrationRenewScheduleTimer.cancel();
             this.registrationRenewScheduleTimer = null;
+        }
+        if (this.workManager != null) {
+            this.workManager.cancelAllWork();
         }
     }
 
@@ -245,19 +257,16 @@ public class PushNotificationClient {
         return NotificationUtils.toEventPayload(chatEventType, decrypted);
     }
 
-    private void startRegistrationRenewalWorker(long intervalInMs) {
+    private void startRegistrationRenewalWorker(long intervalInMinutes) {
         this.logger.info("Initialize RenewTokenWorker in background");
-        this.workManager = WorkManager.getInstance();
-        this.renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
+
         Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
 
         PeriodicWorkRequest renewTokenRequest =
-            new PeriodicWorkRequest.Builder(RenewTokenWorker.class, intervalInMs, TimeUnit.MILLISECONDS)
+            new PeriodicWorkRequest.Builder(RenewTokenWorker.class, intervalInMinutes, TimeUnit.MINUTES)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
-        //Ensure only one work executed.
-        workManager.cancelAllWork();
         workManager.enqueue(renewTokenRequest);
 
         //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
@@ -316,17 +325,26 @@ public class PushNotificationClient {
             public void run() {
                 boolean retry = false;
 
+
                 PushNotificationClient.this.logger.info("Renew Registrar registration attempt #" + tryCount);
 
                 String skypeUserToken;
+                renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
+                renewalWorkerDataContainer.refreshCredentials();
                 try {
                     skypeUserToken = communicationTokenCredential.getToken().get().getToken();
                     PushNotificationClient.this.refreshEncryptionKeys();
+                    Log.i("renew", "skype: " + skypeUserToken + ", \ndevice: " + deviceRegistrationToken + ", \ncrypto: " + Base64Util.encodeToString(PushNotificationClient.this.cryptoKey.getEncoded()) + ",\n auth:" + Base64Util.encodeToString(PushNotificationClient.this.authKey.getEncoded()));
+//                    PushNotificationClient.this.registrarClient.register(
+//                        skypeUserToken,
+//                        deviceRegistrationToken,
+//                        PushNotificationClient.this.cryptoKey,
+//                        PushNotificationClient.this.authKey);
                     PushNotificationClient.this.registrarClient.register(
                         skypeUserToken,
                         deviceRegistrationToken,
-                        PushNotificationClient.this.cryptoKey,
-                        PushNotificationClient.this.authKey);
+                        renewalWorkerDataContainer.getCurCryptoKey(),
+                        renewalWorkerDataContainer.getCurAuthKey());
                 } catch (ExecutionException | InterruptedException e) {
                     PushNotificationClient.this.logger.logExceptionAsError(
                         new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
@@ -375,6 +393,10 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
+        this.cryptoKey = renewalWorkerDataContainer.getCurCryptoKey();
+        this.authKey = renewalWorkerDataContainer.getCurAuthKey();
+        this.previousCryptoKey = renewalWorkerDataContainer.getPreCryptoKey();
+        this.previousAuthKey = renewalWorkerDataContainer.getPreAuthKey();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
