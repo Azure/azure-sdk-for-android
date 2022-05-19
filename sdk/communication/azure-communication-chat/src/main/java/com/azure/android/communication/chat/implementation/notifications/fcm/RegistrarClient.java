@@ -237,7 +237,7 @@ public class RegistrarClient {
         transport.creationTime = "";
         transport.context = "";
         transport.path = deviceRegistrationToken;
-        transport.ttl = PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+        transport.ttl = "2700";
         transports.fcm.add(transport);
 
         RegistrarRequestBody registrarRequestBody = new RegistrarRequestBody();

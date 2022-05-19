@@ -36,12 +36,11 @@ public class RegistrationRenewalWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
         this.registrarClient = new RegistrarClient();
         int attempts = getRunAttemptCount();
         Log.i("RegistrationRenewal", "RegistrationRenewalWorker execution in background: " + attempts);
-        // Checking retry times
-        if (attempts > 0) {
+        // Retry maximum 2 times. Attempts number increase from 0 to MAX_INT.
+        if (attempts >= 3) {
             Log.i("RegistrationRenewal", "execution failed");
             registrationDataContainer.setExecutionFail(true);
             return Result.failure();
@@ -62,10 +61,10 @@ public class RegistrationRenewalWorker extends Worker {
                 registrationDataContainer.getSecreteKey(RegistrationDataContainer.curCryptoKeyAlias),
                 registrationDataContainer.getSecreteKey(RegistrationDataContainer.curAuthKeyAlias));
         } catch (ExecutionException | InterruptedException e) {
-            Log.i("exception", e.getMessage());
+            Log.e("exception", e.getMessage());
             return Result.retry();
         } catch (Throwable throwable) {
-            Log.i("exception", throwable.getMessage());
+            Log.e("exception", throwable.getMessage());
             return Result.retry();
         }
         Log.i("RegistrationRenewal", "execution succeeded");
@@ -76,9 +75,8 @@ public class RegistrationRenewalWorker extends Worker {
     private void refreshCredentials() {
         Context context = getApplicationContext();
         String absolutePath = context.getFilesDir().getAbsolutePath();
-        Log.i("FilesPath", absolutePath);
         String dataPath = absolutePath + "/key-store";
-        Log.i("FilePath", dataPath);
+        Log.d("KeyStorePath", dataPath);
         registrationDataContainer.refreshCredentials(dataPath);
     }
 }
