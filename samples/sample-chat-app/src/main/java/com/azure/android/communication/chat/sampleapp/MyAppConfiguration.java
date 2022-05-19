@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
-import com.azure.android.communication.chat.implementation.notifications.fcm.RenewTokenWorkerFactory;
+import com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationRenewalWorkerFactory;
 
 public class MyAppConfiguration extends Application implements Configuration.Provider {
     @Override
@@ -21,6 +21,6 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
     @Override
     public Configuration getWorkManagerConfiguration() {
         return new Configuration.Builder().
-            setWorkerFactory(new RenewTokenWorkerFactory(communicationTokenCredential)).build();
+            setWorkerFactory(new RegistrationRenewalWorkerFactory(communicationTokenCredential)).build();
     }
 }

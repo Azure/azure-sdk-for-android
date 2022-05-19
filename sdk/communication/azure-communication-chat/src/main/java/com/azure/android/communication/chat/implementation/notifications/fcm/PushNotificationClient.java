@@ -3,6 +3,17 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+
+import android.util.Log;
+
+import androidx.work.BackoffPolicy;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
@@ -27,16 +38,6 @@ import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
 
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
-
-import android.util.Log;
-
-import androidx.work.BackoffPolicy;
-import androidx.work.Data;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
-
 /**
  * The registrar client interface
  */
@@ -56,8 +57,7 @@ public class PushNotificationClient {
     private SecretKey previousAuthKey;
     private long keyRotateTimeMillis;
     private WorkManager workManager;
-    private boolean enableWorkManager;
-    private RenewalWorkerDataContainer renewalWorkerDataContainer;
+    private SecreteKeyManager secreteKeyManager;
 
     private static final int KEY_SIZE = 256;
     private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
@@ -94,34 +94,12 @@ public class PushNotificationClient {
             return;
         }
         this.workManager = WorkManager.getInstance();
-        this.renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
+        this.secreteKeyManager = SecreteKeyManager.instance();
         stopPushNotifications();
-
-//        String skypeUserToken;
-//        try {
-//            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-//        } catch (ExecutionException | InterruptedException e) {
-//            throw logger.logExceptionAsError(
-//                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
-//        }
-//
-//        try {
-//            this.refreshEncryptionKeys();
-//            renewalWorkerDataContainer.refreshCredentials();
-//            Log.i("renew", "skype: " + skypeUserToken + ", \ndevice: " + deviceRegistrationToken + ", \ncrypto: " + Base64Util.encodeToString(renewalWorkerDataContainer.getCurCryptoKey().getEncoded()) + ",\n auth:" + Base64Util.encodeToString(renewalWorkerDataContainer.getCurAuthKey().getEncoded()));
-//            this.registrarClient.register(skypeUserToken, deviceRegistrationToken, renewalWorkerDataContainer.getCurCryptoKey(), renewalWorkerDataContainer.getCurAuthKey());
-//        } catch (Throwable throwable) {
-//            this.logger.error("Failed to start push notifications!");
-//            errorHandler.accept(throwable);
-//            return;
-//        }
 
         this.isPushNotificationsStarted = true;
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
-
-//        long delayInMS = 1000L * (long) (Integer.parseInt("60"));
-//        this.scheduleRegistrationRenew(delayInMS, 0);
         long delay = 15;
         this.startRegistrationRenewalWorker(delay);
     }
@@ -258,22 +236,22 @@ public class PushNotificationClient {
     }
 
     private void startRegistrationRenewalWorker(long intervalInMinutes) {
-        this.logger.info("Initialize RenewTokenWorker in background");
+        this.logger.info("Initialize RegistrationRenewalWorker in background");
 
         Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
 
         PeriodicWorkRequest renewTokenRequest =
-            new PeriodicWorkRequest.Builder(RenewTokenWorker.class, intervalInMinutes, TimeUnit.MINUTES)
+            new PeriodicWorkRequest.Builder(RegistrationRenewalWorker.class, intervalInMinutes, TimeUnit.MINUTES)
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
-        workManager.enqueue(renewTokenRequest);
+        workManager.enqueueUniquePeriodicWork("Renewal registration", ExistingPeriodicWorkPolicy.REPLACE,renewTokenRequest);
 
         //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
         //for every ENQUEUED state, meaning last execution has completed.
         workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
             if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
-                boolean failed = renewalWorkerDataContainer.isExecutionFail();
+                boolean failed = secreteKeyManager.isExecutionFail();
                 if (failed) {
                     RuntimeException exception = new RuntimeException(
                         "Registration renew request failed after "
@@ -329,22 +307,21 @@ public class PushNotificationClient {
                 PushNotificationClient.this.logger.info("Renew Registrar registration attempt #" + tryCount);
 
                 String skypeUserToken;
-                renewalWorkerDataContainer = RenewalWorkerDataContainer.instance();
-                renewalWorkerDataContainer.refreshCredentials();
+//                refreshEncryptionKeys();
                 try {
                     skypeUserToken = communicationTokenCredential.getToken().get().getToken();
                     PushNotificationClient.this.refreshEncryptionKeys();
                     Log.i("renew", "skype: " + skypeUserToken + ", \ndevice: " + deviceRegistrationToken + ", \ncrypto: " + Base64Util.encodeToString(PushNotificationClient.this.cryptoKey.getEncoded()) + ",\n auth:" + Base64Util.encodeToString(PushNotificationClient.this.authKey.getEncoded()));
-//                    PushNotificationClient.this.registrarClient.register(
-//                        skypeUserToken,
-//                        deviceRegistrationToken,
-//                        PushNotificationClient.this.cryptoKey,
-//                        PushNotificationClient.this.authKey);
                     PushNotificationClient.this.registrarClient.register(
                         skypeUserToken,
                         deviceRegistrationToken,
-                        renewalWorkerDataContainer.getCurCryptoKey(),
-                        renewalWorkerDataContainer.getCurAuthKey());
+                        PushNotificationClient.this.cryptoKey,
+                        PushNotificationClient.this.authKey);
+//                    PushNotificationClient.this.registrarClient.register(
+//                        skypeUserToken,
+//                        deviceRegistrationToken,
+//                        secreteKeyManager.getSecreteKey(SecreteKeyManager.curCryptoKeyAlias),
+//                        secreteKeyManager.getSecreteKey(SecreteKeyManager.curAuthKeyAlias));
                 } catch (ExecutionException | InterruptedException e) {
                     PushNotificationClient.this.logger.logExceptionAsError(
                         new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
@@ -393,10 +370,10 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        this.cryptoKey = renewalWorkerDataContainer.getCurCryptoKey();
-        this.authKey = renewalWorkerDataContainer.getCurAuthKey();
-        this.previousCryptoKey = renewalWorkerDataContainer.getPreCryptoKey();
-        this.previousAuthKey = renewalWorkerDataContainer.getPreAuthKey();
+        this.cryptoKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.curCryptoKeyAlias);
+        this.authKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.curAuthKeyAlias);
+        this.previousCryptoKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.preCryptoKeyAlias);
+        this.previousAuthKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.preAuthKeyAlias);
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);

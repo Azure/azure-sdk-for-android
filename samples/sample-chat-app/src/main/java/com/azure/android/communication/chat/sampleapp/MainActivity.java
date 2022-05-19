@@ -81,21 +81,17 @@ import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THR
 import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.endpoint;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.firstUserId;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.secondUserId;
 
 public class MainActivity extends AppCompatActivity {
 
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
     private int eventHandlerCalled;
-
-    // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "8:acs:357e39d2-a29a-4bf6-88cc-fda0afc2c0ed_00000011-7159-7845-4ff7-343a0d006488";
-    private String secondUserId = "";
-    // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwNCIsIng1dCI6IlJDM0NPdTV6UENIWlVKaVBlclM0SUl4Szh3ZyIsInR5cCI6IkpXVCJ9.eyJza3lwZWlkIjoiYWNzOjM1N2UzOWQyLWEyOWEtNGJmNi04OGNjLWZkYTBhZmMyYzBlZF8wMDAwMDAxMS03MTU5LTc4NDUtNGZmNy0zNDNhMGQwMDY0ODgiLCJzY3AiOjE3OTIsImNzaSI6IjE2NTI3ODE3MzIiLCJleHAiOjE2NTI4NjgxMzIsImFjc1Njb3BlIjoiY2hhdCIsInJlc291cmNlSWQiOiIzNTdlMzlkMi1hMjlhLTRiZjYtODhjYy1mZGEwYWZjMmMwZWQiLCJpYXQiOjE2NTI3ODE3MzJ9.ezdYqCzk-q4w6JtfvEhT_91P5Ks9wL-wPE_tgemUHXOXRlx1uP61oMk3NNvUFceZPVBB_KN7e6EC3YridmmPCb54YIyCI60L3m59M-4VtRaFsApCo02tfGmuQKyUMLhIDb_vSUtCuMvZCVoajWCzYZEJPnx76yRP48G0fC3gE8L7uPrlJ4ee_CqoOKYugsrN88ryqGHkcYCLx-R4Im1j2SMxFKEwfT3kMCVopYU-9NKv1BpJ60m-6TrCPDyH_oyNc8iqPSQYU_StseKDo2WkyVPFsGalEXGhe3gPidiVKpbbGJM_vFP-nkn1vUYP5NCV6YW8j-u9WXZMvgyUH6iEdA";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "https://chat-sdktester-e2e.communication.azure.com";
     private final String sdkVersion = "1.2.0-beta.1";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String APPLICATION_ID = "Chat_Test_App";

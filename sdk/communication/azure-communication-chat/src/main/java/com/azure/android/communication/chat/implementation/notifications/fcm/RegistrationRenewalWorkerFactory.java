@@ -10,10 +10,10 @@ import androidx.work.WorkerParameters;
 
 import com.azure.android.communication.common.CommunicationTokenCredential;
 
-public class RenewTokenWorkerFactory extends WorkerFactory {
+public class RegistrationRenewalWorkerFactory extends WorkerFactory {
     private CommunicationTokenCredential communicationTokenCredential;
 
-    public RenewTokenWorkerFactory(CommunicationTokenCredential communicationTokenCredential) {
+    public RegistrationRenewalWorkerFactory(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
     }
 
@@ -21,6 +21,6 @@ public class RenewTokenWorkerFactory extends WorkerFactory {
     @Override
     public ListenableWorker createWorker(@NonNull Context appContext, @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
 
-        return new RenewTokenWorker(appContext, workerParameters, communicationTokenCredential);
+        return new RegistrationRenewalWorker(appContext, workerParameters, communicationTokenCredential);
     }
 }
