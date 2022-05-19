@@ -19,7 +19,7 @@ public class RegistrationRenewalWorker extends Worker {
 
     private CommunicationTokenCredential communicationTokenCredential;
 
-    private SecreteKeyManager secreteKeyManager;
+    private RegistrationDataContainer registrationDataContainer;
 
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -30,7 +30,7 @@ public class RegistrationRenewalWorker extends Worker {
         super(context, workerParams);
 
         this.communicationTokenCredential = communicationTokenCredential;
-        this.secreteKeyManager = SecreteKeyManager.instance();
+        this.registrationDataContainer = RegistrationDataContainer.instance();
     }
 
     @NonNull
@@ -43,7 +43,7 @@ public class RegistrationRenewalWorker extends Worker {
         // Checking retry times
         if (attempts > 0) {
             Log.i("RegistrationRenewal", "execution failed");
-            secreteKeyManager.setExecutionFail(true);
+            registrationDataContainer.setExecutionFail(true);
             return Result.failure();
         }
 
@@ -59,8 +59,8 @@ public class RegistrationRenewalWorker extends Worker {
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
-                secreteKeyManager.getSecreteKey(SecreteKeyManager.curCryptoKeyAlias),
-                secreteKeyManager.getSecreteKey(SecreteKeyManager.curAuthKeyAlias));
+                registrationDataContainer.getSecreteKey(RegistrationDataContainer.curCryptoKeyAlias),
+                registrationDataContainer.getSecreteKey(RegistrationDataContainer.curAuthKeyAlias));
         } catch (ExecutionException | InterruptedException e) {
             Log.i("exception", e.getMessage());
             return Result.retry();
@@ -69,7 +69,7 @@ public class RegistrationRenewalWorker extends Worker {
             return Result.retry();
         }
         Log.i("RegistrationRenewal", "execution succeeded");
-        secreteKeyManager.setExecutionFail(false);
+        registrationDataContainer.setExecutionFail(false);
         return Result.success();
     }
 
@@ -79,6 +79,6 @@ public class RegistrationRenewalWorker extends Worker {
         Log.i("FilesPath", absolutePath);
         String dataPath = absolutePath + "/key-store";
         Log.i("FilePath", dataPath);
-        secreteKeyManager.refreshCredentials(dataPath);
+        registrationDataContainer.refreshCredentials(dataPath);
     }
 }

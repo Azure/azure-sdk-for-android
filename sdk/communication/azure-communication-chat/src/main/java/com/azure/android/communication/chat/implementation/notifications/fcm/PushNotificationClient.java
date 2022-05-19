@@ -57,7 +57,7 @@ public class PushNotificationClient {
     private SecretKey previousAuthKey;
     private long keyRotateTimeMillis;
     private WorkManager workManager;
-    private SecreteKeyManager secreteKeyManager;
+    private RegistrationDataContainer registrationDataContainer;
 
     private static final int KEY_SIZE = 256;
     private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
@@ -94,7 +94,7 @@ public class PushNotificationClient {
             return;
         }
         this.workManager = WorkManager.getInstance();
-        this.secreteKeyManager = SecreteKeyManager.instance();
+        this.registrationDataContainer = RegistrationDataContainer.instance();
         stopPushNotifications();
 
         this.isPushNotificationsStarted = true;
@@ -251,7 +251,7 @@ public class PushNotificationClient {
         //for every ENQUEUED state, meaning last execution has completed.
         workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
             if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
-                boolean failed = secreteKeyManager.isExecutionFail();
+                boolean failed = registrationDataContainer.isExecutionFail();
                 if (failed) {
                     RuntimeException exception = new RuntimeException(
                         "Registration renew request failed after "
@@ -320,8 +320,8 @@ public class PushNotificationClient {
 //                    PushNotificationClient.this.registrarClient.register(
 //                        skypeUserToken,
 //                        deviceRegistrationToken,
-//                        secreteKeyManager.getSecreteKey(SecreteKeyManager.curCryptoKeyAlias),
-//                        secreteKeyManager.getSecreteKey(SecreteKeyManager.curAuthKeyAlias));
+//                        registrationDataContainer.getSecreteKey(RegistrationDataContainer.curCryptoKeyAlias),
+//                        registrationDataContainer.getSecreteKey(RegistrationDataContainer.curAuthKeyAlias));
                 } catch (ExecutionException | InterruptedException e) {
                     PushNotificationClient.this.logger.logExceptionAsError(
                         new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
@@ -370,10 +370,10 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        this.cryptoKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.curCryptoKeyAlias);
-        this.authKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.curAuthKeyAlias);
-        this.previousCryptoKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.preCryptoKeyAlias);
-        this.previousAuthKey = secreteKeyManager.getSecreteKey(SecreteKeyManager.preAuthKeyAlias);
+        this.cryptoKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.curCryptoKeyAlias);
+        this.authKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.curAuthKeyAlias);
+        this.previousCryptoKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.preCryptoKeyAlias);
+        this.previousAuthKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.preAuthKeyAlias);
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);

@@ -2,7 +2,6 @@ package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -16,8 +15,8 @@ import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.Setter;
 
-public class SecreteKeyManager {
-    private static SecreteKeyManager secreteKeyManager;
+public class RegistrationDataContainer {
+    private static RegistrationDataContainer registrationDataContainer;
 
     private KeyGenerator keyGenerator;
 
@@ -39,7 +38,7 @@ public class SecreteKeyManager {
 
     public final static String preAuthKeyAlias = "PRE_AUTH_KEY";
 
-    public SecreteKeyManager()  {
+    public RegistrationDataContainer()  {
         try {
             this.keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
@@ -55,17 +54,20 @@ public class SecreteKeyManager {
         executionFail = false;
     }
 
-    public static SecreteKeyManager instance() {
-        if (secreteKeyManager == null) {
-            secreteKeyManager = new SecreteKeyManager();
+    public static RegistrationDataContainer instance() {
+        if (registrationDataContainer == null) {
+            registrationDataContainer = new RegistrationDataContainer();
         }
-        return secreteKeyManager;
+        return registrationDataContainer;
     }
 
+    //Dummy password for accessing credentials in key store. The keys are refreshed with certain interval, so no need
+    //to protect with complex password.
     private char[] getPassword() {
-        return "com.azure.android.communication.chat.android".toCharArray();
+        return "communication.chat.password".toCharArray();
     }
 
+    //Loads data from key store file to key store entry
     private void loading(String path) {
         //Loading keys if key store file exists
         char[] password = getPassword();
@@ -77,6 +79,7 @@ public class SecreteKeyManager {
         }
     }
 
+    //Get secrete key from key store entry using alias
     public SecretKey getSecreteKey(String alias) {
         KeyStore.ProtectionParameter protParam =
             new KeyStore.PasswordProtection(getPassword());
@@ -95,6 +98,7 @@ public class SecreteKeyManager {
         return secretKey;
     }
 
+    //Writing the keys to key-store file for persistence
     private void storingKeyWithAlias(SecretKey secretKey, String alias, String path) {
         if (secretKey == null) {
             return;
@@ -125,6 +129,7 @@ public class SecreteKeyManager {
         }
     }
 
+    //Doing key rotation and persist results in key store file to persist.
     public void refreshCredentials(String path) {
         loading(path);
         SecretKey curCryptoKey = getSecreteKey(curCryptoKeyAlias);
