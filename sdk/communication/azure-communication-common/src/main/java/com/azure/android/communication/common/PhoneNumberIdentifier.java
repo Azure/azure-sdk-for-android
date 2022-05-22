@@ -7,7 +7,6 @@ package com.azure.android.communication.common;
  */
 public final class PhoneNumberIdentifier extends CommunicationIdentifier {
     private final String phoneNumber;
-    private String rawId;
 
     /**
      * Creates a PhoneNumberIdentifier object
