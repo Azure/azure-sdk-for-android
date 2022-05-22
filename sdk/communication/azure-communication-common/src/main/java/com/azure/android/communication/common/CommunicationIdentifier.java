@@ -36,10 +36,13 @@ public abstract class CommunicationIdentifier {
         } else if ("8:orgid:".equals(prefix)) {
             return new MicrosoftTeamsUserIdentifier(suffix, false);
         } else if ("8:dod:".equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, false).setCloudEnvironment(CommunicationCloudEnvironment.DOD);
+            return new MicrosoftTeamsUserIdentifier(suffix, false)
+                .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
         } else if ("8:gcch:".equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, false).setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-        } else if ("8:acs:".equals(prefix) || "8:spool:".equals(prefix) || "8:dod-acs:".equals(prefix) || "8:gcch-acs:".equals(prefix)) {
+            return new MicrosoftTeamsUserIdentifier(suffix, false)
+                .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
+        } else if ("8:acs:".equals(prefix) || "8:spool:".equals(prefix)
+            || "8:dod-acs:".equals(prefix) || "8:gcch-acs:".equals(prefix)) {
             return new CommunicationUserIdentifier(rawId);
         }
 
