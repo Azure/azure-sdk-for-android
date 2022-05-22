@@ -9,6 +9,7 @@ package com.azure.android.communication.common;
 public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     private final String userId;
     private final boolean isAnonymous;
+    private boolean rawIdSet = false;
     private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
 
     /**
@@ -82,6 +83,7 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
      */
     public MicrosoftTeamsUserIdentifier setRawId(String rawId) {
         this.rawId = rawId;
+        rawIdSet = true;
         return this;
     }
 
@@ -117,14 +119,16 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
     }
 
     private void setRawId() {
-        if (this.isAnonymous) {
-            this.rawId = "8:teamsvisitor:" + this.userId;
-        } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-            this.rawId = "8:dod:" + this.userId;
-        } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-            this.rawId = "8:gcch:" + this.userId;
-        } else {
-            this.rawId = "8:orgid:" + this.userId;
+        if (!rawIdSet) {
+            if (this.isAnonymous) {
+                this.rawId = "8:teamsvisitor:" + this.userId;
+            } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
+                this.rawId = "8:dod:" + this.userId;
+            } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
+                this.rawId = "8:gcch:" + this.userId;
+            } else {
+                this.rawId = "8:orgid:" + this.userId;
+            }
         }
     }
 }
