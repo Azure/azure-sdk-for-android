@@ -21,6 +21,7 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
             throw new IllegalArgumentException("The initialization parameter [phoneNumber] cannot be null to empty.");
         }
         this.phoneNumber = phoneNumber;
+        this.rawId = "4:" + phoneNumber.replaceAll("^[+]", "");
     }
 
     /**
@@ -28,14 +29,6 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
      */
     public String getPhoneNumber() {
         return phoneNumber;
-    }
-
-    /**
-     * Get full id of the identifier. This id is optional.
-     * @return full id of the identifier
-     */
-    public String getRawId() {
-        return rawId;
     }
 
     /**
@@ -59,9 +52,6 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
         }
 
         PhoneNumberIdentifier phoneId = (PhoneNumberIdentifier) that;
-        if (!phoneNumber.equals(phoneId.phoneNumber)) {
-            return false;
-        }
 
         return getRawId() == null
             || phoneId.getRawId() == null
@@ -70,6 +60,6 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
 
     @Override
     public int hashCode() {
-        return phoneNumber.hashCode();
+        return getRawId().hashCode();
     }
 }
