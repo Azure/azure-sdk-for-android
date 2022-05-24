@@ -73,7 +73,8 @@ final class PercentEscaper {
 
             if (safeCharacterPoints.contains(codePoint)) {
                 // This is a safe character, use it as is.
-                escapedBuilder.append(Character.toChars(codePoint));
+                // All safe characters should be ASCII.
+                escapedBuilder.append((char) codePoint);
             } else if (usePlusForSpace && codePoint == ' ') {
                 // Character is a space and we are using '+' instead of "%20".
                 escapedBuilder.append('+');

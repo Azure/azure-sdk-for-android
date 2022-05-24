@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.regex.Pattern;
 
 /**
  * Custom serializer for deserializing complex types with wrapped properties.
@@ -31,6 +32,9 @@ import java.lang.reflect.Field;
  */
 final class FlatteningDeserializer extends StdDeserializer<Object> implements ResolvableDeserializer {
     private static final long serialVersionUID = -2133095337545715498L;
+
+    private static final Pattern IS_FLATTENED_PATTERN = Pattern.compile(".+[^\\\\]\\..+");
+    private static final Pattern SPLIT_KEY_PATTERN = Pattern.compile("((?<!\\\\))\\.");
 
     /**
      * The default mapperAdapter for the current type.
@@ -174,7 +178,7 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
      * @return true if the key has flattening dots, false otherwise.
      */
     private static boolean containsFlatteningDots(String key) {
-        return key.matches(".+[^\\\\]\\..+");
+        return IS_FLATTENED_PATTERN.matcher(key).matches();
     }
 
     /**
@@ -205,7 +209,7 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
      * @return the array of sub keys
      */
     private static String[] splitKeyByFlatteningDots(String key) {
-        return key.split("((?<!\\\\))\\.");
+        return SPLIT_KEY_PATTERN.split(key);
     }
 
     /**

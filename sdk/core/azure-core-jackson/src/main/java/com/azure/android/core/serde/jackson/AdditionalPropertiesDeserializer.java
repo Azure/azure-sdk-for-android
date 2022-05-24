@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.regex.Pattern;
 
 /**
  * Custom serializer for deserializing complex types with additional properties.
@@ -29,6 +30,8 @@ import java.lang.reflect.Field;
  */
 final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> implements ResolvableDeserializer {
     private static final long serialVersionUID = 700052863615540646L;
+
+    private static final Pattern JSON_FLATTEN_SPLIT = Pattern.compile("((?<!\\\\))\\.");
 
     /**
      * The default mapperAdapter for the current type.
@@ -109,7 +112,7 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
                     value = jProperty.value();
                 }
                 if (value != null) {
-                    String key1 = isJsonFlatten ? jProperty.value().split("((?<!\\\\))\\.")[0] : jProperty.value();
+                    String key1 = isJsonFlatten ? JSON_FLATTEN_SPLIT.split(jProperty.value())[0] : jProperty.value();
                     if (!key1.isEmpty()) {
                         if (copy.has(key1)) {
                             copy.remove(key1);
