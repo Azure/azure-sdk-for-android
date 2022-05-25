@@ -3,6 +3,7 @@
 
 package com.azure.android.core.util.events;
 
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.ExpandableStringEnum;
 
 import java.util.HashMap;
@@ -17,7 +18,8 @@ import java.util.UUID;
  * @param <E> The event itself.
  */
 public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
-    Map<T, Map<String, EventHandler<E>>> eventHandlers = new HashMap<>();
+    private final Map<T, Map<String, EventHandler<E>>> eventHandlers = new HashMap<>();
+    private final ClientLogger clientLogger = new ClientLogger(MulticastEventCollection.class);
 
     /**
      * Adds an event handler mapped to the event type provided.
@@ -66,6 +68,8 @@ public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
 
     /**
      * Removes all event handlers for a given event type.
+     *
+     * @param eventType The type of the event to remove all handlers of.
      */
     public void removeAllEventHandlers(T eventType) {
         if (this.eventHandlers.containsKey(eventType)) {
@@ -85,15 +89,18 @@ public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
     }
 
     /**
-     * Calls the {@code handle} method in all handlers for a given event.
+     * Convenience method to call the {@code handle} method in all handlers for a given {@link Event}.
      *
      * @param event The event to handle.
+     *
+     * @throws IllegalArgumentException when event is not of type {@link Event}.
      */
     public void handleEvent(E event) {
         if (event instanceof Event) {
-            handleEvent((T)((Event) event).getEventType(), event);
+            handleEvent((T) ((Event) event).getEventType(), event);
         } else {
-            throw new IllegalArgumentException("Cannot handle objects of a type other than Event.");
+            throw clientLogger.logExceptionAsError(
+                new IllegalArgumentException("Cannot handle objects of a type other than Event."));
         }
     }
 

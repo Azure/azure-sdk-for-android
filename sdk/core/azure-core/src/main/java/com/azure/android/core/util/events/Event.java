@@ -11,7 +11,7 @@ import com.azure.android.core.util.ExpandableStringEnum;
  * @param <T> The event type.
  */
 public abstract class Event<T extends ExpandableStringEnum<T>> {
-    T eventType;
+    final T eventType;
 
     /**
      * Base constructor that requires an type for the event.
