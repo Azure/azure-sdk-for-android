@@ -19,7 +19,7 @@ import java.util.UUID;
  */
 public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
     private final Map<T, Map<String, EventHandler<E>>> eventHandlers = new HashMap<>();
-    private final ClientLogger clientLogger = new ClientLogger(MulticastEventCollection.class);
+    private final ClientLogger logger = new ClientLogger(MulticastEventCollection.class);
 
     /**
      * Adds an event handler mapped to the event type provided.
@@ -99,7 +99,7 @@ public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
         if (event instanceof Event) {
             handleEvent((T) ((Event) event).getEventType(), event);
         } else {
-            throw clientLogger.logExceptionAsError(
+            throw logger.logExceptionAsError(
                 new IllegalArgumentException("Cannot handle objects of a type other than Event."));
         }
     }
