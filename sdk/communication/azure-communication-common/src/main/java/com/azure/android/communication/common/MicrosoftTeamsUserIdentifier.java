@@ -27,7 +27,7 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
         }
         this.userId = userId;
         this.isAnonymous = isAnonymous;
-        setRawId();
+        generateRawId();
     }
 
     /**
@@ -64,7 +64,7 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
      */
     public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
         this.cloudEnvironment = cloudEnvironment;
-        setRawId();
+        generateRawId();
         return this;
     }
 
@@ -118,7 +118,7 @@ public final class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier 
         return getRawId().hashCode();
     }
 
-    private void setRawId() {
+    private void generateRawId() {
         if (!rawIdSet) {
             if (this.isAnonymous) {
                 this.rawId = "8:teamsvisitor:" + this.userId;
