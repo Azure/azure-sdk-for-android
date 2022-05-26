@@ -13,10 +13,14 @@ import static com.azure.android.communication.chat.models.ChatEventType.PARTICIP
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
 import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.APPLICATION_ID;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ID;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_NAME;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_VERSION;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.communicationTokenCredential;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.endpoint;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.firstUserId;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.secondUserId;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ENDPOINT;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -91,10 +95,6 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String sdkVersion = "1.2.0-beta.1";
-    private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
-    private static final String APPLICATION_ID = "Chat_Test_App";
-    private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
     private static Map<RealTimeNotificationCallback, ChatEventType> realTimeNotificationCallbacks = new HashMap<>();
 
@@ -130,9 +130,9 @@ public class MainActivity extends AppCompatActivity {
     public void createChatAsyncClient() {
         try {
             chatAsyncClient = new ChatClientBuilder()
-                .endpoint(endpoint)
+                .endpoint(ENDPOINT)
                 .credential(communicationTokenCredential)
-                .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
+                .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, SDK_VERSION))
                 .httpLogOptions(new HttpLogOptions()
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
                     .addAllowedHeaderName("MS-CV"))
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         // The display name for the thread participant.
         String displayName = "First participant";
         participants.add(new ChatParticipant()
-            .setCommunicationIdentifier(new CommunicationUserIdentifier(firstUserId))
+            .setCommunicationIdentifier(new CommunicationUserIdentifier(FIRST_USER_ID))
             .setDisplayName(displayName));
 
         // The topic for the thread.
@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 chatThreadAsyncClient.addParticipant(new ChatParticipant().setCommunicationIdentifier(
-                   new CommunicationUserIdentifier(secondUserId)).setDisplayName(secondUserDisplayName)).get();
+                   new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
 
                 logAndToast("Added chat participant");
             } catch (InterruptedException | ExecutionException e) {
@@ -580,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
         if (chatThreadAsyncClient != null) {
             try {
                 // Using the unique ID of the participant.
-                chatThreadAsyncClient.removeParticipant(new CommunicationUserIdentifier(secondUserId)).get();
+                chatThreadAsyncClient.removeParticipant(new CommunicationUserIdentifier(SECOND_USER_ID)).get();
 
                 logAndToast("Removed second participant");
             } catch (InterruptedException | ExecutionException e) {

@@ -3,9 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
-
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
@@ -28,12 +27,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
@@ -50,17 +48,8 @@ public class PushNotificationClient {
     private String deviceRegistrationToken;
     private Consumer<Throwable> registrationErrorHandler;
     private Timer registrationRenewScheduleTimer;
-    private KeyGenerator keyGenerator;
-    private SecretKey cryptoKey;
-    private SecretKey authKey;
-    private SecretKey previousCryptoKey;
-    private SecretKey previousAuthKey;
-    private long keyRotateTimeMillis;
     private WorkManager workManager;
     private RegistrationDataContainer registrationDataContainer;
-
-    private static final int KEY_SIZE = 256;
-    private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -89,7 +78,7 @@ public class PushNotificationClient {
     public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         this.deviceRegistrationToken = deviceRegistrationToken;
         this.registrationErrorHandler = errorHandler;
-        Log.i("device_id: ", deviceRegistrationToken);
+        Log.v("device_id: ", deviceRegistrationToken);
         if (this.isPushNotificationsStarted) {
             return;
         }
@@ -270,10 +259,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        this.cryptoKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.curCryptoKeyAlias);
-        this.authKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.curAuthKeyAlias);
-        this.previousCryptoKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.preCryptoKeyAlias);
-        this.previousAuthKey = registrationDataContainer.getSecreteKey(RegistrationDataContainer.preAuthKeyAlias);
+        Stack<Pair<SecretKey, SecretKey>> eligibleSecretePairs = registrationDataContainer.getAllPairsOfKeys();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
@@ -281,31 +267,19 @@ public class PushNotificationClient {
         byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
-        if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.authKey)) {
-            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.cryptoKey);
-        }
-
-        // When client has registered a new key, because of eventual consistency, latencies and concurrency,
-        // the old key can still be used by server side for some notifications
-        // Try old key if the new key failed to decrypt the payload.
-        if (inKeyRotationGracePeriod()
-            && NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.previousAuthKey)) {
-            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.previousCryptoKey);
+        while (!eligibleSecretePairs.isEmpty()) {
+            Pair<SecretKey, SecretKey> pair = eligibleSecretePairs.pop();
+            SecretKey cryptoKey = pair.first;
+            SecretKey authKey = pair.second;
+            Log.v("PushNotificationClient", "crypto: " + Base64Util.encodeToString(cryptoKey.getEncoded())+
+                ",\t auth: " + Base64Util.encodeToString(authKey.getEncoded()));
+            if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
+                return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, cryptoKey);
+            }
         }
 
         // Reject the push when computed signature does not match the included signature - it can not be trusted
         throw logger.logExceptionAsError(
             new RuntimeException("Invalid encrypted push notification payload. Dropped the request!"));
-    }
-
-    private boolean inKeyRotationGracePeriod() {
-        if (this.previousAuthKey != null) {
-            long currentTimeMillis = System.currentTimeMillis();
-            if (currentTimeMillis - this.keyRotateTimeMillis <= KEY_ROTATE_GRACE_PERIOD_MILLIS) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
