@@ -13,7 +13,6 @@ import androidx.work.WorkerParameters;
 
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.util.Base64Util;
 
 import java.util.concurrent.ExecutionException;
 

@@ -219,7 +219,7 @@ public class RegistrationDataContainer {
         try {
             numKeyPairs = keyStore.size() / 2;
         } catch (KeyStoreException e) {
-            throw new RuntimeException("Failed to get size from key store");
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to get size from key store"));
         }
         Log.v("RegistrationContainer", "Number of pairs in key-store: " + numKeyPairs);
         return numKeyPairs;
