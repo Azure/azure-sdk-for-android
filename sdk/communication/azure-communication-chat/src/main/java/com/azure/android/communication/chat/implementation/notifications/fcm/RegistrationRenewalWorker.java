@@ -66,8 +66,6 @@ public class RegistrationRenewalWorker extends Worker {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
             refreshCredentials();
             Pair<SecretKey, SecretKey> keyPair = registrationDataContainer.getLastPair();
-            Log.v("renew in worker", "skype: " + skypeUserToken + ", \ndevice: " + deviceRegistrationToken + ", \ncrypto: " +
-                Base64Util.encodeToString(keyPair.first.getEncoded()) + ",\n auth:" + Base64Util.encodeToString(keyPair.second.getEncoded()));
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,

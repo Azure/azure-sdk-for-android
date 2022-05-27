@@ -235,7 +235,7 @@ public class PushNotificationClient {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
-        workManager.enqueueUniquePeriodicWork("Renewal registration", ExistingPeriodicWorkPolicy.REPLACE,renewTokenRequest);
+        workManager.enqueueUniquePeriodicWork("Renewal registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
 
         //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
         //for every ENQUEUED state, meaning last execution has completed.
@@ -271,8 +271,6 @@ public class PushNotificationClient {
             Pair<SecretKey, SecretKey> pair = eligibleSecretePairs.pop();
             SecretKey cryptoKey = pair.first;
             SecretKey authKey = pair.second;
-            Log.v("PushNotificationClient", "crypto: " + Base64Util.encodeToString(cryptoKey.getEncoded())+
-                ",\t auth: " + Base64Util.encodeToString(authKey.getEncoded()));
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
                 return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, cryptoKey);
             }

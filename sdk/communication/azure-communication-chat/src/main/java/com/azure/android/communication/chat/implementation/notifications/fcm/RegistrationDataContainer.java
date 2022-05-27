@@ -1,7 +1,11 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.util.Log;
 import android.util.Pair;
+
+import com.azure.android.core.logging.ClientLogger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,7 +25,7 @@ import lombok.Setter;
 
 /**
  * A singleton wrapper which manage the persistence and rotation of secrete keys and execution result related to #{RenewalTokenWorker}.
- * The secrete keys are persisted and loaded using key-store API. We store #{keyStoreSize} number of pairs of secrete keys in a local
+ * The secrete keys are persisted and loaded using key-store API. We store #{KEY_STORE_SIZE} number of pairs of secrete keys in a local
  * file. All the secrete key pairs are to be tried when decrypt push notification payload.
  *
  * The executionFail flag is to be used in #{PushNotificationClient}.
@@ -39,11 +43,13 @@ public class RegistrationDataContainer {
 
     //The number of pairs of secrete keys to persist. When we store more than this size. We rotate the
     //keys. The eldest values is to be over-ridden by the next secrete key.
-    public final static int keyStoreSize = 10;
+    public static final int KEY_STORE_SIZE = 10;
 
-    public final static String cryptoKeyPrefix = "CRYPTO_KEY_";
+    public static final String CRYPTO_KEY_PREFIX = "CRYPTO_KEY_";
 
-    public final static String authKeyPrefix = "AUTH_KEY_";
+    public static final String AUTH_KEY_PREFIX = "AUTH_KEY_";
+
+    private ClientLogger clientLogger = new ClientLogger(RegistrationDataContainer.class);
 
     public RegistrationDataContainer()  {
         try {
@@ -55,7 +61,7 @@ public class RegistrationDataContainer {
         try {
             keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         } catch (KeyStoreException e) {
-            throw new RuntimeException("Failed to initialize key store", e);
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
         }
         executionFail = false;
     }
@@ -81,7 +87,7 @@ public class RegistrationDataContainer {
             keyStore.load(fis, password);
             Log.v("RegistrationContainer", "key-store size: " + keyStore.size());
         } catch (IOException | CertificateException | NoSuchAlgorithmException | KeyStoreException e) {
-            throw new RuntimeException("Failed to load key store", e);
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
         }
     }
 
@@ -95,7 +101,7 @@ public class RegistrationDataContainer {
         try {
             pkEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, protParam);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get secrete key", e);
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to get secrete key", e));
         }
         if (pkEntry == null) {
             return null;
@@ -116,7 +122,7 @@ public class RegistrationDataContainer {
         try {
             keyStore.setEntry(alias, skEntry, protParam);
         } catch (KeyStoreException e) {
-            throw new RuntimeException("Failed to set entry for key store", e);
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to set entry for key store", e));
         }
 
         File outputFile = new File(path);
@@ -124,21 +130,21 @@ public class RegistrationDataContainer {
             try {
                 outputFile.createNewFile();
             } catch (IOException e) {
-                new RuntimeException("Failed to create key store file", e);
+                clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             keyStore.store(fos, getPassword());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save secrete key", e);
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
     }
 
     //The last pair of secrete keys are to be used to renew registration
     public Pair<SecretKey, SecretKey> getLastPair() {
         int index = getNumOfPairs();
-        String cryptoKeyAlias = cryptoKeyPrefix + index;
-        String authKeyAlias = authKeyPrefix + index;
+        String cryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
+        String authKeyAlias = AUTH_KEY_PREFIX + index;
         SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
         SecretKey authKey = getSecreteKey(authKeyAlias);
 
@@ -149,9 +155,9 @@ public class RegistrationDataContainer {
     public Stack<Pair<SecretKey, SecretKey>> getAllPairsOfKeys() {
         int lastIndex = getNumOfPairs();
         Stack<Pair<SecretKey, SecretKey>> stackToReturn = new Stack<>();
-        for (int i=1; i<=lastIndex; i++) {
-            String cryptoKeyAlias = cryptoKeyPrefix + i;
-            String authKeyAlias = authKeyPrefix + i;
+        for (int i = 1; i <= lastIndex; i++) {
+            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + i;
+            String authKeyAlias = AUTH_KEY_PREFIX + i;
 
             SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
             SecretKey authKey = getSecreteKey(authKeyAlias);
@@ -162,7 +168,7 @@ public class RegistrationDataContainer {
         return stackToReturn;
     }
 
-    //Generate new pair of secrete key. And rotate keys if key-store exceed the size #{keyStoreSize}
+    //Generate new pair of secrete key. And rotate keys if key-store exceed the size #{KEY_STORE_SIZE}
     public void refreshCredentials(String path) {
         Log.v("RegistrationContainer", "refresh keys");
         //Fetch latest data from file
@@ -172,13 +178,13 @@ public class RegistrationDataContainer {
         SecretKey newAuthKey = keyGenerator.generateKey();
         int existingPairs = getNumOfPairs();
         //Rotation if key-store is full
-        if (existingPairs >= keyStoreSize) {
+        if (existingPairs >= KEY_STORE_SIZE) {
             rotateKeys(path);
         }
 
-        int lastIndex = Math.min(keyStoreSize, existingPairs + 1);
-        String cryptoKeyAlias = cryptoKeyPrefix + lastIndex;
-        String authKeyAlias = authKeyPrefix + lastIndex;
+        int lastIndex = Math.min(KEY_STORE_SIZE, existingPairs + 1);
+        String cryptoKeyAlias = CRYPTO_KEY_PREFIX + lastIndex;
+        String authKeyAlias = AUTH_KEY_PREFIX + lastIndex;
         storingKeyWithAlias(newCryptoKey, cryptoKeyAlias, path);
         storingKeyWithAlias(newAuthKey, authKeyAlias, path);
     }
@@ -186,24 +192,24 @@ public class RegistrationDataContainer {
     //Getting rid of the eldest key-pair. Each remaining key with index n replace the key with index (n-1)
     //For example, assuming key-store size is 3. [key1, key2, key3] -> [key2, key3]. There is space for inserting new key
     private void rotateKeys(String path) {
-        for (int index = 2; index <= keyStoreSize; index++) {
-            String nextCryptoKeyAlias = cryptoKeyPrefix + index;
+        for (int index = 2; index <= KEY_STORE_SIZE; index++) {
+            String nextCryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
             SecretKey nextCryptoKey = getSecreteKey(nextCryptoKeyAlias);
-            String nextAuthKeyAlias = authKeyPrefix + index;
+            String nextAuthKeyAlias = AUTH_KEY_PREFIX + index;
             SecretKey nextAuthKey = getSecreteKey(nextAuthKeyAlias);
 
             //Over-ridden key with its next key
             int last = index - 1;
-            String lastCryptoKeyAlias = cryptoKeyPrefix + last;
+            String lastCryptoKeyAlias = CRYPTO_KEY_PREFIX + last;
             storingKeyWithAlias(nextCryptoKey, lastCryptoKeyAlias, path);
-            String lastAuthKeyAlias = authKeyPrefix + last;
+            String lastAuthKeyAlias = AUTH_KEY_PREFIX + last;
             storingKeyWithAlias(nextAuthKey, lastAuthKeyAlias, path);
 
             try {
                 keyStore.deleteEntry(nextCryptoKeyAlias);
                 keyStore.deleteEntry(nextAuthKeyAlias);
             } catch (KeyStoreException e) {
-                throw new RuntimeException("Failed to delete entry from key-store with index: " + index);
+                clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + index));
             }
         }
     }
