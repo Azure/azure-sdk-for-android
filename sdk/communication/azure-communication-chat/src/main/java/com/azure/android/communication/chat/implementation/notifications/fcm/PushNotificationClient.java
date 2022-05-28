@@ -90,8 +90,8 @@ public class PushNotificationClient {
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
         // 15 minutes is the minimum interval worker manager allows
-        long delay = 15;
-        this.startRegistrationRenewalWorker(delay);
+        long interval = 15;
+        this.startRegistrationRenewalWorker(interval);
     }
 
     /**
@@ -235,7 +235,7 @@ public class PushNotificationClient {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
-        workManager.enqueueUniquePeriodicWork("Renewal registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
+        workManager.enqueueUniquePeriodicWork("Renewal push notification registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
 
         //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
         //for every ENQUEUED state, meaning last execution has completed.

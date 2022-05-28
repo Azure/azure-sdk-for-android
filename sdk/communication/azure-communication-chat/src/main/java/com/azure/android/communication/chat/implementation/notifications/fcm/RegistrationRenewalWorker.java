@@ -64,12 +64,12 @@ public class RegistrationRenewalWorker extends Worker {
         try {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
             refreshCredentials();
-            Pair<SecretKey, SecretKey> keyPair = registrationDataContainer.getLastPair();
+            Pair<SecretKey, SecretKey> cryptoKeyToAuthKeyPair = registrationDataContainer.getLastPair();
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
-                keyPair.first,
-                keyPair.second);
+                cryptoKeyToAuthKeyPair.first,
+                cryptoKeyToAuthKeyPair.second);
         } catch (ExecutionException | InterruptedException e) {
             Log.e("exception", e.getMessage());
             this.clientLogger.error(e.getMessage());
