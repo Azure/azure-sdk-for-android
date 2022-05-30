@@ -11,12 +11,15 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.concurrent.ExecutionException;
 
 import javax.crypto.SecretKey;
+
+import java9.util.function.Consumer;
 
 /**
  * Worker for renewing registration. This worker could execute when APP closed.
@@ -28,17 +31,15 @@ public class RegistrationRenewalWorker extends Worker {
 
     private CommunicationTokenCredential communicationTokenCredential;
 
+    private Consumer<Throwable> exceptionHandler;
+
     private RegistrationDataContainer registrationDataContainer;
 
-    public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
-        super(context, workerParams);
-    }
-
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams,
-                                     CommunicationTokenCredential communicationTokenCredential) {
+                                     CommunicationTokenCredential communicationTokenCredential, Consumer<Throwable> exceptionHandler) {
         super(context, workerParams);
-
         this.communicationTokenCredential = communicationTokenCredential;
+        this.exceptionHandler = exceptionHandler;
         this.registrationDataContainer = RegistrationDataContainer.instance();
     }
 
@@ -54,6 +55,15 @@ public class RegistrationRenewalWorker extends Worker {
             Log.i("RegistrationRenewal", "execution retry limit reached");
             this.clientLogger.info("execution retry limit reached");
             registrationDataContainer.setExecutionFail(true);
+
+            //Using the exceptionHandler provided by client to handle exception.
+            RuntimeException exception = new RuntimeException(
+                "Registration renew request failed after "
+                    + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
+                    + "retries.");
+            if (exceptionHandler != null) {
+                exceptionHandler.accept(exception);
+            }
             return Result.failure();
         }
 
@@ -82,6 +92,7 @@ public class RegistrationRenewalWorker extends Worker {
         Log.i("RegistrationRenewal", "execution succeeded");
         this.clientLogger.info("RegistrationRenewalWorker execution succeeded");
         registrationDataContainer.setExecutionFail(false);
+
         return Result.success();
     }
 

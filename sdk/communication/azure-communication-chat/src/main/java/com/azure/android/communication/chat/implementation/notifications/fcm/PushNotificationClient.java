@@ -46,7 +46,6 @@ public class PushNotificationClient {
     private final Map<ChatEventType, Set<Consumer<ChatEvent>>> pushNotificationListeners;
     private boolean isPushNotificationsStarted;
     private String deviceRegistrationToken;
-    private Consumer<Throwable> registrationErrorHandler;
     private Timer registrationRenewScheduleTimer;
     private WorkManager workManager;
     private RegistrationDataContainer registrationDataContainer;
@@ -57,7 +56,6 @@ public class PushNotificationClient {
         this.isPushNotificationsStarted = false;
         this.registrarClient = new RegistrarClient();
         this.deviceRegistrationToken = null;
-        this.registrationErrorHandler = null;
         this.registrationRenewScheduleTimer = null;
     }
 
@@ -72,12 +70,10 @@ public class PushNotificationClient {
     /**
      * Register the current device for receiving incoming push notifications via FCM.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
-     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
+    public void startPushNotifications(String deviceRegistrationToken) {
         this.deviceRegistrationToken = deviceRegistrationToken;
-        this.registrationErrorHandler = errorHandler;
         Log.v("device_id: ", deviceRegistrationToken);
         if (this.isPushNotificationsStarted) {
             return;
@@ -237,24 +233,24 @@ public class PushNotificationClient {
                 .build();
         workManager.enqueueUniquePeriodicWork("Renewal push notification registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
 
-        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
-        //for every ENQUEUED state, meaning last execution has completed.
-        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
-            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
-                boolean failed = registrationDataContainer.isExecutionFail();
-                if (failed) {
-                    RuntimeException exception = new RuntimeException(
-                        "Registration renew request failed after "
-                            + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
-                            + "retries.");
-                    this.registrationErrorHandler.accept(exception);
-                    stopPushNotifications();
-                    this.logger.info("Renew token failed");
-                } else {
-                    this.logger.info("Renew token succeeded");
-                }
-            }
-        });
+//        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
+//        //for every ENQUEUED state, meaning last execution has completed.
+//        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
+//            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
+//                boolean failed = registrationDataContainer.isExecutionFail();
+//                if (failed) {
+//                    RuntimeException exception = new RuntimeException(
+//                        "Registration renew request failed after "
+//                            + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
+//                            + "retries.");
+//                    this.registrationErrorHandler.accept(exception);
+//                    stopPushNotifications();
+//                    this.logger.info("Renew token failed");
+//                } else {
+//                    this.logger.info("Renew token succeeded");
+//                }
+//            }
+//        });
     }
 
     private String decryptPayload(String encryptedPayload) throws Throwable {

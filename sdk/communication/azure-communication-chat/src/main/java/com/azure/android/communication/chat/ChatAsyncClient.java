@@ -315,15 +315,14 @@ public final class ChatAsyncClient {
      * If there's an error during registration initialization or renewal,
      * push notifications will be disabled and {@code errorHandler} will be called.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
-     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
+    public void startPushNotifications(String deviceRegistrationToken) {
         if (this.pushNotificationClient.hasStarted()) {
             return;
         }
 
-        this.pushNotificationClient.startPushNotifications(deviceRegistrationToken, errorHandler);
+        this.pushNotificationClient.startPushNotifications(deviceRegistrationToken);
     }
 
     /**

@@ -682,12 +682,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Fcm push token generated:" + token);
                     Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
 
-                    chatAsyncClient.startPushNotifications(token, new Consumer<Throwable>() {
-                        @Override
-                        public void accept(Throwable throwable) {
-                            Log.w(TAG, "Registration failed for push notifications!", throwable);
-                        }
-                    });
+                    chatAsyncClient.startPushNotifications(token);
                 }
             });
     }
