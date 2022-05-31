@@ -3,10 +3,12 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -43,6 +45,7 @@ public class RegistrationRenewalWorker extends Worker {
         this.registrationDataContainer = RegistrationDataContainer.instance();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public Result doWork() {
@@ -54,7 +57,6 @@ public class RegistrationRenewalWorker extends Worker {
         if (attempts >= 3) {
             Log.i("RegistrationRenewal", "execution retry limit reached");
             this.clientLogger.info("execution retry limit reached");
-            registrationDataContainer.setExecutionFail(true);
 
             //Using the exceptionHandler provided by client to handle exception.
             RuntimeException exception = new RuntimeException(
@@ -91,13 +93,13 @@ public class RegistrationRenewalWorker extends Worker {
         }
         Log.i("RegistrationRenewal", "execution succeeded");
         this.clientLogger.info("RegistrationRenewalWorker execution succeeded");
-        registrationDataContainer.setExecutionFail(false);
 
         return Result.success();
     }
 
     // Invoking registrationDataContainer to refresh keys. The application specific directory is only accessible using
     // context
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void refreshCredentials() {
         Context context = getApplicationContext();
         String absolutePath = context.getFilesDir().getAbsolutePath();

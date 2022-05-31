@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.RequiresApi;
 
 import com.azure.android.core.logging.ClientLogger;
 
@@ -15,13 +18,11 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * A singleton wrapper which manage the persistence and rotation of secrete keys and execution result related to #{RenewalTokenWorker}.
@@ -37,10 +38,6 @@ public class RegistrationDataContainer {
 
     private KeyStore keyStore;
 
-    @Getter
-    @Setter
-    private boolean executionFail;
-
     //The number of pairs of secrete keys to persist. When we store more than this size. We rotate the
     //keys. The eldest values is to be over-ridden by the next secrete key.
     public static final int KEY_STORE_SIZE = 10;
@@ -51,7 +48,7 @@ public class RegistrationDataContainer {
 
     private ClientLogger clientLogger = new ClientLogger(RegistrationDataContainer.class);
 
-    public RegistrationDataContainer()  {
+    private RegistrationDataContainer()  {
         try {
             this.keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
@@ -63,12 +60,15 @@ public class RegistrationDataContainer {
         } catch (KeyStoreException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
         }
-        executionFail = false;
     }
 
     public static RegistrationDataContainer instance() {
         if (registrationDataContainer == null) {
-            registrationDataContainer = new RegistrationDataContainer();
+            synchronized (RegistrationDataContainer.class) {
+                if (registrationDataContainer == null) {
+                    registrationDataContainer = new RegistrationDataContainer();
+                }
+            }
         }
         return registrationDataContainer;
     }
@@ -111,12 +111,14 @@ public class RegistrationDataContainer {
     }
 
     //Writing the keys to key-store file for persistence
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void storingKeyWithAlias(SecretKey secretKey, String alias, String path) {
         if (secretKey == null) {
             return;
         }
         KeyStore.ProtectionParameter protParam =
             new KeyStore.PasswordProtection(getPassword());
+        Set<KeyStore.Entry.Attribute> attributes = null;
         KeyStore.SecretKeyEntry skEntry =
             new KeyStore.SecretKeyEntry(secretKey);
         try {
@@ -142,55 +144,64 @@ public class RegistrationDataContainer {
 
     //The last pair of secrete keys are to be used to renew registration
     public Pair<SecretKey, SecretKey> getLastPair() {
-        int index = getNumOfPairs();
-        String cryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
-        String authKeyAlias = AUTH_KEY_PREFIX + index;
-        SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
-        SecretKey authKey = getSecreteKey(authKeyAlias);
+        synchronized (RegistrationDataContainer.class) {
+            int index = getNumOfPairs();
+            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
+            String authKeyAlias = AUTH_KEY_PREFIX + index;
+            SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
+            SecretKey authKey = getSecreteKey(authKeyAlias);
 
-        return new Pair<>(cryptoKey, authKey);
+            return new Pair<>(cryptoKey, authKey);
+        }
     }
 
     //Return all pair of keys as a stack. The most recent pair of keys are to be popped first
     public Stack<Pair<SecretKey, SecretKey>> getAllPairsOfKeys() {
-        int lastIndex = getNumOfPairs();
-        Stack<Pair<SecretKey, SecretKey>> stackToReturn = new Stack<>();
-        for (int i = 1; i <= lastIndex; i++) {
-            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + i;
-            String authKeyAlias = AUTH_KEY_PREFIX + i;
+        synchronized (RegistrationDataContainer.class) {
+            int lastIndex = getNumOfPairs();
+            Stack<Pair<SecretKey, SecretKey>> stackToReturn = new Stack<>();
+            for (int i = 1; i <= lastIndex; i++) {
+                String cryptoKeyAlias = CRYPTO_KEY_PREFIX + i;
+                String authKeyAlias = AUTH_KEY_PREFIX + i;
 
-            SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
-            SecretKey authKey = getSecreteKey(authKeyAlias);
+                SecretKey cryptoKey = getSecreteKey(cryptoKeyAlias);
+                SecretKey authKey = getSecreteKey(authKeyAlias);
 
-            Pair<SecretKey, SecretKey> pair = new Pair<>(cryptoKey, authKey);
-            stackToReturn.push(pair);
+                Pair<SecretKey, SecretKey> pair = new Pair<>(cryptoKey, authKey);
+                stackToReturn.push(pair);
+            }
+            return stackToReturn;
         }
-        return stackToReturn;
     }
 
     //Generate new pair of secrete key. And rotate keys if key-store exceed the size #{KEY_STORE_SIZE}
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void refreshCredentials(String path) {
-        Log.v("RegistrationContainer", "refresh keys");
-        //Fetch latest data from file
-        loading(path);
+        synchronized (RegistrationDataContainer.class) {
+            Log.v("RegistrationContainer", "refresh keys");
+            //Fetch latest data from file
+            loading(path);
 
-        SecretKey newCryptoKey = keyGenerator.generateKey();
-        SecretKey newAuthKey = keyGenerator.generateKey();
-        int existingPairs = getNumOfPairs();
-        //Rotation if key-store is full
-        if (existingPairs >= KEY_STORE_SIZE) {
-            rotateKeys(path);
+            SecretKey newCryptoKey = keyGenerator.generateKey();
+            SecretKey newAuthKey = keyGenerator.generateKey();
+            int existingPairs = getNumOfPairs();
+            //Rotation if key-store is full
+            if (existingPairs >= KEY_STORE_SIZE) {
+                rotateKeys(path);
+            }
+
+            int lastIndex = Math.min(KEY_STORE_SIZE, existingPairs + 1);
+            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + lastIndex;
+            String authKeyAlias = AUTH_KEY_PREFIX + lastIndex;
+            long currentTimeMillis = System.currentTimeMillis();
+            storingKeyWithAlias(newCryptoKey, cryptoKeyAlias, path);
+            storingKeyWithAlias(newAuthKey, authKeyAlias, path);
         }
-
-        int lastIndex = Math.min(KEY_STORE_SIZE, existingPairs + 1);
-        String cryptoKeyAlias = CRYPTO_KEY_PREFIX + lastIndex;
-        String authKeyAlias = AUTH_KEY_PREFIX + lastIndex;
-        storingKeyWithAlias(newCryptoKey, cryptoKeyAlias, path);
-        storingKeyWithAlias(newAuthKey, authKeyAlias, path);
     }
 
     //Getting rid of the eldest key-pair. Each remaining key with index n replace the key with index (n-1)
     //For example, assuming key-store size is 3. [key1, key2, key3] -> [key2, key3]. There is space for inserting new key
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void rotateKeys(String path) {
         for (int index = 2; index <= KEY_STORE_SIZE; index++) {
             String nextCryptoKeyAlias = CRYPTO_KEY_PREFIX + index;

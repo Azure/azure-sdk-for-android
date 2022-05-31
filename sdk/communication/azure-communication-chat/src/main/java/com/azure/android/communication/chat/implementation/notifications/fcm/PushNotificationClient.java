@@ -232,24 +232,6 @@ public class PushNotificationClient {
                 .build();
         workManager.enqueueUniquePeriodicWork("Renewal push notification registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
 
-//        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
-//        //for every ENQUEUED state, meaning last execution has completed.
-//        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
-//            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
-//                boolean failed = registrationDataContainer.isExecutionFail();
-//                if (failed) {
-//                    RuntimeException exception = new RuntimeException(
-//                        "Registration renew request failed after "
-//                            + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
-//                            + "retries.");
-//                    this.registrationErrorHandler.accept(exception);
-//                    stopPushNotifications();
-//                    this.logger.info("Renew token failed");
-//                } else {
-//                    this.logger.info("Renew token succeeded");
-//                }
-//            }
-//        });
     }
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
