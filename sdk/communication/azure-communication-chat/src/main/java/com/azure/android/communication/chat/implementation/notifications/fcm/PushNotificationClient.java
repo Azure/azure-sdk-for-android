@@ -47,7 +47,7 @@ public class PushNotificationClient {
     private String deviceRegistrationToken;
     private Timer registrationRenewScheduleTimer;
     private WorkManager workManager;
-    private RegistrationDataContainer registrationDataContainer;
+    private RegistrationKeyManager registrationKeyManager;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -78,7 +78,7 @@ public class PushNotificationClient {
             return;
         }
         this.workManager = WorkManager.getInstance();
-        this.registrationDataContainer = RegistrationDataContainer.instance();
+        this.registrationKeyManager = RegistrationKeyManager.instance();
         stopPushNotifications();
 
         this.isPushNotificationsStarted = true;
@@ -236,7 +236,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        Stack<Pair<SecretKey, SecretKey>> eligibleSecretePairs = registrationDataContainer.getAllPairsOfKeys();
+        Stack<Pair<SecretKey, SecretKey>> eligibleSecretePairs = registrationKeyManager.getAllPairsOfKeys();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);

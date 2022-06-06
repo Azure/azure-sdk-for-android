@@ -35,14 +35,14 @@ public class RegistrationRenewalWorker extends Worker {
 
     private Consumer<Throwable> exceptionHandler;
 
-    private RegistrationDataContainer registrationDataContainer;
+    private RegistrationKeyManager registrationKeyManager;
 
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams,
                                      CommunicationTokenCredential communicationTokenCredential, Consumer<Throwable> exceptionHandler) {
         super(context, workerParams);
         this.communicationTokenCredential = communicationTokenCredential;
         this.exceptionHandler = exceptionHandler;
-        this.registrationDataContainer = RegistrationDataContainer.instance();
+        this.registrationKeyManager = RegistrationKeyManager.instance();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -76,7 +76,7 @@ public class RegistrationRenewalWorker extends Worker {
         try {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
             refreshCredentials();
-            Pair<SecretKey, SecretKey> cryptoKeyToAuthKeyPair = registrationDataContainer.getLastPair();
+            Pair<SecretKey, SecretKey> cryptoKeyToAuthKeyPair = registrationKeyManager.getLastPair();
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
@@ -97,14 +97,13 @@ public class RegistrationRenewalWorker extends Worker {
         return Result.success();
     }
 
-    // Invoking registrationDataContainer to refresh keys. The application specific directory is only accessible using
+    // Invoking registrationKeyManager to refresh keys. The application specific directory is only accessible using
     // context
-    @RequiresApi(api = Build.VERSION_CODES.O)
     private void refreshCredentials() {
         Context context = getApplicationContext();
         String absolutePath = context.getFilesDir().getAbsolutePath();
-        String dataPath = absolutePath + "/key-store.jks";
+        String dataPath = absolutePath + "/key-store";
         Log.d("KeyStorePath", dataPath);
-        registrationDataContainer.refreshCredentials(dataPath);
+        registrationKeyManager.refreshCredentials(dataPath);
     }
 }
