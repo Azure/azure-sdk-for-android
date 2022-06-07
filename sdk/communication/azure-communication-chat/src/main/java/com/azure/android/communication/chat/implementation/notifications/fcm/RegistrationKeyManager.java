@@ -32,10 +32,7 @@ public class RegistrationKeyManager {
     private RegistrationKeyStore registrationKeyStore;
 
     //The duration we persist keys in key-store
-    public static final int EXPIRATION_TIME_MINUTES = 45;
-
-    //The number of pairs of secrete keys to persist. This hard-limit is for users with Android version less than 26
-    public static final int KEY_STORE_SIZE = 20;
+    public static final int EXPIRATION_TIME_MINUTES = 33;
 
     public static final String CRYPTO_KEY_PREFIX = "CRYPTO_KEY_";
 
@@ -88,22 +85,22 @@ public class RegistrationKeyManager {
 
             SecretKey newCryptoKey = keyGenerator.generateKey();
             SecretKey newAuthKey = keyGenerator.generateKey();
-            int existingPairs = getNumOfPairs();
+
             //Rotate key based on creation time
             rotateKeysBasedOnTime(path);
-
-            int lastIndex = Math.min(KEY_STORE_SIZE, existingPairs + 1);
+            int existingPairs = getNumOfPairs();
+            int newIndex = existingPairs + 1;
             long currentTimeMillis = System.currentTimeMillis();
-            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + lastIndex;
-            String authKeyAlias = AUTH_KEY_PREFIX + lastIndex;
+            String cryptoKeyAlias = CRYPTO_KEY_PREFIX + newIndex;
+            String authKeyAlias = AUTH_KEY_PREFIX + newIndex;
             storingKeyWithAlias(newCryptoKey, cryptoKeyAlias, path, currentTimeMillis);
             storingKeyWithAlias(newAuthKey, authKeyAlias, path, currentTimeMillis);
-            registrationKeyStore.print();
         }
     }
 
     private void rotateKeysBasedOnTime(String path) {
         int removedPairs = 0;
+        int existingPairs = getNumOfPairs();
         //Delete expired keys
         for (int curIndex = 1; curIndex <= getNumOfPairs(); curIndex++) {
             String curCryptoKeyAlias = CRYPTO_KEY_PREFIX + curIndex;
@@ -111,7 +108,6 @@ public class RegistrationKeyManager {
             long insertionTime = getInsertionTime(curCryptoKeyAlias);
             long currentTime = System.currentTimeMillis();
             long diffInMinutes = (currentTime - insertionTime) / (60 * 1000);
-            Log.v("RegistrationKeyManager", "credential with alias " + curCryptoKeyAlias + " created " + diffInMinutes);
             if (diffInMinutes > EXPIRATION_TIME_MINUTES) {
                 // This pair of secrete keys is to remove
                 try {
@@ -129,7 +125,7 @@ public class RegistrationKeyManager {
             return;
         }
         int targetIndex = 1;
-        for (int index = removedPairs+1; index <= getNumOfPairs(); index++) {
+        for (int index = removedPairs+1; index <= existingPairs; index++) {
             String sourceCryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
             String sourceAuthKeyAlias = AUTH_KEY_PREFIX + index;
             String targetCryptoKeyAlias = CRYPTO_KEY_PREFIX + targetIndex;

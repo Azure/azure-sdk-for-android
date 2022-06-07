@@ -67,7 +67,6 @@ public class RegistrationKeyStore {
     }
 
     public void storingKeyEntry(String alias, String path, RegistrationKeyEntry registrationKeyEntry) {
-
         map.put(alias, registrationKeyEntry);
         writeJsonToFile(path);
     }
@@ -103,16 +102,6 @@ public class RegistrationKeyStore {
 
     public RegistrationKeyEntry getKeyEntry(String alias) {
         return map.get(alias);
-    }
-
-    public void print() {
-    Log.v("RegistrationRenewal", String.valueOf(map.size() /2 ));
-        for (Map.Entry<String, RegistrationKeyEntry> entryEntry: map.entrySet()) {
-            RegistrationKeyEntry value = entryEntry.getValue();
-            long time = System.currentTimeMillis();
-            long diff = (time - value.creationTime) / (1000 * 60);
-            Log.v("RegistrationRenewal", "diff: " + diff + ", crypto: " + value.credential + "\\n");
-        }
     }
 
     public static class RegistrationKeyEntry {

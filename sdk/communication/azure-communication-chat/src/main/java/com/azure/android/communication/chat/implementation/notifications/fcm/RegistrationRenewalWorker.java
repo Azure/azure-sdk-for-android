@@ -24,7 +24,7 @@ import javax.crypto.SecretKey;
 import java9.util.function.Consumer;
 
 /**
- * Worker for renewing registration. This worker could execute when APP closed.
+ * Worker for renewing push notification registration. This worker could execute when APP closed.
  */
 public class RegistrationRenewalWorker extends Worker {
     private ClientLogger clientLogger = new ClientLogger(RegistrationRenewalWorker.class);
@@ -98,7 +98,7 @@ public class RegistrationRenewalWorker extends Worker {
     }
 
     // Invoking registrationKeyManager to refresh keys. The application specific directory is only accessible using
-    // context
+    // context object
     private void refreshCredentials() {
         Context context = getApplicationContext();
         String absolutePath = context.getFilesDir().getAbsolutePath();
