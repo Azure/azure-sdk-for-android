@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import android.util.Log;
-
 import com.azure.android.core.logging.ClientLogger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -50,7 +48,7 @@ public class RegistrationKeyStore {
     }
 
     //Loading data with given path to memory
-    public void loading(InputStream inputStream) {
+    public void load(InputStream inputStream) {
         //Nothing to read from
         if (inputStream == null) {
             return;
@@ -66,7 +64,7 @@ public class RegistrationKeyStore {
         }
     }
 
-    public void storingKeyEntry(String alias, String path, RegistrationKeyEntry registrationKeyEntry) {
+    public void storeKeyEntry(String alias, String path, RegistrationKeyEntry registrationKeyEntry) {
         map.put(alias, registrationKeyEntry);
         writeJsonToFile(path);
     }

@@ -81,7 +81,7 @@ public class RegistrationKeyManager {
         synchronized (RegistrationKeyManager.class) {
             Log.v("RegistrationContainer", "refresh keys");
             //Fetch latest data from file
-            loading(path);
+            load(path);
 
             SecretKey newCryptoKey = keyGenerator.generateKey();
             SecretKey newAuthKey = keyGenerator.generateKey();
@@ -93,8 +93,8 @@ public class RegistrationKeyManager {
             long currentTimeMillis = System.currentTimeMillis();
             String cryptoKeyAlias = CRYPTO_KEY_PREFIX + newIndex;
             String authKeyAlias = AUTH_KEY_PREFIX + newIndex;
-            storingKeyWithAlias(newCryptoKey, cryptoKeyAlias, path, currentTimeMillis);
-            storingKeyWithAlias(newAuthKey, authKeyAlias, path, currentTimeMillis);
+            storeKeyWithAlias(newCryptoKey, cryptoKeyAlias, path, currentTimeMillis);
+            storeKeyWithAlias(newAuthKey, authKeyAlias, path, currentTimeMillis);
         }
     }
 
@@ -146,9 +146,9 @@ public class RegistrationKeyManager {
     }
 
     //Loads data from key store file to key store entry
-    private void loading(String path) {
+    private void load(String path) {
         try (FileInputStream fis = new File(path).exists() ? new FileInputStream(path) : null) {
-            registrationKeyStore.loading(fis);
+            registrationKeyStore.load(fis);
             Log.v("RegistrationContainer", "key-store size: " + registrationKeyStore.getSize());
         } catch (Exception e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
@@ -156,11 +156,11 @@ public class RegistrationKeyManager {
     }
 
     private void storeEntry(String alias, String path, RegistrationKeyStore.RegistrationKeyEntry registrationKeyEntry) {
-       registrationKeyStore.storingKeyEntry(alias, path, registrationKeyEntry);
+       registrationKeyStore.storeKeyEntry(alias, path, registrationKeyEntry);
     }
 
     //Writing the keys to key-store file for persistence
-    private void storingKeyWithAlias(SecretKey secretKey, String alias, String path, long currentTime) {
+    private void storeKeyWithAlias(SecretKey secretKey, String alias, String path, long currentTime) {
         if (secretKey == null) {
             return;
         }
