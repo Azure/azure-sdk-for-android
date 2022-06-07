@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import java9.util.function.Consumer;
 
@@ -236,7 +237,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        Stack<Pair<SecretKey, SecretKey>> eligibleSecretePairs = registrationKeyManager.getAllPairsOfKeys();
+        Stack<RegistrationKeyStore.RegistrationKeyEntry> eligibleSecretePairs = registrationKeyManager.getAllEntries();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
@@ -245,9 +246,9 @@ public class PushNotificationClient {
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
         while (!eligibleSecretePairs.isEmpty()) {
-            Pair<SecretKey, SecretKey> pair = eligibleSecretePairs.pop();
-            SecretKey cryptoKey = pair.first;
-            SecretKey authKey = pair.second;
+            RegistrationKeyStore.RegistrationKeyEntry entry = eligibleSecretePairs.pop();
+            SecretKey cryptoKey = entry.getCryptoKey();
+            SecretKey authKey = entry.getAuthKey();
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
                 return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, cryptoKey);
             }
@@ -257,4 +258,5 @@ public class PushNotificationClient {
         throw logger.logExceptionAsError(
             new RuntimeException("Invalid encrypted push notification payload. Dropped the request!"));
     }
+
 }

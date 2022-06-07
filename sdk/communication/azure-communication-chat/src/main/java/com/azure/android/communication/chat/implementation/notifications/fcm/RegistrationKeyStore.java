@@ -3,6 +3,7 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.util.Base64Util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -14,37 +15,45 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * This class represents a storage facility for secrete key as string and its creation time. The
  * data is persisted in a file as json format. The key-store itself could load data from file for
  * faster operation.
  *
- * The file persists all the data in Json format. For example:
- * {
- *     "alias_1": {
- *         "credential": "abcdefgh",
- *         "creationTime": "1234";
+ * The file persists all the data in Json format. Latest record is added to last of the list. For example:
+ * [
+ *     {
+ *         "abcdefgh",
+ *         "ijklmno"
+ *         "1234";
  *     },
- *     "alias_2": {
- *         "credential": "abcdefgh",
- *         "creationTime": "1234";
+ *     {
+ *         "oklliabe",
+ *         "abcdefgh",
+ *         "1236";
  *     }
- * }
+ * ]
  */
 public class RegistrationKeyStore {
-    private Map<String, RegistrationKeyEntry> map;
+    private List<RegistrationKeyEntry> list;
 
     private ClientLogger clientLogger = new ClientLogger(RegistrationKeyStore.class);
 
     public RegistrationKeyStore() {
-        map = new HashMap<>();
+        list = new ArrayList<>();
     }
 
     public int getSize() {
-        return map.size();
+        return list.size();
     }
 
     //Loading data with given path to memory
@@ -55,23 +64,13 @@ public class RegistrationKeyStore {
         }
         try {
             Gson gson = new Gson();
-            Type type = new TypeToken<Map<String, RegistrationKeyEntry>>() {}.getType();
+            Type type = new TypeToken<List<RegistrationKeyEntry>>() {}.getType();
             Reader reader = new InputStreamReader(inputStream);
-            map = gson.fromJson(reader, type);
+            list = gson.fromJson(reader, type);
             reader.close();
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException(e));
         }
-    }
-
-    public void storeKeyEntry(String alias, String path, RegistrationKeyEntry registrationKeyEntry) {
-        map.put(alias, registrationKeyEntry);
-        writeJsonToFile(path);
-    }
-
-    public void deleteEntry(String alias, String path) {
-        map.remove(alias);
-        writeJsonToFile(path);
     }
 
     //Write in-memory map into file with Json format
@@ -83,7 +82,7 @@ public class RegistrationKeyStore {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
         }
         Gson gson = new Gson();
-        String jsonStr = gson.toJson(map, map.getClass());
+        String jsonStr = gson.toJson(list, list.getClass());
 
         try(FileOutputStream fos = new FileOutputStream(outputFile);
             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
@@ -98,25 +97,57 @@ public class RegistrationKeyStore {
         }
     }
 
-    public RegistrationKeyEntry getKeyEntry(String alias) {
-        return map.get(alias);
+    public void storeKeyEntry(String path, RegistrationKeyEntry registrationKeyEntry) {
+        list.add(list.size(), registrationKeyEntry);
+        writeJsonToFile(path);
+    }
+
+    public void deleteFirstEntry(String path) {
+        list.remove(0);
+        writeJsonToFile(path);
+    }
+
+    public RegistrationKeyEntry getFirstEntry() {
+        return list.get(0);
+    }
+
+    public RegistrationKeyEntry getLastEntry() {
+        return list.get(list.size() - 1);
+    }
+
+    public Stack<RegistrationKeyEntry> getAllEntries() {
+        Stack<RegistrationKeyEntry> stack = new Stack<>();
+        stack.addAll(list);
+        return stack;
     }
 
     public static class RegistrationKeyEntry {
-        private String credential;
+        private String cryptoCredential;
+
+        private String authCredential;
 
         private long creationTime;
 
-        public String getCredential() {
-            return credential;
+        public SecretKey getCryptoKey() {
+            return secretKeyFromStr(cryptoCredential);
+        }
+
+        public SecretKey getAuthKey() {
+            return secretKeyFromStr(authCredential);
         }
 
         public long getCreationTime() {
             return creationTime;
         }
 
-        public RegistrationKeyEntry(String credential, long creationTime) {
-            this.credential = credential;
+        private SecretKey secretKeyFromStr(String str) {
+            byte[] bytes = Base64Util.decodeString(str);
+            return new SecretKeySpec(bytes, 0, bytes.length, "AES");
+        }
+
+        public RegistrationKeyEntry(String cryptoCredential, String authCredential, long creationTime) {
+            this.cryptoCredential = cryptoCredential;
+            this.authCredential = authCredential;
             this.creationTime = creationTime;
         }
     }
