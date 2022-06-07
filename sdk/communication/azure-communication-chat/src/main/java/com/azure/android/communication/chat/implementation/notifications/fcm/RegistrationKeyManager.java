@@ -24,7 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * RegistrationKeyStore is used as object to manage the keys in file/memory.
  */
-public class RegistrationKeyManager {
+public final class RegistrationKeyManager {
     private static RegistrationKeyManager registrationKeyManager;
 
     private KeyGenerator keyGenerator;
@@ -125,7 +125,7 @@ public class RegistrationKeyManager {
             return;
         }
         int targetIndex = 1;
-        for (int index = removedPairs+1; index <= existingPairs; index++) {
+        for (int index = removedPairs + 1; index <= existingPairs; index++) {
             String sourceCryptoKeyAlias = CRYPTO_KEY_PREFIX + index;
             String sourceAuthKeyAlias = AUTH_KEY_PREFIX + index;
             String targetCryptoKeyAlias = CRYPTO_KEY_PREFIX + targetIndex;
@@ -137,7 +137,7 @@ public class RegistrationKeyManager {
 
             try {
                 registrationKeyStore.deleteEntry(sourceCryptoKeyAlias, path);
-                registrationKeyStore.deleteEntry(sourceAuthKeyAlias,path);
+                registrationKeyStore.deleteEntry(sourceAuthKeyAlias, path);
             } catch (Exception e) {
                 clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + index));
             }
