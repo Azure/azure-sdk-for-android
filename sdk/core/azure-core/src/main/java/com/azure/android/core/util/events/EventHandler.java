@@ -9,7 +9,7 @@ package com.azure.android.core.util.events;
  * @param <E> The event to handle.
  */
 @FunctionalInterface
-public interface EventHandler<E> {
+public interface EventHandler<E extends Event> {
     /**
      * Handles a given event.
      *

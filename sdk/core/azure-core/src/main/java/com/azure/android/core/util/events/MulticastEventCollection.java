@@ -17,7 +17,7 @@ import java.util.UUID;
  * @param <T> The event type.
  * @param <E> The event itself.
  */
-public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
+public class MulticastEventCollection<T, E extends Event> {
     private final Map<T, Map<String, EventHandler<E>>> eventHandlers = new HashMap<>();
     private final ClientLogger logger = new ClientLogger(MulticastEventCollection.class);
 
@@ -86,22 +86,6 @@ public class MulticastEventCollection<T extends ExpandableStringEnum<T>, E> {
      */
     public void removeAllEventHandlers() {
         eventHandlers.clear();
-    }
-
-    /**
-     * Convenience method to call the {@code handle} method in all handlers for a given {@link Event}.
-     *
-     * @param event The event to handle.
-     *
-     * @throws IllegalArgumentException when event is not of type {@link Event}.
-     */
-    public void handleEvent(E event) {
-        if (event instanceof Event) {
-            handleEvent((T) ((Event) event).getEventType(), event);
-        } else {
-            throw logger.logExceptionAsError(
-                new IllegalArgumentException("Cannot handle objects of a type other than Event."));
-        }
     }
 
     /**
