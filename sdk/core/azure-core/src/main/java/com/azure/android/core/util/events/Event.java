@@ -3,8 +3,6 @@
 
 package com.azure.android.core.util.events;
 
-import com.azure.android.core.util.ExpandableStringEnum;
-
 /**
  * Base implementation for an event. Extend this class if you need to group event properties in one place.
  */

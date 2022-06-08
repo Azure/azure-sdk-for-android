@@ -3,12 +3,10 @@
 
 package com.azure.android.core.util.events;
 
-import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.util.ExpandableStringEnum;
-
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Set;
 
 /**
  * Class that maps event types with handlers for events of said types. An event type can be mapped to multiple handlers
@@ -18,45 +16,40 @@ import java.util.UUID;
  * @param <E> The event itself.
  */
 public class MulticastEventCollection<T, E extends Event> {
-    private final Map<T, Map<String, EventHandler<E>>> eventHandlers = new HashMap<>();
-    private final ClientLogger logger = new ClientLogger(MulticastEventCollection.class);
+    private final Map<T, Set<EventHandler<E>>> eventHandlers = new HashMap<>();
 
     /**
      * Adds an event handler mapped to the event type provided.
      *
      * @param eventType The type of the event to map the handler to.
      * @param eventHandler The handler to map to the event type.
-     *
-     * @return A unique ID that identifies the mapping.
      */
-    public String addEventHandler(T eventType, EventHandler<E> eventHandler) {
-        Map<String, EventHandler<E>> handlers;
+    @SuppressWarnings("ConstantConditions")
+    public void addEventHandler(T eventType, EventHandler<? extends Event> eventHandler) {
+        Set<EventHandler<E>> handlers;
 
         if (this.eventHandlers.containsKey(eventType)) {
             handlers = this.eventHandlers.get(eventType);
         } else {
-            handlers = new HashMap<>();
+            handlers = new HashSet<>();
         }
 
-        String uuid = UUID.randomUUID().toString();
-
-        handlers.put(uuid, eventHandler);
+        handlers.add((EventHandler<E>) eventHandler);
         this.eventHandlers.put(eventType, handlers);
-
-        return uuid;
     }
 
     /**
      * Removes a specific handler for the given event type.
      *
      * @param eventType The type of the event the handler is mapped to.
-     * @param handlerId The unique ID of the handler to remove.
+     * @param eventHandler The handler to remove.
      */
-    public void removeEventHandler(T eventType, String handlerId) {
+    @SuppressWarnings("ConstantConditions")
+    public void removeEventHandler(T eventType, EventHandler<? extends Event> eventHandler) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Map<String, EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
 
-            handlers.remove(handlerId);
+            handlers.remove(eventHandler);
 
             if (handlers.isEmpty()) {
                 this.eventHandlers.remove(eventType);
@@ -73,7 +66,7 @@ public class MulticastEventCollection<T, E extends Event> {
      */
     public void removeAllEventHandlers(T eventType) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Map<String, EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
 
             if (handlers != null) {
                 this.eventHandlers.remove(eventType);
@@ -96,10 +89,10 @@ public class MulticastEventCollection<T, E extends Event> {
      */
     public void handleEvent(T eventType, E event) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Map<String, EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
 
             if (handlers != null) {
-                for (EventHandler<E> eventHandler : handlers.values()) {
+                for (EventHandler<E> eventHandler : handlers) {
                     eventHandler.handle(event);
                 }
             }
