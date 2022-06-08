@@ -79,9 +79,9 @@ public final class RegistrationKeyManager {
             //Rotate key based on creation time
             rotateKeysBasedOnTime(path);
             SecretKey newCryptoKey = keyGenerator.generateKey();
-            String cryptoCredential = secreteKeyToStr(newCryptoKey);
+            String cryptoCredential = secretKeyToStr(newCryptoKey);
             SecretKey newAuthKey = keyGenerator.generateKey();
-            String authCredential = secreteKeyToStr(newAuthKey);
+            String authCredential = secretKeyToStr(newAuthKey);
             long currentTimeMillis = System.currentTimeMillis();
             RegistrationKeyStore.RegistrationKeyEntry entry = new RegistrationKeyStore.RegistrationKeyEntry(cryptoCredential, authCredential, currentTimeMillis);
             registrationKeyStore.storeKeyEntry(path, entry);
@@ -123,7 +123,7 @@ public final class RegistrationKeyManager {
         }
     }
 
-    private String secreteKeyToStr(SecretKey secretKey) {
+    private String secretKeyToStr(SecretKey secretKey) {
         return Base64Util.encodeToString(secretKey.getEncoded());
     }
 
