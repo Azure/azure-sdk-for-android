@@ -253,7 +253,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        Stack<RegistrationKeyStore.RegistrationKeyEntry> eligibleSecretePairs = registrationKeyManager.getAllEntries();
+        Stack<RegistrationKeyStore.RegistrationKeyEntry> registrationKeyEntries = registrationKeyManager.getAllEntries();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
@@ -261,8 +261,8 @@ public class PushNotificationClient {
         byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
-        while (!eligibleSecretePairs.isEmpty()) {
-            RegistrationKeyStore.RegistrationKeyEntry entry = eligibleSecretePairs.pop();
+        while (!registrationKeyEntries.isEmpty()) {
+            RegistrationKeyStore.RegistrationKeyEntry entry = registrationKeyEntries.pop();
             SecretKey cryptoKey = entry.getCryptoKey();
             SecretKey authKey = entry.getAuthKey();
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
