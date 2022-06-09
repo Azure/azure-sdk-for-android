@@ -11,12 +11,10 @@ import java.util.Set;
 /**
  * Class that maps event types with handlers for events of said types. An event type can be mapped to multiple handlers
  * if necessary.
- *
- * @param <T> The event type.
- * @param <E> The event itself.
  */
-public class MulticastEventCollection<T, E extends Event> {
-    private final Map<T, Set<EventHandler<E>>> eventHandlers = new HashMap<>();
+@SuppressWarnings("rawtypes")
+public class EventHandlerCollection {
+    private final Map<String, Set<EventHandler>> eventHandlers = new HashMap<>();
 
     /**
      * Adds an event handler mapped to the event type provided.
@@ -25,8 +23,8 @@ public class MulticastEventCollection<T, E extends Event> {
      * @param eventHandler The handler to map to the event type.
      */
     @SuppressWarnings("ConstantConditions")
-    public void addEventHandler(T eventType, EventHandler<? extends Event> eventHandler) {
-        Set<EventHandler<E>> handlers;
+    public void addEventHandler(String eventType, EventHandler eventHandler) {
+        Set<EventHandler> handlers;
 
         if (this.eventHandlers.containsKey(eventType)) {
             handlers = this.eventHandlers.get(eventType);
@@ -34,7 +32,7 @@ public class MulticastEventCollection<T, E extends Event> {
             handlers = new HashSet<>();
         }
 
-        handlers.add((EventHandler<E>) eventHandler);
+        handlers.add(eventHandler);
         this.eventHandlers.put(eventType, handlers);
     }
 
@@ -45,9 +43,9 @@ public class MulticastEventCollection<T, E extends Event> {
      * @param eventHandler The handler to remove.
      */
     @SuppressWarnings("ConstantConditions")
-    public void removeEventHandler(T eventType, EventHandler<? extends Event> eventHandler) {
+    public void removeEventHandler(String eventType, EventHandler eventHandler) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler> handlers = this.eventHandlers.get(eventType);
 
             handlers.remove(eventHandler);
 
@@ -64,9 +62,9 @@ public class MulticastEventCollection<T, E extends Event> {
      *
      * @param eventType The type of the event to remove all handlers of.
      */
-    public void removeAllEventHandlers(T eventType) {
+    public void removeAllEventHandlers(String eventType) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler> handlers = this.eventHandlers.get(eventType);
 
             if (handlers != null) {
                 this.eventHandlers.remove(eventType);
@@ -87,12 +85,13 @@ public class MulticastEventCollection<T, E extends Event> {
      * @param eventType The type of the event to handle.
      * @param event The event to handle.
      */
-    public void handleEvent(T eventType, E event) {
+    @SuppressWarnings("unchecked")
+    public void fireEvent(String eventType, Object event) {
         if (this.eventHandlers.containsKey(eventType)) {
-            Set<EventHandler<E>> handlers = this.eventHandlers.get(eventType);
+            Set<EventHandler> handlers = this.eventHandlers.get(eventType);
 
             if (handlers != null) {
-                for (EventHandler<E> eventHandler : handlers) {
+                for (EventHandler eventHandler : handlers) {
                     eventHandler.handle(event);
                 }
             }
