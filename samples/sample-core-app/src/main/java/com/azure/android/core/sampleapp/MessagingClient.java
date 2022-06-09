@@ -99,20 +99,24 @@ public class MessagingClient {
         eventHandlerCollection = new EventHandlerCollection();
     }
 
-    public void addOnMessageSentEventHandler(EventHandler<MessageSentEvent> handler) {
-        eventHandlerCollection.addEventHandler(MESSAGE_SENT, handler);
+    public void addOnMessageSentEventHandler(EventHandler<MessageSentEvent> eventHandler) {
+        eventHandlerCollection.addEventHandler(MESSAGE_SENT, eventHandler);
     }
 
-    public void addOnMessageReceivedEventHandler(EventHandler<MessageReceivedEvent> handler) {
-        eventHandlerCollection.addEventHandler(MESSAGE_RECEIVED, handler);
+    public void addOnMessageReceivedEventHandler(EventHandler<MessageReceivedEvent> eventHandler) {
+        eventHandlerCollection.addEventHandler(MESSAGE_RECEIVED, eventHandler);
     }
 
-    public void removeOnMessageSentEventHandler(EventHandler<MessageSentEvent> handler) {
-        eventHandlerCollection.removeEventHandler(MESSAGE_SENT, handler);
+    public void removeOnMessageSentEventHandler(EventHandler<MessageSentEvent> eventHandler) {
+        eventHandlerCollection.removeEventHandler(MESSAGE_SENT, eventHandler);
     }
 
-    public void removeOnMessageReceivedEventHandler(EventHandler<MessageReceivedEvent> handler) {
-        eventHandlerCollection.removeEventHandler(MESSAGE_RECEIVED, handler);
+    public void removeOnMessageReceivedEventHandler(EventHandler<MessageReceivedEvent> eventHandler) {
+        eventHandlerCollection.removeEventHandler(MESSAGE_RECEIVED, eventHandler);
+    }
+
+    public void removeEventHandler(EventHandler handler) {
+        eventHandlerCollection.removeEventHandler(handler);
     }
 
     public void sendMessage() {
