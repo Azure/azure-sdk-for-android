@@ -52,7 +52,29 @@ public class EventHandlerCollection {
             if (handlers.isEmpty()) {
                 this.eventHandlers.remove(eventType);
             } else {
-                this.eventHandlers.put(eventType, handlers);
+                this.eventHandlers.put(eventType, handlers); // Do we need to put this again? -vcolin7
+            }
+        }
+    }
+
+    /**
+     * Removes a specific handler for all event types.
+     *
+     * @param eventHandler The handler to remove.
+     */
+    public void removeEventHandler(EventHandler eventHandler) {
+        // TODO: Though it's unlikely a developer will add a specific instance of EventHandler for multiple event types,
+        //  it's not technically impossible. I don't like the idea of removing a handler for all types. The alternative
+        //  would be to remove the first instance we find, bu that's even worse in my opinion. -vcolin7
+        for(Map.Entry<String, Set<EventHandler>> entry : this.eventHandlers.entrySet()) {
+            Set<EventHandler> handlers = entry.getValue();
+
+            handlers.remove(eventHandler);
+
+            if (handlers.isEmpty()) {
+                this.eventHandlers.remove(entry.getKey());
+            } else {
+                this.eventHandlers.put(entry.getKey(), handlers); // Do we need to put this again? -vcolin7
             }
         }
     }
