@@ -18,7 +18,6 @@ public class RegistrationRenewalWorkerFactory extends WorkerFactory {
     private CommunicationTokenCredential communicationTokenCredential;
 
     private Consumer<Throwable> exceptionHandler;
-
     public RegistrationRenewalWorkerFactory(CommunicationTokenCredential communicationTokenCredential, Consumer<Throwable> exceptionHandler) {
         this.communicationTokenCredential = communicationTokenCredential;
         this.exceptionHandler = exceptionHandler;
@@ -27,7 +26,6 @@ public class RegistrationRenewalWorkerFactory extends WorkerFactory {
     @Nullable
     @Override
     public ListenableWorker createWorker(@NonNull Context appContext, @NonNull String workerClassName, @NonNull WorkerParameters workerParameters) {
-
         return new RegistrationRenewalWorker(appContext, workerParameters, communicationTokenCredential, exceptionHandler);
     }
 }

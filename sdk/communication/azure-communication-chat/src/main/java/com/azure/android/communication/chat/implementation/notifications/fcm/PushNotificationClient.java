@@ -4,12 +4,12 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
@@ -32,7 +32,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import java9.util.function.Consumer;
 
@@ -70,24 +69,24 @@ public class PushNotificationClient {
     /**
      * Register the current device for receiving incoming push notifications via FCM.
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
      */
-    public void startPushNotifications(String deviceRegistrationToken) {
+    public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         this.deviceRegistrationToken = deviceRegistrationToken;
-        Log.v("device_id: ", deviceRegistrationToken);
+        logger.verbose("device_id: " + deviceRegistrationToken);
         if (this.isPushNotificationsStarted) {
             return;
         }
         this.workManager = WorkManager.getInstance();
         this.registrationKeyManager = RegistrationKeyManager.instance();
-        stopPushNotifications();
 
         this.isPushNotificationsStarted = true;
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
         // 15 minutes is the minimum interval worker manager allows
         long interval = 15;
-        this.startRegistrationRenewalWorker(interval);
+        this.startRegistrationRenewalWorker(interval, errorHandler);
     }
 
     /**
@@ -221,7 +220,7 @@ public class PushNotificationClient {
         return NotificationUtils.toEventPayload(chatEventType, decrypted);
     }
 
-    private void startRegistrationRenewalWorker(long intervalInMinutes) {
+    private void startRegistrationRenewalWorker(long intervalInMinutes, Consumer<Throwable> errorHandler) {
         this.logger.info("Initialize RegistrationRenewalWorker in background");
 
         Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
@@ -231,7 +230,24 @@ public class PushNotificationClient {
                 .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
                 .setInputData(inputData)
                 .build();
+        workManager.cancelAllWork();
         workManager.enqueueUniquePeriodicWork("Renewal push notification registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
+
+        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
+        //for every ENQUEUED state, meaning last execution has completed.
+        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
+            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
+                boolean succeeded = registrationKeyManager.getLastExecutionSucceeded();
+                if (!succeeded) {
+                    RuntimeException exception = new RuntimeException(
+                        "Registration renew request failed");
+                    errorHandler.accept(exception);
+                    this.logger.info("Renew token failed");
+                } else {
+                    this.logger.info("Renew token succeeded");
+                }
+            }
+        });
 
     }
 

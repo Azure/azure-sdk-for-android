@@ -4,8 +4,6 @@ package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -18,8 +16,6 @@ import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.concurrent.ExecutionException;
-
-import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
 
@@ -40,6 +36,7 @@ public class RegistrationRenewalWorker extends Worker {
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams,
                                      CommunicationTokenCredential communicationTokenCredential, Consumer<Throwable> exceptionHandler) {
         super(context, workerParams);
+        this.registrarClient = new RegistrarClient();
         this.communicationTokenCredential = communicationTokenCredential;
         this.exceptionHandler = exceptionHandler;
         this.registrationKeyManager = RegistrationKeyManager.instance();
@@ -49,13 +46,10 @@ public class RegistrationRenewalWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        this.registrarClient = new RegistrarClient();
         int attempts = getRunAttemptCount();
-        Log.i("RegistrationRenewal", "RegistrationRenewalWorker execution in background: " + attempts);
         this.clientLogger.info("RegistrationRenewalWorker execution in background: " + attempts);
         // Retry maximum 2 times. Attempts number starts from zero.
         if (attempts >= 3) {
-            Log.i("RegistrationRenewal", "execution retry limit reached");
             this.clientLogger.info("execution retry limit reached");
 
             //Using the exceptionHandler provided by client to handle exception.
@@ -63,6 +57,7 @@ public class RegistrationRenewalWorker extends Worker {
                 "Registration renew request failed after "
                     + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
                     + "retries.");
+            registrationKeyManager.setLastExecutionSucceeded(false);
             if (exceptionHandler != null) {
                 exceptionHandler.accept(exception);
             }
@@ -83,17 +78,14 @@ public class RegistrationRenewalWorker extends Worker {
                 cryptoKeyToAuthKeyPair.getCryptoKey(),
                 cryptoKeyToAuthKeyPair.getAuthKey());
         } catch (ExecutionException | InterruptedException e) {
-            Log.e("exception", e.getMessage());
             this.clientLogger.error(e.getMessage());
             return Result.retry();
         } catch (Throwable throwable) {
-            Log.e("exception", throwable.getMessage());
             this.clientLogger.error(throwable.getMessage());
             return Result.retry();
         }
-        Log.i("RegistrationRenewal", "execution succeeded");
         this.clientLogger.info("RegistrationRenewalWorker execution succeeded");
-
+        registrationKeyManager.setLastExecutionSucceeded(true);
         return Result.success();
     }
 
@@ -103,7 +95,7 @@ public class RegistrationRenewalWorker extends Worker {
         Context context = getApplicationContext();
         String absolutePath = context.getFilesDir().getAbsolutePath();
         String dataPath = absolutePath + "/key-store";
-        Log.d("KeyStorePath", dataPath);
+        clientLogger.verbose("KeyStorePath is ", dataPath);
         registrationKeyManager.refreshCredentials(dataPath);
     }
 }

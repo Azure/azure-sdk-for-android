@@ -18,7 +18,7 @@ import static com.azure.android.communication.chat.sampleapp.ApplicationConstant
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_NAME;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_VERSION;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.communicationTokenCredential;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ENDPOINT;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
 
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             chatAsyncClient = new ChatClientBuilder()
                 .endpoint(ENDPOINT)
-                .credential(communicationTokenCredential)
+                .credential(COMMUNICATION_TOKEN_CREDENTIAL)
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, SDK_VERSION))
                 .httpLogOptions(new HttpLogOptions()
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
@@ -682,7 +682,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "Fcm push token generated:" + token);
                     Toast.makeText(MainActivity.this, token, Toast.LENGTH_SHORT).show();
 
-                    chatAsyncClient.startPushNotifications(token);
+                    chatAsyncClient.startPushNotifications(token, new Consumer<Throwable>() {
+                        @Override
+                        public void accept(Throwable throwable) {
+                            Log.w(TAG, "Registration failed for push notifications!", throwable);
+                        }
+                    });
                 }
             });
     }

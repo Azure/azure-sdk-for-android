@@ -25,7 +25,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * This class represents a storage facility for secrete key as string and its creation time. The
+ * This class represents a storage facility for secret key as string and its creation time. The
  * data is persisted in a file as json format. The key-store itself could load data from file for
  * faster operation.
  *

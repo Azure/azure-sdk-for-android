@@ -1,24 +1,28 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.communication.chat.sampleapp;
 
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.communicationTokenCredential;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
 import com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationRenewalWorkerFactory;
+import com.azure.android.core.logging.ClientLogger;
 
 import java9.util.function.Consumer;
 
 public class MyAppConfiguration extends Application implements Configuration.Provider {
+    private ClientLogger logger = new ClientLogger(MyAppConfiguration.class);
+
     Consumer<Throwable> exceptionHandler = new Consumer<Throwable>() {
         @Override
         public void accept(Throwable throwable) {
-            Log.w(TAG, "Registration failed for push notifications!", throwable);
+            logger.warning("Registration failed for push notifications!", throwable);
         }
     };
 
@@ -32,6 +36,6 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
     @Override
     public Configuration getWorkManagerConfiguration() {
         return new Configuration.Builder().
-            setWorkerFactory(new RegistrationRenewalWorkerFactory(communicationTokenCredential, exceptionHandler)).build();
+            setWorkerFactory(new RegistrationRenewalWorkerFactory(COMMUNICATION_TOKEN_CREDENTIAL, exceptionHandler)).build();
     }
 }

@@ -29,6 +29,8 @@ public final class RegistrationKeyManager {
 
     private RegistrationKeyStore registrationKeyStore;
 
+    private boolean lastExecutionSucceeded = true;
+
     //The duration we persist keys in key-store
     public static final int EXPIRATION_TIME_MINUTES = 45;
 
@@ -38,7 +40,9 @@ public final class RegistrationKeyManager {
         try {
             this.keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("KeyGenerator failed: " + e.getMessage());
+            RuntimeException runtimeException = new RuntimeException("KeyGenerator failed: " + e.getMessage());
+            clientLogger.logExceptionAsError(runtimeException);
+            throw runtimeException;
         }
         this.keyGenerator.init(256);
         registrationKeyStore = new RegistrationKeyStore();
@@ -55,6 +59,14 @@ public final class RegistrationKeyManager {
         return registrationKeyManager;
     }
 
+    public void setLastExecutionSucceeded(boolean bool) {
+        this.lastExecutionSucceeded = bool;
+    }
+
+    public boolean getLastExecutionSucceeded() {
+        return lastExecutionSucceeded;
+    }
+
     private long getInsertionTime(RegistrationKeyStore.RegistrationKeyEntry entry) {
         return entry.getCreationTime();
     }
@@ -66,13 +78,12 @@ public final class RegistrationKeyManager {
         } catch (Exception e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to get size from key store", e));
         }
-        Log.v("RegistrationContainer", "Number of pairs in key-store: " + numKeyPairs);
         return numKeyPairs;
     }
 
     public void refreshCredentials(String path) {
         synchronized (RegistrationKeyManager.class) {
-            Log.v("RegistrationContainer", "refresh keys");
+            clientLogger.verbose("Refresh credentials");
             //Fetch latest data from file
             load(path);
 
@@ -92,7 +103,7 @@ public final class RegistrationKeyManager {
         int removedEntry = 0;
         int size = getNumOfPairs();
         //Delete expired keys
-        for (int curIndex = 1; curIndex <= size; curIndex++) {
+        for (int curIndex = 0; curIndex < size; curIndex++) {
             RegistrationKeyStore.RegistrationKeyEntry entry = registrationKeyStore.getFirstEntry();
             long insertionTime = getInsertionTime(entry);
             long currentTime = System.currentTimeMillis();
@@ -109,15 +120,12 @@ public final class RegistrationKeyManager {
                 break;
             }
         }
-
-        Log.v("RegistrationKeyManager", "Removed " + removedEntry + " of entries");
     }
 
     //Loads data from key store file to key store entry
     private void load(String path) {
         try (FileInputStream fis = new File(path).exists() ? new FileInputStream(path) : null) {
             registrationKeyStore.load(fis);
-            Log.v("RegistrationContainer", "key-store size: " + registrationKeyStore.getSize());
         } catch (Exception e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
         }
