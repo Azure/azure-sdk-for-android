@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.communication.chat.sampleapp;
 
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -13,5 +16,5 @@ public class ApplicationConstants {
     public final static String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     public final static String APPLICATION_ID = "Chat_Test_App";
     public final static String TAG = "[Chat Test App]";
-    public final static CommunicationTokenCredential communicationTokenCredential = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
+    public final static CommunicationTokenCredential COMMUNICATION_TOKEN_CREDENTIAL = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
 }
