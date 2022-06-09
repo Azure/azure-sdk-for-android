@@ -264,7 +264,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         azureCommunicationCommonVersion = "1.0.2"
         azureCoreVersion = "1.0.0-beta.10"
-        jacksonVersion = "2.12.6" // Do not upgrade to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
+        jacksonVersion = "2.12.7" // Do not upgrade to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
         junitJupiterVersion = "5.7.2"
         mockitoVersion = "4.0.0"
         nimbusJoseJwtTestVersion = "9.15.2"
