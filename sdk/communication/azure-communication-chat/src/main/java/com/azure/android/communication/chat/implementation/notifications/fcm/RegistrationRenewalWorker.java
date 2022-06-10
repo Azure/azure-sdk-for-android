@@ -42,7 +42,6 @@ public class RegistrationRenewalWorker extends Worker {
         this.registrationKeyManager = RegistrationKeyManager.instance();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public Result doWork() {
