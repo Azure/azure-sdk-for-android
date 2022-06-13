@@ -113,7 +113,7 @@ public final class <span class="typeNameLabel"><a href=CallComposite.html>CallCo
                     <div class="block"><p>Azure android communication calling composite component. </p><p>Instantiating Call Composite</p><pre><code>
 // Initialize the call composite builder
 final CallCompositeBuilder builder = new CallCompositeBuilder()
-    .theme(new ThemeConfiguration(themeId))
+    .theme(themeId)
     .localization(new LocalizationConfiguration(Locale.CHINESE, LayoutDirection.RTL));
 
 // Build the call composite
@@ -158,7 +158,7 @@ CallComposite callComposite = builder.build();
                                         <tr id="i0" class="altColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,GroupCallOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/GroupCallOptions.html>GroupCallOptions</a> groupCallOptions) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,CallCompositeRemoteOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> remoteOptions) </code>
                                             </th>
                                             <td class="colLast">Launch group call composite.</td>
                                         </tr>
@@ -166,7 +166,7 @@ CallComposite callComposite = builder.build();
                                         <tr id="i1" class="rowColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,GroupCallOptions,LocalSettings)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/GroupCallOptions.html>GroupCallOptions</a> groupCallOptions, <a href=models/LocalSettings.html>LocalSettings</a> localSettings) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,CallCompositeRemoteOptions,CallCompositeLocalOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> remoteOptions, <a href=models/CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> localOptions) </code>
                                             </th>
                                             <td class="colLast">Launch group call composite.</td>
                                         </tr>
@@ -174,41 +174,25 @@ CallComposite callComposite = builder.build();
                                         <tr id="i2" class="altColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,TeamsMeetingOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> teamsMeetingOptions) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnErrorHandler(CallCompositeEventHandler)>setOnErrorHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler) </code>
                                             </th>
-                                            <td class="colLast">Launch Teams meeting call composite.</td>
+                                            <td class="colLast">Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
                                         </tr>
                                         
                                         <tr id="i3" class="rowColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#launch(Context,TeamsMeetingOptions,LocalSettings)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> teamsMeetingOptions, <a href=models/LocalSettings.html>LocalSettings</a> localSettings) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler) </code>
                                             </th>
-                                            <td class="colLast">Launch Teams meeting call composite.</td>
+                                            <td class="colLast">Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
                                         </tr>
                                         
                                         <tr id="i4" class="altColor">
-                                            <td class="colFirst"><code>void</code>
+                                            <td class="colFirst"><code><a href=models/CallCompositeSetParticipantViewDataResult.html>CallCompositeSetParticipantViewDataResult</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnErrorHandler(CallingEventHandler)>setOnErrorHandler</a>(<a href=CallingEventHandler.html>CallingEventHandler</a>&lt;<a href=models/CommunicationUIErrorEvent.html>CommunicationUIErrorEvent</a>&gt; errorHandler) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,CallCompositeParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData) </code>
                                             </th>
-                                            <td class="colLast">Set <a href=CallingEventHandler.html>CallingEventHandler</a>.</td>
-                                        </tr>
-                                        
-                                        <tr id="i5" class="rowColor">
-                                            <td class="colFirst"><code>void</code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallingEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallingEventHandler.html>CallingEventHandler</a>&lt;<a href=models/CommunicationUIRemoteParticipantJoinedEvent.html>CommunicationUIRemoteParticipantJoinedEvent</a>&gt; eventHandler) </code>
-                                            </th>
-                                            <td class="colLast">Set <a href=CallingEventHandler.html>CallingEventHandler</a>.</td>
-                                        </tr>
-                                        
-                                        <tr id="i6" class="altColor">
-                                            <td class="colFirst"><code><a href=models/SetParticipantViewDataResult.html>SetParticipantViewDataResult</a></code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,ParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/ParticipantViewData.html>ParticipantViewData</a> participantViewData) </code>
-                                            </th>
-                                            <td class="colLast">Set <a href=models/ParticipantViewData.html>ParticipantViewData</a>.</td>
+                                            <td class="colLast">Set <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</td>
                                         </tr>
                                         
                                         </tbody>
@@ -244,7 +228,7 @@ CallComposite callComposite = builder.build();
                             </a>
                                 <h3>Method Detail</h3>
                                 
-                                <a id="launch(Context,GroupCallOptions)">
+                                <a id="launch(Context,CallCompositeRemoteOptions)">
                                     <!--   -->
                                 </a>
                                 <ul class=
@@ -252,15 +236,19 @@ CallComposite callComposite = builder.build();
                                           >
                                     <li class="blockList">
                                         <h4>launch</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,GroupCallOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/GroupCallOptions.html>GroupCallOptions</a> groupCallOptions)</pre>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,CallCompositeRemoteOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> remoteOptions)</pre>
                                         <div class="block"><p>Launch group call composite.</p><pre><code>
 final CommunicationTokenRefreshOptions communicationTokenRefreshOptions =
                 new CommunicationTokenRefreshOptions(tokenRefresher, true);
-final CommunicationTokenCredential communicationTokenCredential =
+final CommunicationTokenCredential credential =
                 new CommunicationTokenCredential(communicationTokenRefreshOptions);
-final GroupCallOptions groupCallOptions =
-                new GroupCallOptions(context, communicationTokenCredential, groupId, displayName);
-callComposite.launch(groupCallOptions);
+final CallCompositeJoinLocator locator =
+                new CallCompositeGroupCallLocator(UUID);
+final CallCompositeJoinLocator locator =
+                new CallCompositeTeamsMeetingLinkLocator(URL);
+final CallCompositeRemoteOptions remoteOptions =
+                new CallCompositeRemoteOptions(locator, credential, displayName);
+callComposite.launch(context, groupCallOptions);
 
 </code></pre></div>
                                         
@@ -272,7 +260,7 @@ callComposite.launch(groupCallOptions);
                                             
                                             
                                             
-                                            <dd><code>groupCallOptions</code> - The <a href=models/GroupCallOptions.html>GroupCallOptions</a> has parameters tolaunch group call experience.</dd>
+                                            <dd><code>remoteOptions</code> - The <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> has remote parameters tolaunch call experience.</dd>
                                             
                                             
                                         </dl>
@@ -281,7 +269,7 @@ callComposite.launch(groupCallOptions);
                                     </li>
                                 </ul>
                                 
-                                <a id="launch(Context,GroupCallOptions,LocalSettings)">
+                                <a id="launch(Context,CallCompositeRemoteOptions,CallCompositeLocalOptions)">
                                     <!--   -->
                                 </a>
                                 <ul class=
@@ -289,17 +277,22 @@ callComposite.launch(groupCallOptions);
                                           >
                                     <li class="blockList">
                                         <h4>launch</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,GroupCallOptions,LocalSettings)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/GroupCallOptions.html>GroupCallOptions</a> groupCallOptions, <a href=models/LocalSettings.html>LocalSettings</a> localSettings)</pre>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,CallCompositeRemoteOptions,CallCompositeLocalOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> remoteOptions, <a href=models/CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> localOptions)</pre>
                                         <div class="block"><p>Launch group call composite.</p><pre><code>
 final CommunicationTokenRefreshOptions communicationTokenRefreshOptions =
                 new CommunicationTokenRefreshOptions(tokenRefresher, true);
-final CommunicationTokenCredential communicationTokenCredential =
+final CommunicationTokenCredential credential =
                 new CommunicationTokenCredential(communicationTokenRefreshOptions);
-final GroupCallOptions groupCallOptions =
-                new GroupCallOptions(context, communicationTokenCredential, groupId, displayName);
-final LocalSettings localSettings =
-                new LocalSettings(participantViewData);
-callComposite.launch(groupCallOptions, localSettings);
+final CallCompositeJoinLocator locator =
+                new CallCompositeGroupCallLocator(UUID);
+final CallCompositeJoinLocator locator =
+                new CallCompositeTeamsMeetingLinkLocator(URL);
+final CallCompositeRemoteOptions remoteOptions =
+                new CallCompositeRemoteOptions(locator, credential, displayName);
+callComposite.launch(context, groupCallOptions);
+final CallCompositeLocalOptions localOptions =
+                new CallCompositeLocalOptions(participantViewData);
+callComposite.launch(context, groupCallOptions, localOptions);
 
 </code></pre></div>
                                         
@@ -311,48 +304,11 @@ callComposite.launch(groupCallOptions, localSettings);
                                             
                                             
                                             
-                                            <dd><code>groupCallOptions</code> - The <a href=models/GroupCallOptions.html>GroupCallOptions</a> has parameters tolaunch group call experience.</dd>
+                                            <dd><code>remoteOptions</code> - The <a href=models/CallCompositeRemoteOptions.html>CallCompositeRemoteOptions</a> has remote parameters tolaunch group call experience.</dd>
                                             
                                             
                                             
-                                            <dd><code>localSettings</code> - The <a href=models/LocalSettings.html>LocalSettings</a> has parameters tolaunch group call experience.</dd>
-                                            
-                                            
-                                        </dl>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="launch(Context,TeamsMeetingOptions)">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>launch</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,TeamsMeetingOptions)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> teamsMeetingOptions)</pre>
-                                        <div class="block"><p>Launch Teams meeting call composite.</p><pre><code>
-final CommunicationTokenRefreshOptions communicationTokenRefreshOptions =
-                new CommunicationTokenRefreshOptions(tokenRefresher, true);
-final CommunicationTokenCredential communicationTokenCredential =
-                new CommunicationTokenCredential(communicationTokenRefreshOptions);
-final TeamsMeetingOptions teamsMeetingOptions =
-                new TeamsMeetingOptions(context, communicationTokenCredential, meetingLink, displayName);
-callComposite.launch(teamsMeetingOptions);
-
-</code></pre></div>
-                                        
-                                        <dl>
-                                            <dt><span class="paramLabel">Parameters:</span></dt>
-                                            
-                                            
-                                            <dd><code>context</code> - The android context used to start the Composite.</dd>
-                                            
-                                            
-                                            
-                                            <dd><code>teamsMeetingOptions</code> - The <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> has parameters tolaunch Teams meeting experience.</dd>
+                                            <dd><code>localOptions</code> - The <a href=models/CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> has local parameters tolaunch group call experience.</dd>
                                             
                                             
                                         </dl>
@@ -361,50 +317,7 @@ callComposite.launch(teamsMeetingOptions);
                                     </li>
                                 </ul>
                                 
-                                <a id="launch(Context,TeamsMeetingOptions,LocalSettings)">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>launch</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#launch(Context,TeamsMeetingOptions,LocalSettings)>launch</a>(<a href=https://developer.android.com/reference/kotlin/android/content/Context.html>Context</a> context, <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> teamsMeetingOptions, <a href=models/LocalSettings.html>LocalSettings</a> localSettings)</pre>
-                                        <div class="block"><p>Launch Teams meeting call composite.</p><pre><code>
-final CommunicationTokenRefreshOptions communicationTokenRefreshOptions =
-                new CommunicationTokenRefreshOptions(tokenRefresher, true);
-final CommunicationTokenCredential communicationTokenCredential =
-                new CommunicationTokenCredential(communicationTokenRefreshOptions);
-final TeamsMeetingOptions teamsMeetingOptions =
-                new TeamsMeetingOptions(context, communicationTokenCredential, meetingLink, displayName);
-final LocalSettings localSettings =
-                new LocalSettings(participantViewData);
-callComposite.launch(teamsMeetingOptions, localSettings);
-
-</code></pre></div>
-                                        
-                                        <dl>
-                                            <dt><span class="paramLabel">Parameters:</span></dt>
-                                            
-                                            
-                                            <dd><code>context</code> - The android context used to start the Composite.</dd>
-                                            
-                                            
-                                            
-                                            <dd><code>teamsMeetingOptions</code> - The <a href=models/TeamsMeetingOptions.html>TeamsMeetingOptions</a> has parameters tolaunch Teams meeting experience.</dd>
-                                            
-                                            
-                                            
-                                            <dd><code>localSettings</code> - The <a href=models/LocalSettings.html>LocalSettings</a> has parameters tolaunch group call experience.</dd>
-                                            
-                                            
-                                        </dl>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="setOnErrorHandler(CallingEventHandler)">
+                                <a id="setOnErrorHandler(CallCompositeEventHandler)">
                                     <!--   -->
                                 </a>
                                 <ul class=
@@ -412,13 +325,13 @@ callComposite.launch(teamsMeetingOptions, localSettings);
                                           >
                                     <li class="blockList">
                                         <h4>setOnErrorHandler</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnErrorHandler(CallingEventHandler)>setOnErrorHandler</a>(<a href=CallingEventHandler.html>CallingEventHandler</a>&lt;<a href=models/CommunicationUIErrorEvent.html>CommunicationUIErrorEvent</a>&gt; errorHandler)</pre>
-                                        <div class="block"><p>Set <a href=CallingEventHandler.html>CallingEventHandler</a>.</p><pre><code>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnErrorHandler(CallCompositeEventHandler)>setOnErrorHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler)</pre>
+                                        <div class="block"><p>Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><p> A callback for Call Composite Error Events.See <a href=models/CallCompositeErrorCode.html>com.azure.android.communication.ui.calling.models.CallCompositeErrorCode</a> for values.</p><pre><code>
 // set error handler
-callComposite.setOnErrorHandler(eventHandler -&gt; {
+callComposite.setOnErrorHandler(event -&gt; {
     // Process error event
-    System.out.println(eventHandler.getCause());
-    System.out.println(eventHandler.getErrorCode());
+    System.out.println(event.getCause());
+    System.out.println(event.getErrorCode());
 });
 
 
@@ -431,7 +344,7 @@ callComposite.setOnErrorHandler(null);
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             
                                             
-                                            <dd><code>errorHandler</code> - The <a href=CallingEventHandler.html>CallingEventHandler</a>.</dd>
+                                            <dd><code>errorHandler</code> - The <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</dd>
                                             
                                             
                                         </dl>
@@ -440,7 +353,7 @@ callComposite.setOnErrorHandler(null);
                                     </li>
                                 </ul>
                                 
-                                <a id="setOnRemoteParticipantJoinedHandler(CallingEventHandler)">
+                                <a id="setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)">
                                     <!--   -->
                                 </a>
                                 <ul class=
@@ -448,10 +361,10 @@ callComposite.setOnErrorHandler(null);
                                           >
                                     <li class="blockList">
                                         <h4>setOnRemoteParticipantJoinedHandler</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallingEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallingEventHandler.html>CallingEventHandler</a>&lt;<a href=models/CommunicationUIRemoteParticipantJoinedEvent.html>CommunicationUIRemoteParticipantJoinedEvent</a>&gt; eventHandler)</pre>
-                                        <div class="block"><p>Set <a href=CallingEventHandler.html>CallingEventHandler</a>.</p><pre><code>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler)</pre>
+                                        <div class="block"><p>Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><pre><code>
 // set remote participant joined handler
-callComposite.setOnRemoteParticipantJoinedHandler(eventHandler -&gt; {
+callComposite.setOnRemoteParticipantJoinedHandler(event -&gt; {
     // Use call composite to set configurations for remote participant
 });
 
@@ -465,7 +378,7 @@ callComposite.setOnRemoteParticipantJoinedHandler(null);
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             
                                             
-                                            <dd><code>eventHandler</code> - The <a href=CallingEventHandler.html>CallingEventHandler</a>.</dd>
+                                            <dd><code>eventHandler</code> - The <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</dd>
                                             
                                             
                                         </dl>
@@ -474,7 +387,7 @@ callComposite.setOnRemoteParticipantJoinedHandler(null);
                                     </li>
                                 </ul>
                                 
-                                <a id="setRemoteParticipantViewData(CommunicationIdentifier,ParticipantViewData)">
+                                <a id="setRemoteParticipantViewData(CommunicationIdentifier,CallCompositeParticipantViewData)">
                                     <!--   -->
                                 </a>
                                 <ul class=
@@ -482,8 +395,8 @@ callComposite.setOnRemoteParticipantJoinedHandler(null);
                                           >
                                     <li class="blockList">
                                         <h4>setRemoteParticipantViewData</h4>
-                                        <pre class="methodSignature"> <a href=models/SetParticipantViewDataResult.html>SetParticipantViewDataResult</a> <a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,ParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/ParticipantViewData.html>ParticipantViewData</a> participantViewData)</pre>
-                                        <div class="block"><p>Set <a href=models/ParticipantViewData.html>ParticipantViewData</a>.</p></div>
+                                        <pre class="methodSignature"> <a href=models/CallCompositeSetParticipantViewDataResult.html>CallCompositeSetParticipantViewDataResult</a> <a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,CallCompositeParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData)</pre>
+                                        <div class="block"><p>Set <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</p><p>Used to set Participant View Data (E.g. Avatar and displayName) to be used on this device only.</p><p>This should be called from <a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a> to assign Participant View Data when a Participant joins the meeting if you'd like to modify theParticipants view data.</p></div>
                                         
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
@@ -493,7 +406,7 @@ callComposite.setOnRemoteParticipantJoinedHandler(null);
                                             
                                             
                                             
-                                            <dd><code>participantViewData</code> - The <a href=models/ParticipantViewData.html>ParticipantViewData</a>.</dd>
+                                            <dd><code>participantViewData</code> - The <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</dd>
                                             
                                             
                                         </dl>

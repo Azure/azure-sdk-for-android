@@ -1,7 +1,7 @@
 $dokka.format:javadoc-v1
 $dokka.linkExtension:html
-$dokka.location:com.azure.android.communication.ui.calling.utilities.implementation/FeatureFlags.Companion///PointingToDeclaration/com/azure/android/communication/ui/calling/utilities/implementation/FeatureFlags.Companion.html
+
 com.azure.android.communication.ui.calling
 com.azure.android.communication.ui.calling.models
-com.azure.android.communication.ui.calling.utilities.implementation
+com.azure.android.communication.ui.calling.presentation.fragment.calling.localuser
 
