@@ -174,20 +174,36 @@ CallComposite callComposite = builder.build();
                                         <tr id="i2" class="altColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnErrorHandler(CallCompositeEventHandler)>setOnErrorHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#addOnErrorEventHandler(CallCompositeEventHandler)>addOnErrorEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler) </code>
                                             </th>
-                                            <td class="colLast">Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
+                                            <td class="colLast">Add <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
                                         </tr>
                                         
                                         <tr id="i3" class="rowColor">
                                             <td class="colFirst"><code>void</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#removeOnErrorEventHandler(CallCompositeEventHandler)>removeOnErrorEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler) </code>
                                             </th>
-                                            <td class="colLast">Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
+                                            <td class="colLast">Remove <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
                                         </tr>
                                         
                                         <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#addOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)>addOnRemoteParticipantJoinedEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler) </code>
+                                            </th>
+                                            <td class="colLast">Add <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code>void</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallComposite.html#removeOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)>removeOnRemoteParticipantJoinedEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler) </code>
+                                            </th>
+                                            <td class="colLast">Remove <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
                                             <td class="colFirst"><code><a href=models/CallCompositeSetParticipantViewDataResult.html>CallCompositeSetParticipantViewDataResult</a></code>
                                             </td>
                                             <th class="colSecond" scope="row"><code><a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,CallCompositeParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData) </code>
@@ -317,26 +333,22 @@ callComposite.launch(context, groupCallOptions, localOptions);
                                     </li>
                                 </ul>
                                 
-                                <a id="setOnErrorHandler(CallCompositeEventHandler)">
+                                <a id="addOnErrorEventHandler(CallCompositeEventHandler)">
                                     <!--   -->
                                 </a>
                                 <ul class=
                                               "blockList"
                                           >
                                     <li class="blockList">
-                                        <h4>setOnErrorHandler</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnErrorHandler(CallCompositeEventHandler)>setOnErrorHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler)</pre>
-                                        <div class="block"><p>Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><p> A callback for Call Composite Error Events.See <a href=models/CallCompositeErrorCode.html>com.azure.android.communication.ui.calling.models.CallCompositeErrorCode</a> for values.</p><pre><code>
-// set error handler
-callComposite.setOnErrorHandler(event -&gt; {
+                                        <h4>addOnErrorEventHandler</h4>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#addOnErrorEventHandler(CallCompositeEventHandler)>addOnErrorEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler)</pre>
+                                        <div class="block"><p>Add <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><p> A callback for Call Composite Error Events.See <a href=models/CallCompositeErrorCode.html>com.azure.android.communication.ui.calling.models.CallCompositeErrorCode</a> for values.</p><pre><code>
+// add error handler
+callComposite.addOnErrorEventHandler(event -&gt; {
     // Process error event
     System.out.println(event.getCause());
     System.out.println(event.getErrorCode());
 });
-
-
-// remove error handler
-callComposite.setOnErrorHandler(null);
 
 </code></pre></div>
                                         
@@ -353,26 +365,70 @@ callComposite.setOnErrorHandler(null);
                                     </li>
                                 </ul>
                                 
-                                <a id="setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)">
+                                <a id="removeOnErrorEventHandler(CallCompositeEventHandler)">
                                     <!--   -->
                                 </a>
                                 <ul class=
                                               "blockList"
                                           >
                                     <li class="blockList">
-                                        <h4>setOnRemoteParticipantJoinedHandler</h4>
-                                        <pre class="methodSignature"> void <a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler)</pre>
-                                        <div class="block"><p>Set <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><pre><code>
-// set remote participant joined handler
-callComposite.setOnRemoteParticipantJoinedHandler(event -&gt; {
+                                        <h4>removeOnErrorEventHandler</h4>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#removeOnErrorEventHandler(CallCompositeEventHandler)>removeOnErrorEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeErrorEvent.html>CallCompositeErrorEvent</a>&gt; errorHandler)</pre>
+                                        <div class="block"><p>Remove <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><p> A callback for Call Composite Error Events.See <a href=models/CallCompositeErrorEvent.html>com.azure.android.communication.ui.calling.models.CallCompositeErrorEvent</a> for values.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>errorHandler</code> - The <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="addOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>addOnRemoteParticipantJoinedEventHandler</h4>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#addOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)>addOnRemoteParticipantJoinedEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler)</pre>
+                                        <div class="block"><p>Add <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p><pre><code>
+// add remote participant joined handler
+callComposite.addOnRemoteParticipantJoinedEventHandler(event -&gt; {
     // Use call composite to set configurations for remote participant
 });
 
-
-// remove remote participant joined handler
-callComposite.setOnRemoteParticipantJoinedHandler(null);
-
 </code></pre></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>eventHandler</code> - The <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="removeOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>removeOnRemoteParticipantJoinedEventHandler</h4>
+                                        <pre class="methodSignature"> void <a href=CallComposite.html#removeOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)>removeOnRemoteParticipantJoinedEventHandler</a>(<a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>&lt;<a href=models/CallCompositeRemoteParticipantJoinedEvent.html>CallCompositeRemoteParticipantJoinedEvent</a>&gt; eventHandler)</pre>
+                                        <div class="block"><p>Remove <a href=CallCompositeEventHandler.html>CallCompositeEventHandler</a>.</p></div>
                                         
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
@@ -396,7 +452,7 @@ callComposite.setOnRemoteParticipantJoinedHandler(null);
                                     <li class="blockList">
                                         <h4>setRemoteParticipantViewData</h4>
                                         <pre class="methodSignature"> <a href=models/CallCompositeSetParticipantViewDataResult.html>CallCompositeSetParticipantViewDataResult</a> <a href=CallComposite.html#setRemoteParticipantViewData(CommunicationIdentifier,CallCompositeParticipantViewData)>setRemoteParticipantViewData</a>(CommunicationIdentifier identifier, <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData)</pre>
-                                        <div class="block"><p>Set <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</p><p>Used to set Participant View Data (E.g. Avatar and displayName) to be used on this device only.</p><p>This should be called from <a href=CallComposite.html#setOnRemoteParticipantJoinedHandler(CallCompositeEventHandler)>setOnRemoteParticipantJoinedHandler</a> to assign Participant View Data when a Participant joins the meeting if you'd like to modify theParticipants view data.</p></div>
+                                        <div class="block"><p>Set <a href=models/CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</p><p>Used to set Participant View Data (E.g. Avatar and displayName) to be used on this device only.</p><p>This should be called from <a href=CallComposite.html#addOnRemoteParticipantJoinedEventHandler(CallCompositeEventHandler)>addOnRemoteParticipantJoinedEventHandler</a> to assign Participant View Data when a Participant joins the meeting if you'd like to modify theParticipants view data.</p></div>
                                         
                                         <dl>
                                             <dt><span class="paramLabel">Parameters:</span></dt>

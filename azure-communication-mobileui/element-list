@@ -3,5 +3,4 @@ $dokka.linkExtension:html
 
 com.azure.android.communication.ui.calling
 com.azure.android.communication.ui.calling.models
-com.azure.android.communication.ui.calling.presentation.fragment.calling.localuser
 
