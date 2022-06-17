@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import android.util.Log;
-
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Util;
 
@@ -40,9 +38,7 @@ public final class RegistrationKeyManager {
         try {
             this.keyGenerator = KeyGenerator.getInstance("AES");
         } catch (NoSuchAlgorithmException e) {
-            RuntimeException runtimeException = new RuntimeException("KeyGenerator failed: " + e.getMessage());
-            clientLogger.logExceptionAsError(runtimeException);
-            throw runtimeException;
+            throw clientLogger.logExceptionAsError(new RuntimeException("KeyGenerator failed: " + e.getMessage()));
         }
         this.keyGenerator.init(256);
         registrationKeyStore = new RegistrationKeyStore();

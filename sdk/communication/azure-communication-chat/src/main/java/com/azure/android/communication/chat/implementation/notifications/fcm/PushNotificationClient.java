@@ -3,8 +3,6 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import android.util.Log;
-
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;

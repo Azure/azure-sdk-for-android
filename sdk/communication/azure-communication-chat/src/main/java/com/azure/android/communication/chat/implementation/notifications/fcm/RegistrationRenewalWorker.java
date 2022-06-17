@@ -3,10 +3,8 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;

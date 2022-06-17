@@ -16,8 +16,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -64,7 +62,7 @@ public class RegistrationKeyStore {
         }
         try {
             Gson gson = new Gson();
-            Type type = new TypeToken<List<RegistrationKeyEntry>>() {}.getType();
+            Type type = new TypeToken<List<RegistrationKeyEntry>>() { }.getType();
             Reader reader = new InputStreamReader(inputStream);
             list = gson.fromJson(reader, type);
             reader.close();
@@ -84,7 +82,7 @@ public class RegistrationKeyStore {
         Gson gson = new Gson();
         String jsonStr = gson.toJson(list, list.getClass());
 
-        try(FileOutputStream fos = new FileOutputStream(outputFile);
+        try (FileOutputStream fos = new FileOutputStream(outputFile);
             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             //convert string to byte array
             byte[] bytes = jsonStr.getBytes();
