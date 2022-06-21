@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import android.util.Log;
-
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Util;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -66,10 +64,6 @@ public class RegistrationKeyStore {
         // convert JSON array to Java List
         try {
             list = new ObjectMapper().readValue(inputStream, new TypeReference<List<RegistrationKeyEntry>>() { });
-            for (int i=0; i<list.size(); i++) {
-                RegistrationKeyEntry entry = list.get(i);
-                long diff = (System.currentTimeMillis() - entry.getCreationTime()) / (1000 * 60) ;
-            }
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException(e));
         }
