@@ -2,19 +2,21 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.util.Log;
+
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Util;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -60,12 +62,15 @@ public class RegistrationKeyStore {
         if (inputStream == null) {
             return;
         }
+
+        // convert JSON array to Java List
         try {
-            Gson gson = new Gson();
-            Type type = new TypeToken<List<RegistrationKeyEntry>>() { }.getType();
-            Reader reader = new InputStreamReader(inputStream);
-            list = gson.fromJson(reader, type);
-            reader.close();
+            list = new ObjectMapper().readValue(inputStream, new TypeReference<List<RegistrationKeyEntry>>() { });
+            for (int i=0; i<list.size(); i++) {
+                RegistrationKeyEntry entry = list.get(i);
+                long diff = (System.currentTimeMillis() - entry.getCreationTime()) / (1000 * 60) ;
+                Log.i("Registration", "crypto: " + Base64Util.encodeToString(entry.getCryptoKey().getEncoded()) + "   auth: " + Base64Util.encodeToString(entry.getAuthKey().getEncoded()) + "  time:" + diff);
+            }
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException(e));
         }
@@ -79,9 +84,12 @@ public class RegistrationKeyStore {
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
         }
-        Gson gson = new Gson();
-        String jsonStr = gson.toJson(list, list.getClass());
-
+        String jsonStr = null;
+        try {
+            jsonStr = new ObjectMapper().writeValueAsString(list);
+        } catch (JsonProcessingException e) {
+            clientLogger.logExceptionAsError(new RuntimeException("Failed to generate JSON object", e));
+        }
         try (FileOutputStream fos = new FileOutputStream(outputFile);
             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             //convert string to byte array
@@ -119,9 +127,12 @@ public class RegistrationKeyStore {
         return stack;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true, value = {"authKey", "cryptoKey"})
     public static class RegistrationKeyEntry {
+        @JsonProperty("cryptoCredential")
         private String cryptoCredential;
 
+        @JsonProperty("authCredential")
         private String authCredential;
 
         private long creationTime;
@@ -141,6 +152,10 @@ public class RegistrationKeyStore {
         private SecretKey secretKeyFromStr(String str) {
             byte[] bytes = Base64Util.decodeString(str);
             return new SecretKeySpec(bytes, 0, bytes.length, "AES");
+        }
+
+        public RegistrationKeyEntry() {
+
         }
 
         public RegistrationKeyEntry(String cryptoCredential, String authCredential, long creationTime) {

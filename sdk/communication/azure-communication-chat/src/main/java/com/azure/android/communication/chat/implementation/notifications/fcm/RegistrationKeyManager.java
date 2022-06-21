@@ -96,7 +96,6 @@ public final class RegistrationKeyManager {
     }
 
     private void rotateKeysBasedOnTime(String path) {
-        int removedEntry = 0;
         int size = getNumOfPairs();
         //Delete expired keys
         for (int curIndex = 0; curIndex < size; curIndex++) {
@@ -111,7 +110,6 @@ public final class RegistrationKeyManager {
                 } catch (Exception e) {
                     clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + curIndex));
                 }
-                removedEntry++;
             } else {
                 break;
             }
