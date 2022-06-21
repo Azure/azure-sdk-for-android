@@ -69,7 +69,6 @@ public class RegistrationKeyStore {
             for (int i=0; i<list.size(); i++) {
                 RegistrationKeyEntry entry = list.get(i);
                 long diff = (System.currentTimeMillis() - entry.getCreationTime()) / (1000 * 60) ;
-                Log.i("Registration", "crypto: " + Base64Util.encodeToString(entry.getCryptoKey().getEncoded()) + "   auth: " + Base64Util.encodeToString(entry.getAuthKey().getEncoded()) + "  time:" + diff);
             }
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException(e));

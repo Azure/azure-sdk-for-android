@@ -62,6 +62,4 @@ dependencies {
     // (Java only)
     implementation "androidx.work:work-runtime:$work_version"
 
-    implementation 'com.google.code.gson:gson:2.8.5'
-
 }

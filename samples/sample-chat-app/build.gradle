@@ -48,6 +48,4 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging'
     def work_version = "2.7.1"
     implementation "androidx.work:work-runtime:$work_version"
-
-    implementation "com.fasterxml.jackson.core:jackson-core:2.12.6"
 }

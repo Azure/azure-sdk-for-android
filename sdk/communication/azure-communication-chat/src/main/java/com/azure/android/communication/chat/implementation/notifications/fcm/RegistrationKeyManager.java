@@ -70,7 +70,7 @@ public final class RegistrationKeyManager {
     private int getNumOfPairs() {
         int numKeyPairs = 0;
         try {
-            numKeyPairs = registrationKeyStore.getSize() / 2;
+            numKeyPairs = registrationKeyStore.getSize();
         } catch (Exception e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to get size from key store", e));
         }
