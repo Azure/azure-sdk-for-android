@@ -13,11 +13,25 @@
     <Bug pattern="URF_UNREAD_FIELD"/>
   </Match>
 
+  <!-- The double check is added intentionally for singleton class -->
   <Match>
     <Class
-        name="~com\.azure\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
-    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+        name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyManager"/>
+    <Bug pattern="DC_DOUBLECHECK"/>
   </Match>
+
+  <!-- No need to create static class for typeReference -->
+  <Match>
+    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyStore" />
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.http.policy.RetryPolicy" />
+    <Bug pattern="DE_MIGHT_IGNORE" />
+  </Match>
+
+
 
   <!-- This is false positive, the method won't ignore exception parameter -->
   <Match>

@@ -7,6 +7,7 @@ import com.azure.android.core.util.Base64Util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Stack;
 
@@ -120,7 +121,7 @@ public final class RegistrationKeyManager {
     private void load(String path) {
         try (FileInputStream fis = new File(path).exists() ? new FileInputStream(path) : null) {
             registrationKeyStore.load(fis);
-        } catch (Exception e) {
+        } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
         }
     }

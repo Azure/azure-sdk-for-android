@@ -73,11 +73,14 @@ public class RegistrationKeyStore {
     private void writeJsonToFile(String path) {
         File outputFile = new File(path);
         try {
-            outputFile.createNewFile();
+            boolean newFile = outputFile.createNewFile();
+            if (newFile) {
+                clientLogger.verbose("new file created for storing push notification credentials");
+            }
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
         }
-        String jsonStr = null;
+        String jsonStr = "";
         try {
             jsonStr = new ObjectMapper().writeValueAsString(list);
         } catch (JsonProcessingException e) {
@@ -86,7 +89,7 @@ public class RegistrationKeyStore {
         try (FileOutputStream fos = new FileOutputStream(outputFile);
             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             //convert string to byte array
-            byte[] bytes = jsonStr.getBytes();
+            byte[] bytes = jsonStr.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             //write byte array to file
             bos.write(bytes);
             bos.close();
