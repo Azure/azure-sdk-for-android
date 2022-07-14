@@ -22,7 +22,7 @@
 
   <!-- No need to create static class for typeReference -->
   <Match>
-    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyStore" />
+    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.KeyCreationTimeStore" />
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 
@@ -31,7 +31,10 @@
     <Bug pattern="DE_MIGHT_IGNORE" />
   </Match>
 
-
+  <Match>
+    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyManager" />
+    <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE" />
+  </Match>
 
   <!-- This is false positive, the method won't ignore exception parameter -->
   <Match>

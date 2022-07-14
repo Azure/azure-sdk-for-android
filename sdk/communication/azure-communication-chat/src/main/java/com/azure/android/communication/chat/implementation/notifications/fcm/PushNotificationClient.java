@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.util.Pair;
+
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -251,7 +253,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        Stack<RegistrationKeyStore.RegistrationKeyEntry> registrationKeyEntries = registrationKeyManager.getAllEntries();
+        Stack<Pair<SecretKey, SecretKey>> registrationKeyEntries = registrationKeyManager.getAllPairs();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
@@ -260,9 +262,9 @@ public class PushNotificationClient {
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
         while (!registrationKeyEntries.isEmpty()) {
-            RegistrationKeyStore.RegistrationKeyEntry entry = registrationKeyEntries.pop();
-            SecretKey cryptoKey = entry.getCryptoKey();
-            SecretKey authKey = entry.getAuthKey();
+            Pair<SecretKey, SecretKey> pair = registrationKeyEntries.pop();
+            SecretKey cryptoKey = pair.first;
+            SecretKey authKey = pair.second;
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
                 return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, cryptoKey);
             }

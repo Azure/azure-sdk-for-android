@@ -3,6 +3,7 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.work.Data;
@@ -14,6 +15,8 @@ import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.concurrent.ExecutionException;
+
+import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
 
@@ -68,12 +71,12 @@ public class RegistrationRenewalWorker extends Worker {
         try {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
             refreshCredentials();
-            RegistrationKeyStore.RegistrationKeyEntry cryptoKeyToAuthKeyPair = registrationKeyManager.getLastEntry();
+            Pair<SecretKey, SecretKey> cryptoKeyToAuthKeyPair = registrationKeyManager.getLastPair();
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
-                cryptoKeyToAuthKeyPair.getCryptoKey(),
-                cryptoKeyToAuthKeyPair.getAuthKey());
+                cryptoKeyToAuthKeyPair.first,
+                cryptoKeyToAuthKeyPair.second);
         } catch (ExecutionException | InterruptedException e) {
             this.clientLogger.error(e.getMessage());
             return Result.retry();
@@ -90,9 +93,8 @@ public class RegistrationRenewalWorker extends Worker {
     // context object
     private void refreshCredentials() {
         Context context = getApplicationContext();
-        String absolutePath = context.getFilesDir().getAbsolutePath();
-        String dataPath = absolutePath + "/key-store";
-        clientLogger.verbose("KeyStorePath is ", dataPath);
-        registrationKeyManager.refreshCredentials(dataPath);
+        String directoryPath = context.getFilesDir().getAbsolutePath();
+        clientLogger.verbose("DirectoryPath is ", directoryPath);
+        registrationKeyManager.refreshCredentials(directoryPath);
     }
 }
