@@ -16,6 +16,9 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 import javax.crypto.KeyGenerator;
@@ -63,7 +66,7 @@ public final class RegistrationKeyManager {
         try {
             keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         } catch (KeyStoreException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
         }
         keyCreationTimeStore = new KeyCreationTimeStore();
     }
@@ -94,9 +97,9 @@ public final class RegistrationKeyManager {
     private int getNumOfPairs() {
         int numKeyPairs = 0;
         try {
-            numKeyPairs = keyStore.size() / 2;
+            numKeyPairs = Math.max(keyStore.size(), keyCreationTimeStore.getSize()) / 2;
         } catch (Exception e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to get size from key store", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to get size from key store", e));
         }
         return numKeyPairs;
     }
@@ -107,8 +110,7 @@ public final class RegistrationKeyManager {
             //Fetch latest data from file
             load(directoryPath);
 
-            //Rotate key based on creation time
-            rotateKeysBasedOnTime(directoryPath);
+            rotateKeys(directoryPath);
             int index = getNumOfPairs();
             SecretKey newCryptoKey = keyGenerator.generateKey();
             String cryptoAlias = CRYPTO_KEY_PREFIX + index;
@@ -138,51 +140,82 @@ public final class RegistrationKeyManager {
         return Base64Util.encodeToString(secretKey.getEncoded());
     }
 
-    private void rotateKeysBasedOnTime(String directoryPath) {
-        int size = getNumOfPairs();
+    private int extractIndex(String alias) {
+        if (alias.indexOf(CRYPTO_KEY_PREFIX) == 0) {
+            return Integer.parseInt(alias.replaceAll(CRYPTO_KEY_PREFIX, ""));
+        }
+        return Integer.parseInt(alias.replaceAll(AUTH_KEY_PREFIX, ""));
+    }
+
+    // Clear keys created more than #{EXPIRATION_TIME_MINUTES} and keeps records consistent across key-store and key-creation-time-store
+    private void rotateKeys(String directoryPath) {
         int removedPair = 0;
-        //Delete expired keys
-        for (int curIndex = 0; curIndex < size; curIndex++) {
+        HashSet<Integer> set = new HashSet<>();
+        try {
+            Enumeration<String> aliases = keyStore.aliases();
+            while (aliases.hasMoreElements()) {
+                set.add(extractIndex(aliases.nextElement()));
+            }
+        } catch (KeyStoreException e) {
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed iterate key-store", e));
+        }
+        Set<String> aliases = keyCreationTimeStore.getAliases();
+        for (String alias : aliases) {
+            set.add(extractIndex(alias));
+        }
+
+        //Delete expired keys or inconsistent records
+        for (int curIndex : set) {
             String cryptoKeyAlias = CRYPTO_KEY_PREFIX + curIndex;
             String authKeyAlias = AUTH_KEY_PREFIX + curIndex;
-            long insertionTime = getCreationTime(cryptoKeyAlias);
+            Long insertionTime = getCreationTime(cryptoKeyAlias);
             long currentTime = System.currentTimeMillis();
             long diffInMinutes = (currentTime - insertionTime) / (60 * 1000);
 
-            if (diffInMinutes > EXPIRATION_TIME_MINUTES) {
+            if (diffInMinutes > EXPIRATION_TIME_MINUTES || anyEntryMissed(cryptoKeyAlias, authKeyAlias)) {
                 try {
                     deleteKeyFromFiles(cryptoKeyAlias, directoryPath);
                     deleteKeyFromFiles(authKeyAlias, directoryPath);
+                    set.remove(curIndex);
                     removedPair++;
                 } catch (Exception e) {
-                    clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + curIndex, e));
+                    throw clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + curIndex, e));
                 }
-            } else {
-                break;
             }
         }
 
-        if (removedPair == 0) {
-            return;
-        }
-
-        //Rotate. Move entry with index i to (i - removedPair)
-        for (int fromIndex = removedPair; fromIndex < removedPair; fromIndex++) {
-            int toIndex = fromIndex - removedPair;
+        //Rotate to fill the empty entries. Move remained entries to lowest index
+        int toIndex = 0;
+        for (int fromIndex : set) {
             String fromCryptoAlias = CRYPTO_KEY_PREFIX + fromIndex;
             String fromAuthAlias = AUTH_KEY_PREFIX + fromIndex;
+
+            //This record is cleared or no need to move
+            if (anyEntryMissed(fromCryptoAlias, fromAuthAlias) || toIndex == fromIndex) {
+                continue;
+            }
             SecretKey cryptoKey = getSecreteKey(fromCryptoAlias);
             SecretKey authKey = getSecreteKey(fromAuthAlias);
 
             String toCryptoAlias = CRYPTO_KEY_PREFIX + toIndex;
             String toAuthAlias = AUTH_KEY_PREFIX + toIndex;
-            long creationTime = getCreationTime(toCryptoAlias);
+            long creationTime = getCreationTime(fromCryptoAlias);
             storingKeyToFiles(cryptoKey, toCryptoAlias, directoryPath, creationTime);
             storingKeyToFiles(authKey, toAuthAlias, directoryPath, creationTime);
 
             deleteKeyFromFiles(fromCryptoAlias, directoryPath);
             deleteKeyFromFiles(fromAuthAlias, directoryPath);
+            toIndex++;
         }
+    }
+
+    // Checking if any entries missed
+    private boolean anyEntryMissed(String cryptoKeyAlias, String authKeyAlias) {
+        boolean cryptoKeyMissing = getSecreteKey(cryptoKeyAlias) == null;
+        boolean authKeyMissing = getSecreteKey(authKeyAlias) == null;
+        boolean cryptoTimeMissing = getCreationTime(cryptoKeyAlias) == null;
+        boolean authTimeMissing = getCreationTime(authKeyAlias) == null;
+        return cryptoKeyMissing | authKeyMissing | cryptoTimeMissing | authTimeMissing;
     }
 
     //Loads data from key store file to key store entry
@@ -192,14 +225,14 @@ public final class RegistrationKeyManager {
         try (FileInputStream fis = new File(keyStorePath).exists() ? new FileInputStream(keyStorePath) : null) {
             keyStore.load(fis, password);
         } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
         }
 
         String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
         try (FileInputStream fis2 = new File(keyCreationTimeStorePath).exists() ? new FileInputStream(keyCreationTimeStorePath) : null) {
             keyCreationTimeStore.load(fis2);
         } catch (IOException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to load key creation time store", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load key creation time store", e));
         }
     }
 
@@ -213,7 +246,7 @@ public final class RegistrationKeyManager {
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with alias: " + alias, e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with alias: " + alias, e));
         }
 
         File outputFile = new File(keyStorePath);
@@ -221,13 +254,13 @@ public final class RegistrationKeyManager {
             try {
                 outputFile.createNewFile();
             } catch (IOException e) {
-                clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             keyStore.store(fos, getPassword());
         } catch (Exception e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
 
         //delete from key-creation-time-store
@@ -235,13 +268,12 @@ public final class RegistrationKeyManager {
         try {
             keyCreationTimeStore.deleteEntry(keyCreationTimeStorePath, alias);
         } catch (Exception e) {
-            RuntimeException runtimeException = new RuntimeException("keyCreationTimeStore failed to delete entry", e);
-            clientLogger.logExceptionAsError(runtimeException);
-            throw runtimeException;
+            RuntimeException runtimeException = new RuntimeException("keyCreationTimeStore failed to delete entry");
+            throw clientLogger.logExceptionAsError(runtimeException);
         }
     }
 
-    public long getCreationTime(String alias) {
+    public Long getCreationTime(String alias) {
         return keyCreationTimeStore.getCreationTime(alias);
     }
 
@@ -254,7 +286,7 @@ public final class RegistrationKeyManager {
         try {
             pkEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, protParam);
         } catch (Exception e) {
-            clientLogger.logExceptionAsError(new RuntimeException());
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to get secret key", e));
         }
         if (pkEntry == null) {
             return null;
@@ -275,7 +307,7 @@ public final class RegistrationKeyManager {
         try {
             keyStore.setEntry(alias, skEntry, protParam);
         } catch (KeyStoreException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to set entry for key store", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to set entry for key store", e));
         }
 
         // store away the keystore
@@ -285,13 +317,13 @@ public final class RegistrationKeyManager {
             try {
                 outputFile.createNewFile();
             } catch (IOException e) {
-                clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             keyStore.store(fos, getPassword());
         } catch (Exception e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
 
         // store in key creation time store

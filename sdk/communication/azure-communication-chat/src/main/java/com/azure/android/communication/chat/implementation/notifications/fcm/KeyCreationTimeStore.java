@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class represents a storage facility for storing alias and its creation time of secret keys. The
@@ -79,7 +80,6 @@ public class KeyCreationTimeStore {
             //write byte array to file
             bos.write(bytes);
             bos.close();
-            fos.close();
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Filed writing key map to file", e));
         }
@@ -90,12 +90,16 @@ public class KeyCreationTimeStore {
         writeJsonToFile(filePath);
     }
 
-    public long getCreationTime(String alias) {
+    public Long getCreationTime(String alias) {
         return map.get(alias);
     }
 
     public void storeKeyEntry(String filePath, String alias, long time) {
         map.put(alias, time);
         writeJsonToFile(filePath);
+    }
+
+    public Set<String> getAliases() {
+        return map.keySet();
     }
 }
