@@ -42,7 +42,7 @@ public final class RegistrationKeyManager {
     private boolean lastExecutionSucceeded = true;
 
     //The duration we persist keys in key-store
-    public static final int EXPIRATION_TIME_MINUTES = 18;
+    public static final int EXPIRATION_TIME_MINUTES = 45;
 
     public static final String CRYPTO_KEY_PREFIX = "CRYPTO_KEY_";
 
