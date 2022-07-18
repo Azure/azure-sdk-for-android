@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
-import android.util.Log;
 import android.util.Pair;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.util.Base64Util;
 
 import java.io.File;
 import java.io.FileInputStream;
