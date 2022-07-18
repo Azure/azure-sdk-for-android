@@ -78,10 +78,10 @@ public class RegistrationRenewalWorker extends Worker {
                 cryptoKeyToAuthKeyPair.first,
                 cryptoKeyToAuthKeyPair.second);
         } catch (ExecutionException | InterruptedException e) {
-            this.clientLogger.error(e.getMessage());
+            this.clientLogger.logThrowableAsError(e);
             return Result.retry();
         } catch (Throwable throwable) {
-            this.clientLogger.error(throwable.getMessage());
+            this.clientLogger.logThrowableAsError(throwable);
             return Result.retry();
         }
         this.clientLogger.info("RegistrationRenewalWorker execution succeeded");

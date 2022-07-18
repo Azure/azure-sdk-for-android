@@ -44,7 +44,7 @@ public final class RegistrationKeyManager {
     private boolean lastExecutionSucceeded = true;
 
     //The duration we persist keys in key-store
-    public static final int EXPIRATION_TIME_MINUTES = 25;
+    public static final int EXPIRATION_TIME_MINUTES = 18;
 
     public static final String CRYPTO_KEY_PREFIX = "CRYPTO_KEY_";
 
@@ -119,25 +119,7 @@ public final class RegistrationKeyManager {
             long currentTimeMillis = System.currentTimeMillis();
             storingKeyToFiles(newCryptoKey, cryptoAlias, directoryPath, currentTimeMillis);
             storingKeyToFiles(newAuthKey, authAlias, directoryPath, currentTimeMillis);
-
-            int pairs = getNumOfPairs();
-            for (int i = 0; i < pairs; i++) {
-                String crypAlias = CRYPTO_KEY_PREFIX + i;
-                String auAlias = AUTH_KEY_PREFIX + i;
-                SecretKey cryptoKey = getSecreteKey(crypAlias);
-                SecretKey authKey = getSecreteKey(auAlias);
-                String crypStr = secretKeyToStr(cryptoKey);
-                String aKeyStr = secretKeyToStr(authKey);
-                long time = getCreationTime(crypAlias);
-                long timeDiff = (System.currentTimeMillis() - time) / (1000 * 60);
-                Log.i("RenewRegistration", "crypto alias: " + crypAlias + ", crypto string: " + crypStr + ", time: " + timeDiff);
-                Log.i("RenewRegistration", "auth alias: " + auAlias + ", auth string: " + aKeyStr + ", time: " + timeDiff);
-            }
         }
-    }
-
-    private String secretKeyToStr(SecretKey secretKey) {
-        return Base64Util.encodeToString(secretKey.getEncoded());
     }
 
     private int extractIndex(String alias) {
@@ -149,8 +131,9 @@ public final class RegistrationKeyManager {
 
     // Clear keys created more than #{EXPIRATION_TIME_MINUTES} and keeps records consistent across key-store and key-creation-time-store
     private void rotateKeys(String directoryPath) {
-        int removedPair = 0;
+        int removed = 0;
         HashSet<Integer> set = new HashSet<>();
+        HashSet<Integer> removedSet = new HashSet<>();
         try {
             Enumeration<String> aliases = keyStore.aliases();
             while (aliases.hasMoreElements()) {
@@ -176,22 +159,27 @@ public final class RegistrationKeyManager {
                 try {
                     deleteKeyFromFiles(cryptoKeyAlias, directoryPath);
                     deleteKeyFromFiles(authKeyAlias, directoryPath);
-                    set.remove(curIndex);
-                    removedPair++;
+                    removedSet.add(curIndex);
+                    removed++;
                 } catch (Exception e) {
                     throw clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with index: " + curIndex, e));
                 }
             }
         }
+        set.removeAll(removedSet);
 
         //Rotate to fill the empty entries. Move remained entries to lowest index
         int toIndex = 0;
+        if (removed == 0) {
+            return;
+        }
         for (int fromIndex : set) {
             String fromCryptoAlias = CRYPTO_KEY_PREFIX + fromIndex;
             String fromAuthAlias = AUTH_KEY_PREFIX + fromIndex;
 
             //This record is cleared or no need to move
             if (anyEntryMissed(fromCryptoAlias, fromAuthAlias) || toIndex == fromIndex) {
+                toIndex++;
                 continue;
             }
             SecretKey cryptoKey = getSecreteKey(fromCryptoAlias);
