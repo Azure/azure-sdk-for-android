@@ -122,9 +122,9 @@ public final class RegistrationKeyManager {
 
     private int extractIndex(String alias) {
         if (alias.indexOf(CRYPTO_KEY_PREFIX) == 0) {
-            return Integer.parseInt(alias.replaceAll(CRYPTO_KEY_PREFIX, ""));
+            return Integer.parseInt(alias.substring(alias.lastIndexOf('_') + 1));
         }
-        return Integer.parseInt(alias.replaceAll(AUTH_KEY_PREFIX, ""));
+        return Integer.parseInt(alias.substring(alias.lastIndexOf('_') + 1));
     }
 
     // Clear keys created more than #{EXPIRATION_TIME_MINUTES} and keeps records consistent across key-store and key-creation-time-store
@@ -175,13 +175,13 @@ public final class RegistrationKeyManager {
             String fromCryptoAlias = CRYPTO_KEY_PREFIX + fromIndex;
             String fromAuthAlias = AUTH_KEY_PREFIX + fromIndex;
 
-            //This record is cleared or no need to move
-            if (anyEntryMissed(fromCryptoAlias, fromAuthAlias) || toIndex == fromIndex) {
+            //No need to move
+            if (toIndex == fromIndex) {
                 toIndex++;
                 continue;
             }
-            SecretKey cryptoKey = getSecreteKey(fromCryptoAlias);
-            SecretKey authKey = getSecreteKey(fromAuthAlias);
+            SecretKey cryptoKey = getSecretKey(fromCryptoAlias);
+            SecretKey authKey = getSecretKey(fromAuthAlias);
 
             String toCryptoAlias = CRYPTO_KEY_PREFIX + toIndex;
             String toAuthAlias = AUTH_KEY_PREFIX + toIndex;
@@ -197,8 +197,8 @@ public final class RegistrationKeyManager {
 
     // Checking if any entries missed
     private boolean anyEntryMissed(String cryptoKeyAlias, String authKeyAlias) {
-        boolean cryptoKeyMissing = getSecreteKey(cryptoKeyAlias) == null;
-        boolean authKeyMissing = getSecreteKey(authKeyAlias) == null;
+        boolean cryptoKeyMissing = getSecretKey(cryptoKeyAlias) == null;
+        boolean authKeyMissing = getSecretKey(authKeyAlias) == null;
         boolean cryptoTimeMissing = getCreationTime(cryptoKeyAlias) == null;
         boolean authTimeMissing = getCreationTime(authKeyAlias) == null;
         return cryptoKeyMissing | authKeyMissing | cryptoTimeMissing | authTimeMissing;
@@ -222,10 +222,6 @@ public final class RegistrationKeyManager {
         }
     }
 
-    private char[] getPassword() {
-        return "com.azure.android.communication.chat.android".toCharArray();
-    }
-
     private void deleteKeyFromFiles(String alias, String directoryPath) {
         //delete from key-store
         String keyStorePath = directoryPath + KEY_STORE_POSTFIX;
@@ -244,7 +240,7 @@ public final class RegistrationKeyManager {
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-            keyStore.store(fos, getPassword());
+            keyStore.store(fos, getKeyStorePassword());
         } catch (Exception e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
@@ -263,9 +259,9 @@ public final class RegistrationKeyManager {
         return keyCreationTimeStore.getCreationTime(alias);
     }
 
-    public SecretKey getSecreteKey(String alias) {
+    public SecretKey getSecretKey(String alias) {
         KeyStore.ProtectionParameter protParam =
-            new KeyStore.PasswordProtection(getPassword());
+            new KeyStore.PasswordProtection(getKeyStorePassword());
 
         // get my private key
         KeyStore.SecretKeyEntry pkEntry = null;
@@ -287,7 +283,7 @@ public final class RegistrationKeyManager {
             return;
         }
         KeyStore.ProtectionParameter protParam =
-            new KeyStore.PasswordProtection(getPassword());
+            new KeyStore.PasswordProtection(getKeyStorePassword());
         KeyStore.SecretKeyEntry skEntry =
             new KeyStore.SecretKeyEntry(secretKey);
         try {
@@ -307,7 +303,7 @@ public final class RegistrationKeyManager {
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-            keyStore.store(fos, getPassword());
+            keyStore.store(fos, getKeyStorePassword());
         } catch (Exception e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
@@ -321,8 +317,8 @@ public final class RegistrationKeyManager {
         int lastIndex = getNumOfPairs() - 1;
         String cryptoAlias = CRYPTO_KEY_PREFIX + lastIndex;
         String authAlias = AUTH_KEY_PREFIX + lastIndex;
-        SecretKey cryptoKey = getSecreteKey(cryptoAlias);
-        SecretKey authKey = getSecreteKey(authAlias);
+        SecretKey cryptoKey = getSecretKey(cryptoAlias);
+        SecretKey authKey = getSecretKey(authAlias);
         return new Pair<>(cryptoKey, authKey);
     }
 
@@ -334,8 +330,8 @@ public final class RegistrationKeyManager {
             for (int i = 0; i < pairs; i++) {
                 String cryptoAlias = CRYPTO_KEY_PREFIX + i;
                 String authAlias = AUTH_KEY_PREFIX + i;
-                SecretKey cryptoKey = getSecreteKey(cryptoAlias);
-                SecretKey authKey = getSecreteKey(authAlias);
+                SecretKey cryptoKey = getSecretKey(cryptoAlias);
+                SecretKey authKey = getSecretKey(authAlias);
                 Pair<SecretKey, SecretKey> pair = new Pair<>(cryptoKey, authKey);
                 res.push(pair);
             }
