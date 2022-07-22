@@ -79,7 +79,6 @@ public class KeyCreationTimeStore {
             byte[] bytes = jsonStr.getBytes(java.nio.charset.StandardCharsets.UTF_8);
             //write byte array to file
             bos.write(bytes);
-            bos.close();
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException("Filed writing key map to file", e));
         }
