@@ -34,6 +34,11 @@ public class RegistrationRenewalWorker extends Worker {
 
     private RegistrationKeyManager registrationKeyManager;
 
+    public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParameters) {
+        super(context, workerParameters);
+        throw new RuntimeException("Missing worker manager configurations. Please follow quick-start guidance to properly set it up: https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-android");
+    }
+
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParams,
                                      CommunicationTokenCredential communicationTokenCredential, Consumer<Throwable> exceptionHandler) {
         super(context, workerParams);
