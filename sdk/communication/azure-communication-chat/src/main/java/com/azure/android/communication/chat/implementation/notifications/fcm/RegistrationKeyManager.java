@@ -2,7 +2,12 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.util.Pair;
+
+import androidx.annotation.RequiresApi;
 
 import com.azure.android.core.logging.ClientLogger;
 
@@ -10,11 +15,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.cert.CertificateException;
+import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -56,17 +65,46 @@ public final class RegistrationKeyManager {
 
     private RegistrationKeyManager()  {
         try {
-            this.keyGenerator = KeyGenerator.getInstance("AES");
-        } catch (NoSuchAlgorithmException e) {
+//            this.keyGenerator = KeyGenerator.getInstance("AES");
+            Calendar start = new GregorianCalendar();
+            Calendar end = new GregorianCalendar();
+            end.add(Calendar.YEAR, 30);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+            } else {
+                keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES);
+                keyGenerator.init(256);
+            }
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("KeyGenerator failed: " + e.getMessage()));
         }
-        this.keyGenerator.init(256);
+
         try {
-            keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                keyStore = KeyStore.getInstance("AndroidKeyStore");
+            } else {
+                keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            }
         } catch (KeyStoreException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
         }
         keyCreationTimeStore = new KeyCreationTimeStore();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void setUpKeyGenerator(String alias) {
+        try {
+            keyGenerator.init(new KeyGenParameterSpec.Builder(
+                alias,
+                KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_VERIFY)
+                .setDigests(KeyProperties.DIGEST_SHA256,
+                    KeyProperties.DIGEST_SHA512)
+                .build());
+        } catch (InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
     }
 
     public static RegistrationKeyManager instance() {
@@ -78,10 +116,6 @@ public final class RegistrationKeyManager {
             }
         }
         return registrationKeyManager;
-    }
-
-    private char[] getKeyStorePassword() {
-        return "com.azure.android.communication.chat.android".toCharArray();
     }
 
     public void setLastExecutionSucceeded(boolean bool) {
@@ -110,10 +144,16 @@ public final class RegistrationKeyManager {
 
             rotateKeys(directoryPath);
             int index = getNumOfPairs();
-            SecretKey newCryptoKey = keyGenerator.generateKey();
             String cryptoAlias = CRYPTO_KEY_PREFIX + index;
-            SecretKey newAuthKey = keyGenerator.generateKey();
             String authAlias = AUTH_KEY_PREFIX + index;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                setUpKeyGenerator(cryptoAlias);
+            }
+            SecretKey newCryptoKey = keyGenerator.generateKey();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                setUpKeyGenerator(authAlias);
+            }
+            SecretKey newAuthKey = keyGenerator.generateKey();
             long currentTimeMillis = System.currentTimeMillis();
             storingKeyToFiles(newCryptoKey, cryptoAlias, directoryPath, currentTimeMillis);
             storingKeyToFiles(newAuthKey, authAlias, directoryPath, currentTimeMillis);
@@ -150,6 +190,9 @@ public final class RegistrationKeyManager {
             String cryptoKeyAlias = CRYPTO_KEY_PREFIX + curIndex;
             String authKeyAlias = AUTH_KEY_PREFIX + curIndex;
             Long insertionTime = getCreationTime(cryptoKeyAlias);
+            if (insertionTime == null) {
+                insertionTime = 0L;
+            }
             long currentTime = System.currentTimeMillis();
             long diffInMinutes = (currentTime - insertionTime) / (60 * 1000);
 
@@ -206,12 +249,16 @@ public final class RegistrationKeyManager {
 
     //Loads data from key store file to key store entry
     private void load(String directoryPath) {
-        char[] password = getKeyStorePassword();
         String keyStorePath = directoryPath + KEY_STORE_POSTFIX;
         try (FileInputStream fis = new File(keyStorePath).exists() ? new FileInputStream(keyStorePath) : null) {
-            keyStore.load(fis, password);
-        } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
+//            keyStore.load(fis, null);
+            keyStore.load(null, null);
+        } catch (IOException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
+        } catch (CertificateException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
 
         String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
@@ -240,7 +287,7 @@ public final class RegistrationKeyManager {
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-            keyStore.store(fos, getKeyStorePassword());
+//            keyStore.store(fos, null);
         } catch (Exception e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
@@ -260,13 +307,10 @@ public final class RegistrationKeyManager {
     }
 
     public SecretKey getSecretKey(String alias) {
-        KeyStore.ProtectionParameter protParam =
-            new KeyStore.PasswordProtection(getKeyStorePassword());
-
         // get my private key
         KeyStore.SecretKeyEntry pkEntry = null;
         try {
-            pkEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, protParam);
+            pkEntry = (KeyStore.SecretKeyEntry) keyStore.getEntry(alias, null);
         } catch (Exception e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to get secret key", e));
         }
@@ -282,12 +326,10 @@ public final class RegistrationKeyManager {
         if (secretKey == null) {
             return;
         }
-        KeyStore.ProtectionParameter protParam =
-            new KeyStore.PasswordProtection(getKeyStorePassword());
         KeyStore.SecretKeyEntry skEntry =
             new KeyStore.SecretKeyEntry(secretKey);
         try {
-            keyStore.setEntry(alias, skEntry, protParam);
+            keyStore.setEntry(alias, skEntry, null);
         } catch (KeyStoreException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to set entry for key store", e));
         }
@@ -303,7 +345,7 @@ public final class RegistrationKeyManager {
             }
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-            keyStore.store(fos, getKeyStorePassword());
+//            keyStore.store(fos, null);
         } catch (Exception e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
         }
