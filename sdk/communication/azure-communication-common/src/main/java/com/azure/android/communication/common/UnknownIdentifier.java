@@ -39,7 +39,7 @@ public final class UnknownIdentifier extends CommunicationIdentifier {
      * @return UnknownIdentifier object itself
      */
     @Override
-    public UnknownIdentifier setRawId(String rawId) {
+    protected UnknownIdentifier setRawId(String rawId) {
         super.setRawId(rawId);
         return this;
     }
