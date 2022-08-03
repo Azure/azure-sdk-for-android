@@ -100,6 +100,6 @@ public class RegistrationRenewalWorker extends Worker {
         Context context = getApplicationContext();
         String directoryPath = context.getFilesDir().getAbsolutePath();
         clientLogger.verbose("DirectoryPath is ", directoryPath);
-        registrationKeyManager.refreshCredentials(directoryPath);
+        registrationKeyManager.refreshCredentials(directoryPath, getApplicationContext());
     }
 }

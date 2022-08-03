@@ -3,6 +3,8 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import com.azure.android.core.logging.ClientLogger;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,12 +30,12 @@ import java.util.Set;
  *
  * }
  */
-public class KeyCreationTimeStore {
-    private Map<String, Long> map;
+public class KeyMetaDataStore {
+    private Map<String, KeyMetaDataEntry> map;
 
-    private ClientLogger clientLogger = new ClientLogger(KeyCreationTimeStore.class);
+    private ClientLogger clientLogger = new ClientLogger(KeyMetaDataStore.class);
 
-    public KeyCreationTimeStore() {
+    public KeyMetaDataStore() {
         map = new HashMap<>();
     }
 
@@ -50,7 +52,7 @@ public class KeyCreationTimeStore {
 
         // convert JSON array to map
         try {
-            map = new ObjectMapper().readValue(inputStream, new TypeReference<Map<String, Long>>() { });
+            map = new ObjectMapper().readValue(inputStream, new TypeReference<Map<String, KeyMetaDataEntry>>() { });
         } catch (IOException e) {
             clientLogger.logExceptionAsError(new RuntimeException(e));
         }
@@ -90,15 +92,54 @@ public class KeyCreationTimeStore {
     }
 
     public Long getCreationTime(String alias) {
+        if (!map.containsKey(alias)) {
+            return null;
+        }
+        return map.get(alias).creationTime;
+    }
+
+    public KeyMetaDataEntry getEntry(String alias) {
         return map.get(alias);
     }
 
-    public void storeKeyEntry(String filePath, String alias, long time) {
-        map.put(alias, time);
+    public void storeKeyEntry(String filePath, String alias, KeyMetaDataEntry keyMetaDataEntry) {
+        map.put(alias, keyMetaDataEntry);
         writeJsonToFile(filePath);
     }
 
     public Set<String> getAliases() {
         return map.keySet();
+    }
+
+//    @JsonIgnoreProperties(ignoreUnknown = true, value = {"authKey", "cryptoKey"})
+    public static class KeyMetaDataEntry {
+        @JsonProperty("iv")
+        private byte[] iv;
+
+        @JsonProperty("encryptionText")
+        private byte[] encryptionText;
+
+        private long creationTime;
+
+        public KeyMetaDataEntry() {
+        }
+
+        public byte[] getIV() {
+            return iv;
+        }
+
+        public byte[] getEncryptionText() {
+            return encryptionText;
+        }
+
+        public long getCreationTime() {
+            return creationTime;
+        }
+
+        public KeyMetaDataEntry(byte[] iv, byte[] encryptionText, long creationTime) {
+            this.iv = iv;
+            this.encryptionText = encryptionText;
+            this.creationTime = creationTime;
+        }
     }
 }

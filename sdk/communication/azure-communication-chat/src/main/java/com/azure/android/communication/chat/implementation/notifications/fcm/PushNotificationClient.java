@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
@@ -253,7 +254,7 @@ public class PushNotificationClient {
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
-        Stack<Pair<SecretKey, SecretKey>> registrationKeyEntries = registrationKeyManager.getAllPairs();
+        Queue<Pair<SecretKey, SecretKey>> registrationKeyEntries = registrationKeyManager.getAllPairs();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
@@ -262,7 +263,7 @@ public class PushNotificationClient {
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
         while (!registrationKeyEntries.isEmpty()) {
-            Pair<SecretKey, SecretKey> pair = registrationKeyEntries.pop();
+            Pair<SecretKey, SecretKey> pair = registrationKeyEntries.poll();
             SecretKey cryptoKey = pair.first;
             SecretKey authKey = pair.second;
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
