@@ -22,7 +22,7 @@
 
   <!-- Over-kill to create static class for typeReference -->
   <Match>
-    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.KeyCreationTimeStore" />
+    <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.KeyMetaDataStore" />
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 

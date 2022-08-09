@@ -3,7 +3,6 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -111,7 +110,6 @@ public class KeyMetaDataStore {
         return map.keySet();
     }
 
-//    @JsonIgnoreProperties(ignoreUnknown = true, value = {"authKey", "cryptoKey"})
     public static class KeyMetaDataEntry {
         @JsonProperty("iv")
         private byte[] iv;
@@ -125,11 +123,11 @@ public class KeyMetaDataStore {
         }
 
         public byte[] getIV() {
-            return iv;
+            return iv.clone();
         }
 
         public byte[] getEncryptionText() {
-            return encryptionText;
+            return encryptionText.clone();
         }
 
         public long getCreationTime() {
@@ -137,8 +135,8 @@ public class KeyMetaDataStore {
         }
 
         public KeyMetaDataEntry(byte[] iv, byte[] encryptionText, long creationTime) {
-            this.iv = iv;
-            this.encryptionText = encryptionText;
+            this.iv = iv.clone();
+            this.encryptionText = encryptionText.clone();
             this.creationTime = creationTime;
         }
     }

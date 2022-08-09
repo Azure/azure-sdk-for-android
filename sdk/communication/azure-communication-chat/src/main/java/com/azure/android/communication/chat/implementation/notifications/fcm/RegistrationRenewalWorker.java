@@ -82,6 +82,7 @@ public class RegistrationRenewalWorker extends Worker {
                 deviceRegistrationToken,
                 cryptoKeyToAuthKeyPair.first,
                 cryptoKeyToAuthKeyPair.second);
+
         } catch (ExecutionException | InterruptedException e) {
             this.clientLogger.logThrowableAsError(e);
             return Result.retry();

@@ -4,7 +4,7 @@ ext.versionCode = 1
 
 android {
     defaultConfig {
-        minSdkVersion 21
+        minSdkVersion 23
         versionCode project.versionCode
         versionName project.version
 

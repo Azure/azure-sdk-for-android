@@ -4,11 +4,8 @@ package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
 import android.os.Build;
-import android.security.KeyPairGeneratorSpec;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.util.Base64;
-import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -17,50 +14,33 @@ import androidx.annotation.RequiresApi;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
-import java.security.spec.MGF1ParameterSpec;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Stack;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.OAEPParameterSpec;
-import javax.crypto.spec.PSource;
 import javax.crypto.spec.SecretKeySpec;
-import javax.security.auth.x500.X500Principal;
 
 /**
  * A singleton wrapper which manage the persistence and rotation of secrete keys and execution result related to #{RenewalTokenWorker}.
@@ -76,8 +56,6 @@ public final class RegistrationKeyManager {
     private KeyGenerator androidKeyGenerator;
 
     private KeyGenerator secretKeyGenerator;
-
-    private KeyPairGenerator keyPairGenerator;
 
     private KeyStore keyStore;
 
@@ -108,23 +86,14 @@ public final class RegistrationKeyManager {
         try {
             this.secretKeyGenerator = KeyGenerator.getInstance("AES");
             this.secretKeyGenerator.init(256);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                androidKeyGenerator = KeyGenerator.getInstance(
-                    KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-            } else {
-                keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
-//                keyPairGenerator.initialize(1024);
-            }
+            androidKeyGenerator = KeyGenerator.getInstance(
+                KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
         } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("KeyGenerator failed: " + e.getMessage()));
         }
 
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                keyStore = KeyStore.getInstance("AndroidKeyStore");
-            } else {
-                keyStore = KeyStore.getInstance("AndroidKeyStore");
-            }
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
         } catch (KeyStoreException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to initialize key store", e));
         }
@@ -138,26 +107,6 @@ public final class RegistrationKeyManager {
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-                .build());
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void setUpAndroidKeyPairGenerator(String alias, Context context) {
-        try {
-            Calendar start = Calendar.getInstance();
-            Calendar end = Calendar.getInstance();
-            end.add(Calendar.YEAR, 1);
-            keyPairGenerator.initialize(new KeyPairGeneratorSpec
-                .Builder(context)
-                .setAlias(alias)
-                .setSubject(new X500Principal("CN=Microsoft ," +
-                    " O=M365" +
-                    " C=NA"))
-                .setSerialNumber(BigInteger.ONE)
-                .setStartDate(start.getTime())
-                .setEndDate(end.getTime())
                 .build());
         } catch (InvalidAlgorithmParameterException e) {
             e.printStackTrace();
@@ -206,18 +155,6 @@ public final class RegistrationKeyManager {
             long currentTimeMillis = System.currentTimeMillis();
             storeSecretKey(cryptoAlias, directoryPath, currentTimeMillis, secretKeyGenerator.generateKey(), context);
             storeSecretKey(authAlias, directoryPath, currentTimeMillis, secretKeyGenerator.generateKey(), context);
-
-            //debug
-            Queue<Pair<SecretKey, SecretKey>> allPairs = getAllPairs();
-            int size = getNumOfPairs() - 1;
-            for (int i=size; i>=0; i--) {
-                Pair<SecretKey, SecretKey> pair = allPairs.poll();
-                String first = secretKeyToStr(pair.first);
-                String second = secretKeyToStr(pair.second);
-                KeyMetaDataStore.KeyMetaDataEntry entry = keyMetaDataStore.getEntry(CRYPTO_KEY_PREFIX + i);
-                long diff = (System.currentTimeMillis() - entry.getCreationTime()) / (60 * 1000);
-                Log.i("DebugKeyStore", "index: " + i + ", first key: " + first + ", second key: " + second + ", time-diff: " + diff);
-            }
         }
     }
 
@@ -298,27 +235,9 @@ public final class RegistrationKeyManager {
 
     // Checking if any entries missed
     private boolean anyEntryMissed(String cryptoKeyAlias, String authKeyAlias) {
-        boolean cryptoKeyMissing = true;
-        boolean authKeyMissing = true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            cryptoKeyMissing = getSecretKey(cryptoKeyAlias) == null;
-            authKeyMissing = getSecretKey(authKeyAlias) == null;
-        } else {
-            try {
-                cryptoKeyMissing = keyStore.getKey(cryptoKeyAlias, null) == null
-                    || keyStore.getCertificate(cryptoKeyAlias) == null
-                    || keyStore .getCertificate(cryptoKeyAlias).getPublicKey() == null;
-                authKeyMissing = keyStore.getKey(authKeyAlias, null) == null
-                    || keyStore.getCertificate(authKeyAlias) == null
-                    || keyStore .getCertificate(authKeyAlias).getPublicKey() == null;
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnrecoverableKeyException e) {
-                e.printStackTrace();
-            }
-        }
+        boolean cryptoKeyMissing = getSecretKey(cryptoKeyAlias) == null;
+        boolean authKeyMissing = getSecretKey(authKeyAlias) == null;
+
         boolean cryptoDataMissing = keyMetaDataStore.getEntry(cryptoKeyAlias) == null;
         boolean authDataMissing = keyMetaDataStore.getEntry(authKeyAlias) == null;
         return cryptoKeyMissing | authKeyMissing | cryptoDataMissing | authDataMissing;
@@ -326,16 +245,10 @@ public final class RegistrationKeyManager {
 
     //Loads data from key store file to key store entry
     private void load(String directoryPath) {
-        String keyStorePath = directoryPath + KEY_STORE_POSTFIX;
-        try (FileInputStream fis = new File(keyStorePath).exists() ? new FileInputStream(keyStorePath) : null) {
-//            keyStore.load(fis, null);
+        try {
             keyStore.load(null, null);
-        } catch (IOException e) {
+        } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
 
         String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
@@ -348,31 +261,16 @@ public final class RegistrationKeyManager {
 
     private void deleteKeyFromFiles(String alias, String directoryPath) {
         //delete from key-store
-        String keyStorePath = directoryPath + KEY_STORE_POSTFIX;
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to delete entry from key-store with alias: " + alias, e));
         }
 
-        File outputFile = new File(keyStorePath);
-        if (!outputFile.exists()) {
-            try {
-                outputFile.createNewFile();
-            } catch (IOException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
-            }
-        }
-        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-//            keyStore.store(fos, null);
-        } catch (Exception e) {
-            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
-        }
-
         //delete from key-creation-time-store
-        String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
+        String keyMetaDataStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
         try {
-            keyMetaDataStore.deleteEntry(keyCreationTimeStorePath, alias);
+            keyMetaDataStore.deleteEntry(keyMetaDataStorePath, alias);
         } catch (Exception e) {
             RuntimeException runtimeException = new RuntimeException("keyMetaDataStore failed to delete entry");
             throw clientLogger.logExceptionAsError(runtimeException);
@@ -397,40 +295,6 @@ public final class RegistrationKeyManager {
         return secretKey;
     }
 
-    // Store key information in both 1. key-store 2. key-creation-time-store
-    private void storingKeyToFiles(SecretKey secretKey, String alias, String directoryPath, long timeInMilli) {
-        if (secretKey == null) {
-            return;
-        }
-        KeyStore.SecretKeyEntry skEntry =
-            new KeyStore.SecretKeyEntry(secretKey);
-        try {
-            keyStore.setEntry(alias, skEntry, null);
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        }
-
-        // store away the keystore
-        String keyStorePath = directoryPath + KEY_STORE_POSTFIX;
-        File outputFile = new File(keyStorePath);
-        if (!outputFile.exists()) {
-            try {
-                outputFile.createNewFile();
-            } catch (IOException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
-            }
-        }
-        try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-//            keyStore.store(fos, null);
-        } catch (Exception e) {
-            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to save secrete key", e));
-        }
-
-        // store in key creation time store
-        String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
-//        keyMetaDataStore.storeKeyEntry(keyCreationTimeStorePath, alias, timeInMilli);
-    }
-
     private void moveAnEntry(String fromAlias, String toAlias, String directoryPath, Context context) {
         // Get data to be moved
         KeyMetaDataStore.KeyMetaDataEntry entry = keyMetaDataStore.getEntry(fromAlias);
@@ -440,68 +304,34 @@ public final class RegistrationKeyManager {
 
     @NonNull
     private SecretKey recoverSecretKey(String alias, KeyMetaDataStore.KeyMetaDataEntry entry) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            SecretKey androidSecretKey = null;
-            try {
-                androidSecretKey = (SecretKey) keyStore.getKey(alias, null);
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnrecoverableKeyException e) {
-                e.printStackTrace();
-            }
-            String decrypted = deCryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
-            SecretKey recoveredKey = secretKeyFromStr(decrypted);
-            return recoveredKey;
-        } else {
-            SecretKey recoveredKey = null;
-            try {
-                PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
-                if (publicKey != null) {
-                    String decryptedText = deCryptor.decryptData(publicKey, entry.getEncryptionText(), entry.getIV());
-                    recoveredKey = secretKeyFromStr(decryptedText);
-                }
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            }
-            return recoveredKey;
+        SecretKey androidSecretKey = null;
+        try {
+            androidSecretKey = (SecretKey) keyStore.getKey(alias, null);
+        } catch (KeyStoreException e) {
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
+        } catch (NoSuchAlgorithmException e) {
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
+        } catch (UnrecoverableKeyException e) {
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
         }
+        String decrypted = deCryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
+        SecretKey recoveredKey = secretKeyFromStr(decrypted);
+        return recoveredKey;
+
     }
 
     //1. Set up and generate AndroidSecretKey 2. Encrypt secret key and store metaData
     private void storeSecretKey(String alias, String directoryPath, long timeInMilli, SecretKey secretKey, Context context) {
-        Log.i("debugKey", "alias: " + secretKeyToStr(secretKey));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            setUpAndroidKeyGenerator(alias);
-            androidKeyGenerator.generateKey();
-            try {
-                enCryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnrecoverableKeyException e) {
-                e.printStackTrace();
-            }
-        } else {
-            setUpAndroidKeyPairGenerator(alias, context);
-            keyPairGenerator.generateKeyPair();
-            try {
-                PrivateKey privateKey = (PrivateKey) keyStore.getKey(alias, null);
-                if (privateKey != null && keyStore.getCertificate(alias) != null) {
-                    PublicKey publicKey = keyStore.getCertificate(alias).getPublicKey();
-                    if (publicKey != null) {
-                        enCryptor.encryptText(publicKey, secretKeyToStr(secretKey));
-                    }
-                }
-            } catch (KeyStoreException e) {
-                e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (UnrecoverableEntryException e) {
-                e.printStackTrace();
-            }
+        setUpAndroidKeyGenerator(alias);
+        androidKeyGenerator.generateKey();
+        try {
+            enCryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableKeyException e) {
+            e.printStackTrace();
         }
 
         byte[] encryptedText = enCryptor.encryption;
@@ -556,64 +386,30 @@ public final class RegistrationKeyManager {
 
         private static final String TRANSFORMATION_SYMMETRIC = "AES/GCM/NoPadding";
 
-        private static final String TRANSFORMATION_ASYMMETRIC = "RSA/ECB/OAEPWITHSHA-256ANDMGF1PADDING";
-
         EnCryptor() {
         }
 
         void encryptText(final Key encryptionKey, final String textToEncrypt) {
             final Cipher cipher;
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
-                    cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-                    iv = cipher.getIV();
-                    encryption = cipher.doFinal(textToEncrypt.getBytes("UTF-8"));
-                } else {
-                    cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "AndroidOpenSSL");
-                    cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
-
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    CipherOutputStream cipherOutputStream = new CipherOutputStream(
-                        outputStream, cipher);
-                    cipherOutputStream.write(textToEncrypt.getBytes("UTF-8"));
-                    cipherOutputStream.close();
-                    encryption = outputStream.toByteArray();
-
-                }
-
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
+                cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
+                cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
+                iv = cipher.getIV();
+                encryption = cipher.doFinal(textToEncrypt.getBytes("UTF-8"));
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | UnsupportedEncodingException e) {
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
             } catch (IllegalBlockSizeException e) {
-                e.printStackTrace();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
             } catch (BadPaddingException e) {
-                e.printStackTrace();
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
+            } catch (InvalidKeyException e) {
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
             }
-        }
-
-        byte[] getEncryption() {
-            return encryption;
-        }
-
-        byte[] getIv() {
-            return iv;
         }
     }
 
     class DeCryptor {
         private static final String TRANSFORMATION_SYMMETRIC = "AES/GCM/NoPadding";
-
-        private static final String TRANSFORMATION_ASYMMETRIC = "RSA/ECB/OAEPPadding";
 
         DeCryptor() {
         }
@@ -621,49 +417,23 @@ public final class RegistrationKeyManager {
         String decryptData(final Key decryptionKey, final byte[] encryptedData, final byte[] encryptionIv) {
             final Cipher cipher;
             try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
-                    final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv);
-                    cipher.init(Cipher.DECRYPT_MODE, decryptionKey, spec);
-                    return new String(cipher.doFinal(encryptedData), "UTF-8");
-                } else {
-                    cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "AndroidOpenSSL");
-                    cipher.init(Cipher.DECRYPT_MODE, decryptionKey);
-
-                    String cipherText = Base64.encodeToString(encryptedData, Base64.DEFAULT);
-                    CipherInputStream cipherInputStream = new CipherInputStream(
-                        new ByteArrayInputStream(Base64.decode(cipherText, Base64.DEFAULT)), cipher);
-                    ArrayList<Byte> values = new ArrayList<>();
-                    int nextByte;
-                    while ((nextByte = cipherInputStream.read()) != -1) {
-                        values.add((byte)nextByte);
-                    }
-
-                    byte[] bytes = new byte[values.size()];
-                    for(int i = 0; i < bytes.length; i++) {
-                        bytes[i] = values.get(i).byteValue();
-                    }
-
-                    String finalText = new String(bytes, 0, bytes.length, "UTF-8");
-                    return finalText;
-                }
-
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
-                e.printStackTrace();
+                cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
+                final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv);
+                cipher.init(Cipher.DECRYPT_MODE, decryptionKey, spec);
+                return new String(cipher.doFinal(encryptedData), "UTF-8");
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
             } catch (InvalidAlgorithmParameterException e) {
-                e.printStackTrace();
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
+            } catch (IllegalBlockSizeException e) {
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
+            } catch (BadPaddingException e) {
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
             } catch (InvalidKeyException e) {
-                e.printStackTrace();
-            } catch (NoSuchProviderException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
             }
-            return null;
         }
     }
 }
