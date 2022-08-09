@@ -3,13 +3,11 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
-import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Util;
