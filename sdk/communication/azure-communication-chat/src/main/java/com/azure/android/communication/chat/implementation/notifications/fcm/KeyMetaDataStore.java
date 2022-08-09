@@ -24,8 +24,16 @@ import java.util.Set;
  *
  * The file persists all the data in Json format. Latest record is added to last of the list. For example:
  * {
- *     "key_1": 1234,
- *     "key_2": 1236
+ *     "key_1": {
+ *         iv: 61 76 69 66 70 6f 69 77 69 63,
+ *         encryptionText: 61 76 69 66 70 6f 69 77 69 64,
+ *         creationTime: 1234
+ *     },
+ *     "key_2": {
+ *         iv: 61 76 69 66 70 6f 69 77 69 11,
+ *         encryptionText: 61 76 69 66 70 6f 69 77 69 33,
+ *         creationTime: 1234
+ *     }
  *
  * }
  */

@@ -74,8 +74,6 @@ public final class RegistrationKeyManager {
 
     public static final String AUTH_KEY_PREFIX = "AUTH_KEY_";
 
-    public static final String KEY_STORE_POSTFIX = "/key-store";
-
     public static final String KEY_CREATION_TIME_POSTFIX = "/key-creation-time-store";
 
     private ClientLogger clientLogger = new ClientLogger(RegistrationKeyManager.class);
@@ -100,7 +98,6 @@ public final class RegistrationKeyManager {
         keyMetaDataStore = new KeyMetaDataStore();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     private void setUpAndroidKeyGenerator(String alias) {
         try {
             androidKeyGenerator.init(new KeyGenParameterSpec.Builder(alias,
@@ -246,6 +243,7 @@ public final class RegistrationKeyManager {
     //Loads data from key store file to key store entry
     private void load(String directoryPath) {
         try {
+            //Loading is required for androidKeyStore while file path is not needed
             keyStore.load(null, null);
         } catch (IOException | CertificateException | NoSuchAlgorithmException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load key store", e));
@@ -260,7 +258,7 @@ public final class RegistrationKeyManager {
     }
 
     private void deleteKeyFromFiles(String alias, String directoryPath) {
-        //delete from key-store
+        //Delete from key-store, the result automatically updated to key-store file system
         try {
             keyStore.deleteEntry(alias);
         } catch (KeyStoreException e) {
