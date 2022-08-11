@@ -306,7 +306,7 @@ public final class RegistrationKeyManager {
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
         }
-        String decrypted = decryptor.decrypt(androidSecretKey, entry.getEncryptionText(), entry.getIV());
+        String decrypted = decryptor.decrypt(androidSecretKey, entry.getCiphertext(), entry.getIV());
         SecretKey recoveredKey = secretKeyFromStr(decrypted);
         return recoveredKey;
 
