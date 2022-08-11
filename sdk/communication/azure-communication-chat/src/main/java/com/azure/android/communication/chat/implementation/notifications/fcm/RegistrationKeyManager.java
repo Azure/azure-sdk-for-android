@@ -59,9 +59,9 @@ public final class RegistrationKeyManager {
 
     private KeyMetaDataStore keyMetaDataStore;
 
-    private Encryptor enCryptor;
+    private Encryptor encryptor;
 
-    private Decryptor deCryptor;
+    private Decryptor decryptor;
 
     private boolean lastExecutionSucceeded = true;
 
@@ -77,8 +77,8 @@ public final class RegistrationKeyManager {
     private ClientLogger clientLogger = new ClientLogger(RegistrationKeyManager.class);
 
     private RegistrationKeyManager()  {
-        enCryptor = new Encryptor();
-        deCryptor = new Decryptor();
+        encryptor = new Encryptor();
+        decryptor = new Decryptor();
         try {
             this.secretKeyGenerator = KeyGenerator.getInstance("AES");
             this.secretKeyGenerator.init(256);
@@ -306,7 +306,7 @@ public final class RegistrationKeyManager {
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
         }
-        String decrypted = deCryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
+        String decrypted = decryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
         SecretKey recoveredKey = secretKeyFromStr(decrypted);
         return recoveredKey;
 
@@ -317,13 +317,13 @@ public final class RegistrationKeyManager {
         setUpAndroidKeyGenerator(alias);
         androidKeyGenerator.generateKey();
         try {
-            enCryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
+            encryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to store secret key", e));
         }
 
-        byte[] encryptedText = enCryptor.cipherText;
-        byte[] iv = enCryptor.iv;
+        byte[] encryptedText = encryptor.ciphertext;
+        byte[] iv = encryptor.iv;
 
         // store in key creation time store
         String keyCreationTimeStorePath = directoryPath + KEY_CREATION_TIME_POSTFIX;
@@ -369,7 +369,7 @@ public final class RegistrationKeyManager {
     }
 
     class Encryptor {
-        private byte[] cipherText;
+        private byte[] ciphertext;
         private byte[] iv;
 
         private static final String TRANSFORMATION_SYMMETRIC = "AES/GCM/NoPadding";
@@ -377,13 +377,13 @@ public final class RegistrationKeyManager {
         Encryptor() {
         }
 
-        void encryptText(final Key encryptionKey, final String plainText) {
+        void encryptText(final Key encryptionKey, final String plaintext) {
             final Cipher cipher;
             try {
                 cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
                 cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
                 iv = cipher.getIV();
-                cipherText = cipher.doFinal(plainText.getBytes("UTF-8"));
+                ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"));
             } catch (NoSuchAlgorithmException | NoSuchPaddingException | UnsupportedEncodingException
                 | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
                 throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
