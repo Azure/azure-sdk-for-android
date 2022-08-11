@@ -306,7 +306,7 @@ public final class RegistrationKeyManager {
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
         }
-        String decrypted = decryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
+        String decrypted = decryptor.decrypt(androidSecretKey, entry.getEncryptionText(), entry.getIV());
         SecretKey recoveredKey = secretKeyFromStr(decrypted);
         return recoveredKey;
 
@@ -317,7 +317,7 @@ public final class RegistrationKeyManager {
         setUpAndroidKeyGenerator(alias);
         androidKeyGenerator.generateKey();
         try {
-            encryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
+            encryptor.encrypt((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to store secret key", e));
         }
@@ -377,7 +377,7 @@ public final class RegistrationKeyManager {
         Encryptor() {
         }
 
-        void encryptText(final Key encryptionKey, final String plaintext) {
+        void encrypt(final Key encryptionKey, final String plaintext) {
             final Cipher cipher;
             try {
                 cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
@@ -397,7 +397,7 @@ public final class RegistrationKeyManager {
         Decryptor() {
         }
 
-        String decryptData(final Key decryptionKey, final byte[] ciphertext, final byte[] encryptionIv) {
+        String decrypt(final Key decryptionKey, final byte[] ciphertext, final byte[] encryptionIv) {
             final Cipher cipher;
             try {
                 cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
