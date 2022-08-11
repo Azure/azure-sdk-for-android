@@ -26,12 +26,12 @@ import java.util.Set;
  * {
  *     "key_1": {
  *         iv: 61 76 69 66 70 6f 69 77 69 63,
- *         encryptionText: 61 76 69 66 70 6f 69 77 69 64,
+ *         ciphertext: 61 76 69 66 70 6f 69 77 69 64,
  *         creationTime: 1234
  *     },
  *     "key_2": {
  *         iv: 61 76 69 66 70 6f 69 77 69 11,
- *         encryptionText: 61 76 69 66 70 6f 69 77 69 33,
+ *         ciphertext: 61 76 69 66 70 6f 69 77 69 33,
  *         creationTime: 1234
  *     }
  *
@@ -122,8 +122,8 @@ public class KeyMetaDataStore {
         @JsonProperty("iv")
         private byte[] iv;
 
-        @JsonProperty("encryptionText")
-        private byte[] encryptionText;
+        @JsonProperty("ciphertext")
+        private byte[] ciphertext;
 
         private long creationTime;
 
@@ -134,17 +134,17 @@ public class KeyMetaDataStore {
             return iv.clone();
         }
 
-        public byte[] getEncryptionText() {
-            return encryptionText.clone();
+        public byte[] getCiphertext() {
+            return ciphertext.clone();
         }
 
         public long getCreationTime() {
             return creationTime;
         }
 
-        public KeyMetaDataEntry(byte[] iv, byte[] encryptionText, long creationTime) {
+        public KeyMetaDataEntry(byte[] iv, byte[] ciphertext, long creationTime) {
             this.iv = iv.clone();
-            this.encryptionText = encryptionText.clone();
+            this.ciphertext = ciphertext.clone();
             this.creationTime = creationTime;
         }
     }
