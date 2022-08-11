@@ -3,6 +3,15 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.util.Pair;
+
+import androidx.work.BackoffPolicy;
+import androidx.work.Data;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
@@ -16,17 +25,15 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 import java9.util.function.Consumer;
-
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
 
 /**
  * The registrar client interface
@@ -38,17 +45,9 @@ public class PushNotificationClient {
     private final Map<ChatEventType, Set<Consumer<ChatEvent>>> pushNotificationListeners;
     private boolean isPushNotificationsStarted;
     private String deviceRegistrationToken;
-    private Consumer<Throwable> registrationErrorHandler;
     private Timer registrationRenewScheduleTimer;
-    private KeyGenerator keyGenerator;
-    private SecretKey cryptoKey;
-    private SecretKey authKey;
-    private SecretKey previousCryptoKey;
-    private SecretKey previousAuthKey;
-    private long keyRotateTimeMillis;
-
-    private static final int KEY_SIZE = 256;
-    private static final long KEY_ROTATE_GRACE_PERIOD_MILLIS = 3600000;
+    private WorkManager workManager;
+    private RegistrationKeyManager registrationKeyManager;
 
     public PushNotificationClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -56,7 +55,6 @@ public class PushNotificationClient {
         this.isPushNotificationsStarted = false;
         this.registrarClient = new RegistrarClient();
         this.deviceRegistrationToken = null;
-        this.registrationErrorHandler = null;
         this.registrationRenewScheduleTimer = null;
     }
 
@@ -76,35 +74,19 @@ public class PushNotificationClient {
      */
     public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         this.deviceRegistrationToken = deviceRegistrationToken;
-        this.registrationErrorHandler = errorHandler;
-
+        logger.verbose("device_id: " + deviceRegistrationToken);
         if (this.isPushNotificationsStarted) {
             return;
         }
-
-        String skypeUserToken;
-        try {
-            skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-        } catch (ExecutionException | InterruptedException e) {
-            throw logger.logExceptionAsError(
-                new RuntimeException("Get skype user token failed for push notification: " + e.getMessage()));
-        }
-
-        try {
-            this.refreshEncryptionKeys();
-            this.registrarClient.register(skypeUserToken, deviceRegistrationToken, this.cryptoKey, this.authKey);
-        } catch (Throwable throwable) {
-            this.logger.error("Failed to start push notifications!");
-            errorHandler.accept(throwable);
-            return;
-        }
+        this.workManager = WorkManager.getInstance();
+        this.registrationKeyManager = RegistrationKeyManager.instance();
 
         this.isPushNotificationsStarted = true;
         this.pushNotificationListeners.clear();
         this.logger.info("Successfully started push notifications!");
-
-        long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL) - 30);
-        this.scheduleRegistrationRenew(delayInMS, 0);
+        // 15 minutes is the minimum interval worker manager allows
+        long interval = 15;
+        this.startRegistrationRenewalWorker(interval, errorHandler);
     }
 
     /**
@@ -142,6 +124,9 @@ public class PushNotificationClient {
         if (this.registrationRenewScheduleTimer != null) {
             this.registrationRenewScheduleTimer.cancel();
             this.registrationRenewScheduleTimer = null;
+        }
+        if (this.workManager != null) {
+            this.workManager.cancelAllWork();
         }
     }
 
@@ -235,118 +220,54 @@ public class PushNotificationClient {
         return NotificationUtils.toEventPayload(chatEventType, decrypted);
     }
 
-    private void scheduleRegistrationRenew(final long delayMs, final int tryCount) {
-        if (!this.isPushNotificationsStarted) {
-            this.logger.info("Push notifications have already been stopped! No need to renew registration.");
-            return;
-        }
+    private void startRegistrationRenewalWorker(long intervalInMinutes, Consumer<Throwable> errorHandler) {
+        this.logger.info("Initialize RegistrationRenewalWorker in background");
 
-        if (this.deviceRegistrationToken == null) {
-            stopPushNotifications();
-            IllegalStateException exception = new IllegalStateException("No device registration token stored!");
-            this.logger.logExceptionAsError(exception);
-            if (this.registrationErrorHandler != null) {
-                this.registrationErrorHandler.accept(exception);
-            }
-            return;
-        }
+        Data inputData = new Data.Builder().putString("deviceRegistrationToken", deviceRegistrationToken).build();
 
-        if (tryCount > NotificationUtils.MAX_REGISTRATION_RETRY_COUNT) {
-            stopPushNotifications();
-            RuntimeException exception = new RuntimeException(
-                "Registration renew request failed after "
-                + NotificationUtils.MAX_REGISTRATION_RETRY_COUNT
-                + "retries.");
-            this.logger.logExceptionAsError(exception);
-            if (this.registrationErrorHandler != null) {
-                this.registrationErrorHandler.accept(exception);
-            }
-            return;
-        }
+        PeriodicWorkRequest renewTokenRequest =
+            new PeriodicWorkRequest.Builder(RegistrationRenewalWorker.class, intervalInMinutes, TimeUnit.MINUTES)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.SECONDS)
+                .setInputData(inputData)
+                .build();
+        workManager.cancelAllWork();
+        workManager.enqueueUniquePeriodicWork("Renewal push notification registration", ExistingPeriodicWorkPolicy.REPLACE, renewTokenRequest);
 
-        this.logger.info("Scheduling Registrar registration to automatically renew in " + delayMs + " ms");
-
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                boolean retry = false;
-
-                PushNotificationClient.this.logger.info("Renew Registrar registration attempt #" + tryCount);
-
-                String skypeUserToken;
-                try {
-                    skypeUserToken = communicationTokenCredential.getToken().get().getToken();
-                    PushNotificationClient.this.refreshEncryptionKeys();
-                    PushNotificationClient.this.registrarClient.register(
-                        skypeUserToken,
-                        deviceRegistrationToken,
-                        PushNotificationClient.this.cryptoKey,
-                        PushNotificationClient.this.authKey);
-                } catch (ExecutionException | InterruptedException e) {
-                    PushNotificationClient.this.logger.logExceptionAsError(
-                        new RuntimeException("Get skype user token for push notification failed: " + e.getMessage()));
-                    retry = true;
-                } catch (Throwable throwable) {
-                    PushNotificationClient.this.logger.logThrowableAsError(throwable);
-                    retry = true;
-                }
-
-                if (retry) {
-                    long delayInMS = 1000L * (long) Math.min(
-                        (int) Math.pow(2.0D, (double) tryCount), NotificationUtils.MAX_REGISTRATION_RETRY_DELAY_S);
-                    PushNotificationClient.this.logger.info("Registration renew failed, will retry in " + delayInMS + " ms");
-                    PushNotificationClient.this.scheduleRegistrationRenew(delayInMS, tryCount + 1);
+        //Checking the result of last execution. There are two states for periodic work: ENQUEUED and RUNNING. We do checking
+        //for every ENQUEUED state, meaning last execution has completed.
+        workManager.getWorkInfoByIdLiveData(renewTokenRequest.getId()).observeForever(workInfo -> {
+            if (workInfo != null && workInfo.getState() == WorkInfo.State.ENQUEUED) {
+                boolean succeeded = registrationKeyManager.getLastExecutionSucceeded();
+                if (!succeeded) {
+                    RuntimeException exception = new RuntimeException(
+                        "Registration renew request failed");
+                    errorHandler.accept(exception);
+                    this.logger.info("Renew token failed");
                 } else {
-                    long delayInMS = 1000L * (long) (Integer.parseInt(PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL)
-                        - NotificationUtils.REGISTRATION_RENEW_IN_ADVANCE_S);
-                    PushNotificationClient.this.logger.info("Registration successfully renewed!");
-                    PushNotificationClient.this.scheduleRegistrationRenew(delayInMS, 0);
+                    this.logger.info("Renew token succeeded");
                 }
             }
-        };
+        });
 
-        if (this.registrationRenewScheduleTimer != null) {
-            this.registrationRenewScheduleTimer.cancel();
-        }
-
-        this.registrationRenewScheduleTimer = new Timer("PushNotificationRegistrarRenewTimer");
-        this.registrationRenewScheduleTimer.schedule(task, delayMs);
-    }
-
-    private void refreshEncryptionKeys() throws Throwable {
-        if (this.keyGenerator == null) {
-            this.keyGenerator = KeyGenerator.getInstance("AES");
-            this.keyGenerator.init(KEY_SIZE);
-        }
-
-        this.previousCryptoKey = this.cryptoKey;
-        this.previousAuthKey = this.authKey;
-
-        this.cryptoKey = this.keyGenerator.generateKey();
-        this.authKey = this.keyGenerator.generateKey();
-
-        this.keyRotateTimeMillis = System.currentTimeMillis();
     }
 
     private String decryptPayload(String encryptedPayload) throws Throwable {
         this.logger.verbose(" Decrypting payload.");
+        Queue<Pair<SecretKey, SecretKey>> registrationKeyEntries = registrationKeyManager.getAllPairs();
 
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
         byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
-        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+        byte[] ciphertext = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
-        if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.authKey)) {
-            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.cryptoKey);
-        }
-
-        // When client has registered a new key, because of eventual consistency, latencies and concurrency,
-        // the old key can still be used by server side for some notifications
-        // Try old key if the new key failed to decrypt the payload.
-        if (inKeyRotationGracePeriod()
-            && NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, this.previousAuthKey)) {
-            return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, this.previousCryptoKey);
+        while (!registrationKeyEntries.isEmpty()) {
+            Pair<SecretKey, SecretKey> pair = registrationKeyEntries.poll();
+            SecretKey cryptoKey = pair.first;
+            SecretKey authKey = pair.second;
+            if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, ciphertext, hmac, authKey)) {
+                return NotificationUtils.decryptPushNotificationPayload(iv, ciphertext, cryptoKey);
+            }
         }
 
         // Reject the push when computed signature does not match the included signature - it can not be trusted
@@ -354,14 +275,4 @@ public class PushNotificationClient {
             new RuntimeException("Invalid encrypted push notification payload. Dropped the request!"));
     }
 
-    private boolean inKeyRotationGracePeriod() {
-        if (this.previousAuthKey != null) {
-            long currentTimeMillis = System.currentTimeMillis();
-            if (currentTimeMillis - this.keyRotateTimeMillis <= KEY_ROTATE_GRACE_PERIOD_MILLIS) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

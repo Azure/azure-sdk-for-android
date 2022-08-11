@@ -3,6 +3,25 @@
 
 package com.azure.android.communication.chat.sampleapp;
 
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_DELETED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_CREATED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
+import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED;
+import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
+import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
+import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
+import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.APPLICATION_ID;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ID;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_NAME;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_VERSION;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ENDPOINT;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +38,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.communication.chat.ChatClientBuilder;
 import com.azure.android.communication.chat.ChatThreadAsyncClient;
+import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.ChatMessageDeletedEvent;
 import com.azure.android.communication.chat.models.ChatMessageEditedEvent;
@@ -40,10 +60,8 @@ import com.azure.android.communication.chat.models.ParticipantsRemovedEvent;
 import com.azure.android.communication.chat.models.ReadReceiptReceivedEvent;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
-import com.azure.android.communication.chat.models.ChatEvent;
 import com.azure.android.communication.chat.models.TypingIndicatorReceivedEvent;
 import com.azure.android.communication.chat.models.TypingNotificationOptions;
-import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.http.policy.HttpLogDetailLevel;
 import com.azure.android.core.http.policy.HttpLogOptions;
@@ -70,35 +88,13 @@ import java.util.concurrent.TimeUnit;
 
 import java9.util.function.Consumer;
 
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_RECEIVED;
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_EDITED;
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_MESSAGE_DELETED;
-import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
-import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_CREATED;
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_PROPERTIES_UPDATED;
-import static com.azure.android.communication.chat.models.ChatEventType.CHAT_THREAD_DELETED;
-import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_ADDED;
-import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
-
 public class MainActivity extends AppCompatActivity {
 
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
     private int eventHandlerCalled;
-
-    // Replace firstUserId and secondUserId with valid communication user identifiers from your ACS instance.
-    private String firstUserId = "";
-    private String secondUserId = "";
-    // Replace userAccessToken with a valid communication service token for your ACS instance.
-    private final String firstUserAccessToken = "";
     private String threadId = "<to-be-updated-below>";
     private String chatMessageId = "<to-be-updated-below>";
-    private final String endpoint = "";
-    private final String sdkVersion = "1.2.0-beta.1";
-    private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
-    private static final String APPLICATION_ID = "Chat_Test_App";
-    private static final String TAG = "[Chat Test App]";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
     private static Map<RealTimeNotificationCallback, ChatEventType> realTimeNotificationCallbacks = new HashMap<>();
 
@@ -134,9 +130,9 @@ public class MainActivity extends AppCompatActivity {
     public void createChatAsyncClient() {
         try {
             chatAsyncClient = new ChatClientBuilder()
-                .endpoint(endpoint)
-                .credential(new CommunicationTokenCredential(firstUserAccessToken))
-                .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, sdkVersion))
+                .endpoint(ENDPOINT)
+                .credential(COMMUNICATION_TOKEN_CREDENTIAL)
+                .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, SDK_VERSION))
                 .httpLogOptions(new HttpLogOptions()
                     .setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS)
                     .addAllowedHeaderName("MS-CV"))
@@ -158,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
         // The display name for the thread participant.
         String displayName = "First participant";
         participants.add(new ChatParticipant()
-            .setCommunicationIdentifier(new CommunicationUserIdentifier(firstUserId))
+            .setCommunicationIdentifier(new CommunicationUserIdentifier(FIRST_USER_ID))
             .setDisplayName(displayName));
 
         // The topic for the thread.
@@ -510,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 chatThreadAsyncClient.addParticipant(new ChatParticipant().setCommunicationIdentifier(
-                   new CommunicationUserIdentifier(secondUserId)).setDisplayName(secondUserDisplayName)).get();
+                   new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
 
                 logAndToast("Added chat participant");
             } catch (InterruptedException | ExecutionException e) {
@@ -584,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
         if (chatThreadAsyncClient != null) {
             try {
                 // Using the unique ID of the participant.
-                chatThreadAsyncClient.removeParticipant(new CommunicationUserIdentifier(secondUserId)).get();
+                chatThreadAsyncClient.removeParticipant(new CommunicationUserIdentifier(SECOND_USER_ID)).get();
 
                 logAndToast("Removed second participant");
             } catch (InterruptedException | ExecutionException e) {

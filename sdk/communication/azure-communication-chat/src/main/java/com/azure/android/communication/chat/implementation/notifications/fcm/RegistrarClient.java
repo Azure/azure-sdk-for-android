@@ -3,6 +3,14 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_APPLICATION_ID;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_DOD;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_GCCH;
+import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_TEMPLATE_KEY;
+
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
 import com.azure.android.core.http.HttpCallback;
@@ -25,15 +33,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
-
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_DOD;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_URL_GCCH;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_APPLICATION_ID;
-import static com.azure.android.communication.chat.BuildConfig.PUSHNOTIFICATION_TEMPLATE_KEY;
 
 /**
  * The registrar client interface
@@ -237,7 +236,7 @@ public class RegistrarClient {
         transport.creationTime = "";
         transport.context = "";
         transport.path = deviceRegistrationToken;
-        transport.ttl = PUSHNOTIFICATION_REGISTRAR_SERVICE_TTL;
+        transport.ttl = "2700";
         transports.fcm.add(transport);
 
         RegistrarRequestBody registrarRequestBody = new RegistrarRequestBody();
