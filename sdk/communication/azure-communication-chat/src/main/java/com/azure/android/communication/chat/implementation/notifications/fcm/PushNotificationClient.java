@@ -258,15 +258,15 @@ public class PushNotificationClient {
         byte[] encryptedBytes = Base64Util.decodeString(encryptedPayload);
         byte[] encryptionKey = NotificationUtils.extractEncryptionKey(encryptedBytes);
         byte[] iv = NotificationUtils.extractInitializationVector(encryptedBytes);
-        byte[] cipherText = NotificationUtils.extractCipherText(encryptedBytes);
+        byte[] ciphertext = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
         while (!registrationKeyEntries.isEmpty()) {
             Pair<SecretKey, SecretKey> pair = registrationKeyEntries.poll();
             SecretKey cryptoKey = pair.first;
             SecretKey authKey = pair.second;
-            if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, cipherText, hmac, authKey)) {
-                return NotificationUtils.decryptPushNotificationPayload(iv, cipherText, cryptoKey);
+            if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, ciphertext, hmac, authKey)) {
+                return NotificationUtils.decryptPushNotificationPayload(iv, ciphertext, cryptoKey);
             }
         }
 
