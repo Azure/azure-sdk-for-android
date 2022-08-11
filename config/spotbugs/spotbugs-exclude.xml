@@ -26,11 +26,6 @@
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 
-  <Match>
-    <Class name="com.azure.android.core.http.policy.RetryPolicy" />
-    <Bug pattern="DE_MIGHT_IGNORE" />
-  </Match>
-
 <!-- No need to use the returned value in this case -->
   <Match>
     <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyManager" />

@@ -41,7 +41,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * A singleton wrapper which manage the persistence and rotation of secrete keys and execution result related to #{RenewalTokenWorker}.
+ * A singleton wrapper which manage the persistence and rotation of secret keys and execution result related to #{RenewalTokenWorker}.
  * Secret keys information is persisted in two files. One is the Android-platform provided key-store API for actual secret key. The
  * other is the alias with the creation time.
  *
@@ -59,9 +59,9 @@ public final class RegistrationKeyManager {
 
     private KeyMetaDataStore keyMetaDataStore;
 
-    private EnCryptor enCryptor;
+    private Encryptor enCryptor;
 
-    private DeCryptor deCryptor;
+    private Decryptor deCryptor;
 
     private boolean lastExecutionSucceeded = true;
 
@@ -77,8 +77,8 @@ public final class RegistrationKeyManager {
     private ClientLogger clientLogger = new ClientLogger(RegistrationKeyManager.class);
 
     private RegistrationKeyManager()  {
-        enCryptor = new EnCryptor();
-        deCryptor = new DeCryptor();
+        enCryptor = new Encryptor();
+        deCryptor = new Decryptor();
         try {
             this.secretKeyGenerator = KeyGenerator.getInstance("AES");
             this.secretKeyGenerator.init(256);
@@ -303,11 +303,7 @@ public final class RegistrationKeyManager {
         SecretKey androidSecretKey = null;
         try {
             androidSecretKey = (SecretKey) keyStore.getKey(alias, null);
-        } catch (KeyStoreException e) {
-            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
-        } catch (NoSuchAlgorithmException e) {
-            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
-        } catch (UnrecoverableKeyException e) {
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw clientLogger.logExceptionAsError(new RuntimeException("Failed to restore secret key", e));
         }
         String decrypted = deCryptor.decryptData(androidSecretKey, entry.getEncryptionText(), entry.getIV());
@@ -322,15 +318,11 @@ public final class RegistrationKeyManager {
         androidKeyGenerator.generateKey();
         try {
             enCryptor.encryptText((SecretKey) keyStore.getKey(alias, null), secretKeyToStr(secretKey));
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
+        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to store secret key", e));
         }
 
-        byte[] encryptedText = enCryptor.encryption;
+        byte[] encryptedText = enCryptor.cipherText;
         byte[] iv = enCryptor.iv;
 
         // store in key creation time store
@@ -376,58 +368,45 @@ public final class RegistrationKeyManager {
         return new SecretKeySpec(bytes, 0, bytes.length, "AES");
     }
 
-    class EnCryptor {
-        private byte[] encryption;
+    class Encryptor {
+        private byte[] cipherText;
         private byte[] iv;
 
         private static final String TRANSFORMATION_SYMMETRIC = "AES/GCM/NoPadding";
 
-        EnCryptor() {
+        Encryptor() {
         }
 
-        void encryptText(final Key encryptionKey, final String textToEncrypt) {
+        void encryptText(final Key encryptionKey, final String plainText) {
             final Cipher cipher;
             try {
                 cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
                 cipher.init(Cipher.ENCRYPT_MODE, encryptionKey);
                 iv = cipher.getIV();
-                encryption = cipher.doFinal(textToEncrypt.getBytes("UTF-8"));
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException | UnsupportedEncodingException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
-            } catch (IllegalBlockSizeException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
-            } catch (BadPaddingException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
-            } catch (InvalidKeyException e) {
+                cipherText = cipher.doFinal(plainText.getBytes("UTF-8"));
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | UnsupportedEncodingException
+                | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
                 throw clientLogger.logExceptionAsError(new RuntimeException("Failed to encrypt data", e));
             }
         }
     }
 
-    class DeCryptor {
+    class Decryptor {
         private static final String TRANSFORMATION_SYMMETRIC = "AES/GCM/NoPadding";
 
-        DeCryptor() {
+        Decryptor() {
         }
 
-        String decryptData(final Key decryptionKey, final byte[] encryptedData, final byte[] encryptionIv) {
+        String decryptData(final Key decryptionKey, final byte[] ciphertext, final byte[] encryptionIv) {
             final Cipher cipher;
             try {
                 cipher = Cipher.getInstance(TRANSFORMATION_SYMMETRIC);
                 final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv);
                 cipher.init(Cipher.DECRYPT_MODE, decryptionKey, spec);
-                return new String(cipher.doFinal(encryptedData), "UTF-8");
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
-            } catch (InvalidAlgorithmParameterException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
-            } catch (UnsupportedEncodingException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
-            } catch (IllegalBlockSizeException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
-            } catch (BadPaddingException e) {
-                throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
-            } catch (InvalidKeyException e) {
+                return new String(cipher.doFinal(ciphertext), "UTF-8");
+            } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException
+                | UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException
+                | InvalidKeyException e) {
                 throw clientLogger.logExceptionAsError(new RuntimeException("Failed to decrypt data", e));
             }
         }

@@ -61,7 +61,7 @@ public class KeyMetaDataStore {
         try {
             map = new ObjectMapper().readValue(inputStream, new TypeReference<Map<String, KeyMetaDataEntry>>() { });
         } catch (IOException e) {
-            clientLogger.logExceptionAsError(new RuntimeException(e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to load registration key metadata from the file system", e));
         }
     }
 
@@ -74,13 +74,13 @@ public class KeyMetaDataStore {
                 clientLogger.verbose("new file created for storing push notification credentials");
             }
         } catch (IOException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to create key store file", e));
         }
         String jsonStr = "";
         try {
             jsonStr = new ObjectMapper().writeValueAsString(map);
         } catch (JsonProcessingException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Failed to generate JSON object", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Failed to generate JSON object", e));
         }
         try (FileOutputStream fos = new FileOutputStream(outputFile);
             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
@@ -89,7 +89,7 @@ public class KeyMetaDataStore {
             //write byte array to file
             bos.write(bytes);
         } catch (IOException e) {
-            clientLogger.logExceptionAsError(new RuntimeException("Filed writing key map to file", e));
+            throw clientLogger.logExceptionAsError(new RuntimeException("Filed writing key map to file", e));
         }
     }
 

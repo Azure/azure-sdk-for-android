@@ -188,4 +188,6 @@
   <!-- check style fails even if following the guide -->
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyManager.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.communication.chat.implementation.notifications.fcm.KeyMetaDataStore.java"/>
 </suppressions>
