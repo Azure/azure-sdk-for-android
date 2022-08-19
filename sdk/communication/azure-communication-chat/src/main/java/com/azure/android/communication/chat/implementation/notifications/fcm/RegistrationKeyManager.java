@@ -5,6 +5,7 @@ package com.azure.android.communication.chat.implementation.notifications.fcm;
 import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -150,6 +151,19 @@ public final class RegistrationKeyManager {
             long currentTimeMillis = System.currentTimeMillis();
             storeSecretKey(cryptoAlias, directoryPath, currentTimeMillis, secretKeyGenerator.generateKey(), context);
             storeSecretKey(authAlias, directoryPath, currentTimeMillis, secretKeyGenerator.generateKey(), context);
+
+            //debug
+
+            Queue<Pair<SecretKey, SecretKey>> allPairs = getAllPairs();
+            int size = getNumOfPairs() - 1;
+            for (int i = size; i >= 0; i--) {
+                Pair<SecretKey, SecretKey> pair = allPairs.poll();
+                String first = secretKeyToStr(pair.first);
+                String second = secretKeyToStr(pair.second);
+                KeyMetaDataStore.KeyMetaDataEntry entry = keyMetaDataStore.getEntry(CRYPTO_KEY_PREFIX + i);
+                long diff = (System.currentTimeMillis() - entry.getCreationTime()) / (60 * 1000);
+                Log.i("DebugKeyStore", "index: " + i + ", first key: " + first + ", second key: " + second + ", time-diff: " + diff);
+            }
         }
     }
 

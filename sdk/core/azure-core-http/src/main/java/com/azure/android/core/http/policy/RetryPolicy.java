@@ -166,7 +166,7 @@ public class RetryPolicy implements HttpPipelinePolicy {
         if (exception != null) {
             return this.retryStrategy.calculateRetryDelay(null, exception, retryAttempts);
         } else {
-            final int code = response.getStatusCode();
+            final int code = response == null ? 503 : response.getStatusCode();
             if (code == 429) {
                 // Too Many Requests.
                 // https://docs.microsoft.com/en-us/rest/api/cosmos-db/common-cosmosdb-rest-response-headers
