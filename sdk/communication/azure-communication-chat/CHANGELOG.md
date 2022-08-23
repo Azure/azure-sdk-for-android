@@ -1,11 +1,13 @@
 # Release History
-## 2.0.0 (2022-08-22)
+## 1.2.0-beta.1 (Unreleased)
+
+### Features Added
+
+### Breaking Changes
+
 ### Bugs Fixed
-- Push notification registration renewal not guaranteed to happen when Contoso APP is idle
 
 ### Other Changes
-- Implement internal key management library to securely persist all the registration secret keys which are not expired.
-- Reduce the expiration time of each push notification registration from 25 hours to 45 minutes.
 
 ## 1.1.0 (2022-04-11)
 ### Features Added
