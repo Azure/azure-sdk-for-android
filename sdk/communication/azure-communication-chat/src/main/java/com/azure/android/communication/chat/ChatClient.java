@@ -241,7 +241,6 @@ public final class ChatClient {
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @throws RuntimeException if push notifications failed to start.
      */
-    @Deprecated
     public void startPushNotifications(String deviceRegistrationToken) {
         client.startPushNotifications(deviceRegistrationToken);
     }
