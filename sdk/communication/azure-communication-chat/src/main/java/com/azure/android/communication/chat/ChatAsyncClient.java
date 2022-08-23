@@ -288,8 +288,7 @@ public final class ChatAsyncClient {
      * @param skypeUserToken the skype user token
      * @param context the Android app context
      * @throws RuntimeException if realtime notifications failed to start.
-     *
-     * @deprecated Use {@link ChatAsyncClient#startRealtimeNotifications(Context, Consumer)} instead.
+     * @deprecated Use {@link ChatAsyncClient#startPushNotifications(String skypeUserToken)} instead.
      */
     @Deprecated
     public void startRealtimeNotifications(String skypeUserToken, Context context) {
