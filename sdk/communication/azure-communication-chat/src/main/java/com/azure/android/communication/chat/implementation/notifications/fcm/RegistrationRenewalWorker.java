@@ -36,7 +36,7 @@ public class RegistrationRenewalWorker extends Worker {
 
     public RegistrationRenewalWorker(@NonNull Context context, @NonNull WorkerParameters workerParameters) {
         super(context, workerParameters);
-        throw clientLogger.logExceptionAsError(new RuntimeException("Missing worker manager configuration for enabling push notifications. "
+        throw clientLogger.logExceptionAsError(new RuntimeException("Missing WorkManager configuration for enabling push notifications. "
             + "Please follow push notification guidance to add missed steps: "
             + "https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification"));
 
