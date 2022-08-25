@@ -225,7 +225,8 @@ public final class ChatClient {
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
-     * @deprecated The function will be replaced by startPushNotifications(String deviceRegistrationToken)
+     * @deprecated The function will be replaced by
+     * {@link ChatClient#startPushNotifications(String deviceRegistrationToken)}.
      */
     @Deprecated
     public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
@@ -241,7 +242,6 @@ public final class ChatClient {
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @throws RuntimeException if push notifications failed to start.
      */
-    @Deprecated
     public void startPushNotifications(String deviceRegistrationToken) {
         client.startPushNotifications(deviceRegistrationToken);
     }
