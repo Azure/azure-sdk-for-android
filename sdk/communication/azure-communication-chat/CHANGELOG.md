@@ -1,11 +1,17 @@
 # Release History
 ## 2.0.0 (2022-08-22)
 ### Bugs Fixed
-- Push notification registration renewal not guaranteed to happen when Contoso APP is idle
+- Push notification registration renewal not guaranteed to happen when Contoso APP is idle or closed.
+
+### Breaking Changes
+- Introduced WorkerManager library which breaks push notification for existing Contoso APPs. (Check https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification)
 
 ### Other Changes
 - Implement internal key management library to securely persist all the registration secret keys which are not expired.
+- Increase minSDKVersion from 21 to 23.
 - Reduce the expiration time of each push notification registration from 25 hours to 45 minutes.
+- Add deprecate annotation to startPushNotifications API with errorHandler as a parameter.
+- Create new API errorHandler without errorHandler as a parameter.
 
 ## 1.1.0 (2022-04-11)
 ### Features Added
