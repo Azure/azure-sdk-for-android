@@ -1,5 +1,5 @@
 # Release History
-## 2.0.0 (2022-08-22)
+## 2.0.0 (2022-08-26)
 ### Bugs Fixed
 - Push notification registration renewal not guaranteed to happen when Contoso APP is idle or closed.
 
