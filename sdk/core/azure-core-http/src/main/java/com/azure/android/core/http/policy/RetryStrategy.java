@@ -35,12 +35,16 @@ public interface RetryStrategy {
             return error instanceof IOException
                 || error instanceof TimeoutException;
         } else {
-            final int code = response.getStatusCode();
-            return (code == HttpURLConnection.HTTP_CLIENT_TIMEOUT
-                || code == 429 // to-many requests
-                || (code >= HttpURLConnection.HTTP_INTERNAL_ERROR
-                && code != HttpURLConnection.HTTP_NOT_IMPLEMENTED
-                && code != HttpURLConnection.HTTP_VERSION));
+            if (response != null) {
+                final int code = response.getStatusCode();
+                return (code == HttpURLConnection.HTTP_CLIENT_TIMEOUT
+                    || code == 429 // to-many requests
+                    || (code >= HttpURLConnection.HTTP_INTERNAL_ERROR
+                    && code != HttpURLConnection.HTTP_NOT_IMPLEMENTED
+                    && code != HttpURLConnection.HTTP_VERSION));
+            } else {
+                return true;
+            }
         }
     }
 
