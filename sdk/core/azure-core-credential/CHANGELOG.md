@@ -5,7 +5,7 @@
 ### Other changes
 
 #### Dependency updates
-- Updated `azure-core-logging` dependency version to `1.0.0-beta.10`.
+- Updated `azure-core-logging` dependency version to `1.0.0-beta.11`.
 
 ## 1.0.0-beta.10 (2022-03-08)
 
