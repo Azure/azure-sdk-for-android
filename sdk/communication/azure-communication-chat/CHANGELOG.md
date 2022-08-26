@@ -10,7 +10,7 @@
 - Implement internal key management library to securely persist all the registration secret keys which are not expired.
 - Increase minSDKVersion from 21 to 23.
 - Reduce the expiration time of each push notification registration from 25 hours to 45 minutes.
-- Add deprecate annotation to startPushNotifications API with errorHandler as a parameter.
+- Add `@Deprecated` annotation to `startPushNotifications` API with `errorHandler` as a parameter.
 - Create new API errorHandler without errorHandler as a parameter.
 
 ## 1.1.0 (2022-04-11)
