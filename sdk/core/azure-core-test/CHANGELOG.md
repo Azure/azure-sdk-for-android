@@ -1,14 +1,15 @@
 # Release History
 
-## 1.0.0-beta.11 (Unreleased)
+## 1.0.0-beta.11 (2022-08-26)
 
-### Features Added
+### Other changes
 
-### Breaking Changes
-
-### Bugs Fixed
-
-### Other Changes
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.11`
+- Updated `azure-core-jackson` dependency version to `1.0.0-beta.11`
+- Updated `azure-core-rest` dependency version to `1.0.0-beta.11`
+- Updated `jackson-databind` dependency to `2.12.7`
+- Updated `jackson-dataformat-xml` dependency to `2.12.7`
 
 ## 1.0.0-beta.10 (2022-03-08)
 

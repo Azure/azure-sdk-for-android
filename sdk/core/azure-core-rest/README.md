@@ -17,7 +17,7 @@ Azure Core REST provides client abstraction to make HTTP REST Calls.
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-rest</artifactId>
-    <version>1.0.0-beta.10</version>
+    <version>1.0.0-beta.11</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})

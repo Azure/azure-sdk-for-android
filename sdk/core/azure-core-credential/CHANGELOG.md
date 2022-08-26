@@ -1,14 +1,11 @@
 # Release History
 
-## 1.0.0-beta.11 (Unreleased)
+## 1.0.0-beta.11 (2022-08-26)
 
-### Features Added
+### Other changes
 
-### Breaking Changes
-
-### Bugs Fixed
-
-### Other Changes
+#### Dependency updates
+- Updated `azure-core-logging` dependency version to `1.0.0-beta.10`.
 
 ## 1.0.0-beta.10 (2022-03-08)
 
