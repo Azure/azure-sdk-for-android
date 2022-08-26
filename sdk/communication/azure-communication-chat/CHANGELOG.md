@@ -1,5 +1,8 @@
 # Release History
 ## 2.0.0 (2022-08-26)
+### Features Added
+- Create new `startPushNotifications` API without errorHandler as a parameter.
+
 ### Bugs Fixed
 - Push notification registration renewal is now guaranteed to happen when an app is idle or closed.
 
@@ -11,7 +14,6 @@
 - Increase minSDKVersion from 21 to 23.
 - Reduce the expiration time of each push notification registration from 25 hours to 45 minutes.
 - Add `@Deprecated` annotation to `startPushNotifications` API with `errorHandler` as a parameter.
-- Create new API errorHandler without errorHandler as a parameter.
 
 ## 1.1.0 (2022-04-11)
 ### Features Added
