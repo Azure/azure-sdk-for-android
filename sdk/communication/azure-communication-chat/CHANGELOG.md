@@ -1,5 +1,5 @@
 # Release History
-## 2.0.0 (2022-08-26)
+## 2.0.0 (2022-08-29)
 ### Features Added
 - Create new `startPushNotifications` API without errorHandler as a parameter.
 
@@ -8,10 +8,10 @@
 
 ### Breaking Changes
 - Introduced the use of WorkManager, which now requires additional configuration in apps that were already using the push notification feature. Check the [push notifications documentation](https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification) for more information.
+- Increase minSDKVersion from 21 to 23.
 
 ### Other Changes
 - Implement internal key management library to securely persist all the registration secret keys which are not expired.
-- Increase minSDKVersion from 21 to 23.
 - Reduce the expiration time of each push notification registration from 25 hours to 45 minutes.
 - Add `@Deprecated` annotation to `startPushNotifications` API with `errorHandler` as a parameter.
 
