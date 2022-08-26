@@ -4,7 +4,7 @@
 - Push notification registration renewal is now guaranteed to happen when an app is idle or closed.
 
 ### Breaking Changes
-- Introduced WorkerManager library which breaks push notification for existing Contoso APPs. (Check https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification)
+- Introduced the use of WorkManager, which now requires additional configuration in apps that were already using the push notification feature. Check the [push notifications documentation](https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification) for more information.
 
 ### Other Changes
 - Implement internal key management library to securely persist all the registration secret keys which are not expired.
