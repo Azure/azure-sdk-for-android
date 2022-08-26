@@ -12,7 +12,7 @@ public class ApplicationConstants {
     // Replace userAccessToken with a valid communication service token for your ACS instance.
     public static final String FIRST_USER_ACCESS_TOKEN = "";
     public static final String ENDPOINT = "";
-    public static final String SDK_VERSION = "1.2.0-beta.1";
+    public static final String SDK_VERSION = "2.0.0";
     public final static String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     public final static String APPLICATION_ID = "Chat_Test_App";
     public final static String TAG = "[Chat Test App]";
