@@ -1,7 +1,7 @@
 # Release History
 ## 2.0.0 (2022-08-26)
 ### Bugs Fixed
-- Push notification registration renewal not guaranteed to happen when Contoso APP is idle or closed.
+- Push notification registration renewal is now guaranteed to happen when an app is idle or closed.
 
 ### Breaking Changes
 - Introduced WorkerManager library which breaks push notification for existing Contoso APPs. (Check https://docs.microsoft.com/azure/communication-services/tutorials/chat-android-push-notification)
