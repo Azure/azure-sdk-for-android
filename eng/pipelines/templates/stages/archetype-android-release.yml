@@ -14,7 +14,8 @@ stages:
         environment: esrp
         timeoutInMinutes: 20
         pool:
-          vmImage: ubuntu-20.04
+          name: azsdk-pool-mms-ubuntu-2004-general
+          vmImage: MMSUbuntu20.04
 
         strategy:
           runOnce:
@@ -37,7 +38,7 @@ stages:
                   displayName: 'Store signed packages in ${{parameters.ArtifactName}}-signed artifact'
                   timeoutInMinutes: 5
 
-  # We generate two interdepdent stages for each artifact listed in the ci.yml file, creates the release
+  # We generate two interdependent stages for each artifact listed in the ci.yml file, creates the release
   # in GitHub. The Release stage publishes to Maven Central. Both stages require approval since they
   # effectively burn the version number. For testing of packages prior to burning the version number -
   # the Validation step below publishes a package to a "burner" feed which is cleaned up after the
@@ -59,7 +60,8 @@ stages:
                 - VerifyReleaseVersion
 
             pool:
-              vmImage: vs2017-win2016
+              name: azsdk-pool-mms-win-2019-general
+              vmImage: windows-2019
 
             strategy:
               runOnce:
@@ -84,8 +86,9 @@ stages:
               dependsOn: TagRepository
 
               pool:
-                vmImage: vs2017-win2016
-                
+                name: azsdk-pool-mms-win-2019-general
+                vmImage: windows-2019
+
               strategy:
                 runOnce:
                   deploy:
@@ -108,7 +111,8 @@ stages:
               dependsOn: PublishPackage
 
               pool:
-                vmImage: windows-2019
+                name: azsdk-pool-mms-win-2019-general
+                vmImage: MMS2019
 
               strategy:
                 runOnce:
