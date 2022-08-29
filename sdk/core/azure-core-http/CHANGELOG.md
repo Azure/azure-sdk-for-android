@@ -1,14 +1,16 @@
 # Release History
 
-## 1.0.0-beta.11 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
+## 1.0.0-beta.11 (2022-08-26)
 
 ### Bugs Fixed
+- Fixed issue where `RetryPolicy` would throw a `NullPointerException` when failing to receive an HTTP response from a service call. ([#1180](https://github.com/Azure/azure-sdk-for-android/pull/1180)) 
 
 ### Other Changes
+
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.11`.
+- Updated `azure-core-credential` dependency version to `1.0.0-beta.11`.
+- Updated `azure-core-logging` dependency version to `1.0.0-beta.11`.
 
 ## 1.0.0-beta.10 (2022-03-08)
 

@@ -71,7 +71,10 @@ public class PushNotificationClient {
      * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
      * @param errorHandler error handler callback for registration failures
      * @throws RuntimeException if push notifications failed to start.
+     * @deprecated The function will be replaced by
+     * {@link PushNotificationClient#startPushNotifications(String deviceRegistrationToken)}.
      */
+    @Deprecated
     public void startPushNotifications(String deviceRegistrationToken, Consumer<Throwable> errorHandler) {
         this.deviceRegistrationToken = deviceRegistrationToken;
         logger.verbose("device_id: " + deviceRegistrationToken);
@@ -87,6 +90,28 @@ public class PushNotificationClient {
         // 15 minutes is the minimum interval worker manager allows
         long interval = 15;
         this.startRegistrationRenewalWorker(interval, errorHandler);
+    }
+
+    /**
+     * Register the current device for receiving incoming push notifications via FCM.
+     * @param deviceRegistrationToken Device registration token obtained from the FCM SDK.
+     * @throws RuntimeException if push notifications failed to start.
+     */
+    public void startPushNotifications(String deviceRegistrationToken) {
+        this.deviceRegistrationToken = deviceRegistrationToken;
+        logger.verbose("device_id: " + deviceRegistrationToken);
+        if (this.isPushNotificationsStarted) {
+            return;
+        }
+        this.workManager = WorkManager.getInstance();
+        this.registrationKeyManager = RegistrationKeyManager.instance();
+
+        this.isPushNotificationsStarted = true;
+        this.pushNotificationListeners.clear();
+        this.logger.info("Successfully started push notifications!");
+        // 15 minutes is the minimum interval worker manager allows
+        long interval = 15;
+        this.startRegistrationRenewalWorker(interval, null);
     }
 
     /**
@@ -241,7 +266,9 @@ public class PushNotificationClient {
                 if (!succeeded) {
                     RuntimeException exception = new RuntimeException(
                         "Registration renew request failed");
-                    errorHandler.accept(exception);
+                    if (errorHandler != null) {
+                        errorHandler.accept(exception);
+                    }
                     this.logger.info("Renew token failed");
                 } else {
                     this.logger.info("Renew token succeeded");
