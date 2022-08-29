@@ -9,7 +9,6 @@ public class ApplicationConstants {
     // Replace FIRST_USER_ID and SECOND_USER_ID with valid communication user identifiers from your ACS instance.
     public static String FIRST_USER_ID;
     public static String SECOND_USER_ID;
-    // Replace userAccessToken with a valid communication service token for your ACS instance.
     public static String FIRST_USER_ACCESS_TOKEN;
     public static String ACS_ENDPOINT;
     public static final String SDK_VERSION = "1.2.0-beta.1";
