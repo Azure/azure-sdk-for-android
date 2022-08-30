@@ -1,4 +1,6 @@
 # Release History
+## 2.1.0-beta.1 (Unreleased)
+
 ## 2.0.0 (2022-08-29)
 ### Features Added
 - Create new `startPushNotifications` API without errorHandler as a parameter.
