@@ -13,13 +13,13 @@ import static com.azure.android.communication.chat.models.ChatEventType.PARTICIP
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
 import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
+import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ACS_ENDPOINT;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.APPLICATION_ID;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ID;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_NAME;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_VERSION;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ENDPOINT;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
 
 import android.content.BroadcastReceiver;
@@ -129,8 +129,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void createChatAsyncClient() {
         try {
+            Log.i("jimindebug", ACS_ENDPOINT);
             chatAsyncClient = new ChatClientBuilder()
-                .endpoint(ENDPOINT)
+                .endpoint(ACS_ENDPOINT)
                 .credential(COMMUNICATION_TOKEN_CREDENTIAL)
                 .addPolicy(new UserAgentPolicy(APPLICATION_ID, SDK_NAME, SDK_VERSION))
                 .httpLogOptions(new HttpLogOptions()
@@ -506,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 chatThreadAsyncClient.addParticipant(new ChatParticipant().setCommunicationIdentifier(
-                   new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
+                    new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
 
                 logAndToast("Added chat participant");
             } catch (InterruptedException | ExecutionException e) {
