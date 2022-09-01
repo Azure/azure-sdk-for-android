@@ -10,7 +10,6 @@ import static com.azure.android.communication.chat.sampleapp.ApplicationConstant
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
@@ -25,7 +24,7 @@ import java9.util.function.Consumer;
 public class MyAppConfiguration extends Application implements Configuration.Provider {
     private ClientLogger logger = new ClientLogger(MyAppConfiguration.class);
 
-    private UserTokenClient userTokenClient = new UserTokenClient("https://acs-chat-js.azurewebsites.net/api/HttpTrigger1?");
+    private final static String AZURE_FUNTION_URL = "https://acs-chat-js.azurewebsites.net/api/HttpTrigger1?";
 
     Consumer<Throwable> exceptionHandler = new Consumer<Throwable>() {
         @Override
@@ -38,6 +37,7 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
     public void onCreate() {
         super.onCreate();
         try {
+            UserTokenClient userTokenClient = new UserTokenClient(AZURE_FUNTION_URL);
             //First user context
             userTokenClient.getNewUserContext();
             ACS_ENDPOINT = userTokenClient.getACSEndpoint();
@@ -47,9 +47,9 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
             //Second user context
             userTokenClient.getNewUserContext();
             SECOND_USER_ID = userTokenClient.getUserID();
-            Log.i("jimindebug", ACS_ENDPOINT);
         } catch (Throwable throwable) {
             //Your handling code
+            logger.logThrowableAsError(throwable);
         }
         WorkManager.initialize(getApplicationContext(), getWorkManagerConfiguration());
     }
