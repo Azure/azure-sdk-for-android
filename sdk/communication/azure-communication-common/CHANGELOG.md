@@ -1,9 +1,14 @@
 # Release History
 
-## 1.0.3 (Unreleased)
+## 1.1.0-beta.2 (Unreleased)
+
+### Features Added
+
+### Breaking Changes
 
 ### Bugs Fixed
-- Fixed the logic of `PhoneNumberIdentifier` to always maintain the original phone number string whether it included the leading + sign or not.
+
+### Other Changes
 
 ## 1.1.0-beta.1 (2022-08-29)
 
