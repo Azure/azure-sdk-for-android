@@ -3,12 +3,6 @@
 
 package com.azure.android.communication.chat.sampleapp;
 
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ACS_ENDPOINT;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ACCESS_TOKEN;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ID;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
-
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -22,9 +16,19 @@ import com.azure.android.core.logging.ClientLogger;
 import java9.util.function.Consumer;
 
 public class MyAppConfiguration extends Application implements Configuration.Provider {
+    public static String FIRST_USER_ID;
+
+    public static String SECOND_USER_ID;
+
+    public static String FIRST_USER_ACCESS_TOKEN;
+
+    public static String ACS_ENDPOINT;
+
+    public static CommunicationTokenCredential COMMUNICATION_TOKEN_CREDENTIAL;
+
     private ClientLogger logger = new ClientLogger(MyAppConfiguration.class);
 
-    private final static String AZURE_FUNTION_URL = "https://acs-chat-js.azurewebsites.net/api/HttpTrigger1?";
+    private final static String AZURE_FUNCTION_URL = "https://acs-chat-js.azurewebsites.net/api/HttpTrigger1?";
 
     Consumer<Throwable> exceptionHandler = new Consumer<Throwable>() {
         @Override
@@ -37,16 +41,16 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
     public void onCreate() {
         super.onCreate();
         try {
-            UserTokenClient userTokenClient = new UserTokenClient(AZURE_FUNTION_URL);
+            UserTokenClient userTokenClient = new UserTokenClient(AZURE_FUNCTION_URL);
             //First user context
             userTokenClient.getNewUserContext();
             ACS_ENDPOINT = userTokenClient.getACSEndpoint();
-            FIRST_USER_ID = userTokenClient.getUserID();
+            FIRST_USER_ID = userTokenClient.getUserId();
             FIRST_USER_ACCESS_TOKEN = userTokenClient.getUserToken();
             COMMUNICATION_TOKEN_CREDENTIAL = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
             //Second user context
             userTokenClient.getNewUserContext();
-            SECOND_USER_ID = userTokenClient.getUserID();
+            SECOND_USER_ID = userTokenClient.getUserId();
         } catch (Throwable throwable) {
             //Your handling code
             logger.logThrowableAsError(throwable);

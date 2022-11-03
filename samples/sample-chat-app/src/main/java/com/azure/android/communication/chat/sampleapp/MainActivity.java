@@ -13,13 +13,13 @@ import static com.azure.android.communication.chat.models.ChatEventType.PARTICIP
 import static com.azure.android.communication.chat.models.ChatEventType.PARTICIPANTS_REMOVED;
 import static com.azure.android.communication.chat.models.ChatEventType.READ_RECEIPT_RECEIVED;
 import static com.azure.android.communication.chat.models.ChatEventType.TYPING_INDICATOR_RECEIVED;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.ACS_ENDPOINT;
+import static com.azure.android.communication.chat.sampleapp.MyAppConfiguration.ACS_ENDPOINT;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.APPLICATION_ID;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.FIRST_USER_ID;
+import static com.azure.android.communication.chat.sampleapp.MyAppConfiguration.FIRST_USER_ID;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_NAME;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SDK_VERSION;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.SECOND_USER_ID;
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
+import static com.azure.android.communication.chat.sampleapp.MyAppConfiguration.SECOND_USER_ID;
+import static com.azure.android.communication.chat.sampleapp.MyAppConfiguration.COMMUNICATION_TOKEN_CREDENTIAL;
 import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.TAG;
 
 import android.content.BroadcastReceiver;

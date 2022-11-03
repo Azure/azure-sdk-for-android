@@ -3,9 +3,6 @@
 
 package com.azure.android.communication.chat.sampleapp;
 
-import android.util.Log;
-
-import com.azure.android.communication.chat.implementation.notifications.fcm.RegistrarClient;
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
@@ -25,24 +22,24 @@ import java.util.concurrent.TimeUnit;
  * Client that calls azure function to obtain user id and token
  */
 public class UserTokenClient {
-    private final ClientLogger logger = new ClientLogger(RegistrarClient.class);
+    private final ClientLogger logger = new ClientLogger(UserTokenClient.class);
 
     private final HttpClient httpClient;
 
-    private String endPoint;
+    private String endpoint;
 
     private String userID;
 
     private String userToken;
 
-    private String ACSEndpoint;
+    private String acsEndpoint;
 
-    public UserTokenClient(String endPoint) {
+    public UserTokenClient(String endpoint) {
         httpClient = HttpClient.createDefault();
-        this.endPoint = endPoint;
+        this.endpoint = endpoint;
     }
 
-    public String getUserID() {
+    public String getUserId() {
         return userID;
     }
 
@@ -51,11 +48,11 @@ public class UserTokenClient {
     }
 
     public String getACSEndpoint() {
-        return ACSEndpoint;
+        return acsEndpoint;
     }
 
     public void getNewUserContext() throws Throwable {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, endPoint);
+        HttpRequest request = new HttpRequest(HttpMethod.GET, endpoint);
 
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] requestError = { null };
@@ -72,11 +69,12 @@ public class UserTokenClient {
                         + response.getBodyAsString()
                     );
                 }
-
-                UserData userData = parseResponse(response.getBodyAsString());
-                userID = userData.getUserID();
-                userToken = userData.getUserToken();
-                ACSEndpoint = userData.getACSEndpoint();
+                else {
+                    UserData userData = parseResponse(response.getBodyAsString());
+                    userID = userData.getUserID();
+                    userToken = userData.getUserToken();
+                    acsEndpoint = userData.getACSEndpoint();
+                }
                 latch.countDown();
             }
 
@@ -104,7 +102,6 @@ public class UserTokenClient {
 
     private UserData parseResponse(final String response) {
         try {
-            Log.i("Response", response);
             UserData userData = new ObjectMapper().readValue(response, UserData.class);
             return userData;
         } catch (JsonMappingException e) {
@@ -115,11 +112,11 @@ public class UserTokenClient {
     }
 
     public static class UserData {
-        @JsonProperty("ACSEndpoint")
-        private String ACSEndpoint;
+        @JsonProperty("acsEndpoint")
+        private String acsEndpoint;
 
-        @JsonProperty("userID")
-        private String userID;
+        @JsonProperty("userId")
+        private String userId;
 
         @JsonProperty("userToken")
         private String userToken;
@@ -128,11 +125,11 @@ public class UserTokenClient {
         }
 
         public String getACSEndpoint() {
-            return ACSEndpoint;
+            return acsEndpoint;
         }
 
         public String getUserID() {
-            return userID;
+            return userId;
         }
 
         public String getUserToken() {
