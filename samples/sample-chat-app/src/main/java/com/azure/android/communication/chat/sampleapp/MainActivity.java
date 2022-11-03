@@ -129,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void createChatAsyncClient() {
         try {
-            Log.i("jimindebug", ACS_ENDPOINT);
             chatAsyncClient = new ChatClientBuilder()
                 .endpoint(ACS_ENDPOINT)
                 .credential(COMMUNICATION_TOKEN_CREDENTIAL)
