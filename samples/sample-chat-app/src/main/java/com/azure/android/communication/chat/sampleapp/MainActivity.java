@@ -508,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 chatThreadAsyncClient.addParticipant(new ChatParticipant().setCommunicationIdentifier(
-                   new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
+                    new CommunicationUserIdentifier(SECOND_USER_ID)).setDisplayName(secondUserDisplayName)).get();
 
                 logAndToast("Added chat participant");
             } catch (InterruptedException | ExecutionException e) {
