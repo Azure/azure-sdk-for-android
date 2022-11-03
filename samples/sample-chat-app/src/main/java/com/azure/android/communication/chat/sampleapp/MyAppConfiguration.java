@@ -28,7 +28,7 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
 
     private ClientLogger logger = new ClientLogger(MyAppConfiguration.class);
 
-    private final static String AZURE_FUNCTION_URL = "https://acs-chat-js.azurewebsites.net/api/HttpTrigger1?";
+    private final static String AZURE_FUNCTION_URL = "<replace_with_azure_function_endpoint>";
 
     Consumer<Throwable> exceptionHandler = new Consumer<Throwable>() {
         @Override
