@@ -279,6 +279,7 @@ allprojects {
         threeTenBpVersion = "1.5.1"
         trouterVersion = "0.1.1"
         wireMockVersion = "2.27.2"
+        woodstoxVersion = "6.4.0"
     }
 }
 
