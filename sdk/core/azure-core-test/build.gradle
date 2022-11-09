@@ -22,7 +22,7 @@ dependencies {
 
     // We can't upgrade Jackson to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
     //noinspection GradleDependency
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     //noinspection GradleDependency
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
     implementation "com.github.tomakehurst:wiremock-standalone:$wireMockVersion" // For 'HttpClientTestsWireMockServer'

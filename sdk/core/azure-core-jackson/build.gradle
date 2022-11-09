@@ -23,6 +23,8 @@ dependencies {
 
     // <!-- begin: implementation Dependencies -->
     implementation project (":sdk:core:azure-core-logging")
+    // We need to have a different Jackson Databind version to include a security fix.
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
