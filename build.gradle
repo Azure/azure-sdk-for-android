@@ -265,6 +265,7 @@ allprojects {
         azureCommunicationCommonVersion = "1.0.2"
         azureCoreVersion = "1.0.0-beta.11"
         jacksonVersion = "2.12.7" // Do not upgrade to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
+        jacksonDatabindVersion = "2.12.7.1" // Need this to be a separate version to include a security fix.
         junitJupiterVersion = "5.7.2"
         mockitoVersion = "4.0.0"
         nimbusJoseJwtTestVersion = "9.15.2"
@@ -278,6 +279,7 @@ allprojects {
         threeTenBpVersion = "1.5.1"
         trouterVersion = "0.1.1"
         wireMockVersion = "2.27.2"
+        woodstoxVersion = "6.4.0"
     }
 }
 

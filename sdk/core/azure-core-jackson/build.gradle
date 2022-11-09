@@ -23,6 +23,10 @@ dependencies {
 
     // <!-- begin: implementation Dependencies -->
     implementation project (":sdk:core:azure-core-logging")
+    // We need to have a separate Jackson Databind version to include a security fix.
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    // We need to specify a Woodstox version to include a security fix.
+    implementation "com.fasterxml.woodstox:woodstox-core:$woodstoxVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->

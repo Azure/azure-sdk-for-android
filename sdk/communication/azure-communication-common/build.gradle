@@ -17,7 +17,7 @@ dependencies {
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     // <!-- end: implementation Dependencies -->
 
