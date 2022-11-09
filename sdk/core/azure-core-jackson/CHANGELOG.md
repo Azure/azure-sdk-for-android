@@ -1,14 +1,12 @@
 # Release History
 
-## 1.0.0-beta.12 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 1.0.0-beta.12 (2022-11-08)
 
 ### Other Changes
+
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.12`.
+- Updated `jackson-databind` dependency to `2.12.7.1`.
 
 ## 1.0.0-beta.11 (2022-08-26)
 
