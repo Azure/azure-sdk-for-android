@@ -7,6 +7,7 @@
 #### Dependency updates
 - Updated `azure-core` dependency version to `1.0.0-beta.12`.
 - Updated `jackson-databind` dependency to `2.12.7.1`.
+- Updated `woodstox-core` dependency to `6.4.0`.
 
 ## 1.0.0-beta.11 (2022-08-26)
 
