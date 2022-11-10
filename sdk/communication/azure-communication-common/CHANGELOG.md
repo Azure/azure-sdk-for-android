@@ -12,6 +12,8 @@
 ### Other Changes
 
 #### Dependency updates
+- Updated `android-core` version to `1.0.0-beta.12`.
+- Updated `android-core-logging` version to `1.0.0-beta.12`.
 - Updated `jackson-databind` dependency to `2.12.7.1`.
 
 ## 1.1.0-beta.1 (2022-08-29)
