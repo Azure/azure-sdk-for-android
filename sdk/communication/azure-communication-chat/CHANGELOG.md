@@ -1,6 +1,22 @@
 # Release History
 ## 2.1.0-beta.1 (Unreleased)
 
+### Features Added
+
+### Breaking Changes
+
+### Bugs Fixed
+
+### Other Changes
+
+#### Dependency Updates
+- Updated `android-core` version to `1.0.0-beta.12`.
+- Updated `android-core-credential` version to `1.0.0-beta.12`.
+- Updated `android-core-http` version to `1.0.0-beta.12`.
+- Updated `android-core-http-okhttp` version to `1.0.0-beta.12`.
+- Updated `android-core-logging` version to `1.0.0-beta.12`.
+- Updated `android-core-rest` version to `1.0.0-beta.12`.
+
 ## 2.0.0 (2022-08-29)
 ### Features Added
 - Create new `startPushNotifications` API without errorHandler as a parameter.

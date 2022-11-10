@@ -20,23 +20,23 @@ Currently, the client libraries are in **beta**. These libraries follow the [Azu
 The following libraries are currently in **beta**:
 
 #### Core
-- [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/core/azure-core): 1.0.0-beta.6
-- [azure-core-logging](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-logging): 1.0.0-beta.6
-- [azure-core-http](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http): 1.0.0-beta.6
-- [azure-core-http-okhttp](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http-okhttp): 1.0.0-beta.6
-- [azure-core-http-httpurlconnection](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http-httpurlconnection): 1.0.0-beta.6
-- [azure-core-jackson](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-jackson): 1.0.0-beta.6
-- [azure-core-rest](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-rest): 1.0.0-beta.6
-- [azure-core-credentials](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-credential): 1.0.0-beta.6
+- [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/core/azure-core): 1.0.0-beta.12
+- [azure-core-logging](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-logging): 1.0.0-beta.12
+- [azure-core-http](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http): 1.0.0-beta.12
+- [azure-core-http-okhttp](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http-okhttp): 1.0.0-beta.12
+- [azure-core-http-httpurlconnection](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-http-httpurlconnection): 1.0.0-beta.12
+- [azure-core-jackson](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-jackson): 1.0.0-beta.12
+- [azure-core-rest](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-rest): 1.0.0-beta.12
+- [azure-core-credentials](https://github.com/Azure/azure-sdk-for-android/tree/main/sdk/core/azure-core-credential): 1.0.0-beta.12
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
 The following libraries are currently **generally available**:
 
 #### Azure Communication Services
-- [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 1.0.0
+- [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 2.2.1
 - [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-chat): 2.0.0
-- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-common): 1.0.1
+- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-common): 1.0.2
 
 ### Install the libraries
 To install the Azure client libraries for Android, add them as dependencies within your
