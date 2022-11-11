@@ -1,15 +1,9 @@
 # Release History
 
-## 1.1.0-beta.2 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
+## 1.1.0 (2022-11-11)
 
 ### Bugs Fixed
 - Fixed the logic of `PhoneNumberIdentifier` to always maintain the original phone number string whether it included the leading + sign or not.
-
-### Other Changes
 
 #### Dependency updates
 - Updated `android-core` version to `1.0.0-beta.12`.
