@@ -34,6 +34,15 @@
           ]
         },
         {
+          "label": "Communication - Common",
+          "pathFilter": [
+            "sdk/communication/azure-communication-common/"
+          ],
+          "exclude": [
+            ""
+          ]
+        },
+        {
           "label": "Azure.Core",
           "pathFilter": [
             "sdk/core/"
