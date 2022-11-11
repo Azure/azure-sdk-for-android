@@ -20,6 +20,9 @@
 # PRLabel: %Communication
 /sdk/communication/                                 @JianpingChen @Azure/azure-sdk-communication-code-reviewers
 
+# PRLabel: %Communication - Common
+/sdk/communication/azure-communication-common/      @Azure/acs-identity-sdk @petrsvihlik @AikoBB @maximrytych-ms @ostoliarova-msft @mjafferi-msft
+
 # PRLabel: %Azure.Core
 /sdk/core/                                          @vcolin7 @anuchandy
 
