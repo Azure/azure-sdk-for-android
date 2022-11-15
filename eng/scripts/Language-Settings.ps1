@@ -43,7 +43,7 @@ function SetPackageVersion ($PackageName, $Version, $ReleaseDate, $ReplaceLatest
   -ReleaseDate $ReleaseDate -ReplaceLatestEntryTitle $ReplaceLatestEntryTitle
 }
 
-function Publish-andriod-GithubIODocs ($DocLocation, $PublicArtifactLocation)
+function Publish-android-GithubIODocs ($DocLocation, $PublicArtifactLocation)
 {
   $PublishedDocs = Get-ChildItem "$DocLocation" | Where-Object -FilterScript {$_.Name.EndsWith("-javadoc.jar")}
   foreach ($Item in $PublishedDocs)
