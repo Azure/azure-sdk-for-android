@@ -95,13 +95,22 @@ stages:
                     steps:
                       - checkout: azure-sdk-build-tools
                         path: azure-sdk-build-tools
-                      - template: /tools/gpg/gpg.yml@azure-sdk-build-tools
-                      - template: /tools/java-publishing/java-publishing.yml@azure-sdk-build-tools
+                      - template: tools/gpg/gpg.yml@azure-sdk-build-tools
+                      - template: /eng/pipelines/templates/steps/java-publishing.yml
                         parameters:
                           ArtifactID: ${{artifact.name}}
                           GroupID: ${{artifact.groupId}}
                           ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
-                          Target: MavenCentral
+                          OutputDirectory: $(Pipeline.Workspace)/EsrpPackages
+                          Target: EsrpRelease
+                          BuildToolsPath: $(Pipeline.Workspace)/azure-sdk-build-tools
+                          # Note: In spite of the fact that the variable is named JavaRepoRoot, the
+                          # root needs to be the root of the android repository
+                          JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
+                      - template: /eng/common/pipelines/templates/steps/publish-artifact.yml
+                        parameters:
+                          ArtifactName: ${{parameters.ArtifactName}}-${{artifact.name}}-esrp-$(System.JobAttempt)
+                          ArtifactPath: $(Pipeline.Workspace)/EsrpPackages
 
           - ${{if ne(artifact.options.skipPublishDocs, 'true')}}:
             - deployment: PublishDocs
