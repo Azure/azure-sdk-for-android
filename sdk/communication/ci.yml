@@ -22,14 +22,14 @@ pr:
     include:
       - sdk/communication/
 
-stages:
-  - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
-    parameters:
-      ServiceDirectory: communication
-      Artifacts:
-        - name: azure-communication-common
-          safeName: azurecommunicationcommon
-          groupId: com.azure.android
-        - name: azure-communication-chat
-          safeName: azurecommunicationchat
-          groupId: com.azure.android
+extends:
+  template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
+  parameters:
+    ServiceDirectory: communication
+    Artifacts:
+      - name: azure-communication-common
+        safeName: azurecommunicationcommon
+        groupId: com.azure.android
+      - name: azure-communication-chat
+        safeName: azurecommunicationchat
+        groupId: com.azure.android
