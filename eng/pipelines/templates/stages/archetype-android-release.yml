@@ -125,7 +125,7 @@ stages:
             - deployment: PublishDocs
               displayName: Publish Docs to GitHubIO Blob Storage
               condition: and(succeeded(), ne(variables['Skip.PublishDocs'], 'true'))
-              environment: githubio
+              environment: maven
               dependsOn: PublishPackage
 
               pool:
@@ -136,13 +136,21 @@ stages:
                 runOnce:
                   deploy:
                     steps:
-                      - checkout: azure-sdk-build-tools
-                        path: azure-sdk-build-tools
-                      - template: /tools/generic-blob-upload/publish-blobs.yml@azure-sdk-build-tools
+                      - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+                      - download: current
+                        displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
+                        artifact: ${{parameters.ArtifactName}}-signed
+                        patterns: ${{artifact.safeName}}/**
+                      - pwsh: |
+                          Get-ChildItem -Recurse $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
+                        workingDirectory: $(Pipeline.Workspace)
+                        displayName: Output Visible Artifacts
+                      - template: /eng/common/pipelines/templates/steps/publish-blobs.yml
                         parameters:
                           FolderForUpload: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}'
                           BlobSASKey: '$(azure-sdk-docs-prod-sas)'
                           BlobName: '$(azure-sdk-docs-prod-blob-name)'
                           TargetLanguage: 'android'
+                          ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
                           # we override the regular script path because we have cloned the build tools repo as a separate artifact.
-                          ScriptPath: '$(Pipeline.Workspace)/azure-sdk-build-tools/scripts/copy-docs-to-blobstorage.ps1'
+                          ScriptPath: 'eng/common/scripts/copy-docs-to-blobstorage.ps1'
