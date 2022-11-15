@@ -62,7 +62,7 @@ stages:
           - deployment: TagRepository
             displayName: "Create release tag"
             condition: ne(variables['Skip.TagRepository'], 'true')
-            environment: github
+            environment: maven
             timeoutInMinutes: 5
             dependsOn:
               - ${{ if eq(parameters.VerifyVersions, 'true')}}:
@@ -105,6 +105,13 @@ stages:
                       - checkout: azure-sdk-build-tools
                         path: azure-sdk-build-tools
                       - template: tools/gpg/gpg.yml@azure-sdk-build-tools
+                      - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+                        parameters:
+                          SkipCheckoutNone: true
+                          Repositories:
+                            - Name: Azure/azure-sdk-for-android
+                              Commitish: $(Build.SourceVersion)
+                              WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
                       - template: /eng/pipelines/templates/steps/java-publishing.yml
                         parameters:
                           ArtifactID: ${{artifact.name}}
