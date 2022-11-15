@@ -5,6 +5,11 @@ parameters:
   - name: ArtifactName
     type: string
     default: 'not-specified'
+  - name: DependsOn
+    type: object
+  - name: VerifyVersions
+    type: string
+    default: 'not-specified'
 
 stages:
   # The signing stage is responsible for submitting binaries to ESRP for our official signing
