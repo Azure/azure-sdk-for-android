@@ -10,8 +10,12 @@ resources:
       endpoint: azure
 
 parameters:
-  Artifacts: []
-  ServiceDirectory: not-specified
+  - name: Artifacts
+    type: object
+    default: []
+  - name: ServiceDirectory
+    type: string
+    default: not-specified
 
 stages:
   - stage: Build
