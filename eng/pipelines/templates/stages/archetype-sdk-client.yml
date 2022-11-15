@@ -1,7 +1,22 @@
+resources:
+  repositories:
+    - repository: azure-sdk-build-tools
+      type: git
+      name: internal/azure-sdk-build-tools
+      ref: refs/tags/azure-sdk-build-tools_20220920.1
+    - repository: azure-sdk-tools
+      type: github
+      name: Azure/azure-sdk-tools
+      endpoint: azure
+
 parameters:
-  Artifacts: []
-  ServiceDirectory: not-specified
-  
+  - name: Artifacts
+    type: object
+    default: []
+  - name: ServiceDirectory
+    type: string
+    default: not-specified
+
 stages:
   - stage: Build
     jobs:
