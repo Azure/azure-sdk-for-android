@@ -1,6 +1,12 @@
 $Language = "android"
+$LanguageDisplayName = "Android"
+$PackageRepository = "Maven"
 $packagePattern = "*.pom"
+
 $CampaignTag = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath "../repo-docs/ga_tag.html")
+$GithubUri = "https://github.com/Azure/azure-sdk-for-android"
+$PackageRepositoryUri = "https://repo1.maven.org/maven2"
+
 function Get-AllPackageInfoFromRepo ($serviceDirectory)
 {
   $allPackageProps = @()
@@ -47,6 +53,7 @@ function SetPackageVersion ($PackageName, $Version, $ReleaseDate, $ReplaceLatest
 # Parse out package publishing information given a maven POM file
 function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
 {
+  Write-Host "Get-android-PackageInfoFromPackageFile, pkg=$pkg"
   [xml]$contentXML = Get-Content $pkg
 
   $pkgId = $contentXML.project.artifactId
@@ -70,6 +77,14 @@ function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
   if ($readmeContentLoc) {
     $readmeContent = Get-Content -Raw $readmeContentLoc
   }
+
+  Write-Host "Get-android-PackageInfoFromPackageFile, pkgId=$pkgId"
+  Write-Host "Get-android-PackageInfoFromPackageFile, groupId=$groupId"
+  Write-Host "Get-android-PackageInfoFromPackageFile, pkgVersion=$pkgVersion"
+  Write-Host "Get-android-PackageInfoFromPackageFile, releaseTag=$($pkgId)_$($pkgVersion)"
+  Write-Host "Get-android-PackageInfoFromPackageFile, releaseNotes=$releaseNotes"
+  Write-Host "Get-android-PackageInfoFromPackageFile, readmeContent=$readmeContent"
+  Write-Host "Get-android-PackageInfoFromPackageFile, docsReadMeName=$docsReadMeName"
 
   return New-Object PSObject -Property @{
     PackageId      = $pkgId
