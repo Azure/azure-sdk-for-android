@@ -1,4 +1,5 @@
 $Language = "android"
+$packagePattern = "*.pom"
 $CampaignTag = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath "../repo-docs/ga_tag.html")
 function Get-AllPackageInfoFromRepo ($serviceDirectory)
 {
