@@ -86,7 +86,7 @@ function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
   Write-Host "Get-android-PackageInfoFromPackageFile, readmeContent=$readmeContent"
   Write-Host "Get-android-PackageInfoFromPackageFile, docsReadMeName=$docsReadMeName"
 
-  return New-Object PSObject -Property @{
+  $tempObj = New-Object PSObject -Property @{
     PackageId      = $pkgId
     GroupId        = $groupId
     PackageVersion = $pkgVersion
@@ -96,6 +96,8 @@ function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
     ReadmeContent  = $readmeContent
     DocsReadMeName = $docsReadMeName
   }
+  Write-Host "Get-android-PackageInfoFromPackageFile returning tempObj.ReleaseTag=$($tempObj.ReleaseTag)"
+  return $tempObj
 }
 
 function Publish-android-GithubIODocs ($DocLocation, $PublicArtifactLocation)
