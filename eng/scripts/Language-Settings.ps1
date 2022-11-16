@@ -43,6 +43,45 @@ function SetPackageVersion ($PackageName, $Version, $ReleaseDate, $ReplaceLatest
   -ReleaseDate $ReleaseDate -ReplaceLatestEntryTitle $ReplaceLatestEntryTitle
 }
 
+# Parse out package publishing information given a maven POM file
+function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
+{
+  [xml]$contentXML = Get-Content $pkg
+
+  $pkgId = $contentXML.project.artifactId
+  $docsReadMeName = $pkgId -replace "^azure-" , ""
+  $pkgVersion = $contentXML.project.version
+  $groupId = if ($contentXML.project.groupId -eq $null) { $contentXML.project.parent.groupId } else { $contentXML.project.groupId }
+  $releaseNotes = ""
+  $readmeContent = ""
+
+  # if it's a snapshot. return $null (as we don't want to create tags for this, but we also don't want to fail)
+  if ($pkgVersion.Contains("SNAPSHOT")) {
+    return $null
+  }
+
+  $changeLogLoc = @(Get-ChildItem -Path $pkg.DirectoryName -Recurse -Include "$($pkg.Basename)-changelog.md")[0]
+  if ($changeLogLoc) {
+    $releaseNotes = Get-ChangeLogEntryAsString -ChangeLogLocation $changeLogLoc -VersionString $pkgVersion
+  }
+
+  $readmeContentLoc = @(Get-ChildItem -Path $pkg.DirectoryName -Recurse -Include "$($pkg.Basename)-readme.md")[0]
+  if ($readmeContentLoc) {
+    $readmeContent = Get-Content -Raw $readmeContentLoc
+  }
+
+  return New-Object PSObject -Property @{
+    PackageId      = $pkgId
+    GroupId        = $groupId
+    PackageVersion = $pkgVersion
+    ReleaseTag     = "$($pkgId)_$($pkgVersion)"
+    Deployable     = $forceCreate -or !(IsMavenPackageVersionPublished -pkgId $pkgId -pkgVersion $pkgVersion -groupId $groupId.Replace(".", "/"))
+    ReleaseNotes   = $releaseNotes
+    ReadmeContent  = $readmeContent
+    DocsReadMeName = $docsReadMeName
+  }
+}
+
 function Publish-android-GithubIODocs ($DocLocation, $PublicArtifactLocation)
 {
   $PublishedDocs = Get-ChildItem "$DocLocation" | Where-Object -FilterScript {$_.Name.EndsWith("-javadoc.jar")}
