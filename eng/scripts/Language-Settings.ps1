@@ -50,10 +50,51 @@ function SetPackageVersion ($PackageName, $Version, $ReleaseDate, $ReplaceLatest
   -ReleaseDate $ReleaseDate -ReplaceLatestEntryTitle $ReplaceLatestEntryTitle
 }
 
+# Returns the maven (really sonatype) publish status of a package id and version.
+function IsMavenPackageVersionPublished($pkgId, $pkgVersion, $groupId)
+{
+  $uri = "https://oss.sonatype.org/content/repositories/releases/$($groupId.Replace('.', '/'))/$pkgId/$pkgVersion/$pkgId-$pkgVersion.pom"
+
+  $attempt = 1
+  while ($attempt -le 3)
+  {
+    try
+    {
+      if ($attempt -gt 1) {
+        Start-Sleep -Seconds ([Math]::Pow(2, $attempt))
+      }
+
+      Write-Host "Checking published package at $uri"
+      $response = Invoke-WebRequest -Method "GET" -uri $uri -SkipHttpErrorCheck
+
+      if ($response.BaseResponse.IsSuccessStatusCode)
+      {
+        return $true
+      }
+
+      $statusCode = $response.StatusCode
+
+      if ($statusCode -eq 404)
+      {
+        return $false
+      }
+
+      Write-Host "Http request for maven package $groupId`:$pkgId`:$pkgVersion failed attempt $attempt with statuscode $statusCode"
+    }
+    catch
+    {
+      Write-Host "Http request for maven package $groupId`:$pkgId`:$pkgVersion failed attempt $attempt with exception $($_.Exception.Message)"
+    }
+
+    $attempt += 1
+  }
+
+  throw "Http request for maven package $groupId`:$pkgId`:$pkgVersion failed after 3 attempts"
+}
+
 # Parse out package publishing information given a maven POM file
 function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
 {
-  Write-Host "Get-android-PackageInfoFromPackageFile, pkg=$pkg"
   [xml]$contentXML = Get-Content $pkg
 
   $pkgId = $contentXML.project.artifactId
@@ -78,15 +119,7 @@ function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
     $readmeContent = Get-Content -Raw $readmeContentLoc
   }
 
-  Write-Host "Get-android-PackageInfoFromPackageFile, pkgId=$pkgId"
-  Write-Host "Get-android-PackageInfoFromPackageFile, groupId=$groupId"
-  Write-Host "Get-android-PackageInfoFromPackageFile, pkgVersion=$pkgVersion"
-  Write-Host "Get-android-PackageInfoFromPackageFile, releaseTag=$($pkgId)_$($pkgVersion)"
-  Write-Host "Get-android-PackageInfoFromPackageFile, releaseNotes=$releaseNotes"
-  Write-Host "Get-android-PackageInfoFromPackageFile, readmeContent=$readmeContent"
-  Write-Host "Get-android-PackageInfoFromPackageFile, docsReadMeName=$docsReadMeName"
-
-  $tempObj = New-Object PSObject -Property @{
+  return New-Object PSObject -Property @{
     PackageId      = $pkgId
     GroupId        = $groupId
     PackageVersion = $pkgVersion
@@ -96,8 +129,6 @@ function Get-android-PackageInfoFromPackageFile ($pkg, $workingDirectory)
     ReadmeContent  = $readmeContent
     DocsReadMeName = $docsReadMeName
   }
-  Write-Host "Get-android-PackageInfoFromPackageFile returning tempObj.ReleaseTag=$($tempObj.ReleaseTag)"
-  return $tempObj
 }
 
 function Publish-android-GithubIODocs ($DocLocation, $PublicArtifactLocation)
@@ -152,6 +183,7 @@ function Publish-android-GithubIODocs ($DocLocation, $PublicArtifactLocation)
       Write-Host "PkgName $($ArtifactId)"
       Write-Host "DocVersion $($Version)"
       $releaseTag = RetrieveReleaseTag $PublicArtifactLocation
+      Write-Host "releaseTag $($releaseTag)"
       Upload-Blobs -DocDir $UnjarredDocumentationPath -PkgName $ArtifactId -DocVersion $Version -ReleaseTag $releaseTag
     }
     Finally
