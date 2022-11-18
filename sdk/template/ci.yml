@@ -9,7 +9,7 @@ trigger:
       - release/*
   paths:
     include:
-      - sdk/core/
+      - sdk/template/
       - eng/
       - build.gradle
       - gradle.properties
@@ -24,7 +24,7 @@ pr:
       - release/*
   paths:
     include:
-      - sdk/core/
+      - sdk/template/
       - eng/
       - build.gradle
       - gradle.properties
