@@ -71,9 +71,9 @@ public class UserTokenClient {
                 }
                 else {
                     UserData userData = parseResponse(response.getBodyAsString());
-                    userID = userData.getUserID();
+                    userId = userData.getUserId();
                     userToken = userData.getUserToken();
-                    acsEndpoint = userData.getACSEndpoint();
+                    acsEndpoint = userData.getAcsEndpoint();
                 }
                 latch.countDown();
             }
