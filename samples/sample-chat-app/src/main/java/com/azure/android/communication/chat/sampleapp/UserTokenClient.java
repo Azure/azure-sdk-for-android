@@ -124,7 +124,7 @@ public class UserTokenClient {
         public UserData() {
         }
 
-        public String getACSEndpoint() {
+        public String getAcsEndpoint() {
             return acsEndpoint;
         }
 
