@@ -28,7 +28,7 @@ public class UserTokenClient {
 
     private String endpoint;
 
-    private String userID;
+    private String userId;
 
     private String userToken;
 
