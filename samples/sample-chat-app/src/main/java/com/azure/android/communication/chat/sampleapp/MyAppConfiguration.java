@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat.sampleapp;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
@@ -44,9 +45,10 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
             UserTokenClient userTokenClient = new UserTokenClient(AZURE_FUNCTION_URL);
             //First user context
             userTokenClient.getNewUserContext();
-            ACS_ENDPOINT = userTokenClient.getACSEndpoint();
+            ACS_ENDPOINT = userTokenClient.getAcsEndpoint();
             FIRST_USER_ID = userTokenClient.getUserId();
             FIRST_USER_ACCESS_TOKEN = userTokenClient.getUserToken();
+            Log.i("debug", FIRST_USER_ID + FIRST_USER_ACCESS_TOKEN + ACS_ENDPOINT);
             COMMUNICATION_TOKEN_CREDENTIAL = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
             //Second user context
             userTokenClient.getNewUserContext();

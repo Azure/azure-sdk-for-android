@@ -489,7 +489,6 @@ public class MainActivity extends AppCompatActivity {
                 logAndToast("Message sent with ID: " + chatMessageId);
             } catch (InterruptedException | ExecutionException e) {
                 logAndToast("Send message failed: " + e.getMessage());
-                logAndToast("Send message failed: " + e.getStackTrace());
             }
         } else {
             logAndToast("ChatThreadAsyncClient creation failed");
