@@ -128,7 +128,7 @@ public class UserTokenClient {
             return acsEndpoint;
         }
 
-        public String getUserID() {
+        public String getUserId() {
             return userId;
         }
 
