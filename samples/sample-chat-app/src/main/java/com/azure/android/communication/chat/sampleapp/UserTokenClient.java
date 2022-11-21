@@ -47,7 +47,7 @@ public class UserTokenClient {
         return userToken;
     }
 
-    public String getACSEndpoint() {
+    public String getAcsEndpoint() {
         return acsEndpoint;
     }
 
