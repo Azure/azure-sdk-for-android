@@ -40,7 +40,7 @@ public class UserTokenClient {
     }
 
     public String getUserId() {
-        return userID;
+        return userId;
     }
 
     public String getUserToken() {
