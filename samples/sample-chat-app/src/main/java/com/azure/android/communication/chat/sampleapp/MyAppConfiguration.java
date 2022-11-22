@@ -47,8 +47,7 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
             userTokenClient.getNewUserContext();
             ACS_ENDPOINT = userTokenClient.getAcsEndpoint();
             FIRST_USER_ID = userTokenClient.getUserId();
-            FIRST_USER_ACCESS_TOKEN = userTokenClient.getUserToken();
-            legger.info("debug", FIRST_USER_ID + FIRST_USER_ACCESS_TOKEN + ACS_ENDPOINT);
+            FIRST_USER_ACCESS_TOKEN = userTokenClient.getUserToken();=
             COMMUNICATION_TOKEN_CREDENTIAL = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
             //Second user context
             userTokenClient.getNewUserContext();
