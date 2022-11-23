@@ -3,21 +3,33 @@
 
 package com.azure.android.communication.chat.sampleapp;
 
-import static com.azure.android.communication.chat.sampleapp.ApplicationConstants.COMMUNICATION_TOKEN_CREDENTIAL;
-
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
 import com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationRenewalWorkerFactory;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import java9.util.function.Consumer;
 
 public class MyAppConfiguration extends Application implements Configuration.Provider {
+    public static String FIRST_USER_ID;
+
+    public static String SECOND_USER_ID;
+
+    public static String FIRST_USER_ACCESS_TOKEN;
+
+    public static String ACS_ENDPOINT;
+
+    public static CommunicationTokenCredential COMMUNICATION_TOKEN_CREDENTIAL;
+
     private ClientLogger logger = new ClientLogger(MyAppConfiguration.class);
+
+    private final static String AZURE_FUNCTION_URL = "<replace_with_azure_function_endpoint>";
 
     Consumer<Throwable> exceptionHandler = new Consumer<Throwable>() {
         @Override
@@ -29,6 +41,21 @@ public class MyAppConfiguration extends Application implements Configuration.Pro
     @Override
     public void onCreate() {
         super.onCreate();
+        try {
+            UserTokenClient userTokenClient = new UserTokenClient(AZURE_FUNCTION_URL);
+            //First user context
+            userTokenClient.getNewUserContext();
+            ACS_ENDPOINT = userTokenClient.getAcsEndpoint();
+            FIRST_USER_ID = userTokenClient.getUserId();
+            FIRST_USER_ACCESS_TOKEN = userTokenClient.getUserToken();
+            COMMUNICATION_TOKEN_CREDENTIAL = new CommunicationTokenCredential(FIRST_USER_ACCESS_TOKEN);
+            //Second user context
+            userTokenClient.getNewUserContext();
+            SECOND_USER_ID = userTokenClient.getUserId();
+        } catch (Throwable throwable) {
+            //Your handling code
+            logger.logThrowableAsError(throwable);
+        }
         WorkManager.initialize(getApplicationContext(), getWorkManagerConfiguration());
     }
 
