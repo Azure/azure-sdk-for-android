@@ -122,3 +122,4 @@ jobs:
             summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
             pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
           displayName: Publish code coverage for ${{artifact.name}}
+
