@@ -37,5 +37,3 @@ final class TokenStubHelper {
         return createTokenString(System.currentTimeMillis() / 1000 + secondsFromNow);
     }
 }
-
-

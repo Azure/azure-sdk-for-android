@@ -717,4 +717,3 @@ public class FlatteningSerializerTests {
         }
     }
 }
-

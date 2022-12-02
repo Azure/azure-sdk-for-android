@@ -58,4 +58,3 @@ public enum SerdeCollectionFormat {
         return delimiter;
     }
 }
-

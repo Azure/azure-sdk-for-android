@@ -484,4 +484,3 @@ public class Base64 {
 
     private Base64() { }
 }
-

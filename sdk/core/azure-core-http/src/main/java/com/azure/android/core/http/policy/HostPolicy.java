@@ -36,4 +36,3 @@ public class HostPolicy implements HttpPipelinePolicy {
         chain.processNextPolicy(httpRequest);
     }
 }
-

@@ -45,4 +45,3 @@ public class RequestIdPolicy implements HttpPipelinePolicy {
         chain.processNextPolicy(httpRequest);
     }
 }
-

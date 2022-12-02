@@ -37,4 +37,3 @@ class MockTokenRefresher implements Callable<String> {
         this.callCount++;
     }
 }
-
