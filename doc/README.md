@@ -1,4 +1,3 @@
-
 This directory contains some documentations for this repository:
 
 The directory structure is the following

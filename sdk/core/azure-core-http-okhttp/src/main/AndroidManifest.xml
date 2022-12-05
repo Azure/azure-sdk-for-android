@@ -9,4 +9,3 @@
       -->
     <uses-sdk tools:overrideLibrary="com.azure.core.test" />
 </manifest>
-

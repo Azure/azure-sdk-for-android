@@ -346,5 +346,3 @@ public final class CancellationToken {
         }
     }
 }
-
-
