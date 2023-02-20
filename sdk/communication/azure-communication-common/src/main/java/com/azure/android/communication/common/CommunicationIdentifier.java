@@ -14,12 +14,13 @@ public abstract class CommunicationIdentifier {
     protected static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
     protected static final String TEAMS_DOD_USER_PREFIX = "8:dod:";
     protected static final String TEAMS_ANONYMOUS_USER_PREFIX = "8:teamsvisitor:";
-    private static final String BOT_PUBLIC_PREFIX = "28:orgid:";
-    private static final String BOT_DOD_PREFIX = "28:dod:";
-    private static final String BOT_DOD_GLOBAL_PREFIX = "28:dod-global:";
-    private static final String BOT_GCCH_PREFIX = "28:gcch";
-    private static final String BOT_GCCH_GLOBAL_PREFIX = "28:gcch-global:";
+    protected static final String BOT_PUBLIC_PREFIX = "28:orgid:";
+    protected static final String BOT_DOD_PREFIX = "28:dod:";
+    protected static final String BOT_DOD_GLOBAL_PREFIX = "28:dod-global:";
+    protected static final String BOT_GCCH_PREFIX = "28:gcch";
+    protected static final String BOT_GCCH_GLOBAL_PREFIX = "28:gcch-global:";
     protected static final String PHONE_NUMBER_PREFIX = "4:";
+    protected static final String BOT_PREFIX = "28:";
     private String rawId;
 
     /**
@@ -39,28 +40,43 @@ public abstract class CommunicationIdentifier {
         }
         final String[] segments = rawId.split(":");
         if (segments.length < 3) {
+            if (segments.length == 2 && rawId.startsWith(BOT_PREFIX)) {
+                return new MicrosoftBotIdentifier(segments[1], true);
+            }
             return new UnknownIdentifier(rawId);
         }
 
         final String prefix = segments[0] + ":" + segments[1] + ":";
-        final String suffix = rawId.substring(prefix.length());
-
-        if (TEAMS_ANONYMOUS_USER_PREFIX.equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, true);
-        } else if (TEAMS_PUBLIC_USER_PREFIX.equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, false);
-        } else if (TEAMS_DOD_USER_PREFIX.equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, false)
-                .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-        } else if (TEAMS_GCCH_USER_PREFIX.equals(prefix)) {
-            return new MicrosoftTeamsUserIdentifier(suffix, false)
-                .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-        } else if (ACS_USER_PREFIX.equals(prefix) || SPOOL_USER_PREFIX.equals(prefix)
-            || ACS_DOD_USER_PREFIX.equals(prefix) || ACS_GCCH_USER_PREFIX.equals(prefix)) {
-            return new CommunicationUserIdentifier(rawId);
+        final String suffix = segments[2];
+        switch (prefix) {
+            case TEAMS_ANONYMOUS_USER_PREFIX:
+                return new MicrosoftTeamsUserIdentifier(suffix, true);
+            case TEAMS_PUBLIC_USER_PREFIX:
+                return new MicrosoftTeamsUserIdentifier(suffix, false);
+            case TEAMS_DOD_USER_PREFIX:
+            case TEAMS_GCCH_USER_PREFIX:
+                return new MicrosoftTeamsUserIdentifier(suffix, false)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.fromString(segments[1]));
+            case BOT_DOD_GLOBAL_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, true)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
+            case BOT_GCCH_GLOBAL_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, true)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
+            case BOT_PUBLIC_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, false);
+            case BOT_DOD_PREFIX:
+            case BOT_GCCH_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, false)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.fromString(segments[1]));
+            case ACS_USER_PREFIX:
+            case SPOOL_USER_PREFIX:
+            case ACS_DOD_USER_PREFIX:
+            case ACS_GCCH_USER_PREFIX:
+                return new CommunicationUserIdentifier(rawId);
+            default:
+                return new UnknownIdentifier(rawId);
         }
-
-        return new UnknownIdentifier(rawId);
     }
 
     /**
