@@ -21,7 +21,8 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
      */
     public MicrosoftBotIdentifier(String microsoftBotId, boolean isGlobal) {
         if (microsoftBotId == null || microsoftBotId.trim().length() == 0) {
-            throw new IllegalArgumentException("The initialization parameter [microsoftBotId] cannot be null or empty.");
+            String error = "The initialization parameter [microsoftBotId] cannot be null or empty.";
+            throw new IllegalArgumentException(error);
         }
         this.microsoftBotId = microsoftBotId;
         this.isGlobal = isGlobal;
