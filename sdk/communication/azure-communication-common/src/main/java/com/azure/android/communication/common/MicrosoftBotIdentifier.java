@@ -127,12 +127,14 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
                 } else {
                     super.setRawId(BOT_PREFIX + this.microsoftBotId);
                 }
-            } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-                super.setRawId(BOT_DOD_PREFIX + this.microsoftBotId);
-            } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-                super.setRawId(BOT_GCCH_PREFIX + this.microsoftBotId);
             } else {
-                super.setRawId(BOT_PUBLIC_PREFIX + this.microsoftBotId);
+                if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
+                    super.setRawId(BOT_DOD_PREFIX + this.microsoftBotId);
+                } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
+                    super.setRawId(BOT_GCCH_PREFIX + this.microsoftBotId);
+                } else {
+                    super.setRawId(BOT_PUBLIC_PREFIX + this.microsoftBotId);
+                }
             }
         }
     }

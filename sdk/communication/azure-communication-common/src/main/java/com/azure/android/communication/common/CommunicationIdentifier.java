@@ -6,21 +6,21 @@ package com.azure.android.communication.common;
  * Common communication identifier for Communication Services
  */
 public abstract class CommunicationIdentifier {
-    private static final String ACS_USER_PREFIX = "8:acs:";
-    private static final String ACS_GCCH_USER_PREFIX = "8:gcch-acs:";
-    private static final String ACS_DOD_USER_PREFIX = "8:dod-acs:";
-    private static final String SPOOL_USER_PREFIX = "8:spool:";
-    protected static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
-    protected static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
-    protected static final String TEAMS_DOD_USER_PREFIX = "8:dod:";
-    protected static final String TEAMS_ANONYMOUS_USER_PREFIX = "8:teamsvisitor:";
-    protected static final String BOT_PUBLIC_PREFIX = "28:orgid:";
-    protected static final String BOT_DOD_PREFIX = "28:dod:";
-    protected static final String BOT_DOD_GLOBAL_PREFIX = "28:dod-global:";
-    protected static final String BOT_GCCH_PREFIX = "28:gcch";
-    protected static final String BOT_GCCH_GLOBAL_PREFIX = "28:gcch-global:";
-    protected static final String PHONE_NUMBER_PREFIX = "4:";
-    protected static final String BOT_PREFIX = "28:";
+    static final String ACS_USER_PREFIX = "8:acs:";
+    static final String ACS_GCCH_USER_PREFIX = "8:gcch-acs:";
+    static final String ACS_DOD_USER_PREFIX = "8:dod-acs:";
+    static final String SPOOL_USER_PREFIX = "8:spool:";
+    static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
+    static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
+    static final String TEAMS_DOD_USER_PREFIX = "8:dod:";
+    static final String TEAMS_ANONYMOUS_USER_PREFIX = "8:teamsvisitor:";
+    static final String BOT_PUBLIC_PREFIX = "28:orgid:";
+    static final String BOT_DOD_PREFIX = "28:dod:";
+    static final String BOT_DOD_GLOBAL_PREFIX = "28:dod-global:";
+    static final String BOT_GCCH_PREFIX = "28:gcch:";
+    static final String BOT_GCCH_GLOBAL_PREFIX = "28:gcch-global:";
+    static final String PHONE_NUMBER_PREFIX = "4:";
+    static final String BOT_PREFIX = "28:";
     private String rawId;
 
     /**
