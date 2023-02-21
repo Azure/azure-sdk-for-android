@@ -23,10 +23,10 @@ public class CommunicationIdentifierTests {
     @Test
     public void microsoftBotIdentifier_throwsMicrosoftBotIdNullOrEmpty() {
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftBotIdentifier(null));
-        assertEquals("The initialization parameter [microsoftBotId] cannot be null or empty.", illegalArgumentException.getMessage());
+        assertEquals("The initialization parameter [botId] cannot be null or empty.", illegalArgumentException.getMessage());
 
         illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftBotIdentifier(""));
-        assertEquals("The initialization parameter [microsoftBotId] cannot be null or empty.", illegalArgumentException.getMessage());
+        assertEquals("The initialization parameter [botId] cannot be null or empty.", illegalArgumentException.getMessage());
     }
 
     @Test

@@ -7,7 +7,7 @@ package com.azure.android.communication.common;
  * Communication identifier for Microsoft bots
  */
 public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
-    private final String microsoftBotId;
+    private final String botId;
     private final boolean isGlobal;
     private boolean rawIdSet = false;
     private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
@@ -15,16 +15,15 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftBotIdentifier object
      *
-     * @param microsoftBotId The unique Microsoft app ID for the bot as registered with the Bot Framework.
+     * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
      * @param isGlobal Set this to true if the bot is global and false if the bot is tenantized.
      * @throws IllegalArgumentException thrown if microsoftBotId parameter fail the validation.
      */
-    public MicrosoftBotIdentifier(String microsoftBotId, boolean isGlobal) {
-        if (microsoftBotId == null || microsoftBotId.trim().length() == 0) {
-            String error = "The initialization parameter [microsoftBotId] cannot be null or empty.";
-            throw new IllegalArgumentException(error);
+    public MicrosoftBotIdentifier(String botId, boolean isGlobal) {
+        if (botId == null || botId.trim().length() == 0) {
+            throw new IllegalArgumentException("The initialization parameter [botId] cannot be null or empty.");
         }
-        this.microsoftBotId = microsoftBotId;
+        this.botId = botId;
         this.isGlobal = isGlobal;
         generateRawId();
     }
@@ -32,19 +31,19 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftBotIdentifier object
      *
-     * @param microsoftBotId The unique Microsoft app ID for the bot as registered with the Bot Framework.
+     * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
      * @throws IllegalArgumentException thrown if microsoftBotId parameter fail the validation.
      */
-    public MicrosoftBotIdentifier(String microsoftBotId) {
-        this(microsoftBotId, false);
+    public MicrosoftBotIdentifier(String botId) {
+        this(botId, false);
     }
 
     /**
      * Get the Microsoft app ID for the bot.
      * @return microsoftBotId Id of the Microsoft app ID for the bot.
      */
-    public String getMicrosoftBotId() {
-        return this.microsoftBotId;
+    public String getBotId() {
+        return this.botId;
     }
 
     /**
@@ -122,19 +121,19 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
         if (!rawIdSet) {
             if (this.isGlobal) {
                 if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-                    super.setRawId(BOT_DOD_GLOBAL_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_DOD_GLOBAL_PREFIX + this.botId);
                 } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-                    super.setRawId(BOT_GCCH_GLOBAL_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_GCCH_GLOBAL_PREFIX + this.botId);
                 } else {
-                    super.setRawId(BOT_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_PREFIX + this.botId);
                 }
             } else {
                 if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-                    super.setRawId(BOT_DOD_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_DOD_PREFIX + this.botId);
                 } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-                    super.setRawId(BOT_GCCH_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_GCCH_PREFIX + this.botId);
                 } else {
-                    super.setRawId(BOT_PUBLIC_PREFIX + this.microsoftBotId);
+                    super.setRawId(BOT_PUBLIC_PREFIX + this.botId);
                 }
             }
         }
