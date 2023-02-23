@@ -55,9 +55,11 @@ public abstract class CommunicationIdentifier {
             case TEAMS_PUBLIC_USER_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, false);
             case TEAMS_DOD_USER_PREFIX:
+                return new MicrosoftTeamsUserIdentifier(suffix, false)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
             case TEAMS_GCCH_USER_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, false)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.fromString(segments[1]));
+                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
             case BOT_DOD_GLOBAL_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, true)
                     .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
@@ -67,9 +69,11 @@ public abstract class CommunicationIdentifier {
             case BOT_PUBLIC_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, false);
             case BOT_DOD_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, false)
+                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
             case BOT_GCCH_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, false)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.fromString(segments[1]));
+                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
             case ACS_USER_PREFIX:
             case SPOOL_USER_PREFIX:
             case ACS_DOD_USER_PREFIX:
