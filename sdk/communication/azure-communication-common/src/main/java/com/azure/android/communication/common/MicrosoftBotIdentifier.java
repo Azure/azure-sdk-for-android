@@ -4,7 +4,7 @@
 package com.azure.android.communication.common;
 
 /**
- * Communication identifier for Microsoft bots
+ * Communication identifier for a Microsoft bot.
  */
 public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     private final String botId;
@@ -73,7 +73,7 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Set full id of the identifier
+     * Set full id of the identifier.
      * RawId is the encoded format for identifiers to store in databases or as stable keys in general.
      *
      * @param rawId full id of the identifier.
