@@ -39,8 +39,9 @@ public abstract class CommunicationIdentifier {
             return new PhoneNumberIdentifier(rawId.substring(PHONE_NUMBER_PREFIX.length()));
         }
         final String[] segments = rawId.split(":");
-        if (segments.length < 3) {
-            if (segments.length == 2 && rawId.startsWith(BOT_PREFIX)) {
+        int segmentCount = segments.length;
+        if (segmentCount != 3) {
+            if (segmentCount == 2 && rawId.startsWith(BOT_PREFIX)) {
                 return new MicrosoftBotIdentifier(segments[1], true);
             }
             return new UnknownIdentifier(rawId);

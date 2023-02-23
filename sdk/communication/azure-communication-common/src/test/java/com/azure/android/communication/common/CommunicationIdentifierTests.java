@@ -219,11 +219,29 @@ public class CommunicationIdentifierTests {
         assertIdentifier(CommunicationIdentifier.BOT_GCCH_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, false).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
         assertIdentifier(CommunicationIdentifier.BOT_GCCH_GLOBAL_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, true).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
 
-        assertIdentifier("48:45ab2481-1c1c-4005-be24-0ffb879b1130", new UnknownIdentifier("48:45ab2481-1c1c-4005-be24-0ffb879b1130"));
-
         final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> CommunicationIdentifier.fromRawId(null));
         assertEquals("The parameter [rawId] cannot be null to empty.", illegalArgumentException.getMessage());
     }
+
+    @Test
+    public void createIdentifierFromRawId_unknownIdentifierForInvalidMRI() {
+        String [] invalidRawIDs = {
+            "48:45ab2481-1c1c-4005-be24-0ffb879b1130",
+            CommunicationIdentifier.BOT_PREFIX + microsoftBotId + ":newFormat",
+            CommunicationIdentifier.BOT_PUBLIC_PREFIX + microsoftBotId+ ":newFormat:with more segments",
+            CommunicationIdentifier.BOT_GCCH_PREFIX + ":abc-global:" + microsoftBotId,
+            CommunicationIdentifier.BOT_GCCH_GLOBAL_PREFIX + ":abc-global:" + microsoftBotId,
+            CommunicationIdentifier.ACS_GCCH_USER_PREFIX + ":abc:def:1234",
+            CommunicationIdentifier.ACS_USER_PREFIX + ":1:2:3:4:5:6:7:8:9",
+            CommunicationIdentifier.ACS_DOD_USER_PREFIX + ":1:2:3",
+            CommunicationIdentifier.SPOOL_USER_PREFIX + ": other format: :123: 90",
+            CommunicationIdentifier.TEAMS_PUBLIC_USER_PREFIX + ":abc:def:1234"
+        };
+        for (String invalidRawID: invalidRawIDs) {
+            assertIdentifier(invalidRawID, new UnknownIdentifier(invalidRawID));
+        }
+    }
+
 
     @Test
     public void rawIdStaysTheSameAfterConversionToIdentifierAndBack()
