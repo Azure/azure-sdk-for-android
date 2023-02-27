@@ -53,7 +53,7 @@ public class CommunicationIdentifierTests {
             new MicrosoftBotIdentifier(microsoftBotId, true));
 
 
-        String publicGlobalRawId = CommunicationIdentifier.BOT_PREFIX + microsoftBotId;
+        String publicGlobalRawId = "28:45ab2481-1c1c-4005-be24-0ffb879b1130";
         assertNotEquals(new MicrosoftBotIdentifier(microsoftBotId, true)
                 .setRawId(publicGlobalRawId),
             new MicrosoftBotIdentifier(microsoftBotId, true)
@@ -65,7 +65,7 @@ public class CommunicationIdentifierTests {
             new MicrosoftBotIdentifier("override", false)
                 .setRawId(publicGlobalRawId));
 
-        String gcchGlobalRawId = CommunicationIdentifier.BOT_GCCH_GLOBAL_PREFIX + microsoftBotId;
+        String gcchGlobalRawId = "28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
         assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true)
                 .setCloudEnvironment(CommunicationCloudEnvironment.GCCH),
             new MicrosoftBotIdentifier("override", true)
@@ -77,7 +77,7 @@ public class CommunicationIdentifierTests {
                 .setCloudEnvironment(CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchGlobalRawId));
 
-        String gcchRawId = CommunicationIdentifier.BOT_GCCH_PREFIX + microsoftBotId;
+        String gcchRawId = "28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130";
         assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false)
                 .setCloudEnvironment(CommunicationCloudEnvironment.GCCH),
             new MicrosoftBotIdentifier("override", true)
@@ -89,7 +89,7 @@ public class CommunicationIdentifierTests {
                 .setCloudEnvironment(CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchRawId));
 
-        String dodGlobalRawId = CommunicationIdentifier.BOT_DOD_GLOBAL_PREFIX + microsoftBotId;
+        String dodGlobalRawId = "28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
         assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true)
                 .setCloudEnvironment(CommunicationCloudEnvironment.DOD),
             new MicrosoftBotIdentifier("override", true)
@@ -101,7 +101,7 @@ public class CommunicationIdentifierTests {
                 .setCloudEnvironment(CommunicationCloudEnvironment.DOD)
                 .setRawId(dodGlobalRawId));
 
-        String dodRawId = CommunicationIdentifier.BOT_DOD_PREFIX + microsoftBotId;
+        String dodRawId = "28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130";
         assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false)
                 .setCloudEnvironment(CommunicationCloudEnvironment.DOD),
             new MicrosoftBotIdentifier("override", true)
@@ -212,12 +212,12 @@ public class CommunicationIdentifierTests {
         assertIdentifier("4:207ffef6-9444-41fb-92ab-20eacaae2768_207ffef6-9444-41fb-92ab-20eacaae2768", new PhoneNumberIdentifier("207ffef6-9444-41fb-92ab-20eacaae2768_207ffef6-9444-41fb-92ab-20eacaae2768"));
         assertIdentifier("4:+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768", new PhoneNumberIdentifier("+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768"));
 
-        assertIdentifier(CommunicationIdentifier.BOT_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, true));
-        assertIdentifier(CommunicationIdentifier.BOT_PUBLIC_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, false));
-        assertIdentifier(CommunicationIdentifier.BOT_DOD_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, false).setCloudEnvironment(CommunicationCloudEnvironment.DOD));
-        assertIdentifier(CommunicationIdentifier.BOT_DOD_GLOBAL_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, true).setCloudEnvironment(CommunicationCloudEnvironment.DOD));
-        assertIdentifier(CommunicationIdentifier.BOT_GCCH_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, false).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
-        assertIdentifier(CommunicationIdentifier.BOT_GCCH_GLOBAL_PREFIX + microsoftBotId, new MicrosoftBotIdentifier(microsoftBotId, true).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
+        assertIdentifier("28:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true));
+        assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false));
+        assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false).setCloudEnvironment(CommunicationCloudEnvironment.DOD));
+        assertIdentifier("28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true).setCloudEnvironment(CommunicationCloudEnvironment.DOD));
+        assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
+        assertIdentifier("28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
 
         final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> CommunicationIdentifier.fromRawId(null));
         assertEquals("The parameter [rawId] cannot be null to empty.", illegalArgumentException.getMessage());
@@ -227,15 +227,15 @@ public class CommunicationIdentifierTests {
     public void createIdentifierFromRawId_unknownIdentifierForInvalidMRI() {
         String [] invalidRawIDs = {
             "48:45ab2481-1c1c-4005-be24-0ffb879b1130",
-            CommunicationIdentifier.BOT_PREFIX + microsoftBotId + ":newFormat",
-            CommunicationIdentifier.BOT_PUBLIC_PREFIX + microsoftBotId+ ":newFormat:with more segments",
-            CommunicationIdentifier.BOT_GCCH_PREFIX + ":abc-global:" + microsoftBotId,
-            CommunicationIdentifier.BOT_GCCH_GLOBAL_PREFIX + ":abc-global:" + microsoftBotId,
-            CommunicationIdentifier.ACS_GCCH_USER_PREFIX + ":abc:def:1234",
-            CommunicationIdentifier.ACS_USER_PREFIX + ":1:2:3:4:5:6:7:8:9",
-            CommunicationIdentifier.ACS_DOD_USER_PREFIX + ":1:2:3",
-            CommunicationIdentifier.SPOOL_USER_PREFIX + ": other format: :123: 90",
-            CommunicationIdentifier.TEAMS_PUBLIC_USER_PREFIX + ":abc:def:1234"
+            "28:45ab2481-1c1c-4005-be24-0ffb879b1130:newFormat",
+            "28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130:newFormat:with more segments",
+            "28:gcch:abc-global:45ab2481-1c1c-4005-be24-0ffb879b1130",
+            "28:gcch-global:abc-global:45ab2481-1c1c-4005-be24-0ffb879b1130",
+            "8:gcch-acs:abc:def:1234",
+            "8:acs::1:2:3:4:5:6:7:8:9",
+            "8:dod-acs::1:2:3",
+            "8:spool:: other format: :123: 90",
+            "8:orgid:abc:def:1234"
         };
         for (String invalidRawID: invalidRawIDs) {
             assertIdentifier(invalidRawID, new UnknownIdentifier(invalidRawID));
@@ -262,12 +262,12 @@ public class CommunicationIdentifierTests {
         assertRoundTrip("4:207ffef6-9444-41fb-92ab-20eacaae2768");
         assertRoundTrip("4:207ffef6-9444-41fb-92ab-20eacaae2768_207ffef6-9444-41fb-92ab-20eacaae2768");
         assertRoundTrip("4:+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768");
-        assertRoundTrip(CommunicationIdentifier.BOT_PREFIX + microsoftBotId);
-        assertRoundTrip(CommunicationIdentifier.BOT_PUBLIC_PREFIX + microsoftBotId);
-        assertRoundTrip(CommunicationIdentifier.BOT_DOD_PREFIX + microsoftBotId);
-        assertRoundTrip(CommunicationIdentifier.BOT_DOD_GLOBAL_PREFIX + microsoftBotId);
-        assertRoundTrip(CommunicationIdentifier.BOT_GCCH_PREFIX + microsoftBotId);
-        assertRoundTrip(CommunicationIdentifier.BOT_DOD_GLOBAL_PREFIX + microsoftBotId);
+        assertRoundTrip("28:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130");
     }
 
     private void assertRawId(CommunicationIdentifier identifier, String expectedRawId)  {
