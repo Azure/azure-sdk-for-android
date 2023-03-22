@@ -63,7 +63,7 @@ public abstract class CommunicationIdentifier {
             case BOT_DOD_CLOUD_GLOBAL_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.DOD, false);
             case BOT_GCCH_CLOUD_GLOBAL_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH,false);
+                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH, false);
             case BOT_PUBLIC_CLOUD_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, true);
             case BOT_DOD_CLOUD_PREFIX:
