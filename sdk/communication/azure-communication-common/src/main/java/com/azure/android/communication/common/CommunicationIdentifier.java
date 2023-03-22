@@ -7,20 +7,20 @@ package com.azure.android.communication.common;
  */
 public abstract class CommunicationIdentifier {
     static final String ACS_USER_PREFIX = "8:acs:";
-    static final String ACS_GCCH_USER_PREFIX = "8:gcch-acs:";
-    static final String ACS_DOD_USER_PREFIX = "8:dod-acs:";
+    static final String ACS_USER_GCCH_CLOUD_PREFIX = "8:gcch-acs:";
+    static final String ACS_USER_DOD_CLOUD_PREFIX = "8:dod-acs:";
     static final String SPOOL_USER_PREFIX = "8:spool:";
-    static final String TEAMS_PUBLIC_USER_PREFIX = "8:orgid:";
-    static final String TEAMS_GCCH_USER_PREFIX = "8:gcch:";
-    static final String TEAMS_DOD_USER_PREFIX = "8:dod:";
+    static final String TEAMS_USER_PUBLIC_CLOUD_PREFIX = "8:orgid:";
+    static final String TEAMS_USER_GCCH_CLOUD_PREFIX = "8:gcch:";
+    static final String TEAMS_USER_DOD_CLOUD_PREFIX = "8:dod:";
     static final String TEAMS_ANONYMOUS_USER_PREFIX = "8:teamsvisitor:";
-    static final String BOT_PUBLIC_PREFIX = "28:orgid:";
-    static final String BOT_DOD_PREFIX = "28:dod:";
-    static final String BOT_DOD_GLOBAL_PREFIX = "28:dod-global:";
-    static final String BOT_GCCH_PREFIX = "28:gcch:";
-    static final String BOT_GCCH_GLOBAL_PREFIX = "28:gcch-global:";
-    static final String PHONE_NUMBER_PREFIX = "4:";
     static final String BOT_PREFIX = "28:";
+    static final String BOT_PUBLIC_CLOUD_PREFIX = "28:orgid:";
+    static final String BOT_DOD_CLOUD_PREFIX = "28:dod:";
+    static final String BOT_DOD_CLOUD_GLOBAL_PREFIX = "28:dod-global:";
+    static final String BOT_GCCH_CLOUD_PREFIX = "28:gcch:";
+    static final String BOT_GCCH_CLOUD_GLOBAL_PREFIX = "28:gcch-global:";
+    static final String PHONE_NUMBER_PREFIX = "4:";
     private String rawId;
 
     /**
@@ -42,7 +42,7 @@ public abstract class CommunicationIdentifier {
         int segmentCount = segments.length;
         if (segmentCount != 3) {
             if (segmentCount == 2 && rawId.startsWith(BOT_PREFIX)) {
-                return new MicrosoftBotIdentifier(segments[1], true);
+                return new MicrosoftBotIdentifier(segments[1], false);
             }
             return new UnknownIdentifier(rawId);
         }
@@ -52,32 +52,28 @@ public abstract class CommunicationIdentifier {
         switch (prefix) {
             case TEAMS_ANONYMOUS_USER_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, true);
-            case TEAMS_PUBLIC_USER_PREFIX:
+            case TEAMS_USER_PUBLIC_CLOUD_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, false);
-            case TEAMS_DOD_USER_PREFIX:
+            case TEAMS_USER_DOD_CLOUD_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, false)
                     .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-            case TEAMS_GCCH_USER_PREFIX:
+            case TEAMS_USER_GCCH_CLOUD_PREFIX:
                 return new MicrosoftTeamsUserIdentifier(suffix, false)
                     .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-            case BOT_DOD_GLOBAL_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, true)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-            case BOT_GCCH_GLOBAL_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, true)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
-            case BOT_PUBLIC_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, false);
-            case BOT_DOD_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, false)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.DOD);
-            case BOT_GCCH_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, false)
-                    .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
+            case BOT_DOD_CLOUD_GLOBAL_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.DOD, false);
+            case BOT_GCCH_CLOUD_GLOBAL_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH,false);
+            case BOT_PUBLIC_CLOUD_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, true);
+            case BOT_DOD_CLOUD_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.DOD, true);
+            case BOT_GCCH_CLOUD_PREFIX:
+                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH, true);
             case ACS_USER_PREFIX:
             case SPOOL_USER_PREFIX:
-            case ACS_DOD_USER_PREFIX:
-            case ACS_GCCH_USER_PREFIX:
+            case ACS_USER_DOD_CLOUD_PREFIX:
+            case ACS_USER_GCCH_CLOUD_PREFIX:
                 return new CommunicationUserIdentifier(rawId);
             default:
                 return new UnknownIdentifier(rawId);

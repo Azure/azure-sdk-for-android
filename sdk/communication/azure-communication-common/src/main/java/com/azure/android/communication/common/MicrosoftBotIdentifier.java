@@ -8,23 +8,25 @@ package com.azure.android.communication.common;
  */
 public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     private final String botId;
-    private final boolean isGlobal;
+    private final boolean isResourceAccountConfigured;
     private boolean rawIdSet = false;
-    private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
+    private CommunicationCloudEnvironment cloudEnvironment;
 
     /**
      * Creates a MicrosoftBotIdentifier object
      *
      * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
-     * @param isGlobal Set this to true if the bot is global and false if the bot is tenantized.
-     * @throws IllegalArgumentException thrown if microsoftBotId parameter fail the validation.
+     * @param cloudEnvironment the cloud environment in which this identifier is created.
+     * @param isResourceAccountConfigured Set this to true if the bot is tenantized. It is false if the bot is global and no resource account is configured.
+     * @throws IllegalArgumentException thrown if botId parameter fail the validation.
      */
-    public MicrosoftBotIdentifier(String botId, boolean isGlobal) {
+    public MicrosoftBotIdentifier(String botId, CommunicationCloudEnvironment cloudEnvironment, boolean isResourceAccountConfigured) {
         if (botId == null || botId.trim().length() == 0) {
             throw new IllegalArgumentException("The initialization parameter [botId] cannot be null or empty.");
         }
         this.botId = botId;
-        this.isGlobal = isGlobal;
+        this.cloudEnvironment = cloudEnvironment;
+        this.isResourceAccountConfigured = isResourceAccountConfigured;
         generateRawId();
     }
 
@@ -32,10 +34,21 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
      * Creates a MicrosoftBotIdentifier object
      *
      * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
-     * @throws IllegalArgumentException thrown if microsoftBotId parameter fail the validation.
+     * @param isResourceAccountConfigured Set this to true if the bot is tenantized. It is false if the bot is global and no resource account is configured.
+     * @throws IllegalArgumentException thrown if botId parameter fail the validation.
+     */
+    public MicrosoftBotIdentifier(String botId, boolean isResourceAccountConfigured) {
+        this(botId, CommunicationCloudEnvironment.PUBLIC, isResourceAccountConfigured);
+    }
+
+    /**
+     * Creates a MicrosoftBotIdentifier object
+     *
+     * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
+     * @throws IllegalArgumentException thrown if botId parameter fail the validation.
      */
     public MicrosoftBotIdentifier(String botId) {
-        this(botId, false);
+        this(botId, CommunicationCloudEnvironment.PUBLIC, true);
     }
 
     /**
@@ -47,21 +60,10 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * @return True if the bot is global and false if the bot is tenantized.
+     * @return True if the bot is tenantized and false if the bot is global and no resource account is configured.
      */
-    public boolean isGlobal() {
-        return this.isGlobal;
-    }
-
-    /**
-     * Set cloud environment of the Microsoft bot identifier, by default it is the Public cloud.
-     * @param cloudEnvironment the cloud environment in which this identifier is created.
-     * @return this object
-     */
-    public MicrosoftBotIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
-        this.cloudEnvironment = cloudEnvironment;
-        generateRawId();
-        return this;
+    public boolean isResourceAccountConfigured() {
+        return this.isResourceAccountConfigured;
     }
 
     /**
@@ -96,19 +98,7 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
             return false;
         }
 
-        MicrosoftBotIdentifier thatId = (MicrosoftBotIdentifier) that;
-
-        if (cloudEnvironment != null && !cloudEnvironment.equals(thatId.cloudEnvironment)) {
-            return false;
-        }
-
-        if (thatId.cloudEnvironment != null && !thatId.cloudEnvironment.equals(this.cloudEnvironment)) {
-            return false;
-        }
-
-        return getRawId() == null
-            || thatId.getRawId() == null
-            || thatId.getRawId().equals(this.getRawId());
+        return ((MicrosoftBotIdentifier) that).getRawId().equals(this.getRawId());
     }
 
 
@@ -119,21 +109,21 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
 
     private void generateRawId() {
         if (!rawIdSet) {
-            if (this.isGlobal) {
+            if (!this.isResourceAccountConfigured) {
                 if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-                    super.setRawId(BOT_DOD_GLOBAL_PREFIX + this.botId);
+                    super.setRawId(BOT_DOD_CLOUD_GLOBAL_PREFIX + this.botId);
                 } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-                    super.setRawId(BOT_GCCH_GLOBAL_PREFIX + this.botId);
+                    super.setRawId(BOT_GCCH_CLOUD_GLOBAL_PREFIX + this.botId);
                 } else {
                     super.setRawId(BOT_PREFIX + this.botId);
                 }
             } else {
                 if (cloudEnvironment.equals(CommunicationCloudEnvironment.DOD)) {
-                    super.setRawId(BOT_DOD_PREFIX + this.botId);
+                    super.setRawId(BOT_DOD_CLOUD_PREFIX + this.botId);
                 } else if (cloudEnvironment.equals(CommunicationCloudEnvironment.GCCH)) {
-                    super.setRawId(BOT_GCCH_PREFIX + this.botId);
+                    super.setRawId(BOT_GCCH_CLOUD_PREFIX + this.botId);
                 } else {
-                    super.setRawId(BOT_PUBLIC_PREFIX + this.botId);
+                    super.setRawId(BOT_PUBLIC_CLOUD_PREFIX + this.botId);
                 }
             }
         }
