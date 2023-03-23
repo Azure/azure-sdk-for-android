@@ -66,35 +66,35 @@ public class CommunicationIdentifierTests {
                 .setRawId(publicGlobalRawId));
 
         String gcchGlobalRawId = "28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, false),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.GCCH, false)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchGlobalRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, false),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.GCCH, true)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchGlobalRawId));
 
         String gcchRawId = "28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, true),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.GCCH, true)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, true),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.GCCH, false)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchRawId));
 
         String dodGlobalRawId = "28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD, false),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.DOD, false)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD),
+            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.DOD)
                 .setRawId(dodGlobalRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD, false),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.DOD, true)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD),
+            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.DOD)
                 .setRawId(dodGlobalRawId));
 
         String dodRawId = "28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD,true),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.DOD, true)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId,true, CommunicationCloudEnvironment.DOD),
+            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.DOD)
                 .setRawId(dodRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD, true),
-            new MicrosoftBotIdentifier("override", CommunicationCloudEnvironment.DOD, false)
+        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.DOD),
+            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.DOD)
                 .setRawId(dodRawId));
     }
 
@@ -198,10 +198,10 @@ public class CommunicationIdentifierTests {
 
         assertIdentifier("28:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false));
         assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true));
-        assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD, true));
-        assertIdentifier("28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.DOD, false));
-        assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, true));
-        assertIdentifier("28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, CommunicationCloudEnvironment.GCCH, false));
+        assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.DOD));
+        assertIdentifier("28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD));
+        assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH));
+        assertIdentifier("28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH));
 
         final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> CommunicationIdentifier.fromRawId(null));
         assertEquals("The parameter [rawId] cannot be null to empty.", illegalArgumentException.getMessage());

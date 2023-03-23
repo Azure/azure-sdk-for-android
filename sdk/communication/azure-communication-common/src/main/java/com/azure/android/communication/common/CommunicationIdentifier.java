@@ -61,15 +61,15 @@ public abstract class CommunicationIdentifier {
                 return new MicrosoftTeamsUserIdentifier(suffix, false)
                     .setCloudEnvironment(CommunicationCloudEnvironment.GCCH);
             case BOT_DOD_CLOUD_GLOBAL_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.DOD, false);
+                return new MicrosoftBotIdentifier(suffix, false, CommunicationCloudEnvironment.DOD);
             case BOT_GCCH_CLOUD_GLOBAL_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH, false);
+                return new MicrosoftBotIdentifier(suffix, false, CommunicationCloudEnvironment.GCCH);
             case BOT_PUBLIC_CLOUD_PREFIX:
                 return new MicrosoftBotIdentifier(suffix, true);
             case BOT_DOD_CLOUD_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.DOD, true);
+                return new MicrosoftBotIdentifier(suffix, true, CommunicationCloudEnvironment.DOD);
             case BOT_GCCH_CLOUD_PREFIX:
-                return new MicrosoftBotIdentifier(suffix, CommunicationCloudEnvironment.GCCH, true);
+                return new MicrosoftBotIdentifier(suffix, true, CommunicationCloudEnvironment.GCCH);
             case ACS_USER_PREFIX:
             case SPOOL_USER_PREFIX:
             case ACS_USER_DOD_CLOUD_PREFIX:

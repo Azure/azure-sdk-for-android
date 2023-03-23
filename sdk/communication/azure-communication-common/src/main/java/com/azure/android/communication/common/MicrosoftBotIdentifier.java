@@ -16,14 +16,14 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
      * Creates a MicrosoftBotIdentifier object
      *
      * @param botId The unique Microsoft app ID for the bot as registered with the Bot Framework.
-     * @param cloudEnvironment the cloud environment in which this identifier is created.
      * @param isResourceAccountConfigured Set this to true if the bot is tenantized.
      * It is false if the bot is global and no resource account is configured.
+     * @param cloudEnvironment the cloud environment in which this identifier is created.
      * @throws IllegalArgumentException thrown if botId parameter fail the validation.
      */
     public MicrosoftBotIdentifier(String botId,
-                                  CommunicationCloudEnvironment cloudEnvironment,
-                                  boolean isResourceAccountConfigured) {
+                                  boolean isResourceAccountConfigured,
+                                  CommunicationCloudEnvironment cloudEnvironment) {
         if (botId == null || botId.trim().length() == 0) {
             throw new IllegalArgumentException("The initialization parameter [botId] cannot be null or empty.");
         }
@@ -42,7 +42,7 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if botId parameter fail the validation.
      */
     public MicrosoftBotIdentifier(String botId, boolean isResourceAccountConfigured) {
-        this(botId, CommunicationCloudEnvironment.PUBLIC, isResourceAccountConfigured);
+        this(botId, isResourceAccountConfigured, CommunicationCloudEnvironment.PUBLIC);
     }
 
     /**
@@ -52,7 +52,7 @@ public final class MicrosoftBotIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if botId parameter fail the validation.
      */
     public MicrosoftBotIdentifier(String botId) {
-        this(botId, CommunicationCloudEnvironment.PUBLIC, true);
+        this(botId, true, CommunicationCloudEnvironment.PUBLIC);
     }
 
     /**
