@@ -3,6 +3,8 @@ $LanguageDisplayName = "Android"
 $PackageRepository = "Maven"
 $packagePattern = "*.pom"
 
+$MetadataUri = "https://raw.githubusercontent.com/Azure/azure-sdk/main/_data/releases/latest/android-packages.csv"
+$BlobStorageUrl = "https://azuresdkdocs.blob.core.windows.net/%24web?restype=container&comp=list&prefix=android%2F&delimiter=%2F"
 $CampaignTag = Resolve-Path (Join-Path -Path $PSScriptRoot -ChildPath "../repo-docs/ga_tag.html")
 $GithubUri = "https://github.com/Azure/azure-sdk-for-android"
 $PackageRepositoryUri = "https://repo1.maven.org/maven2"
