@@ -1,3 +1,4 @@
+# This is a comment!
 $Language = "android"
 $LanguageDisplayName = "Android"
 $PackageRepository = "Maven"
