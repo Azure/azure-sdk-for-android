@@ -15,6 +15,7 @@ final class AutoRefreshUserCredential extends UserCredential {
     private static final String CREDENTIAL_DISPOSED = "UserCredential has been disposed.";
     private static final int ON_DEMAND_REFRESH_BUFFER_SECS = 120;
     private static final int PROACTIVE_REFRESH_BUFFER_SECS = 600;
+    private static final int REFRESH_AFTER_TTL_DIVIDER = 2;
 
     private final ClientLogger logger = new ClientLogger(AutoRefreshUserCredential.class);
 
@@ -23,30 +24,14 @@ final class AutoRefreshUserCredential extends UserCredential {
     private volatile CompletableFuture<CommunicationAccessToken> tokenFuture;
     private CompletableFuture<Void> tokenFutureUpdater;
 
-    AutoRefreshUserCredential(final Callable<String> tokenRefresher) {
-        this(tokenRefresher, false);
-    }
-
-    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
-                              final String initialToken) {
-        this(tokenRefresher, false, initialToken);
-    }
-
-    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
-                              final boolean refreshProactively) {
-        this(tokenRefresher, refreshProactively, null);
-    }
-
-    AutoRefreshUserCredential(final Callable<String> tokenRefresher,
-                              final boolean refreshProactively,
-                              final String initialToken) {
-        this.tokenRefreshCallable = tokenRefresher;
-        this.refreshProactively = refreshProactively;
+    AutoRefreshUserCredential(CommunicationTokenRefreshOptions tokenRefreshOptions) {
+        this.tokenRefreshCallable = tokenRefreshOptions.getTokenRefresher();
+        this.refreshProactively = tokenRefreshOptions.isRefreshProactively();
 
         CommunicationAccessToken initialAccessToken = null;
 
-        if (initialToken != null) {
-            initialAccessToken = TokenParser.createAccessToken(initialToken);
+        if (tokenRefreshOptions.getInitialToken() != null) {
+            initialAccessToken = TokenParser.createAccessToken(tokenRefreshOptions.getInitialToken());
             this.tokenFuture = CompletableFuture.completedFuture(initialAccessToken);
         }
 
@@ -70,9 +55,7 @@ final class AutoRefreshUserCredential extends UserCredential {
         } else if (tokenFuture.isDone()) {
             try {
                 CommunicationAccessToken accessToken = tokenFuture.get();
-                long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - ON_DEMAND_REFRESH_BUFFER_SECS;
-                long currentEpochSecond = System.currentTimeMillis() / 1000;
-                return currentEpochSecond >= refreshEpochSecond;
+                return isTokenExpiringSoon(accessToken, ON_DEMAND_REFRESH_BUFFER_SECS);
             } catch (ExecutionException | InterruptedException e) {
                 return true;
             }
@@ -103,6 +86,10 @@ final class AutoRefreshUserCredential extends UserCredential {
             try {
                 final String tokenStr = this.tokenRefreshCallable.call();
                 accessToken = TokenParser.createAccessToken(tokenStr);
+                if (accessToken.isExpired()) {
+                    throw logger.logExceptionAsError(
+                        new IllegalArgumentException("The token returned from the tokenRefresher is expired."));
+                }
             } catch (Exception e) {
                 throw logger.logExceptionAsError(new RuntimeException(e));
             }
@@ -125,14 +112,26 @@ final class AutoRefreshUserCredential extends UserCredential {
         }
 
         long delayMs = 0;
-        if (accessToken != null) {
-            long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - PROACTIVE_REFRESH_BUFFER_SECS;
-            long currentEpochSecond = System.currentTimeMillis() / 1000;
-            delayMs = Math.max((refreshEpochSecond - currentEpochSecond) * 1000, 0);
+        if (accessToken != null && !accessToken.isExpired()) {
+            long currentEpochMs = System.currentTimeMillis();
+            long tokenTtlMs = accessToken.getExpiresAt().toInstant().toEpochMilli() - currentEpochMs;
+            long nextFetchTimeMs = isTokenExpiringSoon(accessToken, PROACTIVE_REFRESH_BUFFER_SECS)
+                ? tokenTtlMs / REFRESH_AFTER_TTL_DIVIDER
+                : tokenTtlMs - TimeUnit.MILLISECONDS.convert(PROACTIVE_REFRESH_BUFFER_SECS, TimeUnit.SECONDS);
+            delayMs = Math.max(nextFetchTimeMs, 0);
         }
 
         this.tokenFutureUpdater = CompletableFuture.runAsync(this::updateTokenFuture,
             CompletableFuture.delayedExecutor(delayMs, TimeUnit.MILLISECONDS));
+    }
+
+    private boolean isTokenExpiringSoon(CommunicationAccessToken accessToken, int refreshBufferSecs) {
+        if (accessToken == null) {
+            return true;
+        }
+        long refreshEpochSecond = accessToken.getExpiresAt().toEpochSecond() - refreshBufferSecs;
+        long currentEpochSecond = System.currentTimeMillis() / 1000;
+        return currentEpochSecond >= refreshEpochSecond;
     }
 
     @Override
