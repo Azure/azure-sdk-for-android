@@ -11,6 +11,9 @@
 - Optimization added: When the proactive refreshing is enabled and the token refresher fails to provide a token that's not about to expire soon, the subsequent refresh attempts will be scheduled for when the token reaches half of its remaining lifetime until a token with long enough validity (>10 minutes) is obtained.
 
 ### Breaking Changes
+- The default `CommunicationCloudEnvironment` constructor will create Azure public cloud.
+- Overrode the `equals`, `toString`, `hashCode` methods of `CommunicationCloudEnvironment` to make it consistent with Java API.
+- Introduced non-nullability check for the argument of `CommunicationCloudEnvironment.fromString(String name)`. It will throw `NullPointerException` if the passed argument is null.
 
 ### Bugs Fixed
 

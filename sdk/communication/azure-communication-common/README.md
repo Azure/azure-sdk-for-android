@@ -75,8 +75,8 @@ The tokens supplied to the `CommunicationTokenCredential` either through the con
 The following sections provide several code snippets showing different ways to use a `CommunicationTokenCredential`:
 
 * [Creating a credential with a static token](#creating-a-credential-with-a-static-token)
-* [Creating a credential that refreshes with a Callable](#creating-a-credential-that-refreshes-with-a-callable)
-* [Creating a credential that refreshes proactively](#creating-a-credential-that-refreshes-proactively)
+* [Creating a credential that refreshes with a Callable](#creating-a-credential-that-refreshes-on-demand-with-a-callable)
+* [Creating a credential that refreshes proactively](#creating-a-credential-that-refreshes-proactively-with-a-callable)
 * [Creating a credential with an initial value that refreshes proactively](#creating-a-credential-with-an-initial-value-that-refreshes-proactively)
 * [Getting a token asynchronously](#getting-a-token-asynchronously)
 * [Invalidating a credential](#invalidating-a-credential)
@@ -89,7 +89,7 @@ For short-lived clients, refreshing the token upon expiry is not necessary and `
 CommunicationTokenCredential userCredential = new CommunicationTokenCredential("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
 ```
 
-### Creating a credential that refreshes with a Callable
+### Creating a credential that refreshes on demand with a Callable
 
 Alternatively, for long-lived clients, you can create a `CommunicationTokenCredential` with a callable to renew tokens if expired.
 Here we assume that we have a callable `fetchTokenFromMyServerForUser` that makes a network request to retrieve a token string for a user.
@@ -105,10 +105,10 @@ CommunicationTokenRefreshOptions tokenRefreshOptions = new CommunicationTokenRef
 CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefreshOptions);
 ```
 
-### Creating a credential that refreshes proactively
+### Creating a credential that refreshes proactively with a Callable
 
 Optionally, you can enable proactive token refreshing where a fresh token will be acquired as soon as the
-previous token approaches expiry. Using this method, your requests are less likely to be blocked to acquire a fresh token:
+previous token approaches expiry. Using this method, your requests are less likely to be blocked to acquire a fresh token.
 
 ```java
 CommunicationTokenRefreshOptions tokenRefreshOptions = new CommunicationTokenRefreshOptions(tokenRefresher)
