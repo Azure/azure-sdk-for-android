@@ -27,6 +27,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
+    testImplementation project(path: ':sdk:communication:azure-communication-common')
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     // <!-- end: test Dependencies -->

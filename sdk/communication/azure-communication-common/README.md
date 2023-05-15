@@ -61,46 +61,59 @@ To import the library into your project using the [Maven](https://maven.apache.o
 
 ### CommunicationTokenCredential
 
-A `CommunicationTokenCredential` authenticates a user with Communication Services, such as Chat or Calling. It optionally
-provides an auto-refresh mechanism to ensure a continuously stable authentication state during communications. User
-tokens are created by the application developer using the Communication Administration SDK - once created, they are
-provided to the various Communication Services client libraries by way of a `CommunicationTokenCredential` object.
+The `CommunicationTokenCredential` object is used to authenticate a user with Communication Services, such as Chat or Calling. It optionally provides an auto-refresh mechanism to ensure a continuously stable authentication state during communications.
+
+Depending on your scenario, you may want to initialize the `CommunicationTokenCredential` with:
+
+- a static token (suitable for short-lived clients used to e.g. send one-off Chat messages) or
+- a callback function that ensures a continuous authentication state (ideal e.g. for long Calling sessions).
+
+The tokens supplied to the `CommunicationTokenCredential` either through the constructor or via the token refresher callback can be obtained using the Azure Communication Identity library.
 
 ## Examples
 
 The following sections provide several code snippets showing different ways to use a `CommunicationTokenCredential`:
 
 * [Creating a credential with a static token](#creating-a-credential-with-a-static-token)
-* [Creating a credential that refreshes with a Callable](#creating-a-credential-that-refreshes-with-a-callable)
-* [Creating a credential that refreshes proactively](#creating-a-credential-that-refreshes-proactively)
+* [Creating a credential that refreshes with a Callable](#creating-a-credential-that-refreshes-on-demand-with-a-callable)
+* [Creating a credential that refreshes proactively](#creating-a-credential-that-refreshes-proactively-with-a-callable)
 * [Creating a credential with an initial value that refreshes proactively](#creating-a-credential-with-an-initial-value-that-refreshes-proactively)
 * [Getting a token asynchronously](#getting-a-token-asynchronously)
 * [Invalidating a credential](#invalidating-a-credential)
 
 ### Creating a credential with a static token
 
+For short-lived clients, refreshing the token upon expiry is not necessary and `CommunicationTokenCredential` may be instantiated with a static token.
+
 ```java
 CommunicationTokenCredential userCredential = new CommunicationTokenCredential("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
 ```
 
-### Creating a credential that refreshes with a Callable
+### Creating a credential that refreshes on demand with a Callable
 
-Here we pass an imagined `Callable<String>` that makes a network request to retrieve a token string for user Bob. It will be called on a background thread.
+Alternatively, for long-lived clients, you can create a `CommunicationTokenCredential` with a callable to renew tokens if expired.
+Here we assume that we have a callable `fetchTokenFromMyServerForUser` that makes a network request to retrieve a token string for a user.
+It's necessary that the `fetchTokenFromMyServerForUser` function returns a valid token (with an expiration date set in the future) at all times.
+It will be called on a background thread.
 
 ```java
 Callable<String> tokenRefresher = () -> {
-  return fetchtoken();
+  return fetchTokenFromMyServerForUser();
 };
-
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false));
+CommunicationTokenRefreshOptions tokenRefreshOptions = new CommunicationTokenRefreshOptions(tokenRefresher)
+            .setRefreshProactively(false);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefreshOptions);
 ```
 
-### Creating a credential that refreshes proactively
+### Creating a credential that refreshes proactively with a Callable
 
-Setting `refreshProactively` to true will call your `Callable<String> tokenRefresher` when the token is close to expiry.
+Optionally, you can enable proactive token refreshing where a fresh token will be acquired as soon as the
+previous token approaches expiry. Using this method, your requests are less likely to be blocked to acquire a fresh token.
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true));
+CommunicationTokenRefreshOptions tokenRefreshOptions = new CommunicationTokenRefreshOptions(tokenRefresher)
+    .setRefreshProactively(true);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefreshOptions);
 ```
 
 ### Creating a credential with an initial value that refreshes proactively
@@ -108,7 +121,11 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(n
 Passing `initialToken` is an optional optimization to skip the first call to `Callable<String> tokenRefresher`. You can use this to separate the boot from your application from subsequent token refresh cycles.
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs"));
+String token = "<Azure Communication Services user token>";
+CommunicationTokenRefreshOptions tokenRefreshOptions = new CommunicationTokenRefreshOptions(tokenRefresher)
+    .setRefreshProactively(true)
+    .setInitialToken(token);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefreshOptions);
 ```
 
 ### Getting a token asynchronously
