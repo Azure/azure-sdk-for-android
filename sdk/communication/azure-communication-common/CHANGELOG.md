@@ -1,6 +1,6 @@
 # Release History
 
-## 2.0.0-beta.2 (Unreleased)
+## 2.0.0-beta.2 (2023-05-16)
 
 ### Features Added
 - Added new constructor with required param `tokenRefresher` for `CommunicationTokenRefreshOptions`
@@ -14,10 +14,6 @@
 
 ### Breaking Changes
 - Introduced non-nullability check for the argument of `CommunicationCloudEnvironment.fromString(String name)`. It will throw `NullPointerException` if the passed argument is null.
-
-### Bugs Fixed
-
-### Other Changes
 
 ## 2.0.0-beta.1 (2023-04-04)
 
