@@ -470,4 +470,19 @@ public final class NotificationUtils {
             throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
         }
     }
+
+    public static String decodeResourceLocationFromJwtToken(String jwtToken) {
+        try {
+            String[] tokenParts = jwtToken.split("\\.");
+            String tokenPayload = tokenParts[1];
+            byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
+            String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
+
+            ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
+
+            return payloadObj.get("resourceLocation").asText();
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
+        }
+    }
 }

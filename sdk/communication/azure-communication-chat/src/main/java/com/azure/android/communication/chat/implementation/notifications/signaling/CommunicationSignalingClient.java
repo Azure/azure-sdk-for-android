@@ -4,6 +4,7 @@
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
@@ -21,7 +22,10 @@ import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvi
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -33,6 +37,7 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATI
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_EUDB;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
@@ -52,6 +57,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
+    private final List<String> EUDBCountries = new ArrayList<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -221,6 +227,8 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
+        String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
+        boolean isEUDUCountry = resourceLocation != null && EUDBCountries.contains(resourceLocation);
         String trouterUrl;
         String registrarUrl;
 
@@ -237,7 +245,12 @@ public class CommunicationSignalingClient implements SignalingClient {
 
             case Public:
             default:
-                trouterUrl = TROUTER_HOSTNAME;
+                if (isEUDUCountry) {
+                    trouterUrl = TROUTER_HOSTNAME_EUDB;
+                }
+                else {
+                    trouterUrl = TROUTER_HOSTNAME;
+                }
                 registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
                 break;
         }
