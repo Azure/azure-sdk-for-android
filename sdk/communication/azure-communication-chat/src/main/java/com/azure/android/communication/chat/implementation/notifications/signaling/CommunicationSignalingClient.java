@@ -246,8 +246,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             default:
                 if (isEUDUCountry) {
                     trouterUrl = TROUTER_HOSTNAME_EUDB;
-                }
-                else {
+                } else {
                     trouterUrl = TROUTER_HOSTNAME;
                 }
                 registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
