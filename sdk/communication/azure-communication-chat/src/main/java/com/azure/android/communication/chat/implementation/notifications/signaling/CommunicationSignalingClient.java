@@ -4,7 +4,6 @@
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
@@ -57,7 +56,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
-    private final List<String> EUDBCountries = new ArrayList<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
+    private final List<String> countriesEUDB = new ArrayList<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -228,7 +227,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
         String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
-        boolean isEUDUCountry = resourceLocation != null && EUDBCountries.contains(resourceLocation);
+        boolean isEUDUCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation);
         String trouterUrl;
         String registrarUrl;
 
