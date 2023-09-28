@@ -227,7 +227,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
         String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
-        boolean isEUDUCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation);
+        boolean isEUDBCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation);
         String trouterUrl;
         String registrarUrl;
 
@@ -244,7 +244,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
             case Public:
             default:
-                if (isEUDUCountry) {
+                if (isEUDBCountry) {
                     trouterUrl = TROUTER_HOSTNAME_EUDB;
                 } else {
                     trouterUrl = TROUTER_HOSTNAME;
