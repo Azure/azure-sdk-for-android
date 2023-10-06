@@ -24,6 +24,7 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -56,7 +57,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
-    private final List<String> countriesEUDB = new ArrayList<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
+    private final HashSet<String> countriesEUDB = new HashSet<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -244,11 +245,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
             case Public:
             default:
-                if (isEUDBCountry) {
-                    trouterUrl = TROUTER_HOSTNAME_EUDB;
-                } else {
-                    trouterUrl = TROUTER_HOSTNAME;
-                }
+                trouterUrl = isEUDBCountry ? TROUTER_HOSTNAME_EUDB : TROUTER_HOSTNAME;
                 registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
                 break;
         }
