@@ -3,6 +3,20 @@
 
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_EUDB;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
+
 import android.content.Context;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
@@ -21,29 +35,13 @@ import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvi
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.function.Consumer;
-
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_EUDB;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
 
 /**
  * The concrete class of signaling client for communication
