@@ -17,7 +17,7 @@ Azure Core Micro provides shared primitives, abstractions, and helpers for moder
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core</artifactId>
-    <version>1.0.0-beta.12</version>
+    <version>1.0.0-beta.13</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
