@@ -3,6 +3,20 @@
 
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
+import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_EUDB;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
+
 import android.content.Context;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
@@ -21,24 +35,14 @@ import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvi
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import java9.util.function.Consumer;
-
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
-import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
 
 /**
  * The concrete class of signaling client for communication
@@ -52,6 +56,8 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
+    private final HashSet<String> countriesEUDB =
+        new HashSet<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -112,9 +118,9 @@ public class CommunicationSignalingClient implements SignalingClient {
                     tokenFetchRetries += 1;
                     if (tokenFetchRetries > NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
                         stop();
-                        Throwable throwable = new Throwable("Access token is expired and failed to fetch a valid one after "
-                            + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT
-                            + " retries.");
+                        Throwable throwable =
+                            new Throwable("Access token is expired and failed to fetch a valid one after "
+                                + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT + " retries.");
                         logger.logThrowableAsError(throwable);
                         errorHandler.accept(throwable);
                         return null;
@@ -221,6 +227,9 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
+        String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
+        boolean isEUDBCountry =
+            resourceLocation != null && countriesEUDB.contains(resourceLocation.toLowerCase(Locale.ROOT));
         String trouterUrl;
         String registrarUrl;
 
@@ -237,7 +246,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
             case Public:
             default:
-                trouterUrl = TROUTER_HOSTNAME;
+                trouterUrl = isEUDBCountry ? TROUTER_HOSTNAME_EUDB : TROUTER_HOSTNAME;
                 registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
                 break;
         }

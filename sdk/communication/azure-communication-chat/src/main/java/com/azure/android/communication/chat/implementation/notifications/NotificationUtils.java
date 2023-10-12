@@ -458,16 +458,28 @@ public final class NotificationUtils {
 
     private static String decodeSkypeIdFromJwtToken(String jwtToken) {
         try {
-            String[] tokenParts = jwtToken.split("\\.");
-            String tokenPayload = tokenParts[1];
-            byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
-            String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
-
-            ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
-
+            ObjectNode payloadObj = getPayloadObj(jwtToken);
             return payloadObj.get("skypeid").asText();
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
         }
+    }
+
+    public static String decodeResourceLocationFromJwtToken(String jwtToken) {
+        try {
+            ObjectNode payloadObj = getPayloadObj(jwtToken);
+            return payloadObj.get("resourceLocation").asText();
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
+        }
+    }
+
+    private static ObjectNode getPayloadObj(String jwtToken) throws JsonProcessingException {
+        String[] tokenParts = jwtToken.split("\\.");
+        String tokenPayload = tokenParts[1];
+        byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
+        String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
+
+        return JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
     }
 }
