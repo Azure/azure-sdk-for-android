@@ -38,6 +38,7 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -55,7 +56,8 @@ public class CommunicationSignalingClient implements SignalingClient {
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
-    private final HashSet<String> countriesEUDB = new HashSet<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
+    private final HashSet<String> countriesEUDB =
+        new HashSet<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
 
     public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
         this.communicationTokenCredential = communicationTokenCredential;
@@ -116,9 +118,9 @@ public class CommunicationSignalingClient implements SignalingClient {
                     tokenFetchRetries += 1;
                     if (tokenFetchRetries > NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT) {
                         stop();
-                        Throwable throwable = new Throwable("Access token is expired and failed to fetch a valid one after "
-                            + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT
-                            + " retries.");
+                        Throwable throwable =
+                            new Throwable("Access token is expired and failed to fetch a valid one after "
+                                + NotificationUtils.MAX_TOKEN_FETCH_RETRY_COUNT + " retries.");
                         logger.logThrowableAsError(throwable);
                         errorHandler.accept(throwable);
                         return null;
@@ -226,7 +228,8 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
         String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
-        boolean isEUDBCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation.toLowerCase());
+        boolean isEUDBCountry =
+            resourceLocation != null && countriesEUDB.contains(resourceLocation.toLowerCase(Locale.ROOT));
         String trouterUrl;
         String registrarUrl;
 
