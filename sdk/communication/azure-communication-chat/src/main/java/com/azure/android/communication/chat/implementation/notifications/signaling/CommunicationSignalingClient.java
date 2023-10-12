@@ -226,7 +226,7 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
         String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
-        boolean isEUDBCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation);
+        boolean isEUDBCountry = resourceLocation != null && countriesEUDB.contains(resourceLocation.toLowerCase());
         String trouterUrl;
         String registrarUrl;
 
