@@ -19,6 +19,7 @@ dependencies {
     implementation project (":sdk:core:azure-core-logging")
 
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.okio:okio:$okioVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
