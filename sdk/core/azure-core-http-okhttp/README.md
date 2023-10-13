@@ -17,7 +17,7 @@ Azure Core OkHttp HTTP client is a plugin for the `azure-core` HTTP client API.
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-http-okhttp</artifactId>
-    <version>1.0.0-beta.12</version>
+    <version>1.0.0-beta.13</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})

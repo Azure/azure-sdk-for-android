@@ -1,19 +1,20 @@
 # Release History
 
-## 1.0.0-beta.13 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 1.0.0-beta.13 (2023-10-12)
 
 ### Other Changes
+
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.13`.
+- Updated `azure-core-jackson` dependency version to `1.0.0-beta.13`.
+- Updated `azure-core-rest` dependency version to `1.0.0-beta.13`.
+- Updated `testng` dependency to `7.5.1`.
 
 ## 1.0.0-beta.12 (2022-11-08)
 
 ### Other Changes
 
+#### Dependency updates
 - Updated `azure-core` dependency version to `1.0.0-beta.12`.
 - Updated `azure-core-jackson` dependency version to `1.0.0-beta.12`.
 - Updated `azure-core-rest` dependency version to `1.0.0-beta.12`.

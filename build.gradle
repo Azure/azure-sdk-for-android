@@ -38,12 +38,12 @@ buildscript {
 
 apply plugin: "com.vanniktech.android.junit.jacoco"
 
-// Configure all client library projects with the standard Android build / publish template
+// Configure all client library projects with the standard Android build / publish template.
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
     apply plugin: "de.mannodermaus.android-junit5"
     // https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222#issuecomment-604247658
-    // apply plugin: 'com.getkeepsafe.dexcount'
+    // apply plugin: 'com.getkeepsafe.dexcount'.
     apply plugin: 'checkstyle'
     apply plugin: 'com.github.spotbugs'
     apply plugin: "maven-publish"
@@ -144,7 +144,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         source 'src/main/java'
     }
 
-    // Check code style after project evaluation
+    // Check code style after project evaluation.
     afterEvaluate {
         check.dependsOn('checkstyle')
     }
@@ -264,16 +264,17 @@ allprojects {
         appCompatVersion = "1.2.0"
         azureCommunicationCommonVersion = "2.0.0-beta.2"
         azureCoreVersion = "1.0.0-beta.12"
-        jacksonVersion = "2.12.7" // Do not upgrade to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017
+        jacksonVersion = "2.12.7" // Do not upgrade to 2.13.0 and above, as it introduced using an API not available in javax.xml.stream:stax-api:1.0-2. See: https://github.com/Azure/azure-sdk-for-android/issues/1017.
         jacksonDatabindVersion = "2.12.7.1" // Need this to be a separate version to include a security fix.
         junitJupiterVersion = "5.7.2"
         mockitoVersion = "4.0.0"
         nimbusJoseJwtTestVersion = "9.15.2"
-        okHttpVersion = "3.14.9" // Do not upgrade, newer versions require a higher Android minSdkLevel
-        orgtestngVersion = "7.4.0"
+        okHttpVersion = "3.14.9" // Do not upgrade, newer versions require a higher Android minSdkLevel.
+        okioVersion = "1.17.6" // Directly setting this OkHttp dependency as it has a fix for CVE-2023-3635 and we cannot update to a newer version of OkHttp yet. See: https://github.com/square/okio/issues/1323#issuecomment-1742354403
+        orgtestngVersion = "7.5.1"
         powerMockVersion = "2.0.9"
         retroFutureVersion = "1.7.4"
-        staxApiVersion = "1.0-2" // Need this instead of using the JDK due to: https://stackoverflow.com/a/47371517/1473510
+        staxApiVersion = "1.0-2" // Need this instead of using the JDK due to: https://stackoverflow.com/a/47371517/1473510.
         slf4jApiVersion = "1.7.32"
         threeTenAbpVersion = "1.3.1"
         threeTenBpVersion = "1.5.1"
@@ -284,7 +285,7 @@ allprojects {
 }
 
 // Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
-// runs it on all sub-projects of that project
+// runs it on all sub-projects of that project.
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
     apply plugin: "org.gradle.help-tasks"
     def setupTasks = ["init", "wrapper"]

@@ -1,14 +1,14 @@
 # Release History
 
-## 1.0.0-beta.13 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 1.0.0-beta.13 (2023-10-12)
 
 ### Other Changes
+
+#### Dependency updates
+- Updated `azure-core` dependency version to `1.0.0-beta.13`.
+- Updated `azure-core-http` dependency version to `1.0.0-beta.13`.
+- Updated `azure-core-jackson` dependency version to `1.0.0-beta.13`.
+- Updated `azure-core-logging` dependency version to `1.0.0-beta.13`.
 
 ## 1.0.0-beta.12 (2022-11-08)
 
