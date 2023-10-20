@@ -1,5 +1,5 @@
 # Release History
-## 2.1.0-beta.1 (Unreleased)
+## 2.1.0 (2023-10-23)
 
 ### Features Added
 
@@ -8,14 +8,15 @@
 ### Bugs Fixed
 
 ### Other Changes
+Change Trouter EU endpoints for EUDB compliance
 
-#### Dependency Updates
-- Updated `android-core` version to `1.0.0-beta.12`.
-- Updated `android-core-credential` version to `1.0.0-beta.12`.
-- Updated `android-core-http` version to `1.0.0-beta.12`.
-- Updated `android-core-http-okhttp` version to `1.0.0-beta.12`.
-- Updated `android-core-logging` version to `1.0.0-beta.12`.
-- Updated `android-core-rest` version to `1.0.0-beta.12`.
+#### Dependency updates
+- Updated `azure-core` dependency to `1.0.0-beta.12'
+- Updated `azure-core-credential` dependency to `1.0.0-beta.12`
+- Updated `azure-core-http` dependency to `1.0.0-beta.12`
+- Updated `azure-core-http-okhttp` dependency to `1.0.0-beta.12`
+- Updated `azure-core-logging` dependency to `1.0.0-beta.12`
+- Updated `azure-core-rest` dependency to `1.0.0-beta.12`
 
 ## 2.0.0 (2022-08-29)
 ### Features Added
