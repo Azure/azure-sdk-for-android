@@ -1,4 +1,11 @@
 # Release History
+## 1.1.1 (2023-10-23)
+
+### Other Changes
+
+#### Dependency updates
+- Updated `android-core` version to `1.0.0-beta.13`.
+- Updated `android-core-logging` version to `1.0.0-beta.13`.
 
 ## 1.1.0 (2022-11-11)
 
