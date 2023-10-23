@@ -33,6 +33,14 @@
 ### Breaking Changes
 - Introduction of `MicrosoftBotIdentifier` is a breaking change. It will affect code that relied on using `UnknownIdentifier` with a rawID starting with `28:`
 
+## 1.1.1 (2023-10-23)
+
+### Other Changes
+
+#### Dependency updates
+- Updated `android-core` version to `1.0.0-beta.13`.
+- Updated `android-core-logging` version to `1.0.0-beta.13`.
+
 ## 1.1.0 (2022-11-11)
 
 ### Bugs Fixed
