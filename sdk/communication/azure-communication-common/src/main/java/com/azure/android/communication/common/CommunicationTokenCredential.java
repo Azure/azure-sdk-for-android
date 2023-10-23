@@ -46,7 +46,10 @@ public final class CommunicationTokenCredential {
      *                            and refreshProactively
      */
     public CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions) {
-        this.userCredential = new AutoRefreshUserCredential(tokenRefreshOptions);
+        this.userCredential = new AutoRefreshUserCredential(
+            tokenRefreshOptions.getTokenRefresher(),
+            tokenRefreshOptions.isRefreshProactively(),
+            tokenRefreshOptions.getInitialToken());
     }
 
 
