@@ -1,5 +1,5 @@
 # Release History
-## 2.0.1 (2023-10-23)
+## 2.0.1 (2023-10-25)
 
 ### Features Added
 
@@ -11,12 +11,13 @@
 Change Trouter EU endpoints for EUDB compliance
 
 #### Dependency updates
-- Updated `azure-core` dependency to `1.0.0-beta.12'
-- Updated `azure-core-credential` dependency to `1.0.0-beta.12`
-- Updated `azure-core-http` dependency to `1.0.0-beta.12`
-- Updated `azure-core-http-okhttp` dependency to `1.0.0-beta.12`
-- Updated `azure-core-logging` dependency to `1.0.0-beta.12`
-- Updated `azure-core-rest` dependency to `1.0.0-beta.12`
+- Updated `azure-core` dependency to `1.0.0-beta.13'
+- Updated `azure-core-credential` dependency to `1.0.0-beta.13`
+- Updated `azure-core-http` dependency to `1.0.0-beta.13`
+- Updated `azure-core-http-okhttp` dependency to `1.0.0-beta.13`
+- Updated `azure-core-logging` dependency to `1.0.0-beta.13`
+- Updated `azure-core-rest` dependency to `1.0.0-beta.13`
+- Update `com.azure.android:azure-communication-common` dependency to 1.1.1
 
 ## 2.0.0 (2022-08-29)
 ### Features Added
