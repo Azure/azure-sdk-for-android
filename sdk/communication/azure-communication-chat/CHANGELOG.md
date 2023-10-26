@@ -7,6 +7,8 @@
 
 ### Bugs Fixed
 
+### Other Changes
+
 ## 2.0.1 (2023-10-25)
 
 ### Other Changes
