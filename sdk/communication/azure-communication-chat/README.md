@@ -48,7 +48,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>2.1.0-beta.1</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 
