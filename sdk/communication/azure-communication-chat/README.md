@@ -31,7 +31,7 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:2.1.0-beta.1"
+    implementation "com.azure.android:azure-communication-chat:2.0.1"
 }
 
 // build.gradle.kts
