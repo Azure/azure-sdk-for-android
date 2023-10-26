@@ -37,7 +37,7 @@ dependencies {
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:2.1.0-beta.1")
+    implementation("com.azure.android:azure-communication-chat:2.0.1")
 }
 ```
 
