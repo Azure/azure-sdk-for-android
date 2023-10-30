@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CommunicationIdentifierTests {
 
     private final String userId = "user id";
-    private String microsoftBotId = "45ab2481-1c1c-4005-be24-0ffb879b1130";
+    private String microsoftTeamsAppId = "45ab2481-1c1c-4005-be24-0ffb879b1130";
     private final String fullId = "some lengthy id string";
 
     @Test
@@ -21,80 +21,42 @@ public class CommunicationIdentifierTests {
     }
 
     @Test
-    public void microsoftBotIdentifier_throwsMicrosoftBotIdNullOrEmpty() {
-        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftBotIdentifier(null));
-        assertEquals("The initialization parameter [botId] cannot be null or empty.", illegalArgumentException.getMessage());
+    public void microsoftTeamsAppIdentifier_throwsMicrosofTeamsAppIdNullOrEmpty() {
+        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(null));
+        assertEquals("The initialization parameter [appId] cannot be null or empty.", illegalArgumentException.getMessage());
 
-        illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftBotIdentifier(""));
-        assertEquals("The initialization parameter [botId] cannot be null or empty.", illegalArgumentException.getMessage());
+        illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(""));
+        assertEquals("The initialization parameter [appId] cannot be null or empty.", illegalArgumentException.getMessage());
     }
 
     @Test
-    public void microsoftBotIdentifier_defaultCloudIsPublic() {
+    public void microsoftTeamsAppIdentifier_defaultCloudIsPublic() {
         assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftBotIdentifier(userId, true).setRawId(fullId).getCloudEnvironment());
-
-        assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftBotIdentifier(userId, false).setRawId(fullId).getCloudEnvironment());
-
-        assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftBotIdentifier(userId).setRawId(fullId).getCloudEnvironment());
+            new MicrosoftTeamsAppIdentifier(userId).setRawId(fullId).getCloudEnvironment());
     }
 
     @Test
-    public void microsoftBotIdentifier_defaultGlobalIsFalse() {
-        assertTrue((new MicrosoftBotIdentifier(userId)).isResourceAccountConfigured());
-        assertTrue((new MicrosoftBotIdentifier(userId)).setRawId(fullId).isResourceAccountConfigured());
-    }
+    public void microsoftTeamsAppIdentifier_rawIdTakesPrecedenceInEqualityCheck() {
+        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId),
+            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId));
 
-    @Test
-    public void microsoftBotIdentifier_rawIdTakesPrecedenceInEqualityCheck() {
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false),
-            new MicrosoftBotIdentifier(microsoftBotId, false));
-
-
-        String publicGlobalRawId = "28:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertNotEquals(new MicrosoftBotIdentifier(microsoftBotId, false)
-                .setRawId(publicGlobalRawId),
-            new MicrosoftBotIdentifier(microsoftBotId, false)
+        String publicRawId = "28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130";
+        assertNotEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId)
+                .setRawId(publicRawId),
+            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId)
                 .setRawId("raw id"));
-        assertEquals(new MicrosoftBotIdentifier("override", false)
-                .setRawId(publicGlobalRawId),
-            new MicrosoftBotIdentifier(microsoftBotId, false));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false),
-            new MicrosoftBotIdentifier("override", true)
-                .setRawId(publicGlobalRawId));
-
-        String gcchGlobalRawId = "28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH),
-            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.GCCH)
-                .setRawId(gcchGlobalRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH),
-            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.GCCH)
-                .setRawId(gcchGlobalRawId));
+        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId),
+            new MicrosoftTeamsAppIdentifier("override")
+                .setRawId(publicRawId));
 
         String gcchRawId = "28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH),
-            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.GCCH)
+        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftTeamsAppIdentifier("override", CommunicationCloudEnvironment.GCCH)
                 .setRawId(gcchRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH),
-            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.GCCH)
-                .setRawId(gcchRawId));
-
-        String dodGlobalRawId = "28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD),
-            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.DOD)
-                .setRawId(dodGlobalRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD),
-            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.DOD)
-                .setRawId(dodGlobalRawId));
 
         String dodRawId = "28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId,true, CommunicationCloudEnvironment.DOD),
-            new MicrosoftBotIdentifier("override", true, CommunicationCloudEnvironment.DOD)
-                .setRawId(dodRawId));
-        assertEquals(new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.DOD),
-            new MicrosoftBotIdentifier("override", false, CommunicationCloudEnvironment.DOD)
+        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD),
+            new MicrosoftTeamsAppIdentifier("override", CommunicationCloudEnvironment.DOD)
                 .setRawId(dodRawId));
     }
 
@@ -196,12 +158,9 @@ public class CommunicationIdentifierTests {
         assertIdentifier("4:207ffef6-9444-41fb-92ab-20eacaae2768_207ffef6-9444-41fb-92ab-20eacaae2768", new PhoneNumberIdentifier("207ffef6-9444-41fb-92ab-20eacaae2768_207ffef6-9444-41fb-92ab-20eacaae2768"));
         assertIdentifier("4:+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768", new PhoneNumberIdentifier("+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768"));
 
-        assertIdentifier("28:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false));
-        assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true));
-        assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.DOD));
-        assertIdentifier("28:dod-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.DOD));
-        assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, true, CommunicationCloudEnvironment.GCCH));
-        assertIdentifier("28:gcch-global:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftBotIdentifier(microsoftBotId, false, CommunicationCloudEnvironment.GCCH));
+        assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId));
+        assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD));
+        assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH));
 
         final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> CommunicationIdentifier.fromRawId(null));
         assertEquals("The parameter [rawId] cannot be null to empty.", illegalArgumentException.getMessage());
