@@ -4,7 +4,7 @@
 package com.azure.android.communication.common;
 
 /**
- * Communication identifier for a Microsoft Teams app.
+ * Communication identifier for a Microsoft Teams Application.
  */
 public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
     private final String appId;
@@ -14,7 +14,7 @@ public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftTeamsAppIdentifier object
      *
-     * @param appId The unique Microsoft Teams app ID.
+     * @param appId The unique Microsoft Teams Application ID.
      * @param cloudEnvironment the cloud environment in which this identifier is created.
      * @throws IllegalArgumentException thrown if appId parameter fail the validation.
      */
@@ -31,7 +31,7 @@ public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftTeamsAppIdentifier object
      *
-     * @param appId The unique Microsoft Teams app ID.
+     * @param appId The unique Microsoft Teams Application ID.
      * @throws IllegalArgumentException thrown if appId parameter fail the validation.
      */
     public MicrosoftTeamsAppIdentifier(String appId) {
@@ -39,15 +39,15 @@ public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Get the Microsoft Teams app ID.
-     * @return microsoftAppId Id of the Microsoft Teams app.
+     * Get the ID of Microsoft Teams Application.
+     * @return ID of Microsoft Teams Application.
      */
     public String getAppId() {
         return this.appId;
     }
 
     /**
-     * Get cloud environment of the Microsoft Teams app identifier.
+     * Get cloud environment of the Microsoft Teams Application identifier.
      * @return cloud environment in which this identifier is created.
      */
     public CommunicationCloudEnvironment getCloudEnvironment() {
@@ -55,10 +55,10 @@ public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Set full id of the identifier.
+     * Set full ID of the identifier.
      * RawId is the encoded format for identifiers to store in databases or as stable keys in general.
      *
-     * @param rawId full id of the identifier.
+     * @param rawId full ID of the identifier.
      * @return MicrosoftTeamsAppIdentifier object itself.
      */
     @Override
