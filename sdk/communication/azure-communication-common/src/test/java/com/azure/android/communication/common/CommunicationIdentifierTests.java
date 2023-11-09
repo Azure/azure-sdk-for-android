@@ -32,32 +32,20 @@ public class CommunicationIdentifierTests {
     @Test
     public void microsoftTeamsAppIdentifier_defaultCloudIsPublic() {
         assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftTeamsAppIdentifier(userId).setRawId(fullId).getCloudEnvironment());
+            new MicrosoftTeamsAppIdentifier(userId).getCloudEnvironment());
     }
 
     @Test
-    public void microsoftTeamsAppIdentifier_rawIdTakesPrecedenceInEqualityCheck() {
+    public void microsoftTeamsAppIdentifier_cloudEnvironmentIsConsideredInEqualityCheck() {
         assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId),
             new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId));
 
-        String publicRawId = "28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertNotEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId)
-                .setRawId(publicRawId),
-            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId)
-                .setRawId("raw id"));
-        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId),
-            new MicrosoftTeamsAppIdentifier("override")
-                .setRawId(publicRawId));
-
-        String gcchRawId = "28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH),
-            new MicrosoftTeamsAppIdentifier("override", CommunicationCloudEnvironment.GCCH)
-                .setRawId(gcchRawId));
-
-        String dodRawId = "28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130";
-        assertEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD),
-            new MicrosoftTeamsAppIdentifier("override", CommunicationCloudEnvironment.DOD)
-                .setRawId(dodRawId));
+        assertNotEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.PUBLIC),
+            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH));
+        assertNotEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.PUBLIC),
+            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD));
+        assertNotEquals(new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH),
+            new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD));
     }
 
     @Test
@@ -159,6 +147,7 @@ public class CommunicationIdentifierTests {
         assertIdentifier("4:+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768", new PhoneNumberIdentifier("+112345556789_207ffef6-9444-41fb-92ab-20eacaae2768"));
 
         assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId));
+        assertIdentifier("28:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.PUBLIC));
         assertIdentifier("28:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.DOD));
         assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH));
 
