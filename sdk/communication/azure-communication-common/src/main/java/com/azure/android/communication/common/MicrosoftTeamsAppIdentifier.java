@@ -61,7 +61,7 @@ public final class MicrosoftTeamsAppIdentifier extends CommunicationIdentifier {
      * @return MicrosoftTeamsAppIdentifier object itself.
      */
     @Override
-    public MicrosoftTeamsAppIdentifier setRawId(String rawId) {
+    protected MicrosoftTeamsAppIdentifier setRawId(String rawId) {
         super.setRawId(rawId);
         return this;
     }

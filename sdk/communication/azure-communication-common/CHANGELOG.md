@@ -6,12 +6,11 @@
 - Added support for a new communication identifier `MicrosoftTeamsAppIdentifier`.
 
 ### Breaking Changes
-- Removal of `MicrosoftBotIdentifier` and adding of `MicrosoftTeamsAppIdentifier` is a breaking change. Identifiers using rawID starting with `28:orgid:` will be treated as `MicrosoftTeamsAppIdentifier`, other rawIDs starting with `28:` will be treated as `UnknownIdentifier`.
+- Introduction of `MicrosoftTeamsAppIdentifier` is a breaking change.his change will impact any code that previously depended on the use of UnknownIdentifier with rawIDs starting with `28:orgid:`, `28:dod:`, or `28:gcch:`.
 
 ### Bugs Fixed
 
 ### Other Changes
-- Removed `MicrosoftBotIdentifier`.
 
 ## 2.0.0-beta.2 (2023-05-16)
 
