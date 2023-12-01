@@ -37,9 +37,6 @@
 # PRLabel: %Azure.Core
 /sdk/core/                                          @vcolin7 @anuchandy
 
-# PRLabel: %Storage
-/sdk/storage/                                       @vcolin7 @anuchandy
-
 # PRLabel: %EngSys
 /sdk/template/                                      @benbp @weshaggard
 
