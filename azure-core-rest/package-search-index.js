@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.azure.android.core.rest"},{"l":"com.azure.android.core.rest.annotation"},{"l":"com.azure.android.core.rest.implementation"},{"l":"com.azure.android.core.rest.util.paging"}]
