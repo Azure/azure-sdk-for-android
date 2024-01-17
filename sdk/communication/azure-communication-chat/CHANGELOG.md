@@ -1,5 +1,5 @@
 # Release History
-## 2.1.0 (2024-01-16)
+## 2.1.0 (2024-01-17)
 
 #### Bugs Fixed
 Fix bug: https://github.com/Azure/azure-sdk-for-android/issues/1483. Latest Trouter template is being used in SDK, to avoid Android device receiving duplicate real time notifications.
