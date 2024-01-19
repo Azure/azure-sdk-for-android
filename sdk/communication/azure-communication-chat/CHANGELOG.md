@@ -1,13 +1,8 @@
 # Release History
-## 2.1.0-beta.1 (Unreleased)
+## 2.0.2 (2024-01-18)
 
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
-
-### Other Changes
+#### Bugs Fixed
+- Address the issue described in https://github.com/Azure/azure-sdk-for-android/issues/1483. The SDK now incorporates a more recent Trouter template to prevent Android devices from receiving duplicate real-time notifications.
 
 ## 2.0.1 (2023-10-25)
 
