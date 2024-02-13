@@ -51,12 +51,12 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     group = "com.azure.android"
 
     android {
-        compileSdkVersion 30
+        compileSdkVersion 34
         buildToolsVersion ("$gradleAndroidBuildToolsPluginVersion")
 
         defaultConfig {
             minSdkVersion 15
-            targetSdkVersion 30
+            targetSdkVersion 34
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
