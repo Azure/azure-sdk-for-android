@@ -15,7 +15,8 @@
       android:supportsRtl="true"
       android:name=".MyAppConfiguration"
       >
-    <activity android:name="com.azure.android.communication.chat.sampleapp.MainActivity">
+    <activity android:name="com.azure.android.communication.chat.sampleapp.MainActivity"
+        android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
