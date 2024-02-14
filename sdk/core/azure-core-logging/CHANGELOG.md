@@ -1,5 +1,10 @@
 # Release History
 
+## 1.0.0-beta.14 (2024-02-14)
+
+### Other Changes
+- Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
+
 ## 1.0.0-beta.13 (2023-10-12)
 
 ## 1.0.0-beta.12 (2022-11-08)
