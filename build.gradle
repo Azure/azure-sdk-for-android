@@ -100,10 +100,15 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         }
 
         testOptions {
-            unitTests {
-                includeAndroidResources = true
-                returnDefaultValues = true
+            unitTests.all {
+                jacoco {
+                    includeNoLocationClasses = true
+                    excludes = ['jdk.internal.*']
+                }
             }
+
+            unitTests.includeAndroidResources = true
+            unitTests.returnDefaultValues = true
         }
     }
 
@@ -113,17 +118,13 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     task jacocoTestReport(type: JacocoReport) {
         group = "Reporting"
-        description = "Generate Jacoco coverage reports"
+        description = "Generate Jacoco reports"
+
         reports {
             xml.enabled = true
             html.enabled = false
             csv.enabled = false
         }
-    }
-
-    tasks.withType(Test) {
-        junitJacoco.includeNoLocationClasses = true
-        junitJacoco.excludes = ['jdk.internal.*']
     }
 
     // Add dependency to the module containing azure custom checkstyle.
