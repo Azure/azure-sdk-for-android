@@ -17,7 +17,7 @@ Azure Core logging provides shared primitives, abstractions, and helpers for log
 <dependency>
     <groupId>com.azure</groupId>
     <artifactId>azure-core-logging</artifactId>
-    <version>1.0.0-beta.13</version>
+    <version>1.0.0-beta.14</version>
 </dependency>
 ```
 [//]: # ({x-version-update-end})
