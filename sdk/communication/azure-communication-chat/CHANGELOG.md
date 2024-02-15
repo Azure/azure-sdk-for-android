@@ -8,6 +8,7 @@
 ### Bugs Fixed
 
 ### Other Changes
+- Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
 
 ## 2.0.2 (2024-01-18)
 
