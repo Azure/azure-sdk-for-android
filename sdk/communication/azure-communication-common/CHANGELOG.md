@@ -1,14 +1,12 @@
 # Release History
 
-# 1.3.0-beta.1 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 1.2.1 (2024-02-23)
 
 ### Other Changes
+
+#### Dependency Updates
+- Updated `android-core` version to `1.0.0-beta.14`.
+- Updated `android-core-logging` version to `1.0.0-beta.14`.
 
 ## 1.2.0 (2024-02-20)
 
