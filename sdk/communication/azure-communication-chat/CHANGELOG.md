@@ -1,14 +1,16 @@
 # Release History
-## 2.1.0-beta.1 (Unreleased)
-
-### Features Added
-
-### Breaking Changes
-
-### Bugs Fixed
+## 2.0.3 (2024-02-27)
 
 ### Other Changes
 - Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
+
+#### Dependency updates
+- Updated `azure-core` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-credential` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-http` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-logging` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-rest` dependency to `1.0.0-beta.14`.
+- Updated `azure-communication-common` dependency to `1.2.1`.
 
 ## 2.0.2 (2024-01-18)
 
