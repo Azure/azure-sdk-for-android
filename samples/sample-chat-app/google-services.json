@@ -1,0 +1,39 @@
+{
+    "project_info": {
+        "project_number": "779710789478",
+        "project_id": "acsandroidtestapp-jimin",
+        "storage_bucket": "acsandroidtestapp-jimin.appspot.com"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:779710789478:android:d51639f45e733917917aa7",
+                "android_client_info": {
+                    "package_name": "com.azure.android.communication.chat.sampleapp"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "779710789478-5ghanitrhl0jfgfe6dtd9snolvn18bjl.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyC0SLrFk780AWNU65ZZ0BUXH2vYT4u58MA"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "779710789478-5ghanitrhl0jfgfe6dtd9snolvn18bjl.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}

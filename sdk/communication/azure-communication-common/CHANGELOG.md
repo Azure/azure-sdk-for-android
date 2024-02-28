@@ -1,17 +1,29 @@
 # Release History
 
-## 1.2.0 (Unreleased)
+## 1.2.1 (2024-02-23)
+
+### Other Changes
+
+#### Dependency Updates
+- Updated `android-core` version to `1.0.0-beta.14`.
+- Updated `android-core-logging` version to `1.0.0-beta.14`.
+
+## 1.2.0 (2024-02-20)
 
 ### Features Added
 - Added support for a new communication identifier `MicrosoftTeamsAppIdentifier`.
+- Added a new constructor with required param `tokenRefresher` for `CommunicationTokenRefreshOptions`.
+- Added fluent setters for optional properties:
+    - Added the `setRefreshProactively(boolean refreshProactively)` fluent setter that allows setting whether the token should be proactively renewed prior to its expiry or on demand.
+    - Added the `setInitialToken(String initialToken)` fluent setter that allows setting the optional serialized JWT token.
+- Optimization added: When the proactive refreshing is enabled and the token refresher fails to provide a token that's not about to expire soon, the subsequent refresh attempts will be scheduled for when the token reaches half of its remaining lifetime until a token with long enough validity (>10 minutes) is obtained.
+- Added a default `CommunicationCloudEnvironment` constructor set to use Azure Public Cloud.
+- Overrode the `equals`, `toString`, `hashCode` methods of `CommunicationCloudEnvironment` to make it consistent with Azure Core's `ExpandableStringEnum` APIs.
 
 ### Other Changes
 - Introduction of `MicrosoftTeamsAppIdentifier` is a breaking change. It will impact any code that previously depended on the use of UnknownIdentifier with rawIDs starting with `28:orgid:`, `28:dod:`, or `28:gcch:`.
+- Deprecated constructors that take 2 or more arguments in `CommunicationTokenRefreshOptions`. Users should now use the `CommunicationTokenRefreshOptions(Callable tokenRefresher)` constructor and chain fluent setters.
 - Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
-
-### Bugs Fixed
-
-### Other Changes
 
 ## 2.0.0-beta.2 (2023-05-16)
 
