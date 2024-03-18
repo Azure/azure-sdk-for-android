@@ -103,7 +103,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/VideoOptions.html" title="class in com.azure.android.communication.calling">com.azure.android.communication.calling.VideoOptions</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 </tbody>
@@ -143,13 +143,13 @@
 <tbody>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/Call.html#addOnIsMutedChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">com.azure.android.communication.calling.Call.addOnIsMutedChangedListener(PropertyChangedListener)</a>
-<div class="block"><span class="deprecationComment">Use OnOutgoingAudioStateChanged listener instead.
+<div class="block"><span class="deprecationComment">Use OnOutgoingAudioStateChanged listener instead
  isMutedChanged Event. Occurs when the call is muted</span></div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/Call.html#addOnLocalVideoStreamsUpdatedListener-com.azure.android.communication.calling.LocalVideoStreamsUpdatedListener-">com.azure.android.communication.calling.Call.addOnLocalVideoStreamsUpdatedListener(LocalVideoStreamsUpdatedListener)</a>
-<div class="block"><span class="deprecationComment">Use VideoStreamStateChangedDelegate instead
+<div class="block"><span class="deprecationComment">Use onStateChanged in the VideoStream instead
  LocalVideoStreamsUpdated Event. Occurs when Local video streams are added to or removed from a call</span></div>
 </td>
 </tr>
@@ -161,12 +161,12 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/JoinCallOptions.html#getAudioOptions--">com.azure.android.communication.calling.JoinCallOptions.getAudioOptions()</a>
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/StartCallOptions.html#getAudioOptions--">com.azure.android.communication.calling.StartCallOptions.getAudioOptions()</a>
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -181,17 +181,17 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/JoinCallOptions.html#getVideoOptions--">com.azure.android.communication.calling.JoinCallOptions.getVideoOptions()</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/StartCallOptions.html#getVideoOptions--">com.azure.android.communication.calling.StartCallOptions.getVideoOptions()</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/AcceptCallOptions.html#getVideoOptions--">com.azure.android.communication.calling.AcceptCallOptions.getVideoOptions()</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
@@ -211,7 +211,7 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/Call.html#isMuted--">com.azure.android.communication.calling.Call.isMuted()</a>
-<div class="block"><span class="deprecationComment">Use isOutgoingAudioMuted instead.</span></div>
+<div class="block"><span class="deprecationComment">Use isOutgoingAudioMuted instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
@@ -220,19 +220,19 @@
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="com/azure/android/communication/calling/CommonCall.html#mute-android.content.Context-">com.azure.android.communication.calling.CommonCall.mute(Context)</a>
+<td class="colOne"><a href="com/azure/android/communication/calling/Call.html#mute-android.content.Context-">com.azure.android.communication.calling.Call.mute(Context)</a>
 <div class="block"><span class="deprecationComment">Use muteOutgoingAudio instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/Call.html#removeOnIsMutedChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">com.azure.android.communication.calling.Call.removeOnIsMutedChangedListener(PropertyChangedListener)</a>
-<div class="block"><span class="deprecationComment">Use OnOutgoingAudioStateChanged listener instead.
+<div class="block"><span class="deprecationComment">Use OnOutgoingAudioStateChanged listener instead
  isMutedChanged Event. Occurs when the call is muted</span></div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/Call.html#removeOnLocalVideoStreamsUpdatedListener-com.azure.android.communication.calling.LocalVideoStreamsUpdatedListener-">com.azure.android.communication.calling.Call.removeOnLocalVideoStreamsUpdatedListener(LocalVideoStreamsUpdatedListener)</a>
-<div class="block"><span class="deprecationComment">Use VideoStreamStateChangedDelegate instead
+<div class="block"><span class="deprecationComment">Use onStateChanged in the VideoStream instead
  LocalVideoStreamsUpdated Event. Occurs when Local video streams are added to or removed from a call</span></div>
 </td>
 </tr>
@@ -244,12 +244,12 @@
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/JoinCallOptions.html#setAudioOptions-com.azure.android.communication.calling.AudioOptions-">com.azure.android.communication.calling.JoinCallOptions.setAudioOptions(AudioOptions)</a>
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/StartCallOptions.html#setAudioOptions-com.azure.android.communication.calling.AudioOptions-">com.azure.android.communication.calling.StartCallOptions.setAudioOptions(AudioOptions)</a>
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -259,21 +259,21 @@
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/JoinCallOptions.html#setVideoOptions-com.azure.android.communication.calling.VideoOptions-">com.azure.android.communication.calling.JoinCallOptions.setVideoOptions(VideoOptions)</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/StartCallOptions.html#setVideoOptions-com.azure.android.communication.calling.VideoOptions-">com.azure.android.communication.calling.StartCallOptions.setVideoOptions(VideoOptions)</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colOne"><a href="com/azure/android/communication/calling/AcceptCallOptions.html#setVideoOptions-com.azure.android.communication.calling.VideoOptions-">com.azure.android.communication.calling.AcceptCallOptions.setVideoOptions(VideoOptions)</a>
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><a href="com/azure/android/communication/calling/CommonCall.html#unmute-android.content.Context-">com.azure.android.communication.calling.CommonCall.unmute(Context)</a>
+<td class="colOne"><a href="com/azure/android/communication/calling/Call.html#unmute-android.content.Context-">com.azure.android.communication.calling.Call.unmute(Context)</a>
 <div class="block"><span class="deprecationComment">Use unMuteOutgoingAudio instead</span></div>
 </td>
 </tr>

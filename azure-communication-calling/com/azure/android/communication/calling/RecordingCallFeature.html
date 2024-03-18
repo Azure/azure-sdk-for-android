@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/azure/android/communication/calling/RawVideoFrameType.html" title="enum in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/azure/android/communication/calling/RecordingInfo.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/RemoteIncomingAudioStream.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/azure/android/communication/calling/RecordingCallFeature.html" target="_top">Frames</a></li>
@@ -139,33 +139,15 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RecordingCallFeature.html#addOnRecordingUpdatedListener-com.azure.android.communication.calling.RecordingUpdatedListener-">addOnRecordingUpdatedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/RecordingUpdatedListener.html" title="interface in com.azure.android.communication.calling">RecordingUpdatedListener</a>&nbsp;listener)</code>
-<div class="block">Adds the specified listener to receive OnRecordingUpdated events.</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/RecordingInfo.html" title="class in com.azure.android.communication.calling">RecordingInfo</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RecordingCallFeature.html#getRecordings--">getRecordings</a></span>()</code>
-<div class="block">Gets the list of current recordings</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RecordingCallFeature.html#isRecordingActive--">isRecordingActive</a></span>()</code>
 <div class="block">Indicates if recording is active in current call</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RecordingCallFeature.html#removeOnIsRecordingActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnIsRecordingActiveChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnIsRecordingActiveChanged events.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RecordingCallFeature.html#removeOnRecordingUpdatedListener-com.azure.android.communication.calling.RecordingUpdatedListener-">removeOnRecordingUpdatedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/RecordingUpdatedListener.html" title="interface in com.azure.android.communication.calling">RecordingUpdatedListener</a>&nbsp;listener)</code>
-<div class="block">Removes the specified listener to receive OnRecordingUpdated events.</div>
 </td>
 </tr>
 </table>
@@ -207,16 +189,6 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 <div class="block">Indicates if recording is active in current call</div>
 </li>
 </ul>
-<a name="getRecordings--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getRecordings</h4>
-<pre>public&nbsp;java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/RecordingInfo.html" title="class in com.azure.android.communication.calling">RecordingInfo</a>&gt;&nbsp;getRecordings()</pre>
-<div class="block">Gets the list of current recordings</div>
-</li>
-</ul>
 <a name="addOnIsRecordingActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">
 <!--   -->
 </a>
@@ -231,34 +203,12 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 <a name="removeOnIsRecordingActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>removeOnIsRecordingActiveChangedListener</h4>
 <pre>public&nbsp;void&nbsp;removeOnIsRecordingActiveChangedListener(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</pre>
 <div class="block">Removes the specified listener to receive OnIsRecordingActiveChanged events.
  isRecordingActiveChanged Event. Occurs when recording is started or stopped for a call</div>
-</li>
-</ul>
-<a name="addOnRecordingUpdatedListener-com.azure.android.communication.calling.RecordingUpdatedListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>addOnRecordingUpdatedListener</h4>
-<pre>public&nbsp;void&nbsp;addOnRecordingUpdatedListener(<a href="../../../../../com/azure/android/communication/calling/RecordingUpdatedListener.html" title="interface in com.azure.android.communication.calling">RecordingUpdatedListener</a>&nbsp;listener)</pre>
-<div class="block">Adds the specified listener to receive OnRecordingUpdated events.
- recordingsChanged Event. Will be triggered when a recording is started or stopped</div>
-</li>
-</ul>
-<a name="removeOnRecordingUpdatedListener-com.azure.android.communication.calling.RecordingUpdatedListener-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>removeOnRecordingUpdatedListener</h4>
-<pre>public&nbsp;void&nbsp;removeOnRecordingUpdatedListener(<a href="../../../../../com/azure/android/communication/calling/RecordingUpdatedListener.html" title="interface in com.azure.android.communication.calling">RecordingUpdatedListener</a>&nbsp;listener)</pre>
-<div class="block">Removes the specified listener to receive OnRecordingUpdated events.
- recordingsChanged Event. Will be triggered when a recording is started or stopped</div>
 </li>
 </ul>
 </li>
@@ -288,7 +238,7 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/azure/android/communication/calling/RawVideoFrameType.html" title="enum in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/azure/android/communication/calling/RecordingInfo.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/RemoteIncomingAudioStream.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/azure/android/communication/calling/RecordingCallFeature.html" target="_top">Frames</a></li>

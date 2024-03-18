@@ -97,12 +97,7 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html" title="class in com.azure.android.communication.calling">com.azure.android.communication.calling.CommonCallAgentOptions</a></li>
-<li>
-<ul class="inheritance">
 <li>com.azure.android.communication.calling.CallAgentOptions</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -112,7 +107,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">CallAgentOptions</span>
-extends <a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html" title="class in com.azure.android.communication.calling">CommonCallAgentOptions</a></pre>
+extends java.lang.Object</pre>
 <div class="block">Options for creating CallAgent</div>
 </li>
 </ul>
@@ -152,27 +147,27 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonCa
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html#finalize--">finalize</a></span>()</code>
+<div class="block">Called by the garbage collector on an object when garbage collection determines that there are no more references to the object.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html#getDisplayName--">getDisplayName</a></span>()</code>
 <div class="block">Specify the display name of the local participant for all new calls</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/EmergencyCallOptions.html" title="class in com.azure.android.communication.calling">EmergencyCallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html#getEmergencyCallOptions--">getEmergencyCallOptions</a></span>()</code>
 <div class="block">Emergency call options when creating a call agent</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>java.lang.Integer</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html#getPushNotificationTtlInSeconds--">getPushNotificationTtlInSeconds</a></span>()</code>
 <div class="block">Get push notification time-to-live value.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html" title="class in com.azure.android.communication.calling">CallAgentOptions</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html#setDisableInternalPushForIncomingCall-boolean-">setDisableInternalPushForIncomingCall</a></span>(boolean&nbsp;value)</code>
-<div class="block">Enables only IncomingCall notification because of HandlePush and disables the internal delivery of push for IncomingCall.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -194,13 +189,6 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonCa
 </td>
 </tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.azure.android.communication.calling.CommonCallAgentOptions">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;com.azure.android.communication.calling.<a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html" title="class in com.azure.android.communication.calling">CommonCallAgentOptions</a></h3>
-<code><a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html#finalize--">finalize</a>, <a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html#isDisableInternalPushForIncomingCall--">isDisableInternalPushForIncomingCall</a></code></li>
-</ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -240,6 +228,20 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonCa
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="finalize--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>finalize</h4>
+<pre>protected&nbsp;void&nbsp;finalize()</pre>
+<div class="block">Called by the garbage collector on an object when garbage collection determines that there are no more references to the object.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>finalize</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
+</dl>
+</li>
+</ul>
 <a name="getDisplayName--">
 <!--   -->
 </a>
@@ -283,22 +285,6 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonCa
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html" title="class in com.azure.android.communication.calling">CallAgentOptions</a>&nbsp;setEmergencyCallOptions(<a href="../../../../../com/azure/android/communication/calling/EmergencyCallOptions.html" title="class in com.azure.android.communication.calling">EmergencyCallOptions</a>&nbsp;value)</pre>
 <div class="block">Emergency call options when creating a call agent</div>
 <dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>value</code> - The new value.</dd>
-</dl>
-</li>
-</ul>
-<a name="setDisableInternalPushForIncomingCall-boolean-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setDisableInternalPushForIncomingCall</h4>
-<pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallAgentOptions.html" title="class in com.azure.android.communication.calling">CallAgentOptions</a>&nbsp;setDisableInternalPushForIncomingCall(boolean&nbsp;value)</pre>
-<div class="block">Enables only IncomingCall notification because of HandlePush and disables the internal delivery of push for IncomingCall.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html#setDisableInternalPushForIncomingCall-boolean-">setDisableInternalPushForIncomingCall</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/azure/android/communication/calling/CommonCallAgentOptions.html" title="class in com.azure.android.communication.calling">CommonCallAgentOptions</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
 </dl>

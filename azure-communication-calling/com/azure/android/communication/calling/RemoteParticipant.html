@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":42,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":42,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":42};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":42,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":42,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -187,7 +187,7 @@ extends java.lang.Object</pre>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallParticipantRole.html" title="enum in com.azure.android.communication.calling">CallParticipantRole</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getCallParticipantRole--">getCallParticipantRole</a></span>()</code>
-<div class="block">Public Preview Only: Role of the remote participant</div>
+<div class="block">Role of the remote participant</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
@@ -197,30 +197,24 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code>java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/EndpointDetails.html" title="class in com.azure.android.communication.calling">EndpointDetails</a>&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getEndpointDetails--">getEndpointDetails</a></span>()</code>
-<div class="block">Access to the participants endpoint details</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
 <td class="colFirst"><code>com.azure.android.communication.common.CommunicationIdentifier</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getIdentifier--">getIdentifier</a></span>()</code>
 <div class="block">Get the remote participant identifier information</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/IncomingVideoStream.html" title="class in com.azure.android.communication.calling">IncomingVideoStream</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getIncomingVideoStreams--">getIncomingVideoStreams</a></span>()</code>
 <div class="block">Get a list of incoming streams in the current call.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/ParticipantState.html" title="enum in com.azure.android.communication.calling">ParticipantState</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getState--">getState</a></span>()</code>
 <div class="block">Current state of the remote participant</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/RemoteVideoStream.html" title="class in com.azure.android.communication.calling">RemoteVideoStream</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#getVideoStreams--">getVideoStreams</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -228,61 +222,55 @@ extends java.lang.Object</pre>
 </div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#isMuted--">isMuted</a></span>()</code>
 <div class="block">True if the remote participant is muted</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#isSpeaking--">isSpeaking</a></span>()</code>
 <div class="block">True if the remote participant is speaking.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>&lt;any&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#mute--">mute</a></span>()</code>
-<div class="block">Mute remote participant audio</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnDisplayNameChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnDisplayNameChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnDisplayNameChanged events.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnIsMutedChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnIsMutedChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnIsMutedChanged events.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnIsSpeakingChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnIsSpeakingChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnIsSpeakingChanged events.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnRoleChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnRoleChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnRoleChanged events.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnStateChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnStateChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnStateChanged events.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnVideoStreamStateChangedListener-com.azure.android.communication.calling.VideoStreamStateChangedListener-">removeOnVideoStreamStateChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/VideoStreamStateChangedListener.html" title="interface in com.azure.android.communication.calling">VideoStreamStateChangedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnVideoStreamStateChanged events.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/RemoteParticipant.html#removeOnVideoStreamsUpdatedListener-com.azure.android.communication.calling.RemoteVideoStreamsUpdatedListener-">removeOnVideoStreamsUpdatedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/RemoteVideoStreamsUpdatedListener.html" title="interface in com.azure.android.communication.calling">RemoteVideoStreamsUpdatedListener</a>&nbsp;listener)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
@@ -327,6 +315,16 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a name="getCallParticipantRole--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCallParticipantRole</h4>
+<pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallParticipantRole.html" title="enum in com.azure.android.communication.calling">CallParticipantRole</a>&nbsp;getCallParticipantRole()</pre>
+<div class="block">Role of the remote participant</div>
+</li>
+</ul>
 <a name="getDisplayName--">
 <!--   -->
 </a>
@@ -335,16 +333,6 @@ extends java.lang.Object</pre>
 <h4>getDisplayName</h4>
 <pre>public&nbsp;java.lang.String&nbsp;getDisplayName()</pre>
 <div class="block">Private Preview Only: Display Name of the remote participant</div>
-</li>
-</ul>
-<a name="getCallParticipantRole--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getCallParticipantRole</h4>
-<pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallParticipantRole.html" title="enum in com.azure.android.communication.calling">CallParticipantRole</a>&nbsp;getCallParticipantRole()</pre>
-<div class="block">Public Preview Only: Role of the remote participant</div>
 </li>
 </ul>
 <a name="isMuted--">
@@ -407,16 +395,6 @@ public&nbsp;java.util.List&lt;<a href="../../../../../com/azure/android/communic
 <h4>getIncomingVideoStreams</h4>
 <pre>public&nbsp;java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/IncomingVideoStream.html" title="class in com.azure.android.communication.calling">IncomingVideoStream</a>&gt;&nbsp;getIncomingVideoStreams()</pre>
 <div class="block">Get a list of incoming streams in the current call.</div>
-</li>
-</ul>
-<a name="getEndpointDetails--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>getEndpointDetails</h4>
-<pre>public&nbsp;java.util.List&lt;<a href="../../../../../com/azure/android/communication/calling/EndpointDetails.html" title="class in com.azure.android.communication.calling">EndpointDetails</a>&gt;&nbsp;getEndpointDetails()</pre>
-<div class="block">Access to the participants endpoint details</div>
 </li>
 </ul>
 <a name="addOnStateChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">
@@ -575,16 +553,6 @@ public&nbsp;void&nbsp;removeOnVideoStreamsUpdatedListener(<a href="../../../../.
 <pre>public&nbsp;void&nbsp;removeOnVideoStreamStateChangedListener(<a href="../../../../../com/azure/android/communication/calling/VideoStreamStateChangedListener.html" title="interface in com.azure.android.communication.calling">VideoStreamStateChangedListener</a>&nbsp;listener)</pre>
 <div class="block">Removes the specified listener to receive OnVideoStreamStateChanged events.
  Listener used to know the video stream state</div>
-</li>
-</ul>
-<a name="mute--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>mute</h4>
-<pre>public&nbsp;&lt;any&gt;&nbsp;mute()</pre>
-<div class="block">Mute remote participant audio</div>
 </li>
 </ul>
 <a name="getIdentifier--">

@@ -161,7 +161,7 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/AudioOptions.html" title="class in com.azure.android.communication.calling">AudioOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#getAudioOptions--">getAudioOptions</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </div>
 </td>
 </tr>
@@ -169,7 +169,7 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/VideoOptions.html" title="class in com.azure.android.communication.calling">VideoOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#getVideoOptions--">getVideoOptions</a></span>()</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </div>
 </td>
 </tr>
@@ -183,14 +183,14 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#setAudioOptions-com.azure.android.communication.calling.AudioOptions-">setAudioOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/AudioOptions.html" title="class in com.azure.android.communication.calling">AudioOptions</a>&nbsp;value)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
 </div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#setIncomingAudioOptions-com.azure.android.communication.calling.IncomingAudioOptions-">setIncomingAudioOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a>&nbsp;value)</code>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -202,7 +202,7 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#setOutgoingAudioOptions-com.azure.android.communication.calling.OutgoingAudioOptions-">setOutgoingAudioOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a>&nbsp;value)</code>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -215,7 +215,7 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html#setVideoOptions-com.azure.android.communication.calling.VideoOptions-">setVideoOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/VideoOptions.html" title="class in com.azure.android.communication.calling">VideoOptions</a>&nbsp;value)</code>
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;
-<div class="block"><span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
+<div class="block"><span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
 </div>
 </td>
 </tr>
@@ -274,8 +274,8 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallOpti
 <h4>getVideoOptions</h4>
 <pre>@Deprecated
 public&nbsp;<a href="../../../../../com/azure/android/communication/calling/VideoOptions.html" title="class in com.azure.android.communication.calling">VideoOptions</a>&nbsp;getVideoOptions()</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
-<div class="block">Video options. When both OutgoingVideoOptions and VideoOptions are specified both options will be merged.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
+<div class="block">Video options when placing a call</div>
 </li>
 </ul>
 <a name="setVideoOptions-com.azure.android.communication.calling.VideoOptions-">
@@ -286,8 +286,8 @@ public&nbsp;<a href="../../../../../com/azure/android/communication/calling/Vide
 <h4>setVideoOptions</h4>
 <pre>@Deprecated
 public&nbsp;<a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a>&nbsp;setVideoOptions(<a href="../../../../../com/azure/android/communication/calling/VideoOptions.html" title="class in com.azure.android.communication.calling">VideoOptions</a>&nbsp;value)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use IncomingVideoOptions and OutgoingVideoOptions instead</span></div>
-<div class="block">Video options. When both OutgoingVideoOptions and VideoOptions are specified both options will be merged.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingVideoOptions() and getOutgoingVideoOptions() instead</span></div>
+<div class="block">Video options when placing a call</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
@@ -302,8 +302,8 @@ public&nbsp;<a href="../../../../../com/azure/android/communication/calling/Star
 <h4>getAudioOptions</h4>
 <pre>@Deprecated
 public&nbsp;<a href="../../../../../com/azure/android/communication/calling/AudioOptions.html" title="class in com.azure.android.communication.calling">AudioOptions</a>&nbsp;getAudioOptions()</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
-<div class="block">Audio options when joining a call</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
+<div class="block">Audio options when starting a call</div>
 </li>
 </ul>
 <a name="setAudioOptions-com.azure.android.communication.calling.AudioOptions-">
@@ -314,8 +314,8 @@ public&nbsp;<a href="../../../../../com/azure/android/communication/calling/Audi
 <h4>setAudioOptions</h4>
 <pre>@Deprecated
 public&nbsp;<a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a>&nbsp;setAudioOptions(<a href="../../../../../com/azure/android/communication/calling/AudioOptions.html" title="class in com.azure.android.communication.calling">AudioOptions</a>&nbsp;value)</pre>
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead.</span></div>
-<div class="block">Audio options when joining a call</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>&nbsp;<span class="deprecationComment">Use getIncomingAudioOptions() and getOutgoingAudioOptions() instead</span></div>
+<div class="block">Audio options when starting a call</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
@@ -361,7 +361,7 @@ public&nbsp;<a href="../../../../../com/azure/android/communication/calling/Star
 <li class="blockList">
 <h4>setIncomingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a>&nbsp;setIncomingAudioOptions(<a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a>&nbsp;value)</pre>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#setIncomingAudioOptions-com.azure.android.communication.calling.IncomingAudioOptions-">setIncomingAudioOptions</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a></code></dd>
@@ -377,7 +377,7 @@ public&nbsp;<a href="../../../../../com/azure/android/communication/calling/Star
 <li class="blockList">
 <h4>setOutgoingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a>&nbsp;setOutgoingAudioOptions(<a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a>&nbsp;value)</pre>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#setOutgoingAudioOptions-com.azure.android.communication.calling.OutgoingAudioOptions-">setOutgoingAudioOptions</a></code>&nbsp;in class&nbsp;<code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a></code></dd>

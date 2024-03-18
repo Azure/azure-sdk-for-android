@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -47,7 +47,7 @@ var activeTableTab = "activeTableTab";
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/azure/android/communication/calling/CallCaptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/azure/android/communication/calling/CallClientFeature.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/CallClientOptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/azure/android/communication/calling/CallClient.html" target="_top">Frames</a></li>
@@ -167,32 +167,24 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>&lt;any&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallClient.html#createTeamsCallAgent-android.content.Context-com.azure.android.communication.common.CommunicationTokenCredential-com.azure.android.communication.calling.TeamsCallAgentOptions-">createTeamsCallAgent</a></span>(android.content.Context&nbsp;appContext,
-                    com.azure.android.communication.common.CommunicationTokenCredential&nbsp;communicationTokenCredential,
-                    <a href="../../../../../com/azure/android/communication/calling/TeamsCallAgentOptions.html" title="class in com.azure.android.communication.calling">TeamsCallAgentOptions</a>&nbsp;teamsCallAgentOptions)</code>
-<div class="block">Factory method for creating a TeamsCallAgent.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallClient.html#dispose--">dispose</a></span>()</code>
 <div class="block">Releases all the resources held by CallAgent.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallClient.html#finalize--">finalize</a></span>()</code>
 <div class="block">Called by the garbage collector on an object when garbage collection determines that there are no more references to the object.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallDebugInfo.html" title="class in com.azure.android.communication.calling">CallDebugInfo</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallClient.html#getDebugInfo--">getDebugInfo</a></span>()</code>
 <div class="block">Retrieves the DebugInfo class, which is an interface to Debugging/Support helpers such as retrieving files for support</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>&lt;any&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallClient.html#getDeviceManager-android.content.Context-">getDeviceManager</a></span>(android.content.Context&nbsp;context)</code>
 <div class="block">Gets a device manager object that can be used to enumerates audio and video devices available for calls.</div>
@@ -321,7 +313,7 @@ extends java.lang.Object</pre>
 <a name="createCallAgent-android.content.Context-com.azure.android.communication.common.CommunicationTokenCredential-">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>createCallAgent</h4>
 <pre>public&nbsp;&lt;any&gt;&nbsp;createCallAgent(android.content.Context&nbsp;appContext,
@@ -333,26 +325,6 @@ extends java.lang.Object</pre>
 <dd><code>communicationTokenCredential</code> - Object to manages user authentication token retrieval</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The CallAgent object to manage calls for the authenticated user.</dd>
-</dl>
-</li>
-</ul>
-<a name="createTeamsCallAgent-android.content.Context-com.azure.android.communication.common.CommunicationTokenCredential-com.azure.android.communication.calling.TeamsCallAgentOptions-">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>createTeamsCallAgent</h4>
-<pre>public&nbsp;&lt;any&gt;&nbsp;createTeamsCallAgent(android.content.Context&nbsp;appContext,
-                                  com.azure.android.communication.common.CommunicationTokenCredential&nbsp;communicationTokenCredential,
-                                  <a href="../../../../../com/azure/android/communication/calling/TeamsCallAgentOptions.html" title="class in com.azure.android.communication.calling">TeamsCallAgentOptions</a>&nbsp;teamsCallAgentOptions)</pre>
-<div class="block">Factory method for creating a TeamsCallAgent.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>appContext</code> - Context object for initialization purposes. Determine log file path, etc.</dd>
-<dd><code>communicationTokenCredential</code> - Object to manages user authentication token retrieval</dd>
-<dd><code>teamsCallAgentOptions</code> - Options for creating Teams CallAgent</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>The TeamsCallAgent object to manage calls for the authenticated user.</dd>
 </dl>
 </li>
 </ul>
@@ -383,7 +355,7 @@ extends java.lang.Object</pre>
 <div class="subNav">
 <ul class="navList">
 <li><a href="../../../../../com/azure/android/communication/calling/CallCaptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
-<li><a href="../../../../../com/azure/android/communication/calling/CallClientFeature.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/CallClientOptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
 <li><a href="../../../../../index.html?com/azure/android/communication/calling/CallClient.html" target="_top">Frames</a></li>

@@ -179,19 +179,19 @@ extends java.lang.Object</pre>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#getStride1--">getStride1</a></span>()</code>
-<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#getStride2--">getStride2</a></span>()</code>
-<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#getStride3--">getStride3</a></span>()</code>
-<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -227,19 +227,19 @@ extends java.lang.Object</pre>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#setStride1-int-">setStride1</a></span>(int&nbsp;value)</code>
-<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#setStride2-int-">setStride2</a></span>(int&nbsp;value)</code>
-<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html#setStride3-int-">setStride3</a></span>(int&nbsp;value)</code>
-<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameKind is VideoSoftware.</div>
+<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameType is VideoSoftware.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
@@ -429,7 +429,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getStride1</h4>
 <pre>public&nbsp;int&nbsp;getStride1()</pre>
-<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the first plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the first plane of the selected VideoStreamPixelFormat.</div>
 </li>
 </ul>
 <a name="setStride1-int-">
@@ -439,7 +439,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setStride1</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a>&nbsp;setStride1(int&nbsp;value)</pre>
-<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the first plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">Informs the stride in bytes for the first plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the first plane of the selected VideoStreamPixelFormat.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
@@ -453,7 +453,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getStride2</h4>
 <pre>public&nbsp;int&nbsp;getStride2()</pre>
-<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the second plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the second plane of the selected VideoStreamPixelFormat.</div>
 </li>
 </ul>
 <a name="setStride2-int-">
@@ -463,7 +463,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setStride2</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a>&nbsp;setStride2(int&nbsp;value)</pre>
-<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the second plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">For VideoFormats with more than one plane, informs the stride in bytes for the second plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the second plane of the selected VideoStreamPixelFormat.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
@@ -477,7 +477,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getStride3</h4>
 <pre>public&nbsp;int&nbsp;getStride3()</pre>
-<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the third plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the third plane of the selected VideoStreamPixelFormat.</div>
 </li>
 </ul>
 <a name="setStride3-int-">
@@ -487,7 +487,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setStride3</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/VideoStreamFormat.html" title="class in com.azure.android.communication.calling">VideoStreamFormat</a>&nbsp;setStride3(int&nbsp;value)</pre>
-<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameKind is VideoSoftware. It must be greater or equal to the count of bytes required for the third plane of the selected VideoStreamPixelFormat.</div>
+<div class="block">For VideoFormats with more than two planes, informs the stride in bytes for the third plane of the video frame content when RawVideoFrameType is VideoSoftware. It must be greater or equal to the count of bytes required for the third plane of the selected VideoStreamPixelFormat.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>

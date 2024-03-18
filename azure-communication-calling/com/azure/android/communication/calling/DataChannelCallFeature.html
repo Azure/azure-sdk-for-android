@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var methods = {"i0":10,"i1":10,"i2":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -134,35 +134,17 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#addOnActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">addOnActiveChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
-<div class="block">Adds the specified listener to receive OnActiveChanged events.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#addOnReceiverCreatedListener-com.azure.android.communication.calling.DataChannelReceiverCreatedListener-">addOnReceiverCreatedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/DataChannelReceiverCreatedListener.html" title="interface in com.azure.android.communication.calling">DataChannelReceiverCreatedListener</a>&nbsp;listener)</code>
 <div class="block">Adds the specified listener to receive OnReceiverCreated events.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/DataChannelSender.html" title="class in com.azure.android.communication.calling">DataChannelSender</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#getDataChannelSender-com.azure.android.communication.calling.DataChannelSenderOptions-">getDataChannelSender</a></span>(<a href="../../../../../com/azure/android/communication/calling/DataChannelSenderOptions.html" title="class in com.azure.android.communication.calling">DataChannelSenderOptions</a>&nbsp;options)</code>
 <div class="block">Creates a new data channel sender with user-specified options</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#isActive--">isActive</a></span>()</code>
-<div class="block">Is the data channel active</div>
-</td>
-</tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#removeOnActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnActiveChangedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
-<div class="block">Removes the specified listener to receive OnActiveChanged events.</div>
-</td>
-</tr>
-<tr id="i5" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html#removeOnReceiverCreatedListener-com.azure.android.communication.calling.DataChannelReceiverCreatedListener-">removeOnReceiverCreatedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/DataChannelReceiverCreatedListener.html" title="interface in com.azure.android.communication.calling">DataChannelReceiverCreatedListener</a>&nbsp;listener)</code>
 <div class="block">Removes the specified listener to receive OnReceiverCreated events.</div>
@@ -197,38 +179,6 @@ extends <a href="../../../../../com/azure/android/communication/calling/CallFeat
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a name="isActive--">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>isActive</h4>
-<pre>public&nbsp;boolean&nbsp;isActive()</pre>
-<div class="block">Is the data channel active</div>
-</li>
-</ul>
-<a name="addOnActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>addOnActiveChangedListener</h4>
-<pre>public&nbsp;void&nbsp;addOnActiveChangedListener(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</pre>
-<div class="block">Adds the specified listener to receive OnActiveChanged events.
- Occurs when the data channel active state changes</div>
-</li>
-</ul>
-<a name="removeOnActiveChangedListener-com.azure.android.communication.calling.PropertyChangedListener-">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>removeOnActiveChangedListener</h4>
-<pre>public&nbsp;void&nbsp;removeOnActiveChangedListener(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</pre>
-<div class="block">Removes the specified listener to receive OnActiveChanged events.
- Occurs when the data channel active state changes</div>
-</li>
-</ul>
 <a name="addOnReceiverCreatedListener-com.azure.android.communication.calling.DataChannelReceiverCreatedListener-">
 <!--   -->
 </a>

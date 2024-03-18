@@ -46,7 +46,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/azure/android/communication/calling/CallInfo.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationException.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -211,88 +211,78 @@ extends java.lang.Enum&lt;<a href="../../../../../com/azure/android/communicatio
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#DELEGATE_IS_REQUIRED">DELEGATE_IS_REQUIRED</a></span></code>
-<div class="block">App is expected to register a delegation to complete the operation.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#DISPLAY_NAME_LENGTH_LONGER_THAN_SUPPORTED">DISPLAY_NAME_LENGTH_LONGER_THAN_SUPPORTED</a></span></code>
 <div class="block">User display name is longer than the supported length.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#DUPLICATE_DEVICE_ID">DUPLICATE_DEVICE_ID</a></span></code>
 <div class="block">Virtual tried to register an already registered device id.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FAILED_TO_HANGUP_FOR_EVERYONE">FAILED_TO_HANGUP_FOR_EVERYONE</a></span></code>
 <div class="block">Cannot hangup for everyone in a non-hostless call</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FAILED_TO_PROCESS_PUSH_NOTIFICATION_PAYLOAD">FAILED_TO_PROCESS_PUSH_NOTIFICATION_PAYLOAD</a></span></code>
 <div class="block">Received empty/invalid notification payload.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FAILED_TO_SEND_RAW_AUDIO_BUFFER">FAILED_TO_SEND_RAW_AUDIO_BUFFER</a></span></code>
 <div class="block">Sending Raw Audio Buffer Failed</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FAILED_TO_SET_CAPTION_LANGUAGE">FAILED_TO_SET_CAPTION_LANGUAGE</a></span></code>
 <div class="block">Set caption language failed</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FAILED_TO_SET_MEDIA_PROXY">FAILED_TO_SET_MEDIA_PROXY</a></span></code>
 <div class="block">Set media proxy failed</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#FEATURE_EXTENSION_NOT_FOUND">FEATURE_EXTENSION_NOT_FOUND</a></span></code>
 <div class="block">Feature extension not found.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#GET_CAPTIONS_FAILED">GET_CAPTIONS_FAILED</a></span></code>
 <div class="block">Get captions failed</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#GET_CAPTIONS_FAILED_CALL_STATE_NOT_CONNECTED">GET_CAPTIONS_FAILED_CALL_STATE_NOT_CONNECTED</a></span></code>
 <div class="block">Get captions failed, call should be connected</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INCOMING_CALL_ALREADY_UNPLACED">INCOMING_CALL_ALREADY_UNPLACED</a></span></code>
 <div class="block">Attempt to answer an incoming call that has been unplaced.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_BUFFER">INVALID_BUFFER</a></span></code>
 <div class="block">The buffer does not match the video format set or does contain valid data</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_GUID_GROUP_ID">INVALID_GUID_GROUP_ID</a></span></code>
 <div class="block">Received invalid group Id.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_LOCAL_VIDEO_STREAM_FOR_VIDEO_OPTIONS">INVALID_LOCAL_VIDEO_STREAM_FOR_VIDEO_OPTIONS</a></span></code>
 <div class="block">The local video stream on the video options is invalid.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_MEETING_LINK">INVALID_MEETING_LINK</a></span></code>
 <div class="block">Invalid meeting link provided.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_PARTICIPANT_ADDED_TO_CALL">INVALID_PARTICIPANT_ADDED_TO_CALL</a></span></code>
-<div class="block">Attempted to added a participant with an invalid type to the call</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -306,211 +296,166 @@ extends java.lang.Enum&lt;<a href="../../../../../com/azure/android/communicatio
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_TOKEN_PROVIDER">INVALID_TOKEN_PROVIDER</a></span></code>
-<div class="block">Invalid token provider given.</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_VIDEO_FORMAT">INVALID_VIDEO_FORMAT</a></span></code>
 <div class="block">Invalid video format set</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#INVALID_VIDEO_STREAM_COMBINATION">INVALID_VIDEO_STREAM_COMBINATION</a></span></code>
 <div class="block">Invalid video stream combination provided.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOBBY_ADMIT_OPERATION_FAILURE">LOBBY_ADMIT_OPERATION_FAILURE</a></span></code>
 <div class="block">Admit/AdmitAll operation failure</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOBBY_CONVERSATION_TYPE_NOT_SUPPORTED">LOBBY_CONVERSATION_TYPE_NOT_SUPPORTED</a></span></code>
 <div class="block">Current conversation type does not support Lobby</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOBBY_DISABLED_BY_CONFIGURATIONS">LOBBY_DISABLED_BY_CONFIGURATIONS</a></span></code>
-<div class="block">Lobby is disabled by configurations</div>
+<div class="block">Survey Rating Scale Invalid Bounds</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOBBY_MEETING_ROLE_NOT_ALLOWED">LOBBY_MEETING_ROLE_NOT_ALLOWED</a></span></code>
 <div class="block">Current meeting role does not have permission to admit/reject user from Lobby</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOBBY_PARTICIPANT_NOT_EXIST">LOBBY_PARTICIPANT_NOT_EXIST</a></span></code>
 <div class="block">Participant is not exist in the Lobby</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#LOCAL_VIDEO_STREAM_SWITCH_SOURCE_FAILURE">LOCAL_VIDEO_STREAM_SWITCH_SOURCE_FAILURE</a></span></code>
 <div class="block">Failure while switch source on a local video stream.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MAX_SPOTLIGHT_REACHED">MAX_SPOTLIGHT_REACHED</a></span></code>
 <div class="block">Max supported spotlight reached</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MEDIA_STATISTICS_INVALID_REPORT_INTERVAL">MEDIA_STATISTICS_INVALID_REPORT_INTERVAL</a></span></code>
 <div class="block">Invalid report interval for Media Statistics Call Feature.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MULTIPLE_RENDERERS_NOT_SUPPORTED">MULTIPLE_RENDERERS_NOT_SUPPORTED</a></span></code>
 <div class="block">Cannot create multiple renders for same device or stream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MULTIPLE_VIEWS_NOT_SUPPORTED">MULTIPLE_VIEWS_NOT_SUPPORTED</a></span></code>
 <div class="block">Renderer doesn't support creating multiple views.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MUSIC_MODE_NOT_ENABLED">MUSIC_MODE_NOT_ENABLED</a></span></code>
 <div class="block">Music mode not enabled</div>
 </td>
 </tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MUTE_OTHERS_FORBIDDEN">MUTE_OTHERS_FORBIDDEN</a></span></code>
-<div class="block">Forbidden to mute others</div>
-</td>
-</tr>
 <tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MUTE_OTHERS_INTERNAL_SERVER_ERROR">MUTE_OTHERS_INTERNAL_SERVER_ERROR</a></span></code>
-<div class="block">Internal server error occurred when muting others</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#MUTE_OTHERS_NOT_FOUND">MUTE_OTHERS_NOT_FOUND</a></span></code>
-<div class="block">Not found exception occurred when muting others</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_ACTIVE_AUDIO_STREAM_TO_STOP">NO_ACTIVE_AUDIO_STREAM_TO_STOP</a></span></code>
-<div class="block">No active audio stream to stop.</div>
-</td>
-</tr>
-<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_AUDIO_AND_VIDEO_PERMISSION">NO_AUDIO_AND_VIDEO_PERMISSION</a></span></code>
 <div class="block">No Video and Audio permissions available.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_AUDIO_PERMISSION">NO_AUDIO_PERMISSION</a></span></code>
 <div class="block">No Audio permissions available.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS">NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS</a></span></code>
 <div class="block">No multiple connections with different cloud type per app is allowed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_MULTIPLE_CONNECTIONS_WITH_SAME_IDENTITY">NO_MULTIPLE_CONNECTIONS_WITH_SAME_IDENTITY</a></span></code>
 <div class="block">No multiple connections with same identity per app is allowed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NO_VIDEO_PERMISSION">NO_VIDEO_PERMISSION</a></span></code>
 <div class="block">No Video permissions available.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#NONE">NONE</a></span></code>
 <div class="block">No errors</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#PARTICIPANT_ADDED_TO_UNCONNECTED_CALL">PARTICIPANT_ADDED_TO_UNCONNECTED_CALL</a></span></code>
 <div class="block">Attempt to add participant to a unconnected call.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#PARTICIPANT_ALREADY_ADDED_TO_CALL">PARTICIPANT_ALREADY_ADDED_TO_CALL</a></span></code>
 <div class="block">Participant already added to the call.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#PROXY_NOT_AVAILABLE_FOR_TEAMS">PROXY_NOT_AVAILABLE_FOR_TEAMS</a></span></code>
 <div class="block">Teams Interop is disabled while using proxy</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#RAW_VIDEO_FRAME_NOT_SENT">RAW_VIDEO_FRAME_NOT_SENT</a></span></code>
 <div class="block">There was a problem while sending the video frame</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#RECEIVED_INVALID_PUSH_NOTIFICATION_PAYLOAD">RECEIVED_INVALID_PUSH_NOTIFICATION_PAYLOAD</a></span></code>
 <div class="block">Failed to process push notification payload.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#REMOVE_PARTICIPANT_OPERATION_FAILURE">REMOVE_PARTICIPANT_OPERATION_FAILURE</a></span></code>
 <div class="block">Remove participant operation failure</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SET_CAPTION_LANGUAGE_DISABLED">SET_CAPTION_LANGUAGE_DISABLED</a></span></code>
 <div class="block">Set caption language is disabled</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SET_CAPTION_LANGUAGE_TEAMS_PREMIUM_LICENSE_NEEDED">SET_CAPTION_LANGUAGE_TEAMS_PREMIUM_LICENSE_NEEDED</a></span></code>
 <div class="block">Set caption language failed, teams premium license needed</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SIGNALING_OPERATION_FAILED">SIGNALING_OPERATION_FAILED</a></span></code>
 <div class="block">Signaling Service Status Code</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SPOTLIGHT_DISABLED_BY_CONFIGURATIONS">SPOTLIGHT_DISABLED_BY_CONFIGURATIONS</a></span></code>
 <div class="block">Spotlight failed, spotlight feature is disabled by configurations</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SPOTLIGHT_PARTICIPANT_EMPTY_LIST">SPOTLIGHT_PARTICIPANT_EMPTY_LIST</a></span></code>
 <div class="block">Spotlight Input List empty</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SURVEY_DOUBLE_SUBMISSION_NOT_ALLOWED">SURVEY_DOUBLE_SUBMISSION_NOT_ALLOWED</a></span></code>
-<div class="block">Survey Double Submission Not Allowed</div>
-</td>
-</tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SURVEY_RATING_SCALE_INVALID_THRESHOLD">SURVEY_RATING_SCALE_INVALID_THRESHOLD</a></span></code>
-<div class="block">Survey Rating Scale Invalid Threshold</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SURVEY_RATING_SCALE_OUT_OF_BOUNDS">SURVEY_RATING_SCALE_OUT_OF_BOUNDS</a></span></code>
-<div class="block">Survey Rating Scale Invalid Bounds</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#SURVEY_SCORE_OUT_OF_BOUNDS">SURVEY_SCORE_OUT_OF_BOUNDS</a></span></code>
-<div class="block">Survey Score Out of Bounds</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#UNSUPPORTED_VIDEO_STREAM_RESOLUTION">UNSUPPORTED_VIDEO_STREAM_RESOLUTION</a></span></code>
 <div class="block">The selected video resolution is not valid for the virtual video</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#VIDEO_EFFECT_NOT_SUPPORTED">VIDEO_EFFECT_NOT_SUPPORTED</a></span></code>
 <div class="block">Video effect not supported by device</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html#VIRTUAL_DEVICE_NOT_STARTED">VIRTUAL_DEVICE_NOT_STARTED</a></span></code>
 <div class="block">Virtual device is not started.</div>
 </td>
@@ -782,54 +727,14 @@ the order they are declared.</div>
 <div class="block">Cannot hangup for everyone in a non-hostless call</div>
 </li>
 </ul>
-<a name="INVALID_PARTICIPANT_ADDED_TO_CALL">
+<a name="NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>INVALID_PARTICIPANT_ADDED_TO_CALL</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> INVALID_PARTICIPANT_ADDED_TO_CALL</pre>
-<div class="block">Attempted to added a participant with an invalid type to the call</div>
-</li>
-</ul>
-<a name="FEATURE_EXTENSION_NOT_FOUND">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FEATURE_EXTENSION_NOT_FOUND</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> FEATURE_EXTENSION_NOT_FOUND</pre>
-<div class="block">Feature extension not found.</div>
-</li>
-</ul>
-<a name="VIDEO_EFFECT_NOT_SUPPORTED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>VIDEO_EFFECT_NOT_SUPPORTED</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> VIDEO_EFFECT_NOT_SUPPORTED</pre>
-<div class="block">Video effect not supported by device</div>
-</li>
-</ul>
-<a name="FAILED_TO_SEND_RAW_AUDIO_BUFFER">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>FAILED_TO_SEND_RAW_AUDIO_BUFFER</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> FAILED_TO_SEND_RAW_AUDIO_BUFFER</pre>
-<div class="block">Sending Raw Audio Buffer Failed</div>
-</li>
-</ul>
-<a name="CANNOT_MUTE_VIRTUAL_AUDIO_STREAM">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CANNOT_MUTE_VIRTUAL_AUDIO_STREAM</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> CANNOT_MUTE_VIRTUAL_AUDIO_STREAM</pre>
-<div class="block">Cannot mute virtual audio stream</div>
+<h4>NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS</pre>
+<div class="block">No multiple connections with different cloud type per app is allowed.</div>
 </li>
 </ul>
 <a name="DUPLICATE_DEVICE_ID">
@@ -840,16 +745,6 @@ the order they are declared.</div>
 <h4>DUPLICATE_DEVICE_ID</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> DUPLICATE_DEVICE_ID</pre>
 <div class="block">Virtual tried to register an already registered device id.</div>
-</li>
-</ul>
-<a name="DELEGATE_IS_REQUIRED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DELEGATE_IS_REQUIRED</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> DELEGATE_IS_REQUIRED</pre>
-<div class="block">App is expected to register a delegation to complete the operation.</div>
 </li>
 </ul>
 <a name="VIRTUAL_DEVICE_NOT_STARTED">
@@ -870,26 +765,6 @@ the order they are declared.</div>
 <h4>INVALID_VIDEO_STREAM_COMBINATION</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> INVALID_VIDEO_STREAM_COMBINATION</pre>
 <div class="block">Invalid video stream combination provided.</div>
-</li>
-</ul>
-<a name="NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> NO_MULTIPLE_CONNECTIONS_WITH_DIFFERENT_CLOUDS</pre>
-<div class="block">No multiple connections with different cloud type per app is allowed.</div>
-</li>
-</ul>
-<a name="NO_ACTIVE_AUDIO_STREAM_TO_STOP">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>NO_ACTIVE_AUDIO_STREAM_TO_STOP</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> NO_ACTIVE_AUDIO_STREAM_TO_STOP</pre>
-<div class="block">No active audio stream to stop.</div>
 </li>
 </ul>
 <a name="INVALID_VIDEO_FORMAT">
@@ -930,6 +805,46 @@ the order they are declared.</div>
 <h4>UNSUPPORTED_VIDEO_STREAM_RESOLUTION</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> UNSUPPORTED_VIDEO_STREAM_RESOLUTION</pre>
 <div class="block">The selected video resolution is not valid for the virtual video</div>
+</li>
+</ul>
+<a name="FEATURE_EXTENSION_NOT_FOUND">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FEATURE_EXTENSION_NOT_FOUND</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> FEATURE_EXTENSION_NOT_FOUND</pre>
+<div class="block">Feature extension not found.</div>
+</li>
+</ul>
+<a name="VIDEO_EFFECT_NOT_SUPPORTED">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>VIDEO_EFFECT_NOT_SUPPORTED</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> VIDEO_EFFECT_NOT_SUPPORTED</pre>
+<div class="block">Video effect not supported by device</div>
+</li>
+</ul>
+<a name="FAILED_TO_SEND_RAW_AUDIO_BUFFER">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>FAILED_TO_SEND_RAW_AUDIO_BUFFER</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> FAILED_TO_SEND_RAW_AUDIO_BUFFER</pre>
+<div class="block">Sending Raw Audio Buffer Failed</div>
+</li>
+</ul>
+<a name="CANNOT_MUTE_VIRTUAL_AUDIO_STREAM">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CANNOT_MUTE_VIRTUAL_AUDIO_STREAM</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> CANNOT_MUTE_VIRTUAL_AUDIO_STREAM</pre>
+<div class="block">Cannot mute virtual audio stream</div>
 </li>
 </ul>
 <a name="CAPTIONS_FAILED_TO_START">
@@ -1092,44 +1007,14 @@ the order they are declared.</div>
 <div class="block">Signaling Service Status Code</div>
 </li>
 </ul>
-<a name="PROXY_NOT_AVAILABLE_FOR_TEAMS">
+<a name="MUSIC_MODE_NOT_ENABLED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>PROXY_NOT_AVAILABLE_FOR_TEAMS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> PROXY_NOT_AVAILABLE_FOR_TEAMS</pre>
-<div class="block">Teams Interop is disabled while using proxy</div>
-</li>
-</ul>
-<a name="MUTE_OTHERS_FORBIDDEN">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MUTE_OTHERS_FORBIDDEN</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> MUTE_OTHERS_FORBIDDEN</pre>
-<div class="block">Forbidden to mute others</div>
-</li>
-</ul>
-<a name="MUTE_OTHERS_INTERNAL_SERVER_ERROR">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MUTE_OTHERS_INTERNAL_SERVER_ERROR</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> MUTE_OTHERS_INTERNAL_SERVER_ERROR</pre>
-<div class="block">Internal server error occurred when muting others</div>
-</li>
-</ul>
-<a name="MUTE_OTHERS_NOT_FOUND">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MUTE_OTHERS_NOT_FOUND</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> MUTE_OTHERS_NOT_FOUND</pre>
-<div class="block">Not found exception occurred when muting others</div>
+<h4>MUSIC_MODE_NOT_ENABLED</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> MUSIC_MODE_NOT_ENABLED</pre>
+<div class="block">Music mode not enabled</div>
 </li>
 </ul>
 <a name="LOBBY_DISABLED_BY_CONFIGURATIONS">
@@ -1139,7 +1024,7 @@ the order they are declared.</div>
 <li class="blockList">
 <h4>LOBBY_DISABLED_BY_CONFIGURATIONS</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> LOBBY_DISABLED_BY_CONFIGURATIONS</pre>
-<div class="block">Lobby is disabled by configurations</div>
+<div class="block">Survey Rating Scale Invalid Bounds</div>
 </li>
 </ul>
 <a name="LOBBY_CONVERSATION_TYPE_NOT_SUPPORTED">
@@ -1182,56 +1067,6 @@ the order they are declared.</div>
 <div class="block">Remove participant operation failure</div>
 </li>
 </ul>
-<a name="MUSIC_MODE_NOT_ENABLED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>MUSIC_MODE_NOT_ENABLED</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> MUSIC_MODE_NOT_ENABLED</pre>
-<div class="block">Music mode not enabled</div>
-</li>
-</ul>
-<a name="SURVEY_RATING_SCALE_OUT_OF_BOUNDS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SURVEY_RATING_SCALE_OUT_OF_BOUNDS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> SURVEY_RATING_SCALE_OUT_OF_BOUNDS</pre>
-<div class="block">Survey Rating Scale Invalid Bounds</div>
-</li>
-</ul>
-<a name="SURVEY_RATING_SCALE_INVALID_THRESHOLD">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SURVEY_RATING_SCALE_INVALID_THRESHOLD</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> SURVEY_RATING_SCALE_INVALID_THRESHOLD</pre>
-<div class="block">Survey Rating Scale Invalid Threshold</div>
-</li>
-</ul>
-<a name="SURVEY_SCORE_OUT_OF_BOUNDS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SURVEY_SCORE_OUT_OF_BOUNDS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> SURVEY_SCORE_OUT_OF_BOUNDS</pre>
-<div class="block">Survey Score Out of Bounds</div>
-</li>
-</ul>
-<a name="SURVEY_DOUBLE_SUBMISSION_NOT_ALLOWED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>SURVEY_DOUBLE_SUBMISSION_NOT_ALLOWED</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> SURVEY_DOUBLE_SUBMISSION_NOT_ALLOWED</pre>
-<div class="block">Survey Double Submission Not Allowed</div>
-</li>
-</ul>
 <a name="LOBBY_ADMIT_OPERATION_FAILURE">
 <!--   -->
 </a>
@@ -1242,6 +1077,16 @@ the order they are declared.</div>
 <div class="block">Admit/AdmitAll operation failure</div>
 </li>
 </ul>
+<a name="PROXY_NOT_AVAILABLE_FOR_TEAMS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>PROXY_NOT_AVAILABLE_FOR_TEAMS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> PROXY_NOT_AVAILABLE_FOR_TEAMS</pre>
+<div class="block">Teams Interop is disabled while using proxy</div>
+</li>
+</ul>
 <a name="FAILED_TO_SET_MEDIA_PROXY">
 <!--   -->
 </a>
@@ -1250,16 +1095,6 @@ the order they are declared.</div>
 <h4>FAILED_TO_SET_MEDIA_PROXY</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> FAILED_TO_SET_MEDIA_PROXY</pre>
 <div class="block">Set media proxy failed</div>
-</li>
-</ul>
-<a name="INVALID_TOKEN_PROVIDER">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>INVALID_TOKEN_PROVIDER</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallingCommunicationErrors.html" title="enum in com.azure.android.communication.calling">CallingCommunicationErrors</a> INVALID_TOKEN_PROVIDER</pre>
-<div class="block">Invalid token provider given.</div>
 </li>
 </ul>
 <a name="MEDIA_STATISTICS_INVALID_REPORT_INTERVAL">
@@ -1408,7 +1243,7 @@ not permitted.)</div>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/azure/android/communication/calling/CallInfo.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/azure/android/communication/calling/CallingCommunicationException.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">

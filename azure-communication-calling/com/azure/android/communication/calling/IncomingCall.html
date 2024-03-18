@@ -17,7 +17,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -97,12 +97,7 @@ var activeTableTab = "activeTableTab";
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li><a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html" title="class in com.azure.android.communication.calling">com.azure.android.communication.calling.CommonIncomingCall</a></li>
-<li>
-<ul class="inheritance">
 <li>com.azure.android.communication.calling.IncomingCall</li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>
@@ -112,7 +107,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public final class <span class="typeNameLabel">IncomingCall</span>
-extends <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html" title="class in com.azure.android.communication.calling">CommonIncomingCall</a></pre>
+extends java.lang.Object</pre>
 <div class="block">Describes an incoming call</div>
 </li>
 </ul>
@@ -145,14 +140,55 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonIn
 <div class="block">Accept an incoming call with the ability to specify the accept call options</div>
 </td>
 </tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#addOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">addOnCallEndedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
+<div class="block">Adds the specified listener to receive OnCallEnded events.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#finalize--">finalize</a></span>()</code>
+<div class="block">Called by the garbage collector on an object when garbage collection determines that there are no more references to the object.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallEndReason.html" title="class in com.azure.android.communication.calling">CallEndReason</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#getCallEndReason--">getCallEndReason</a></span>()</code>
+<div class="block">Describe the reason why a call has ended</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallerInfo.html" title="class in com.azure.android.communication.calling">CallerInfo</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#getCallerInfo--">getCallerInfo</a></span>()</code>
+<div class="block">Information about the caller</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#getId--">getId</a></span>()</code>
+<div class="block">Id of the call</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#isVideoEnabled--">isVideoEnabled</a></span>()</code>
+<div class="block">Is incoming video enabled</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>&lt;any&gt;</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#reject--">reject</a></span>()</code>
+<div class="block">Reject this incoming call</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/IncomingCall.html#removeOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnCallEndedListener</a></span>(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</code>
+<div class="block">Removes the specified listener to receive OnCallEnded events.</div>
+</td>
+</tr>
 </table>
-<ul class="blockList">
-<li class="blockList"><a name="methods.inherited.from.class.com.azure.android.communication.calling.CommonIncomingCall">
-<!--   -->
-</a>
-<h3>Methods inherited from class&nbsp;com.azure.android.communication.calling.<a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html" title="class in com.azure.android.communication.calling">CommonIncomingCall</a></h3>
-<code><a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#addOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">addOnCallEndedListener</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#finalize--">finalize</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#getCallEndReason--">getCallEndReason</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#getCallerInfo--">getCallerInfo</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#getId--">getId</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#getType--">getType</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#isVideoEnabled--">isVideoEnabled</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#reject--">reject</a>, <a href="../../../../../com/azure/android/communication/calling/CommonIncomingCall.html#removeOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">removeOnCallEndedListener</a></code></li>
-</ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
@@ -174,6 +210,92 @@ extends <a href="../../../../../com/azure/android/communication/calling/CommonIn
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="finalize--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>finalize</h4>
+<pre>protected&nbsp;void&nbsp;finalize()</pre>
+<div class="block">Called by the garbage collector on an object when garbage collection determines that there are no more references to the object.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code>finalize</code>&nbsp;in class&nbsp;<code>java.lang.Object</code></dd>
+</dl>
+</li>
+</ul>
+<a name="getCallEndReason--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCallEndReason</h4>
+<pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallEndReason.html" title="class in com.azure.android.communication.calling">CallEndReason</a>&nbsp;getCallEndReason()</pre>
+<div class="block">Describe the reason why a call has ended</div>
+</li>
+</ul>
+<a name="getCallerInfo--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getCallerInfo</h4>
+<pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallerInfo.html" title="class in com.azure.android.communication.calling">CallerInfo</a>&nbsp;getCallerInfo()</pre>
+<div class="block">Information about the caller</div>
+</li>
+</ul>
+<a name="getId--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getId</h4>
+<pre>public&nbsp;java.lang.String&nbsp;getId()</pre>
+<div class="block">Id of the call</div>
+</li>
+</ul>
+<a name="isVideoEnabled--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isVideoEnabled</h4>
+<pre>public&nbsp;boolean&nbsp;isVideoEnabled()</pre>
+<div class="block">Is incoming video enabled</div>
+</li>
+</ul>
+<a name="addOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addOnCallEndedListener</h4>
+<pre>public&nbsp;void&nbsp;addOnCallEndedListener(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</pre>
+<div class="block">Adds the specified listener to receive OnCallEnded events.
+ OnCallEnded Event. Occurs when recording incoming call was not answered and call ended.</div>
+</li>
+</ul>
+<a name="removeOnCallEndedListener-com.azure.android.communication.calling.PropertyChangedListener-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeOnCallEndedListener</h4>
+<pre>public&nbsp;void&nbsp;removeOnCallEndedListener(<a href="../../../../../com/azure/android/communication/calling/PropertyChangedListener.html" title="interface in com.azure.android.communication.calling">PropertyChangedListener</a>&nbsp;listener)</pre>
+<div class="block">Removes the specified listener to receive OnCallEnded events.
+ OnCallEnded Event. Occurs when recording incoming call was not answered and call ended.</div>
+</li>
+</ul>
+<a name="reject--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reject</h4>
+<pre>public&nbsp;&lt;any&gt;&nbsp;reject()</pre>
+<div class="block">Reject this incoming call</div>
+</li>
+</ul>
 <a name="accept-android.content.Context-com.azure.android.communication.calling.AcceptCallOptions-">
 <!--   -->
 </a>

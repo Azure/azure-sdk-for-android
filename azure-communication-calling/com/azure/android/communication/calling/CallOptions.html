@@ -106,13 +106,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><a href="../../../../../com/azure/android/communication/calling/AcceptCallOptions.html" title="class in com.azure.android.communication.calling">AcceptCallOptions</a>, <a href="../../../../../com/azure/android/communication/calling/JoinCallOptions.html" title="class in com.azure.android.communication.calling">JoinCallOptions</a>, <a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a>, <a href="../../../../../com/azure/android/communication/calling/StartTeamsCallOptions.html" title="class in com.azure.android.communication.calling">StartTeamsCallOptions</a></dd>
+<dd><a href="../../../../../com/azure/android/communication/calling/AcceptCallOptions.html" title="class in com.azure.android.communication.calling">AcceptCallOptions</a>, <a href="../../../../../com/azure/android/communication/calling/JoinCallOptions.html" title="class in com.azure.android.communication.calling">JoinCallOptions</a>, <a href="../../../../../com/azure/android/communication/calling/StartCallOptions.html" title="class in com.azure.android.communication.calling">StartCallOptions</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public abstract class <span class="typeNameLabel">CallOptions</span>
 extends java.lang.Object</pre>
-<div class="block">Holds options for video and audio</div>
+<div class="block">Holds options for video an audio</div>
 </li>
 </ul>
 </div>
@@ -140,7 +140,7 @@ extends java.lang.Object</pre>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#getIncomingAudioOptions--">getIncomingAudioOptions</a></span>()</code>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -152,7 +152,7 @@ extends java.lang.Object</pre>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#getOutgoingAudioOptions--">getOutgoingAudioOptions</a></span>()</code>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -164,7 +164,7 @@ extends java.lang.Object</pre>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#setIncomingAudioOptions-com.azure.android.communication.calling.IncomingAudioOptions-">setIncomingAudioOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a>&nbsp;value)</code>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
@@ -176,7 +176,7 @@ extends java.lang.Object</pre>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/azure/android/communication/calling/CallOptions.html#setOutgoingAudioOptions-com.azure.android.communication.calling.OutgoingAudioOptions-">setOutgoingAudioOptions</a></span>(<a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a>&nbsp;value)</code>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
@@ -276,7 +276,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getIncomingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a>&nbsp;getIncomingAudioOptions()</pre>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 </li>
 </ul>
 <a name="setIncomingAudioOptions-com.azure.android.communication.calling.IncomingAudioOptions-">
@@ -286,7 +286,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setIncomingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a>&nbsp;setIncomingAudioOptions(<a href="../../../../../com/azure/android/communication/calling/IncomingAudioOptions.html" title="class in com.azure.android.communication.calling">IncomingAudioOptions</a>&nbsp;value)</pre>
-<div class="block">Incoming Audio options when joining or accepting a call</div>
+<div class="block">Incoming Audio options when accepting a call</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>
@@ -300,7 +300,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>getOutgoingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a>&nbsp;getOutgoingAudioOptions()</pre>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 </li>
 </ul>
 <a name="setOutgoingAudioOptions-com.azure.android.communication.calling.OutgoingAudioOptions-">
@@ -310,7 +310,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>setOutgoingAudioOptions</h4>
 <pre>public&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallOptions.html" title="class in com.azure.android.communication.calling">CallOptions</a>&nbsp;setOutgoingAudioOptions(<a href="../../../../../com/azure/android/communication/calling/OutgoingAudioOptions.html" title="class in com.azure.android.communication.calling">OutgoingAudioOptions</a>&nbsp;value)</pre>
-<div class="block">Outgoing Audio options when joining or accepting a call</div>
+<div class="block">Outgoing Audio options when accepting a call</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>value</code> - The new value.</dd>

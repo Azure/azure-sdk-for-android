@@ -40,7 +40,7 @@
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/azure/android/communication/calling/EndpointDetails.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/EmergencyCallOptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/azure/android/communication/calling/GroupCallLocator.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
@@ -102,7 +102,7 @@
 <br>
 <pre>public final class <span class="typeNameLabel">Features</span>
 extends java.lang.Object</pre>
-<div class="block">The collection of all 1st party Features.</div>
+<div class="block">The collection of all 1st party API features.</div>
 </li>
 </ul>
 </div>
@@ -209,15 +209,6 @@ extends java.lang.Object</pre>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/TranscriptionCallFeature.html" title="class in com.azure.android.communication.calling">TranscriptionCallFeature</a>&gt; TRANSCRIPTION</pre>
 </li>
 </ul>
-<a name="CAPTIONS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>CAPTIONS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/CaptionsCallFeature.html" title="class in com.azure.android.communication.calling">CaptionsCallFeature</a>&gt; CAPTIONS</pre>
-</li>
-</ul>
 <a name="DOMINANT_SPEAKERS">
 <!--   -->
 </a>
@@ -225,24 +216,6 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>DOMINANT_SPEAKERS</h4>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/DominantSpeakersCallFeature.html" title="class in com.azure.android.communication.calling">DominantSpeakersCallFeature</a>&gt; DOMINANT_SPEAKERS</pre>
-</li>
-</ul>
-<a name="RAISED_HANDS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>RAISED_HANDS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/RaiseHandCallFeature.html" title="class in com.azure.android.communication.calling">RaiseHandCallFeature</a>&gt; RAISED_HANDS</pre>
-</li>
-</ul>
-<a name="LOCAL_USER_DIAGNOSTICS">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>LOCAL_USER_DIAGNOSTICS</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/LocalUserDiagnosticsCallFeature.html" title="class in com.azure.android.communication.calling">LocalUserDiagnosticsCallFeature</a>&gt; LOCAL_USER_DIAGNOSTICS</pre>
 </li>
 </ul>
 <a name="LOCAL_VIDEO_EFFECTS">
@@ -254,13 +227,40 @@ extends java.lang.Object</pre>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/LocalVideoStreamFeatureFactory.html" title="interface in com.azure.android.communication.calling">LocalVideoStreamFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/LocalVideoEffectsFeature.html" title="class in com.azure.android.communication.calling">LocalVideoEffectsFeature</a>&gt; LOCAL_VIDEO_EFFECTS</pre>
 </li>
 </ul>
-<a name="DATA_CHANNEL">
+<a name="LOCAL_USER_DIAGNOSTICS">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>DATA_CHANNEL</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html" title="class in com.azure.android.communication.calling">DataChannelCallFeature</a>&gt; DATA_CHANNEL</pre>
+<h4>LOCAL_USER_DIAGNOSTICS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/LocalUserDiagnosticsCallFeature.html" title="class in com.azure.android.communication.calling">LocalUserDiagnosticsCallFeature</a>&gt; LOCAL_USER_DIAGNOSTICS</pre>
+</li>
+</ul>
+<a name="RAISED_HANDS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>RAISED_HANDS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/RaiseHandCallFeature.html" title="class in com.azure.android.communication.calling">RaiseHandCallFeature</a>&gt; RAISED_HANDS</pre>
+</li>
+</ul>
+<a name="CAPTIONS">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>CAPTIONS</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/CaptionsCallFeature.html" title="class in com.azure.android.communication.calling">CaptionsCallFeature</a>&gt; CAPTIONS</pre>
+</li>
+</ul>
+<a name="SPOTLIGHT">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>SPOTLIGHT</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/SpotlightCallFeature.html" title="class in com.azure.android.communication.calling">SpotlightCallFeature</a>&gt; SPOTLIGHT</pre>
 </li>
 </ul>
 <a name="MEDIA_STATISTICS">
@@ -272,13 +272,13 @@ extends java.lang.Object</pre>
 <pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/MediaStatisticsCallFeature.html" title="class in com.azure.android.communication.calling">MediaStatisticsCallFeature</a>&gt; MEDIA_STATISTICS</pre>
 </li>
 </ul>
-<a name="SPOTLIGHT">
+<a name="DATA_CHANNEL">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>SPOTLIGHT</h4>
-<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/SpotlightCallFeature.html" title="class in com.azure.android.communication.calling">SpotlightCallFeature</a>&gt; SPOTLIGHT</pre>
+<h4>DATA_CHANNEL</h4>
+<pre>public static final&nbsp;<a href="../../../../../com/azure/android/communication/calling/CallFeatureFactory.html" title="interface in com.azure.android.communication.calling">CallFeatureFactory</a>&lt;<a href="../../../../../com/azure/android/communication/calling/DataChannelCallFeature.html" title="class in com.azure.android.communication.calling">DataChannelCallFeature</a>&gt; DATA_CHANNEL</pre>
 </li>
 </ul>
 </li>
@@ -307,7 +307,7 @@ extends java.lang.Object</pre>
 </div>
 <div class="subNav">
 <ul class="navList">
-<li><a href="../../../../../com/azure/android/communication/calling/EndpointDetails.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+<li><a href="../../../../../com/azure/android/communication/calling/EmergencyCallOptions.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
 <li><a href="../../../../../com/azure/android/communication/calling/GroupCallLocator.html" title="class in com.azure.android.communication.calling"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
 </ul>
 <ul class="navList">
