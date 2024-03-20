@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private ChatAsyncClient chatAsyncClient;
     private ChatThreadAsyncClient chatThreadAsyncClient;
     private int eventHandlerCalled;
-    private String threadId = "<to-be-updated-below>";
+    private String threadId = "";
     private String chatMessageId = "<to-be-updated-below>";
     private final Queue<String> unreadMessages = new ConcurrentLinkedQueue<>();
     private static Map<RealTimeNotificationCallback, ChatEventType> realTimeNotificationCallbacks = new HashMap<>();

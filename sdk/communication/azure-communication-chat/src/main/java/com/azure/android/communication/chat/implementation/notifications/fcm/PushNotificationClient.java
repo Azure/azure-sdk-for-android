@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.work.BackoffPolicy;
@@ -288,8 +289,11 @@ public class PushNotificationClient {
         byte[] ciphertext = NotificationUtils.extractCipherText(encryptedBytes);
         byte[] hmac = NotificationUtils.extractHmac(encryptedBytes);
 
+        Log.i("notificationDecryption", "key size: " + registrationKeyEntries.size());
         while (!registrationKeyEntries.isEmpty()) {
             Pair<SecretKey, SecretKey> pair = registrationKeyEntries.poll();
+
+            Log.i("notificationDecryption", "key first: " + pair.first.toString());
             SecretKey cryptoKey = pair.first;
             SecretKey authKey = pair.second;
             if (NotificationUtils.verifyEncryptedPayload(encryptionKey, iv, ciphertext, hmac, authKey)) {

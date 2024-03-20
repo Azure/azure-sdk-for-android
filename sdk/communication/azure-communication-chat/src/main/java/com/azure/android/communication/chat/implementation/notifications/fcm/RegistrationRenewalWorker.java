@@ -3,6 +3,7 @@
 package com.azure.android.communication.chat.implementation.notifications.fcm;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
@@ -80,6 +81,7 @@ public class RegistrationRenewalWorker extends Worker {
             skypeUserToken = communicationTokenCredential.getToken().get().getToken();
             refreshCredentials();
             Pair<SecretKey, SecretKey> cryptoKeyToAuthKeyPair = registrationKeyManager.getLastPair();
+            Log.i("RefreshWorker", "token: " + skypeUserToken + "\n, firstkey: " + cryptoKeyToAuthKeyPair.first.toString());
             registrarClient.register(
                 skypeUserToken,
                 deviceRegistrationToken,
