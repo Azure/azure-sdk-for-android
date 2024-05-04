@@ -1,0 +1,7 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+
+com.azure.android.communication.ui.calling
+com.azure.android.communication.ui.calling.implementation
+com.azure.android.communication.ui.calling.models
+
