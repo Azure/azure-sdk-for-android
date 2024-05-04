@@ -1,0 +1,4 @@
+com.azure.android.core.rest
+com.azure.android.core.rest.annotation
+com.azure.android.core.rest.implementation
+com.azure.android.core.rest.util.paging
