@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>FaceLivenessDetector</title>
+    <link href="../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../styles/style.css" rel="Stylesheet">
+<link href="../../styles/main.css" rel="Stylesheet">
+<link href="../../styles/prism.css" rel="Stylesheet">
+<link href="../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../index.html">
+                            azure-ai-vision-face-ui
+                    </a>
+            </div>
+            <div class="library-version">
+1.0.0            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":azure-ai-vision-face-ui:dokkaHtml/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="member" id="content" pageIds="azure-ai-vision-face-ui::com.azure.android.ai.vision.face.ui//FaceLivenessDetector/#kotlin.String#kotlin.ByteArray?#kotlin.String?#kotlin.Function1[com.azure.android.ai.vision.face.ui.LivenessDetectionSuccess,kotlin.Unit]#kotlin.Function1[com.azure.android.ai.vision.face.ui.LivenessDetectionError,kotlin.Unit]/PointingToDeclaration//1717806726">
+  <div class="breadcrumbs"><a href="../../index.html">azure-ai-vision-face-ui</a><span class="delimiter">/</span><a href="index.html">com.azure.android.ai.vision.face.ui</a><span class="delimiter">/</span><span class="current">FaceLivenessDetector</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Face</span><wbr></wbr><span>Liveness</span><wbr></wbr><span><span>Detector</span></span></h1>
+  </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">fun </span><a href="-face-liveness-detector.html"><span class="token function">FaceLivenessDetector</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">sessionAuthorizationToken<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">verifyImageFileContent<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-byte-array/index.html">ByteArray</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">deviceCorrelationId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token operator">?</span><span class="token operator"> = </span>null<span class="token punctuation">, </span></span><span class="parameter ">onSuccess<span class="token operator">: </span><span class="token punctuation">(</span><a href="-liveness-detection-success/index.html">LivenessDetectionSuccess</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token punctuation">, </span></span><span class="parameter ">onError<span class="token operator">: </span><span class="token punctuation">(</span><a href="-liveness-detection-error/index.html">LivenessDetectionError</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span></div><p class="paragraph">A Composable function that initiates a face liveness detection session.</p><p class="paragraph">This function serves as a UI entry point for starting a session that detects if a face is live. It handles user feedback and session lifecycle events, such as success or error outcomes, using callback functions.</p><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":azure-ai-vision-face-ui:dokkaHtml/release" data-filterable-set=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>session</span><wbr></wbr><span>Authorization</span><wbr></wbr><span><span>Token</span></span></u></div></span></div><div><div class="title"><p class="paragraph">A string token required to authorize the session. This token ensures that the session is valid.</p></div></div></div></div><div class="table-row" data-filterable-current=":azure-ai-vision-face-ui:dokkaHtml/release" data-filterable-set=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>verify</span><wbr></wbr><span>Image</span><wbr></wbr><span>File</span><wbr></wbr><span><span>Content</span></span></u></div></span></div><div><div class="title"><p class="paragraph">An optional byte array representing the content of an image file used for verification. This can be specified during token creation or provided directly to this function. If available, it is used as part of the liveness detection process, comparing the live capture against this known image.</p></div></div></div></div><div class="table-row" data-filterable-current=":azure-ai-vision-face-ui:dokkaHtml/release" data-filterable-set=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>device</span><wbr></wbr><span>Correlation</span><wbr></wbr><span><span>Id</span></span></u></div></span></div><div><div class="title"><p class="paragraph">A required device correlation identifier. This ID must be specified either during session token creation or provided directly to this function. It is used for tracking and correlating sessions across devices.</p></div></div></div></div><div class="table-row" data-filterable-current=":azure-ai-vision-face-ui:dokkaHtml/release" data-filterable-set=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>on</span><wbr></wbr><span><span>Success</span></span></u></div></span></div><div><div class="title"><p class="paragraph">A callback function invoked when the liveness detection session successfully completes. It receives a <a href="-liveness-detection-success/index.html">LivenessDetectionSuccess</a> object containing details of the successful detection outcome. Implement this lambda to define how the application should respond to a successful liveness detection.</p></div></div></div></div><div class="table-row" data-filterable-current=":azure-ai-vision-face-ui:dokkaHtml/release" data-filterable-set=":azure-ai-vision-face-ui:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span>on</span><wbr></wbr><span><span>Error</span></span></u></div></span></div><div><div class="title"><p class="paragraph">A callback function invoked when an error occurs during the liveness detection session. It receives a <a href="-liveness-detection-error/index.html">LivenessDetectionError</a> object that provides details about the error, allowing the application to handle and respond to various error conditions appropriately.</p></div></div></div></div></div></div></div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
