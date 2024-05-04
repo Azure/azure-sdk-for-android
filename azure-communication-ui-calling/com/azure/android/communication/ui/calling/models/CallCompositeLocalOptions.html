@@ -1,0 +1,904 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en"><head>
+    <title>CallCompositeLocalOptions </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="dc.created" content="2020-03-25">
+    <link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../../../../dokka-javadoc-stylesheet.css" title="Style">
+    <link rel="stylesheet" type="text/css" href="../../../../../../../jquery/jquery-ui.css" title="Style">
+    <script type="text/javascript" src="../../../../../../../jquery/jquery-3.3.1.js"></script>
+    <script type="text/javascript" src="../../../../../../../jquery/jquery-migrate-3.0.1.js"></script>
+    <script type="text/javascript" src="../../../../../../../jquery/jquery-ui.js"></script>
+
+    <script type="text/javascript" src="../../../../../../../search.js"></script>
+    <script async type="text/javascript" src="../../../../../../../module-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../../../package-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../../../type-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../../../member-search-index.js"></script>
+    <script async type="text/javascript" src="../../../../../../../tag-search-index.js"></script>
+</head><body>
+<script type="text/javascript">
+var pathtoroot = "../../../../../../../";
+</script>
+<noscript>
+    <div>JavaScript is disabled on your browser.</div>
+</noscript><header role="banner">
+    <nav role="navigation">
+        <div class="fixedNav">
+            <!-- ========= START OF TOP NAVBAR ======= -->
+            <div class="topNav"><a id="navbar.top">
+                <!--   -->
+            </a>
+                <div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a>
+                </div>
+                <a id="navbar.top.firstrow">
+                    <!--   -->
+                </a>
+                <ul class="navList" title="Navigation">
+    <li><a href="../../../../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+            <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" class="ui-autocomplete-input" autocomplete="off" placeholder="Search">
+<input type="reset" id="reset" value="reset">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ========= END OF TOP NAVBAR ========= -->
+        </div>
+        <div class="navPadding">&nbsp;</div>
+        <script type="text/javascript"><!--
+        $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+        //-->
+        </script>
+    </nav>
+</header>
+
+<main role="main">
+    <div class="header">
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html"></a></div>
+        <h2 title="Class CallCompositeLocalOptions" class="title">Class CallCompositeLocalOptions</h2>
+    </div>
+    <div class="contentContainer">
+        <!-- <ul class="inheritance">
+            <li>java.lang.Object</li>
+            <li>
+                <ul class="inheritance">
+                    <li>adaptation.Adaptation</li>
+                </ul>
+            </li>
+        </ul> TODO inheritance tree -->
+        <div class="description">
+            <ul class="blockList">
+                <li class="blockList">
+                    
+                    <hr>
+                    <pre class="wrap-overflow">
+
+public final class <span class="typeNameLabel"><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></span>
+
+                    </pre>
+                    <div class="block"><p><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> for launch. </p><p>Local Options for the Call Composite. These options are not shared with the server and impact local views only. E.g. The Local Participant Name if it differs from the display name you'd like to share with the server. </p><pre><code>
+// Initialize the call composite builder
+final CallCompositeBuilder builder = new CallCompositeBuilder();
+
+// Build the call composite
+CallComposite callComposite = builder.build();
+
+// Build the CallCompositeLocalOptions with <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>
+CallCompositeLocalOptions localOptions = new CallCompositeLocalOptions(
+    new CallCompositeParticipantViewData(...));
+
+// Launch call
+callComposite.launch(.., .., localOptions)
+</code></pre></div>
+                </li>
+            </ul>
+        </div>
+        <div class="summary">
+            <ul class="blockList">
+                <li class="blockList">
+                <!-- ======== NESTED CLASS SUMMARY ======== -->
+                    
+                    <!-- =========== FIELD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="field.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Field Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Field</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#participantViewData>participantViewData</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setupScreenViewData>setupScreenViewData</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  boolean</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#cameraOn>cameraOn</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private  boolean</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#microphoneOn>microphoneOn</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  boolean</code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#skipSetupScreen>skipSetupScreen</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#audioVideoMode>audioVideoMode</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#captionsOptions>captionsOptions</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="rowColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setupScreenOptions>setupScreenOptions</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                        <tr class="altColor">
+                                            <td class="colFirst"><code>private  <a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#callScreenOptions>callScreenOptions</a></code></th>
+                                            <td class="colLast"></td>
+                                        </tr>
+                                        
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ======== CONSTRUCTOR SUMMARY ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Summary</h3>
+                                <div class="memberSummary">
+                                    <table>
+                                        <caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+                                        <tbody>
+                                        <tr>
+                                            <th class="colFirst" scope="col">Constructor</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+
+                                        
+                                            <tr class="altColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#CallCompositeLocalOptions(CallCompositeParticipantViewData)">CallCompositeLocalOptions</a></span>(<a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData)</code></th>
+                                                <td class="colLast">Create LocalSettings.</td>
+                                            </tr>
+                                        
+                                            <tr class="rowColor">
+                                                <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a
+                                                        href="#CallCompositeLocalOptions()">CallCompositeLocalOptions</a></span>()</code></th>
+                                                <td class="colLast">Create an empty <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> object and assign using setters.</td>
+                                            </tr>
+                                        
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- =========== ENUM CONSTANT SUMMARY =========== -->
+                    
+                    <!-- ========== METHOD SUMMARY =========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.summary">
+                                <!--   -->
+                            </a>
+                                <h3>Method Summary</h3>
+                                <div class="memberSummary">
+                                    <div role="tablist" aria-orientation="horizontal">
+                                        <button role="tab" aria-selected="true" aria-controls="memberSummary_tabpanel" tabindex="0" onkeydown="switchTab(event)" id="t0" class="activeTableTab">All Methods</button>
+                                        <!-- TODO: Instance and Concrete Methods #1118 -->
+                                    </div>
+                                    <div id="memberSummary_tabpanel" role="tabpanel">
+                                    <table aria-labelledby="t0">
+                                        <tr>
+                                            <th class="colFirst" scope="col">Modifier and Type</th>
+                                            <th class="colSecond" scope="col">Method</th>
+                                            <th class="colLast" scope="col">Description</th>
+                                        </tr>
+                                        
+                                        <tr id="i0" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getParticipantViewData()>getParticipantViewData</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i1" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setParticipantViewData(CallCompositeParticipantViewData)>setParticipantViewData</a>(<a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData) </code>
+                                            </th>
+                                            <td class="colLast">Set a <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> to be used.</td>
+                                        </tr>
+                                        
+                                        <tr id="i2" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getSetupScreenViewData()>getSetupScreenViewData</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i3" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setSetupScreenViewData(CallCompositeSetupScreenViewData)>setSetupScreenViewData</a>(<a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a> setupScreenViewData) </code>
+                                            </th>
+                                            <td class="colLast">Set a <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a> to be used.</td>
+                                        </tr>
+                                        
+                                        <tr id="i4" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setCameraOn(boolean)>setCameraOn</a>(boolean cameraOn) </code>
+                                            </th>
+                                            <td class="colLast">Enables the Local Camera by default.</td>
+                                        </tr>
+                                        
+                                        <tr id="i5" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setMicrophoneOn(boolean)>setMicrophoneOn</a>(boolean microphoneOn) </code>
+                                            </th>
+                                            <td class="colLast">Set a boolean to be used.</td>
+                                        </tr>
+                                        
+                                        <tr id="i6" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setSkipSetupScreen(boolean)>setSkipSetupScreen</a>(boolean skipSetupScreen) </code>
+                                            </th>
+                                            <td class="colLast">Set a boolean to be used.</td>
+                                        </tr>
+                                        
+                                        <tr id="i7" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getAudioVideoMode()>getAudioVideoMode</a>() </code>
+                                            </th>
+                                            <td class="colLast">Returns the Audio/Video mode of the local call</td>
+                                        </tr>
+                                        
+                                        <tr id="i8" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setAudioVideoMode(CallCompositeAudioVideoMode)>setAudioVideoMode</a>(<a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a> audioVideoMode) </code>
+                                            </th>
+                                            <td class="colLast">Sets the Audio/Video Mode of the local call.Currently supported (Audio Only, Audio and Video)Audio Only: This will disable the camera and incoming video feeds.Audio and Video: This will enable the camera and incoming video feeds.</td>
+                                        </tr>
+                                        
+                                        <tr id="i9" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getCaptionsOptions()>getCaptionsOptions</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a>.</td>
+                                        </tr>
+                                        
+                                        <tr id="i10" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setCaptionsOptions(CallCompositeCaptionsOptions)>setCaptionsOptions</a>(<a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a> captionsOptions) </code>
+                                            </th>
+                                            <td class="colLast">Set a <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a> to be used.</td>
+                                        </tr>
+                                        
+                                        <tr id="i11" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getSetupScreenOptions()>getSetupScreenOptions</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get setup screen options.</td>
+                                        </tr>
+                                        
+                                        <tr id="i12" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setSetupScreenOptions(CallCompositeSetupScreenOptions)>setSetupScreenOptions</a>(<a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a> setupScreenOptions) </code>
+                                            </th>
+                                            <td class="colLast">Set setup screen options.</td>
+                                        </tr>
+                                        
+                                        <tr id="i13" class="rowColor">
+                                            <td class="colFirst"><code><a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#getCallScreenOptions()>getCallScreenOptions</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get call screen options.</td>
+                                        </tr>
+                                        
+                                        <tr id="i14" class="altColor">
+                                            <td class="colFirst"><code><a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a></code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#setCallScreenOptions(CallCompositeCallScreenOptions)>setCallScreenOptions</a>(<a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a> callScreenOptions) </code>
+                                            </th>
+                                            <td class="colLast">Set call screen options.</td>
+                                        </tr>
+                                        
+                                        <tr id="i15" class="rowColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#isSkipSetupScreen()>isSkipSetupScreen</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the boolean value for skip setup screen.</td>
+                                        </tr>
+                                        
+                                        <tr id="i16" class="altColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#isCameraOn()>isCameraOn</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the initial camera configuration boolean value.Note: If AUDIO_ONLY mode is set, this will always return false.</td>
+                                        </tr>
+                                        
+                                        <tr id="i17" class="rowColor">
+                                            <td class="colFirst"><code>boolean</code>
+                                            </td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLocalOptions.html#isMicrophoneOn()>isMicrophoneOn</a>() </code>
+                                            </th>
+                                            <td class="colLast">Get the initial microphone configuration boolean value.</td>
+                                        </tr>
+                                        
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="blockList">
+                                
+                                    <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+                                        <!--   -->
+                                    </a>
+                                        <h3>Methods inherited from class&nbsp;java.lang.Object</h3>
+                                        <code>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString,
+                                            wait, wait, wait</code></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+        <div class="details">
+            <ul class="blockList">
+                <li class="blockList">
+                    <!-- ========= CONSTRUCTOR DETAIL ======== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="constructor.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Constructor Detail</h3>
+                                
+                                <a name="CallCompositeLocalOptions(CallCompositeParticipantViewData)"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>CallCompositeLocalOptions</h4>
+                                        <pre>CallCompositeLocalOptions(<a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData)</pre>
+                                        <div class="block">Create LocalSettings.</div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>participantViewData</code> - The <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>;</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                    </li>
+                                </ul>
+                                
+                                <a name="CallCompositeLocalOptions()"></a>
+                                <ul class="blockList">
+                                    <li class="blockList">
+                                        <h4>CallCompositeLocalOptions</h4>
+                                        <pre>CallCompositeLocalOptions()</pre>
+                                        <div class="block">Create an empty <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> object and assign using setters.</div>
+                                        
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- ============ METHOD DETAIL ========== -->
+                    
+                    <section role="region">
+                        <ul class="blockList">
+                            <li class="blockList"><a id="method.detail">
+                                <!--   -->
+                            </a>
+                                <h3>Method Detail</h3>
+                                
+                                <a id="getParticipantViewData()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getParticipantViewData</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> <a href=CallCompositeLocalOptions.html#getParticipantViewData()>getParticipantViewData</a>()</pre>
+                                        <div class="block"><p>Get the <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setParticipantViewData(CallCompositeParticipantViewData)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setParticipantViewData</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setParticipantViewData(CallCompositeParticipantViewData)>setParticipantViewData</a>(<a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> participantViewData)</pre>
+                                        <div class="block"><p>Set a <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> to be used.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>participantViewData</code> - The participant view data object to be used.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="getSetupScreenViewData()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getSetupScreenViewData</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a> <a href=CallCompositeLocalOptions.html#getSetupScreenViewData()>getSetupScreenViewData</a>()</pre>
+                                        <div class="block"><p>Get the <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a>.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setSetupScreenViewData(CallCompositeSetupScreenViewData)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setSetupScreenViewData</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setSetupScreenViewData(CallCompositeSetupScreenViewData)>setSetupScreenViewData</a>(<a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a> setupScreenViewData)</pre>
+                                        <div class="block"><p>Set a <a href=CallCompositeSetupScreenViewData.html>CallCompositeSetupScreenViewData</a> to be used.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>setupScreenViewData</code> - The setup screen view data object to be used.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setCameraOn(boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setCameraOn</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setCameraOn(boolean)>setCameraOn</a>(boolean cameraOn)</pre>
+                                        <div class="block"><p>Enables the Local Camera by default.Note: If AvMode is set to Audio Only, this will have no effect</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>cameraOn</code> - The boolean value to be used for initial camera configuration.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setMicrophoneOn(boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setMicrophoneOn</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setMicrophoneOn(boolean)>setMicrophoneOn</a>(boolean microphoneOn)</pre>
+                                        <div class="block"><p>Set a boolean to be used.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>microphoneOn</code> - The boolean value to be used for initial microphone configuration.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setSkipSetupScreen(boolean)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setSkipSetupScreen</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setSkipSetupScreen(boolean)>setSkipSetupScreen</a>(boolean skipSetupScreen)</pre>
+                                        <div class="block"><p>Set a boolean to be used.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>skipSetupScreen</code> - The boolean value to be used.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="getAudioVideoMode()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getAudioVideoMode</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a> <a href=CallCompositeLocalOptions.html#getAudioVideoMode()>getAudioVideoMode</a>()</pre>
+                                        <div class="block"><p>Returns the Audio/Video mode of the local call</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setAudioVideoMode(CallCompositeAudioVideoMode)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setAudioVideoMode</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setAudioVideoMode(CallCompositeAudioVideoMode)>setAudioVideoMode</a>(<a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a> audioVideoMode)</pre>
+                                        <div class="block"><p>Sets the Audio/Video Mode of the local call.Currently supported (Audio Only, Audio and Video)Audio Only: This will disable the camera and incoming video feeds.Audio and Video: This will enable the camera and incoming video feeds.See <a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a></p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>audioVideoMode</code> - The <a href=CallCompositeAudioVideoMode.html>CallCompositeAudioVideoMode</a> to be used.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="getCaptionsOptions()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getCaptionsOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a> <a href=CallCompositeLocalOptions.html#getCaptionsOptions()>getCaptionsOptions</a>()</pre>
+                                        <div class="block"><p>Get the <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a>.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setCaptionsOptions(CallCompositeCaptionsOptions)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setCaptionsOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setCaptionsOptions(CallCompositeCaptionsOptions)>setCaptionsOptions</a>(<a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a> captionsOptions)</pre>
+                                        <div class="block"><p>Set a <a href=CallCompositeCaptionsOptions.html>CallCompositeCaptionsOptions</a> to be used.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>captionsOptions</code> - The captions options object to be used.</dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="getSetupScreenOptions()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getSetupScreenOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a> <a href=CallCompositeLocalOptions.html#getSetupScreenOptions()>getSetupScreenOptions</a>()</pre>
+                                        <div class="block"><p>Get setup screen options.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setSetupScreenOptions(CallCompositeSetupScreenOptions)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setSetupScreenOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setSetupScreenOptions(CallCompositeSetupScreenOptions)>setSetupScreenOptions</a>(<a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a> setupScreenOptions)</pre>
+                                        <div class="block"><p>Set setup screen options.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>setupScreenOptions</code> - <a href=CallCompositeSetupScreenOptions.html>CallCompositeSetupScreenOptions</a></dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="getCallScreenOptions()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>getCallScreenOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a> <a href=CallCompositeLocalOptions.html#getCallScreenOptions()>getCallScreenOptions</a>()</pre>
+                                        <div class="block"><p>Get call screen options.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="setCallScreenOptions(CallCompositeCallScreenOptions)">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>setCallScreenOptions</h4>
+                                        <pre class="methodSignature"> <a href=CallCompositeLocalOptions.html>CallCompositeLocalOptions</a> <a href=CallCompositeLocalOptions.html#setCallScreenOptions(CallCompositeCallScreenOptions)>setCallScreenOptions</a>(<a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a> callScreenOptions)</pre>
+                                        <div class="block"><p>Set call screen options.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>callScreenOptions</code> - <a href=CallCompositeCallScreenOptions.html>CallCompositeCallScreenOptions</a></dd>
+                                            
+                                            
+                                        </dl>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="isSkipSetupScreen()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isSkipSetupScreen</h4>
+                                        <pre class="methodSignature"> boolean <a href=CallCompositeLocalOptions.html#isSkipSetupScreen()>isSkipSetupScreen</a>()</pre>
+                                        <div class="block"><p>Get the boolean value for skip setup screen.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="isCameraOn()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockList"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isCameraOn</h4>
+                                        <pre class="methodSignature"> boolean <a href=CallCompositeLocalOptions.html#isCameraOn()>isCameraOn</a>()</pre>
+                                        <div class="block"><p>Get the initial camera configuration boolean value.Note: If AUDIO_ONLY mode is set, this will always return false.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                                <a id="isMicrophoneOn()">
+                                    <!--   -->
+                                </a>
+                                <ul class=
+                                              "blockListLast"
+                                          >
+                                    <li class="blockList">
+                                        <h4>isMicrophoneOn</h4>
+                                        <pre class="methodSignature"> boolean <a href=CallCompositeLocalOptions.html#isMicrophoneOn()>isMicrophoneOn</a>()</pre>
+                                        <div class="block"><p>Get the initial microphone configuration boolean value.</p></div>
+                                        
+                                        <!-- TODO missing return annotation -->
+                                    </li>
+                                </ul>
+                                
+                            </li>
+                        </ul>
+                    </section>
+                    
+                </li>
+            </ul>
+        </div>
+    </div>
+</main>
+<footer role="contentinfo">
+    <nav role="navigation">
+        <!-- ======= START OF BOTTOM NAVBAR ====== -->
+        <div class="bottomNav"><a id="navbar.bottom">
+            <!--   -->
+        </a>
+            <div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a>
+            </div>
+            <a id="navbar.bottom.firstrow">
+                <!--   -->
+            </a>
+            <ul class="navList" title="Navigation">
+    <li><a href="../../../../../../../index.html">Overview</a></li>
+    
+    <li><a href="package-summary.html">Package</a></li>
+    
+    <li class="navBarCell1Rev">Class</li>
+    
+    <li><a href="package-tree.html">Tree</a></li>
+    
+    <li><a href="../../../../../../../deprecated.html">Deprecated</a></li>
+    <li><a href="../../../../../../../index-files/index-1.html">Index</a></li>
+    <li>Help</li>
+</ul></div>
+        <a id="skip.navbar.bottom">
+            <!--   -->
+        </a>
+        <div class="subNav">
+<ul class="navList" id="allclasses_navbar_top" style="display: block;">
+    <li><a href="../../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div><!-- ======== END OF BOTTOM NAVBAR ======= -->
+    </nav>
+</footer><ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" id="ui-id-1" tabindex="0"
+    style="display: none;"></ul>
+<span role="status" aria-live="assertive" aria-relevant="additions" class="ui-helper-hidden-accessible"></span>
+</body>
+</html>

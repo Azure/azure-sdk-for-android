@@ -1,0 +1,2 @@
+com.azure.android.core.serde.jackson
+com.azure.android.core.serde.jackson.implementation.threeten
