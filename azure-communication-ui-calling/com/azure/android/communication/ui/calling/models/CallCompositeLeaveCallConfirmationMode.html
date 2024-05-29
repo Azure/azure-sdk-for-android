@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!-- NewPage -->
 <html lang="en"><head>
-    <title>CallCompositeParticipantViewData </title>
+    <title>CallCompositeLeaveCallConfirmationMode </title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="dc.created" content="2020-03-25">
     <link rel="stylesheet" type="text/css" href="../../../../../../../stylesheet.css" title="Style">
@@ -89,7 +89,7 @@ var pathtoroot = "../../../../../../../";
 <main role="main">
     <div class="header">
         <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html"></a></div>
-        <h2 title="Class CallCompositeParticipantViewData" class="title">Class CallCompositeParticipantViewData</h2>
+        <h2 title="Class CallCompositeLeaveCallConfirmationMode" class="title">Class CallCompositeLeaveCallConfirmationMode</h2>
     </div>
     <div class="contentContainer">
         <!-- <ul class="inheritance">
@@ -107,23 +107,10 @@ var pathtoroot = "../../../../../../../";
                     <hr>
                     <pre class="wrap-overflow">
 
-public final class <span class="typeNameLabel"><a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></span>
-
+public final class <span class="typeNameLabel"><a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a></span>
+extends ExpandableStringEnum&lt;<a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a>&gt;
                     </pre>
-                    <div class="block"><p>CallCompositeParticipantViewData for participant. </p><pre><code>
-// Initialize the call composite builder
-final CallCompositeBuilder builder = new CallCompositeBuilder();
-
-// Build the call composite
-CallComposite callComposite = builder.build();
-
-// Build the CallCompositeLocalOptions with <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a>
-CallCompositeLocalOptions localOptions = new CallCompositeLocalOptions(
-    new CallCompositeParticipantViewData(...));
-
-callComposite.launch(..., ..., localOptions);
-
-</code></pre></div>
+                    <div class="block"><p>Represents the leave call confirmation mode for a call composite. This class defines the options for the leave call confirmation, such as enable or disable.</p></div>
                 </li>
             </ul>
         </div>
@@ -150,20 +137,14 @@ callComposite.launch(..., ..., localOptions);
                                         </tr>
                                         
                                         <tr class="altColor">
-                                            <td class="colFirst"><code>private  <a href=https://developer.android.com/reference/kotlin/android/graphics/Bitmap.html>Bitmap</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#avatarBitmap>avatarBitmap</a></code></th>
+                                            <td class="colFirst"><code>public final static <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLeaveCallConfirmationMode.html#ALWAYS_ENABLED>ALWAYS_ENABLED</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
                                         <tr class="rowColor">
-                                            <td class="colFirst"><code>private  <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#displayName>displayName</a></code></th>
-                                            <td class="colLast"></td>
-                                        </tr>
-                                        
-                                        <tr class="altColor">
-                                            <td class="colFirst"><code>private  <a href=https://developer.android.com/reference/kotlin/android/widget/ImageView.ScaleType.html>ImageView.ScaleType</a></code></td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#scaleType>scaleType</a></code></th>
+                                            <td class="colFirst"><code>public final static <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a></code></td>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLeaveCallConfirmationMode.html#ALWAYS_DISABLED>ALWAYS_DISABLED</a></code></th>
                                             <td class="colLast"></td>
                                         </tr>
                                         
@@ -199,51 +180,19 @@ callComposite.launch(..., ..., localOptions);
                                         </tr>
                                         
                                         <tr id="i0" class="altColor">
-                                            <td class="colFirst"><code><a href=https://developer.android.com/reference/kotlin/android/graphics/Bitmap.html>Bitmap</a></code>
+                                            <td class="colFirst"><code>static <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a></code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#getAvatarBitmap()>getAvatarBitmap</a>() </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLeaveCallConfirmationMode.html#fromString(String)>fromString</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> name) </code>
                                             </th>
-                                            <td class="colLast">Get avatar Bitmap.</td>
+                                            <td class="colLast">Creates an instance of <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a> from a string name.</td>
                                         </tr>
                                         
                                         <tr id="i1" class="rowColor">
-                                            <td class="colFirst"><code><a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></code>
+                                            <td class="colFirst"><code>static <a href=https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html>Collection</a>&lt;<a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a>&gt;</code>
                                             </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#setAvatarBitmap(Bitmap)>setAvatarBitmap</a>(<a href=https://developer.android.com/reference/kotlin/android/graphics/Bitmap.html>Bitmap</a> avatarBitmap) </code>
+                                            <th class="colSecond" scope="row"><code><a href=CallCompositeLeaveCallConfirmationMode.html#values()>values</a>() </code>
                                             </th>
-                                            <td class="colLast">Set avatar Bitmap.</td>
-                                        </tr>
-                                        
-                                        <tr id="i2" class="altColor">
-                                            <td class="colFirst"><code><a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a></code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#getDisplayName()>getDisplayName</a>() </code>
-                                            </th>
-                                            <td class="colLast">Get display name.</td>
-                                        </tr>
-                                        
-                                        <tr id="i3" class="rowColor">
-                                            <td class="colFirst"><code><a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#setDisplayName(String)>setDisplayName</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> displayName) </code>
-                                            </th>
-                                            <td class="colLast">Set display name.</td>
-                                        </tr>
-                                        
-                                        <tr id="i4" class="altColor">
-                                            <td class="colFirst"><code><a href=https://developer.android.com/reference/kotlin/android/widget/ImageView.ScaleType.html>ImageView.ScaleType</a></code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#getScaleType()>getScaleType</a>() </code>
-                                            </th>
-                                            <td class="colLast">Get scaleType.</td>
-                                        </tr>
-                                        
-                                        <tr id="i5" class="rowColor">
-                                            <td class="colFirst"><code><a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a></code>
-                                            </td>
-                                            <th class="colSecond" scope="row"><code><a href=CallCompositeParticipantViewData.html#setScaleType(ImageView.ScaleType)>setScaleType</a>(<a href=https://developer.android.com/reference/kotlin/android/widget/ImageView.ScaleType.html>ImageView.ScaleType</a> scaleType) </code>
-                                            </th>
-                                            <td class="colLast">Set scaleType.</td>
+                                            <td class="colLast">Returns all the available values for <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a>.</td>
                                         </tr>
                                         
                                         </tbody>
@@ -251,6 +200,12 @@ callComposite.launch(..., ..., localOptions);
                                 </div>
                                 <ul class="blockList">
                                 
+                                    <li class="blockList"><a id="methods.inherited.from.class.com.azure.android.core.util.ExpandableStringEnum">
+                                            <!--   -->
+                                        </a>
+                                            <h3>Methods inherited from class&nbsp;com.azure.android.core.util.ExpandableStringEnum</h3>
+                                            <code>equals, hashCode, toString</code></li>
+                                 
                                     <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
                                         <!--   -->
                                     </a>
@@ -279,91 +234,40 @@ callComposite.launch(..., ..., localOptions);
                             </a>
                                 <h3>Method Detail</h3>
                                 
-                                <a id="getAvatarBitmap()">
+                                <a id="fromString(String)">
                                     <!--   -->
                                 </a>
                                 <ul class=
                                               "blockList"
                                           >
                                     <li class="blockList">
-                                        <h4>getAvatarBitmap</h4>
-                                        <pre class="methodSignature"> <a href=https://developer.android.com/reference/kotlin/android/graphics/Bitmap.html>Bitmap</a> <a href=CallCompositeParticipantViewData.html#getAvatarBitmap()>getAvatarBitmap</a>()</pre>
-                                        <div class="block"><p>Get avatar Bitmap.</p></div>
+                                        <h4>fromString</h4>
+                                        <pre class="methodSignature"> static <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a> <a href=CallCompositeLeaveCallConfirmationMode.html#fromString(String)>fromString</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> name)</pre>
+                                        <div class="block"><p>Creates an instance of <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a> from a string name.</p></div>
+                                        
+                                        <dl>
+                                            <dt><span class="paramLabel">Parameters:</span></dt>
+                                            
+                                            
+                                            <dd><code>name</code> - The name of the mode as a string.</dd>
+                                            
+                                            
+                                        </dl>
                                         
                                         <!-- TODO missing return annotation -->
                                     </li>
                                 </ul>
                                 
-                                <a id="setAvatarBitmap(Bitmap)">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>setAvatarBitmap</h4>
-                                        <pre class="methodSignature"> <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> <a href=CallCompositeParticipantViewData.html#setAvatarBitmap(Bitmap)>setAvatarBitmap</a>(<a href=https://developer.android.com/reference/kotlin/android/graphics/Bitmap.html>Bitmap</a> avatarBitmap)</pre>
-                                        <div class="block"><p>Set avatar Bitmap.Will not take affect if called after <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> passed to <a href=../CallComposite.html>CallComposite</a>.</p></div>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="getDisplayName()">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>getDisplayName</h4>
-                                        <pre class="methodSignature"> <a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> <a href=CallCompositeParticipantViewData.html#getDisplayName()>getDisplayName</a>()</pre>
-                                        <div class="block"><p>Get display name.</p></div>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="setDisplayName(String)">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>setDisplayName</h4>
-                                        <pre class="methodSignature"> <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> <a href=CallCompositeParticipantViewData.html#setDisplayName(String)>setDisplayName</a>(<a href=https://docs.oracle.com/javase/8/docs/api/java/lang/String.html>String</a> displayName)</pre>
-                                        <div class="block"><p>Set display name.</p></div>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="getScaleType()">
-                                    <!--   -->
-                                </a>
-                                <ul class=
-                                              "blockList"
-                                          >
-                                    <li class="blockList">
-                                        <h4>getScaleType</h4>
-                                        <pre class="methodSignature"> <a href=https://developer.android.com/reference/kotlin/android/widget/ImageView.ScaleType.html>ImageView.ScaleType</a> <a href=CallCompositeParticipantViewData.html#getScaleType()>getScaleType</a>()</pre>
-                                        <div class="block"><p>Get scaleType.Will not take affect if called after <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> passed to <a href=../CallComposite.html>CallComposite</a>.</p></div>
-                                        
-                                        <!-- TODO missing return annotation -->
-                                    </li>
-                                </ul>
-                                
-                                <a id="setScaleType(ImageView.ScaleType)">
+                                <a id="values()">
                                     <!--   -->
                                 </a>
                                 <ul class=
                                               "blockListLast"
                                           >
                                     <li class="blockList">
-                                        <h4>setScaleType</h4>
-                                        <pre class="methodSignature"> <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> <a href=CallCompositeParticipantViewData.html#setScaleType(ImageView.ScaleType)>setScaleType</a>(<a href=https://developer.android.com/reference/kotlin/android/widget/ImageView.ScaleType.html>ImageView.ScaleType</a> scaleType)</pre>
-                                        <div class="block"><p>Set scaleType.Will not take affect if called after <a href=CallCompositeParticipantViewData.html>CallCompositeParticipantViewData</a> passed to <a href=../CallComposite.html>CallComposite</a>.</p></div>
+                                        <h4>values</h4>
+                                        <pre class="methodSignature"> static <a href=https://docs.oracle.com/javase/8/docs/api/java/util/Collection.html>Collection</a>&lt;<a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a>&gt; <a href=CallCompositeLeaveCallConfirmationMode.html#values()>values</a>()</pre>
+                                        <div class="block"><p>Returns all the available values for <a href=CallCompositeLeaveCallConfirmationMode.html>CallCompositeLeaveCallConfirmationMode</a>.</p></div>
                                         
                                         <!-- TODO missing return annotation -->
                                     </li>
