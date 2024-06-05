@@ -24,12 +24,15 @@ stages:
         timeoutInMinutes: 20
         pool:
           name: azsdk-pool-mms-ubuntu-2004-general
-          vmImage: MMSUbuntu20.04
+          image: azsdk-pool-mms-ubuntu-2004-1espt
+          os: linux
 
         strategy:
           runOnce:
             deploy:
               steps:
+                - checkout: self
+
                 - checkout: azure-sdk-build-tools
                   path: azure-sdk-build-tools
 
@@ -41,11 +44,11 @@ stages:
                   parameters:
                     Artifacts: ${{parameters.Artifacts}}
                     ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
-
-                - publish: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
-                  artifact: ${{parameters.ArtifactName}}-signed
-                  displayName: 'Store signed packages in ${{parameters.ArtifactName}}-signed artifact'
-                  timeoutInMinutes: 5
+                
+                - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+                  parameters:
+                    ArtifactName: ${{parameters.ArtifactName}}-signed
+                    ArtifactPath: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
 
   # We generate two interdependent stages for each artifact listed in the ci.yml file, creates the release
   # in GitHub. The Release stage publishes to Maven Central. Both stages require approval since they
@@ -70,7 +73,8 @@ stages:
 
             pool:
               name: azsdk-pool-mms-win-2022-general
-              vmImage: windows-2022
+              image: azsdk-pool-mms-win-2022-1espt
+              os: windows
 
             strategy:
               runOnce:
@@ -96,12 +100,14 @@ stages:
 
               pool:
                 name: azsdk-pool-mms-win-2022-general
-                vmImage: windows-2022
+                image: azsdk-pool-mms-win-2022-1espt
+                os: windows
 
               strategy:
                 runOnce:
                   deploy:
                     steps:
+                      - checkout: self
                       - checkout: azure-sdk-build-tools
                         path: azure-sdk-build-tools
                       - template: tools/gpg/gpg.yml@azure-sdk-build-tools
@@ -112,6 +118,7 @@ stages:
                             - Name: Azure/azure-sdk-for-android
                               Commitish: $(Build.SourceVersion)
                               WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
+
                       - template: /eng/pipelines/templates/steps/java-publishing.yml
                         parameters:
                           ArtifactID: ${{artifact.name}}
@@ -123,7 +130,8 @@ stages:
                           # Note: In spite of the fact that the variable is named JavaRepoRoot, the
                           # root needs to be the root of the android repository
                           JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
-                      - template: /eng/common/pipelines/templates/steps/publish-artifact.yml
+
+                      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
                         parameters:
                           ArtifactName: ${{parameters.ArtifactName}}-${{artifact.name}}-esrp-$(System.JobAttempt)
                           ArtifactPath: $(Pipeline.Workspace)/EsrpPackages
@@ -137,7 +145,8 @@ stages:
 
               pool:
                 name: azsdk-pool-mms-win-2022-general
-                vmImage: MMS2022
+                image: azsdk-pool-mms-win-2022-1espt
+                os: windows
 
               strategy:
                 runOnce:
