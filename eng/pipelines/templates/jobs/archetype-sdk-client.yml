@@ -27,7 +27,7 @@ jobs:
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
 
-      - template: eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
         parameters:
           ArtifactPath: '$(Build.ArtifactStagingDirectory)'
           ArtifactName: 'packages'
@@ -79,7 +79,7 @@ jobs:
                $(Build.ArtifactStagingDirectory)/spotbugs/${{artifact.name}}-spotbugs-debug.xml
           displayName: Stage reports for ${{artifact.name}}
 
-      - template: eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
         parameters:
           ArtifactPath: '$(Build.ArtifactStagingDirectory)'
           ArtifactName: 'reports'
