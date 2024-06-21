@@ -181,6 +181,7 @@ foreach ($packageDetail in $packageDetails) {
   }
 
   Write-Host "Setting packageLocation to '$signedArtifactPath'"
+  Get-ChildItem -Path $signedArtifactPath
   Write-Host "##vso[task.setvariable variable=packageLocation]$signedArtifactPath"
   Write-Host ""
 }
