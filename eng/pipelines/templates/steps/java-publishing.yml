@@ -19,8 +19,8 @@ steps:
         filePath: ${{ parameters.JavaRepoRoot }}/eng/scripts/Publish-MavenPackages.ps1
         arguments: >
           -ArtifactDirectory ${{ parameters.ArtifactDirectory }}
-          -GroupIDFilter ${{ parameters.GroupID }}
-          -ArtifactIDFilter ${{ parameters.ArtifactID }}
+          -GroupIDFilter "${{ parameters.GroupID }}"
+          -ArtifactIDFilter "${{ parameters.ArtifactID }}"
           -RepositoryUrl https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-$(Build.BuildID)/maven/v1
           -RepositoryUsername nobody
           -RepositoryPassword $(System.AccessToken)
@@ -37,8 +37,8 @@ steps:
         filePath: ${{ parameters.JavaRepoRoot }}/eng/scripts/Publish-MavenPackages.ps1
         arguments: >
           -ArtifactDirectory ${{ parameters.ArtifactDirectory }}
-          -GroupIDFilter ${{ parameters.GroupID }}
-          -ArtifactIDFilter ${{ parameters.ArtifactID }}
+          -GroupIDFilter "${{ parameters.GroupID }}"
+          -ArtifactIDFilter "${{ parameters.ArtifactID }}"
           -RepositoryUrl ${{ parameters.RepositoryUrl }}
           -RepositoryUsername nobody
           -RepositoryPassword $(System.AccessToken)
@@ -55,31 +55,12 @@ steps:
         filePath: ${{ parameters.JavaRepoRoot }}/eng/scripts/Publish-MavenPackages.ps1
         arguments: >
           -ArtifactDirectory ${{ parameters.ArtifactDirectory }}
-          -GroupIDFilter ${{ parameters.GroupID }}
-          -ArtifactIDFilter ${{ parameters.ArtifactID }}
+          -GroupIDFilter "${{ parameters.GroupID }}"
+          -ArtifactIDFilter "${{ parameters.ArtifactID }}"
           -RepositoryUrl https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-android/maven/v1
           -RepositoryUsername nobody
           -RepositoryPassword $(System.AccessToken)
           -GPGExecutablePath ${{ parameters.GPGExecutablePath }}
-          -ShouldPublish:$${{parameters.ShouldPublish}}
-          -InformationAction Continue
-
-  - ${{if eq(parameters.Target, 'MavenCentral')}}:
-    - task: PowerShell@2
-      displayName: 'Publish to Maven Central'
-      inputs:
-        pwsh: true
-        workingDirectory: $(Agent.BuildDirectory)
-        filePath: ${{ parameters.JavaRepoRoot }}/eng/scripts/Publish-MavenPackages.ps1
-        arguments: >
-          -ArtifactDirectory ${{ parameters.ArtifactDirectory }}
-          -GroupIDFilter "${{ parameters.GroupID }}"
-          -ArtifactIDFilter "${{ parameters.ArtifactID }}"
-          -RepositoryUrl https://oss.sonatype.org/service/local/staging/deploy/maven2/
-          -RepositoryUsername azuresdk
-          -RepositoryPassword $(azuresdk-sonatype-password)
-          -GPGExecutablePath ${{ parameters.GPGExecutablePath }}
-          -StageOnly:$${{parameters.StageOnly}}
           -ShouldPublish:$${{parameters.ShouldPublish}}
           -InformationAction Continue
 
@@ -101,7 +82,11 @@ steps:
       - task: EsrpRelease@1
         displayName: 'Publish to ESRP'
         inputs:
-          ConnectedServiceName: 'ESRP Release Service'
+          ConnectedServiceName: 'Azure SDK Engineering System'
+          ClientId: '5f81938c-2544-4f1f-9251-dd9de5b8a81b'
+          KeyVaultName: 'AzureSDKEngKeyVault'
+          AuthCertName: 'azure-sdk-esrp-release-auth-certificate'
+          SignCertName: 'azure-sdk-esrp-release-sign-certificate'
           Intent: 'PackageDistribution'
           ContentType: 'Maven'
           PackageLocation: $(PackageLocation)
