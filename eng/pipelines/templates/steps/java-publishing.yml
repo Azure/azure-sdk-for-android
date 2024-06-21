@@ -79,14 +79,10 @@ steps:
           -GPGExecutablePath ${{ parameters.GPGExecutablePath }}
           -InformationAction Continue
     - ${{if and(eq(parameters.ShouldPublish, 'true'), ne(parameters.StageOnly, 'true'))}}:
-      - task: EsrpRelease@7
+      - task: EsrpRelease@1
         displayName: 'Publish to ESRP'
         inputs:
-          ConnectedServiceName: 'Azure SDK Engineering System'
-          ClientId: '5f81938c-2544-4f1f-9251-dd9de5b8a81b'
-          KeyVaultName: 'AzureSDKEngKeyVault'
-          AuthCertName: 'azure-sdk-esrp-release-auth-certificate'
-          SignCertName: 'azure-sdk-esrp-release-sign-certificate'
+          ConnectedServiceName: 'ESRP Release Service'
           Intent: 'PackageDistribution'
           ContentType: 'Maven'
           PackageLocation: $(PackageLocation)
@@ -95,4 +91,20 @@ steps:
           ServiceEndpointUrl: 'https://api.esrp.microsoft.com'
           MainPublisher: 'ESRPRELPACMANTEST'
           DomainTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47'
+      # - task: EsrpRelease@7
+      #   displayName: 'Publish to ESRP'
+      #   inputs:
+      #     ConnectedServiceName: 'Azure SDK Engineering System'
+      #     ClientId: '5f81938c-2544-4f1f-9251-dd9de5b8a81b'
+      #     KeyVaultName: 'AzureSDKEngKeyVault'
+      #     AuthCertName: 'azure-sdk-esrp-release-auth-certificate'
+      #     SignCertName: 'azure-sdk-esrp-release-sign-certificate'
+      #     Intent: 'PackageDistribution'
+      #     ContentType: 'Maven'
+      #     PackageLocation: $(PackageLocation)
+      #     Owners: $(Build.RequestedForEmail)
+      #     Approvers: 'wesh@microsoft.com'
+      #     ServiceEndpointUrl: 'https://api.esrp.microsoft.com'
+      #     MainPublisher: 'ESRPRELPACMANTEST'
+      #     DomainTenantId: '72f988bf-86f1-41af-91ab-2d7cd011db47'
 
