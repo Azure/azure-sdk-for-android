@@ -79,7 +79,7 @@ steps:
           -GPGExecutablePath ${{ parameters.GPGExecutablePath }}
           -InformationAction Continue
     - ${{if and(eq(parameters.ShouldPublish, 'true'), ne(parameters.StageOnly, 'true'))}}:
-      - task: EsrpRelease@1
+      - task: EsrpRelease@7
         displayName: 'Publish to ESRP'
         inputs:
           ConnectedServiceName: 'Azure SDK Engineering System'
