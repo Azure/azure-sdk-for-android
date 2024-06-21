@@ -89,7 +89,7 @@ steps:
           SignCertName: 'azure-sdk-esrp-release-sign-certificate'
           Intent: 'PackageDistribution'
           ContentType: 'Maven'
-          PackageLocation: $(PackageLocation)
+          FolderLocation: $(PackageLocation)
           Owners: $(Build.RequestedForEmail)
           Approvers: 'wesh@microsoft.com'
           ServiceEndpointUrl: 'https://api.esrp.microsoft.com'
