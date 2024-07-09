@@ -81,15 +81,14 @@ stages:
                 deploy:
                   steps:
                     - checkout: self
-                    - checkout: azure-sdk-build-tools
-                      path: azure-sdk-build-tools
-                    - pwsh: |
-                        $(Pipeline.Workspace)/azure-sdk-build-tools/scripts/create-tags-and-git-release.ps1 -artifactLocation $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}} -packageRepository Maven -releaseSha $(Build.SourceVersion) -repoId $(Build.Repository.Name)
-                      displayName: 'Verify Package Tags and Create Git Releases'
-                      timeoutInMinutes: 5
-                      workingDirectory: $(Pipeline.Workspace)
-                      env:
-                        GH_TOKEN: $(azuresdk-github-pat)
+                    - download: current
+                      displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
+                      artifact: ${{parameters.ArtifactName}}-signed
+                    - template: /eng/common/pipelines/templates/steps/create-tags-and-git-release.yml
+                      parameters:
+                        ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
+                        PackageRepository: Maven
+                        ReleaseSha: $(Build.SourceVersion)
 
           - ${{if ne(artifact.options.skipPublishPackage, 'true')}}:
             - deployment: PublishPackage
@@ -126,7 +125,6 @@ stages:
                           ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
                           OutputDirectory: $(Pipeline.Workspace)/EsrpPackages
                           Target: EsrpRelease
-                          BuildToolsPath: $(Pipeline.Workspace)/azure-sdk-build-tools
                           # Note: In spite of the fact that the variable is named JavaRepoRoot, the
                           # root needs to be the root of the android repository
                           JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
