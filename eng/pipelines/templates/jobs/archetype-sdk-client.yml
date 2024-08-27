@@ -108,10 +108,15 @@ jobs:
           publishJUnitResults: true
         displayName: Build and test
 
+      # Dotnet core sdk task 7.0.x. Required for PublishCodeCoverageResults@2
+      - task: UseDotNet@2
+        displayName: 'Use .NET Core sdk 7.0.x'
+        inputs:
+          version: 7.0.x
+
       - ${{ each artifact in parameters.Artifacts }}:
-        - task: PublishCodeCoverageResults@1
+        - task: PublishCodeCoverageResults@2
           inputs:
-            codeCoverageTool: 'JaCoCo'
             summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
             pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
           displayName: Publish code coverage for ${{artifact.name}}

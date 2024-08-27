@@ -49,10 +49,15 @@ steps:
       testResultsFiles: $(Build.SourcesDirectory)/${{ parameters.TargetDirectory }}/testResults.xml
       testRunTitle: $(System.StageName)_$(Agent.JobName)_Tests
 
+  # Dotnet core sdk task 7.0.x. Required for PublishCodeCoverageResults@2
+  - task: UseDotNet@2
+    displayName: 'Use .NET Core sdk 7.0.x'
+    inputs:
+      version: 7.0.x
+
   - task: PublishCodeCoverageResults@1
     displayName: Publish Code Coverage to Azure DevOps
     condition: succeededOrFailed()
     inputs:
-      codeCoverageTool: JaCoCo
       summaryFileLocation: $(Build.SourcesDirectory)/${{ parameters.TargetDirectory }}/coverage.xml
       pathToSources: $(Build.SourcesDirectory)/${{ parameters.TargetDirectory }}
