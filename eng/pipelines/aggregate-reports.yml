@@ -26,7 +26,7 @@ stages:
           vmImage: $(OSVmImage)
 
         steps:
-          - task: Gradle@2
+          - task: Gradle@3
             inputs:
               tasks: 'dependencies --write-locks'
               jdkVersion: $(JavaBuildVersion)

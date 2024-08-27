@@ -14,7 +14,7 @@ jobs:
       os: linux
 
     steps:
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
           jdkVersion: $(JavaBuildVersion)
@@ -50,13 +50,13 @@ jobs:
           Directory: ''
           CheckLinkGuidance: $true
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:check'
           jdkVersion: $(JavaBuildVersion)
         displayName: Run code quality tools (lint, checkstyle and spotbug)
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
           jdkVersion: $(JavaBuildVersion)
@@ -101,7 +101,7 @@ jobs:
         parameters:
           AgentImage: $(OSVmImage)
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
           jdkVersion: $(JavaTestVersion)
