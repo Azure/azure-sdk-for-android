@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 34
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.azure.android.communication.chat.sampleapp"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 34
     }
 
     buildTypes {

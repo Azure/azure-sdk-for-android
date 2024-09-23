@@ -12,13 +12,6 @@
 # /config/
 # /doc/
 
-################
-# Automation
-################
-
-# Git Hub integration and bot rules
-/.github/                                           @jsquire @ronniegeraghty
-
 ###########
 # SDK
 ###########
@@ -37,9 +30,6 @@
 # PRLabel: %Azure.Core
 /sdk/core/                                          @vcolin7 @anuchandy
 
-# PRLabel: %Storage
-/sdk/storage/                                       @vcolin7 @anuchandy
-
 # PRLabel: %EngSys
 /sdk/template/                                      @benbp @weshaggard
 
@@ -47,3 +37,5 @@
 # Eng Sys
 ###########
 /eng/                                               @benbp @weshaggard
+/eng/common/                                        @Azure/azure-sdk-eng
+/.github/workflows/                                 @Azure/azure-sdk-eng

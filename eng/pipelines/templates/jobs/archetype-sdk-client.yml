@@ -10,10 +10,11 @@ jobs:
 
     pool:
       name: $(Pool)
-      vmImage: $(OSVmImage)
+      image: $(OSVmImage)
+      os: linux
 
     steps:
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
           jdkVersion: $(JavaBuildVersion)
@@ -26,21 +27,10 @@ jobs:
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
 
-      - publish: $(Build.ArtifactStagingDirectory)
-        artifact: packages
-        displayName: Publish packages
-
-      - ${{if eq(variables['System.TeamProject'], 'internal') }}:
-        - task: AzureArtifacts.manifest-generator-task.manifest-generator-task.ManifestGeneratorTask@0
-          displayName: 'Generate BOM'
-          condition: succeededOrFailed()
-          inputs:
-            BuildDropPath: $(Build.ArtifactStagingDirectory)
-
-        - template: /eng/common/pipelines/templates/steps/publish-artifact.yml
-          parameters:
-            ArtifactPath: '$(Build.ArtifactStagingDirectory)/_manifest'
-            ArtifactName: 'manifest'
+      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+        parameters:
+          ArtifactPath: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'packages'
 
   - job: 'Analyze'
 
@@ -49,7 +39,8 @@ jobs:
 
     pool:
       name: $(Pool)
-      vmImage: $(OSVmImage)
+      image: $(OSVmImage)
+      os: linux
 
     steps:
       - template: /eng/common/pipelines/templates/steps/check-spelling.yml
@@ -59,13 +50,13 @@ jobs:
           Directory: ''
           CheckLinkGuidance: $true
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:check'
           jdkVersion: $(JavaBuildVersion)
         displayName: Run code quality tools (lint, checkstyle and spotbug)
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
           jdkVersion: $(JavaBuildVersion)
@@ -88,9 +79,10 @@ jobs:
                $(Build.ArtifactStagingDirectory)/spotbugs/${{artifact.name}}-spotbugs-debug.xml
           displayName: Stage reports for ${{artifact.name}}
 
-      - publish: $(Build.ArtifactStagingDirectory)
-        artifact: reports
-        displayName: Publish reports
+      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+        parameters:
+          ArtifactPath: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'reports'
 
       - template: /eng/common/pipelines/templates/steps/eng-common-workflow-enforcer.yml
 
@@ -101,14 +93,15 @@ jobs:
 
     pool:
       name: $(Pool)
-      vmImage: $(OSVmImage)
+      image: $(OSVmImage)
+      os: linux
 
     steps:
       - template: /eng/common/pipelines/templates/steps/verify-agent-os.yml
         parameters:
           AgentImage: $(OSVmImage)
 
-      - task: Gradle@2
+      - task: Gradle@3
         inputs:
           tasks: 'sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug'
           jdkVersion: $(JavaTestVersion)
@@ -116,9 +109,8 @@ jobs:
         displayName: Build and test
 
       - ${{ each artifact in parameters.Artifacts }}:
-        - task: PublishCodeCoverageResults@1
+        - task: PublishCodeCoverageResults@2
           inputs:
-            codeCoverageTool: 'JaCoCo'
             summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
             pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
           displayName: Publish code coverage for ${{artifact.name}}

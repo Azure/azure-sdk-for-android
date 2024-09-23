@@ -1,4 +1,21 @@
 # Release History
+## 2.0.3 (2024-02-27)
+
+### Other Changes
+- Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
+
+#### Dependency updates
+- Updated `azure-core` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-credential` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-http` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-logging` dependency to `1.0.0-beta.14`.
+- Updated `azure-core-rest` dependency to `1.0.0-beta.14`.
+- Updated `azure-communication-common` dependency to `1.2.1`.
+
+## 2.0.2 (2024-01-18)
+
+#### Bugs Fixed
+- Address the issue described in https://github.com/Azure/azure-sdk-for-android/issues/1483. The SDK now incorporates a more recent Trouter template to prevent Android devices from receiving duplicate real-time notifications.
 
 ## 2.0.1 (2023-10-25)
 

@@ -1,7 +1,7 @@
 variables:
     Pool: azsdk-pool-mms-ubuntu-2004-general
-    OSVmImage: MMSUbuntu20.04
+    OSVmImage: azsdk-pool-mms-ubuntu-2004-1espt
     DocWardenVersion: '0.4.2'
-    JavaBuildVersion: '1.8'
-    JavaTestVersion: '1.8'
+    JavaBuildVersion: '1.11'
+    JavaTestVersion: '1.11'
     Package.EnableSBOMSigning: true
