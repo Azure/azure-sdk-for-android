@@ -9,10 +9,6 @@ import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.CancellationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -101,23 +97,5 @@ public class RealtimeNotificationConfigClient {
         } catch (InterruptedException e) {
             throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInMin + " minutes"));
         }
-    }
-
-    /**
-     * Converts an InputStream to a String.
-     *
-     * @param is InputStream to convert.
-     * @return String representation of the InputStream.
-     * @throws IOException If an I/O error occurs.
-     */
-    private static String convertStreamToString(InputStream is) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ( (line = reader.readLine()) != null ) {
-            sb.append(line);
-        }
-        reader.close();
-        return sb.toString();
     }
 }
