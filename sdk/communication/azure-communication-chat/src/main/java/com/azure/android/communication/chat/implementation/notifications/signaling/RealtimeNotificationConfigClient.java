@@ -6,7 +6,6 @@ import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.CancellationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,8 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class RealtimeNotificationConfigClient {
-    private static final String TAG = "RealtimeNotificationConfigClient";
-
     private final HttpClient httpClient;
 
     private final ClientLogger logger = new ClientLogger(RealtimeNotificationConfigClient.class);
