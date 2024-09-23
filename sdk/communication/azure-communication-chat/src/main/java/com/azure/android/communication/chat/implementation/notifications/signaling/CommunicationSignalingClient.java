@@ -7,20 +7,12 @@ import static com.azure.android.communication.chat.BuildConfig.PLATFORM;
 import static com.azure.android.communication.chat.BuildConfig.PLATFORM_UI_VERSION;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATION_ID;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_EUDB;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_HOSTNAME_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_DOD;
-import static com.azure.android.communication.chat.BuildConfig.TROUTER_REGISTRATION_HOSTNAME_GCCH;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
 
 import android.content.Context;
 
 import com.azure.android.communication.chat.implementation.notifications.NotificationUtils;
-import com.azure.android.communication.chat.implementation.notifications.NotificationUtils.CloudType;
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
@@ -35,10 +27,7 @@ import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvi
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -53,18 +42,20 @@ public class CommunicationSignalingClient implements SignalingClient {
     private ISelfHostedTrouterClient trouter;
     private String userToken;
     private final CommunicationTokenCredential communicationTokenCredential;
+    private final RealtimeNotificationConfigClient realtimeNotificationConfigClient;
     private final Map<RealTimeNotificationCallback, CommunicationListener> trouterListeners;
     private boolean isRealtimeNotificationsStarted;
     private int tokenFetchRetries;
-    private final HashSet<String> countriesEUDB =
-        new HashSet<>(Arrays.asList("europe", "france", "germany", "norway", "switzerland", "sweden"));
+    private String serviceEndpoint;
 
-    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential) {
+    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential, String serviceEndpoint) {
         this.communicationTokenCredential = communicationTokenCredential;
-        this.logger = new ClientLogger(this.getClass());
+        this.realtimeNotificationConfigClient = new RealtimeNotificationConfigClient();
+        this.logger = new ClientLogger(CommunicationSignalingClient.class);
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
         tokenFetchRetries = 0;
+        this.serviceEndpoint = serviceEndpoint;
     }
 
     /**
@@ -226,30 +217,14 @@ public class CommunicationSignalingClient implements SignalingClient {
             return;
         }
 
-        CloudType cloudType = NotificationUtils.getUserCloudTypeFromSkypeToken(skypeUserToken);
-        String resourceLocation = NotificationUtils.decodeResourceLocationFromJwtToken(skypeUserToken);
-        boolean isEUDBCountry =
-            resourceLocation != null && countriesEUDB.contains(resourceLocation.toLowerCase(Locale.ROOT));
-        String trouterUrl;
-        String registrarUrl;
+        // Get trouterUrl from calling chat gateway
+        String apiVersion = "2024-09-01";
+        RealTimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, apiVersion);
 
-        switch (cloudType) {
-            case Dod:
-                trouterUrl = TROUTER_HOSTNAME_DOD;
-                registrarUrl = TROUTER_REGISTRATION_HOSTNAME_DOD;
-                break;
-
-            case Gcch:
-                trouterUrl = TROUTER_HOSTNAME_GCCH;
-                registrarUrl = TROUTER_REGISTRATION_HOSTNAME_GCCH;
-                break;
-
-            case Public:
-            default:
-                trouterUrl = isEUDBCountry ? TROUTER_HOSTNAME_EUDB : TROUTER_HOSTNAME;
-                registrarUrl = TROUTER_REGISTRATION_HOSTNAME;
-                break;
-        }
+        // Remove the "https://" prefix from the URLs
+        String trouterHostname = realTimeNotificationConfig.getTrouterServiceUrl().replace("https://", "");
+        String registrarBasePath = realTimeNotificationConfig.getRegistrarServiceUrl().replace("https://", "");
+        logger.info(String.format("Received config from service. Trouter Hostname: %s, Registrar Base Path: %s", trouterHostname, registrarBasePath));
 
         ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
             new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);
@@ -266,7 +241,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
-            registrarUrl,
+            registrarBasePath,
             Integer.parseInt(TROUTER_MAX_REGISTRATION_TTLS)
         );
 
@@ -274,7 +249,7 @@ public class CommunicationSignalingClient implements SignalingClient {
             trouterListeners.clear();
             trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
             trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider,
-                new InMemoryConnectionDataCache(), trouterUrl);
+                new InMemoryConnectionDataCache(), trouterHostname);
             trouter.withRegistrar(registrar);
             trouter.start();
             trouter.setUserActivityState(UserActivityState.ACTIVITY_ACTIVE);
