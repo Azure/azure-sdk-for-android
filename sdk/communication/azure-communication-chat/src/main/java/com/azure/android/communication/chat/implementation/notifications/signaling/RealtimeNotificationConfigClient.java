@@ -31,6 +31,13 @@ public class RealtimeNotificationConfigClient {
      * @param configApiVersion  The API version parameter.
      */
     public RealTimeNotificationConfig getTrouterSettings(String token, String endpoint, String configApiVersion) {
+        final int MAX_RETRIES = 3;
+        final long RETRY_DELAY_MS = 1000;
+
+        return attemptGetTrouterSettings(token, endpoint, configApiVersion, 0, MAX_RETRIES, RETRY_DELAY_MS);
+    }
+
+    public RealTimeNotificationConfig attemptGetTrouterSettings(String token, String endpoint, String configApiVersion, int retryCount, int maxRetry, long delayInMS) {
         /// Construct the URL
         String urlString = endpoint + "/chat/config/realTimeNotifications?api-version=" + configApiVersion;
 
@@ -83,7 +90,18 @@ public class RealtimeNotificationConfigClient {
 
         // Check for errors and throw an exception if necessary
         if (requestError[0] != null) {
-            throw new RuntimeException(requestError[0]);
+            if (retryCount < maxRetry) {
+                logger.warning("Request failed on attempt " + (retryCount + 1) + ". Retrying after " + delayInMS + "ms...");
+                try {
+                    Thread.sleep(delayInMS);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Thread interrupted during retry delay", ie);
+                }
+                return attemptGetTrouterSettings(token, endpoint, configApiVersion, retryCount + 1, maxRetry, delayInMS);
+            } else {
+                throw new RuntimeException("All retry attempts failed.", requestError[0]);
+            }
         }
 
         // Return the result
