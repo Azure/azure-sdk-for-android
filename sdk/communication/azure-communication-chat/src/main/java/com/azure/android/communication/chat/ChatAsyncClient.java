@@ -55,7 +55,7 @@ public final class ChatAsyncClient {
         AzureCommunicationChatServiceImpl chatServiceClient,
         CommunicationTokenCredential communicationTokenCredential) {
         this.chatServiceClient = chatServiceClient;
-        this.signalingClient = new CommunicationSignalingClient(communicationTokenCredential);
+        this.signalingClient = new CommunicationSignalingClient(communicationTokenCredential, chatServiceClient.getEndpoint());
         this.chatClient = chatServiceClient.getChatClient();
         this.pushNotificationClient = new PushNotificationClient(communicationTokenCredential);
     }
