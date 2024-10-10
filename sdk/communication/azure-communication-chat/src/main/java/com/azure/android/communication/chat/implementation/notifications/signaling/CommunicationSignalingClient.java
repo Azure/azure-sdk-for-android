@@ -219,12 +219,12 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         // Get trouterUrl from calling chat gateway
         String apiVersion = "2024-09-01";
-        RealTimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, apiVersion);
+        RealtimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, apiVersion);
 
         // Remove the "https://" prefix from the URLs
         String trouterHostname = realTimeNotificationConfig.getTrouterServiceUrl().replace("https://", "");
         String registrarBasePath = realTimeNotificationConfig.getRegistrarServiceUrl().replace("https://", "");
-        logger.info(String.format("Received config from service. Trouter Hostname: %s, Registrar Base Path: %s", trouterHostname, registrarBasePath));
+        logger.warning(String.format("Received config from service. Trouter Hostname: %s, Registrar Base Path: %s", trouterHostname, registrarBasePath));
 
         ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
             new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);

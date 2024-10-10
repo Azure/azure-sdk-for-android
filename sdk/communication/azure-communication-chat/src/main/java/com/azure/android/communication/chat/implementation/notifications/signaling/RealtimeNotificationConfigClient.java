@@ -1,26 +1,35 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
+import com.azure.android.core.http.HttpPipeline;
+import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.policy.RetryPolicy;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.RequestContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class RealtimeNotificationConfigClient {
-    private final HttpClient httpClient;
+    private final HttpPipeline httpPipeline;
 
     private final ClientLogger logger = new ClientLogger(RealtimeNotificationConfigClient.class);
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
     RealtimeNotificationConfigClient() {
-        this.httpClient = HttpClient.createDefault();
+        this.httpPipeline = new HttpPipelineBuilder()
+                .httpClient(HttpClient.createDefault())
+                .policies(RetryPolicy.withExponentialBackoff())
+                .build();
     }
 
     /**
@@ -30,14 +39,7 @@ public class RealtimeNotificationConfigClient {
      * @param endpoint          The base endpoint URL.
      * @param configApiVersion  The API version parameter.
      */
-    public RealTimeNotificationConfig getTrouterSettings(String token, String endpoint, String configApiVersion) {
-        final int MAX_RETRIES = 3;
-        final long RETRY_DELAY_MS = 1000;
-
-        return attemptGetTrouterSettings(token, endpoint, configApiVersion, 0, MAX_RETRIES, RETRY_DELAY_MS);
-    }
-
-    public RealTimeNotificationConfig attemptGetTrouterSettings(String token, String endpoint, String configApiVersion, int retryCount, int maxRetry, long delayInMS) {
+    public RealtimeNotificationConfig getTrouterSettings(String token, String endpoint, String configApiVersion) {
         /// Construct the URL
         String urlString = endpoint + "/chat/config/realTimeNotifications?api-version=" + configApiVersion;
 
@@ -50,58 +52,54 @@ public class RealtimeNotificationConfigClient {
         // Initialize CountDownLatch and error holder
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] requestError = { null };
-        final RealTimeNotificationConfig[] configResult = {null};
-
-        // Send the request asynchronously
-        this.httpClient.send(request, CancellationToken.NONE, new HttpCallback() {
+        final RealtimeNotificationConfig[] configResult = {null};
+        // Send the request asynchronously using HttpPipeline
+        httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 int statusCode = response.getStatusCode();
-                logger.info("Retrieve realtime notification config http response code:" + statusCode);
+                logger.info("Retrieve realtime notification config HTTP response code: " + statusCode);
                 if (statusCode != 200) {
-                    requestError[0] = new RuntimeException("Registrar register request failed with http status code "
-                        + statusCode
-                        + ". Error message: "
-                        + response.getBodyAsString()
-                    );
+                    try {
+                        String errorBody = response.getBodyAsString();
+                        requestError[0] = new RuntimeException("Registrar register request failed with HTTP status code "
+                            + statusCode
+                            + ". Error message: "
+                            + errorBody);
+                    } catch (Exception e) {
+                        requestError[0] = new RuntimeException("Failed to read error response body", e);
+                    }
+                } else {
+                    // Convert the response content to RealtimeNotificationConfig
+                    try {
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        configResult[0] = objectMapper.readValue(response.getBodyAsString(), RealtimeNotificationConfig.class);
+                        logger.info("Successfully converted response to RealtimeNotificationConfig.");
+                    } catch (Exception e) {
+                        logger.error("Failed to parse response body to RealtimeNotificationConfig: " + e.getMessage(), e);
+                        requestError[0] = new RuntimeException("Failed to parse response body", e);
+                    }
                 }
-
-                // Convert the response content to RealTimeNotificationConfig
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    configResult[0] = objectMapper.readValue(response.getBodyAsString(), RealTimeNotificationConfig.class);
-                    logger.info("Successfully converted response to RealTimeNotificationConfig.");
-                } catch (Exception e) {
-                    logger.error("Failed to parse response body to RealTimeNotificationConfig: " + e.getMessage(), e);
-                    requestError[0] = new RuntimeException("Failed to parse response body", e);
-                }
-
                 latch.countDown();
             }
 
             @Override
             public void onError(Throwable error) {
+                logger.error("HTTP request failed: " + error.getMessage(), error);
                 requestError[0] = error;
                 latch.countDown();
             }
         });
 
-        awaitOnLatch(latch);
+        // Wait for the asynchronous operation to complete (with a timeout for safety)
+        boolean completed = awaitOnLatch(latch);
+        if (!completed) {
+            throw new RuntimeException("HTTP request timed out.");
+        }
 
         // Check for errors and throw an exception if necessary
         if (requestError[0] != null) {
-            if (retryCount < maxRetry) {
-                logger.warning("Request failed on attempt " + (retryCount + 1) + ". Retrying after " + delayInMS + "ms...");
-                try {
-                    Thread.sleep(delayInMS);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Thread interrupted during retry delay", ie);
-                }
-                return attemptGetTrouterSettings(token, endpoint, configApiVersion, retryCount + 1, maxRetry, delayInMS);
-            } else {
-                throw new RuntimeException("All retry attempts failed.", requestError[0]);
-            }
+            throw new RuntimeException("All retry attempts failed.", requestError[0]);
         }
 
         // Return the result
@@ -109,11 +107,11 @@ public class RealtimeNotificationConfigClient {
     }
 
     private boolean awaitOnLatch(CountDownLatch latch) {
-        long timeoutInMin = 1;
+        long timeoutInSec = 10;
         try {
-            return latch.await(timeoutInMin, TimeUnit.MINUTES);
+            return latch.await(timeoutInSec, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
-            throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInMin + " minutes"));
+            throw logger.logExceptionAsError(new RuntimeException("Operation didn't complete within " + timeoutInSec + " seconds"));
         }
     }
 }
