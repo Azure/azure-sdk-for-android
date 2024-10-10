@@ -9,6 +9,7 @@ import static com.azure.android.communication.chat.BuildConfig.TROUTER_APPLICATI
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_CLIENT_VERSION;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_MAX_REGISTRATION_TTLS;
 import static com.azure.android.communication.chat.BuildConfig.TROUTER_TEMPLATE_KEY;
+import static com.azure.android.communication.chat.BuildConfig.TROUTER_REALTIMECONFIG_API_VERSION;
 
 import android.content.Context;
 
@@ -218,8 +219,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         // Get trouterUrl from calling chat gateway
-        String apiVersion = "2024-09-01";
-        RealtimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, apiVersion);
+        RealtimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, TROUTER_REALTIMECONFIG_API_VERSION);
 
         // Remove the "https://" prefix from the URLs
         String trouterHostname = realTimeNotificationConfig.getTrouterServiceUrl().replace("https://", "");
