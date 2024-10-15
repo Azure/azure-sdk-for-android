@@ -17,6 +17,7 @@ import com.azure.android.communication.chat.implementation.notifications.Notific
 import com.azure.android.communication.chat.models.ChatEventType;
 import com.azure.android.communication.chat.models.RealTimeNotificationCallback;
 import com.azure.android.communication.common.CommunicationTokenCredential;
+import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;
@@ -49,9 +50,9 @@ public class CommunicationSignalingClient implements SignalingClient {
     private int tokenFetchRetries;
     private String serviceEndpoint;
 
-    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential, String serviceEndpoint) {
+    public CommunicationSignalingClient(CommunicationTokenCredential communicationTokenCredential, String serviceEndpoint, HttpPipeline httpPipeline) {
         this.communicationTokenCredential = communicationTokenCredential;
-        this.realtimeNotificationConfigClient = new RealtimeNotificationConfigClient();
+        this.realtimeNotificationConfigClient = new RealtimeNotificationConfigClient(httpPipeline);
         this.logger = new ClientLogger(CommunicationSignalingClient.class);
         isRealtimeNotificationsStarted = false;
         trouterListeners = new HashMap<>();
@@ -224,7 +225,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         // Remove the "https://" prefix from the URLs
         String trouterHostname = realTimeNotificationConfig.getTrouterServiceUrl().replace("https://", "");
         String registrarBasePath = realTimeNotificationConfig.getRegistrarServiceUrl().replace("https://", "");
-        logger.warning(String.format("Received config from service. Trouter Hostname: %s, Registrar Base Path: %s", trouterHostname, registrarBasePath));
+        logger.verbose(String.format("Received config from service. Trouter Hostname: %s, Registrar Base Path: %s", trouterHostname, registrarBasePath));
 
         ITrouterAuthHeadersProvider trouterAuthHeadersProvider =
             new TrouterSkypetokenAuthHeaderProvider(skypetokenProvider);

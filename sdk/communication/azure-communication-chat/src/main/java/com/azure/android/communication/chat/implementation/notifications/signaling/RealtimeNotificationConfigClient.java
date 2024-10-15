@@ -8,13 +8,18 @@ import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
+import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.policy.RetryPolicy;
+import com.azure.android.core.http.policy.UserAgentPolicy;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.RequestContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,11 +30,8 @@ public class RealtimeNotificationConfigClient {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    RealtimeNotificationConfigClient() {
-        this.httpPipeline = new HttpPipelineBuilder()
-                .httpClient(HttpClient.createDefault())
-                .policies(RetryPolicy.withExponentialBackoff())
-                .build();
+    RealtimeNotificationConfigClient(HttpPipeline httpPipeline) {
+        this.httpPipeline = createHttpPipeline(httpPipeline);
     }
 
     /**
@@ -104,6 +106,43 @@ public class RealtimeNotificationConfigClient {
 
         // Return the result
         return configResult[0];
+    }
+
+    // Create HttpPipeline based on polices passed from Contonso. We only apply retry policy and user agent policy.
+    private HttpPipeline createHttpPipeline(HttpPipeline httpPipeline) {
+        List<HttpPipelinePolicy> customPolicies = getAllPolicies(httpPipeline);
+        // httpPipeline policies
+        HttpPipeline newPipeline = new HttpPipelineBuilder()
+            .httpClient(HttpClient.createDefault())
+            .policies(customPolicies.toArray(new HttpPipelinePolicy[0]))
+            .build();
+
+        return newPipeline;
+    }
+
+    /**
+     * Retrieves all policies from the given HttpPipeline instance.
+     *
+     * @param pipeline The HttpPipeline instance.
+     * @return A list of HttpPipelinePolicy instances.
+     */
+    public static List<HttpPipelinePolicy> getAllPolicies(HttpPipeline pipeline) {
+        List<HttpPipelinePolicy> policies = new ArrayList<>();
+        int index = 0;
+        while (true) {
+            try {
+                HttpPipelinePolicy policy = pipeline.getPolicy(index);
+                // Only add retry policy and user agent policy for now
+                if (policy instanceof RetryPolicy || policy instanceof UserAgentPolicy) {
+                    policies.add(policy);
+                }
+                index++;
+            } catch (IndexOutOfBoundsException e) {
+                // No more policies
+                break;
+            }
+        }
+        return policies;
     }
 
     private boolean awaitOnLatch(CountDownLatch latch) {
