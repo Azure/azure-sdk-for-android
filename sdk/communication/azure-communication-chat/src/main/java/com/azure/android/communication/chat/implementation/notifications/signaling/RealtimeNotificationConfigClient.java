@@ -110,7 +110,7 @@ public class RealtimeNotificationConfigClient {
 
     // Create HttpPipeline based on polices passed from Contonso. We only apply retry policy and user agent policy.
     private HttpPipeline createHttpPipeline(HttpPipeline httpPipeline) {
-        List<HttpPipelinePolicy> customPolicies = getAllPolicies(httpPipeline);
+        List<HttpPipelinePolicy> customPolicies = getEssentialPolicies(httpPipeline);
         // httpPipeline policies
         HttpPipeline newPipeline = new HttpPipelineBuilder()
             .httpClient(HttpClient.createDefault())
@@ -126,7 +126,7 @@ public class RealtimeNotificationConfigClient {
      * @param pipeline The HttpPipeline instance.
      * @return A list of HttpPipelinePolicy instances.
      */
-    public static List<HttpPipelinePolicy> getAllPolicies(HttpPipeline pipeline) {
+    public static List<HttpPipelinePolicy> getEssentialPolicies(HttpPipeline pipeline) {
         List<HttpPipelinePolicy> policies = new ArrayList<>();
         int index = 0;
         while (true) {
