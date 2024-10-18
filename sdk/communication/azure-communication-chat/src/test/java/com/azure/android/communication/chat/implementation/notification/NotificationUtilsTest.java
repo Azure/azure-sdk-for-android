@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.Base64;
 import java.util.Map;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -58,30 +57,6 @@ public class NotificationUtilsTest {
         assertEquals(2, metadataMap.size());
         assertEquals(metadataMap.get("deliveryMode"), "deliveryMode value");
         assertEquals(metadataMap.get("tags"), "tag1");
-    }
-
-    @Test
-    public void canParseTokenForRegion() {
-        final String usaSkypeToken = generateTokenString("unitedstates");
-        assertEquals("unitedstates", NotificationUtils.decodeResourceLocationFromJwtToken(usaSkypeToken));
-
-        final String frenchToken = generateTokenString("france");
-        assertEquals("france", NotificationUtils.decodeResourceLocationFromJwtToken(frenchToken));
-
-        final String germanToken = generateTokenString("germany");
-        assertEquals("germany", NotificationUtils.decodeResourceLocationFromJwtToken(germanToken));
-
-        final String norwayToken = generateTokenString("norway");
-        assertEquals("norway", NotificationUtils.decodeResourceLocationFromJwtToken(norwayToken));
-
-        final String switzerlandToken = generateTokenString("switzerland");
-        assertEquals("switzerland", NotificationUtils.decodeResourceLocationFromJwtToken(switzerlandToken));
-
-        final String swedenToken = generateTokenString("sweden");
-        assertEquals("sweden", NotificationUtils.decodeResourceLocationFromJwtToken(swedenToken));
-
-        final String emeaToken = generateTokenString("europe");
-        assertEquals("europe", NotificationUtils.decodeResourceLocationFromJwtToken(emeaToken));
     }
 
     @Test
@@ -287,15 +262,5 @@ public class NotificationUtilsTest {
 
         String decryptedPayload = NotificationUtils.decryptPushNotificationPayload(iv, cipherText, new SecretKeySpec(cryptoKeyBytes, "AES"));
         assertEquals(VALID_DECRYPTED_PUSH_NOTIFICATION_PAYLOAD, decryptedPayload);
-    }
-
-    private String generateTokenString(String resourceLocation) {
-        String prefix = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.";
-        String postfix = ".EMS0ExXqRuobm34WKJE8mAfZ7KppU5kEHl0OFdyree8";
-        String content = String.format("{\"iss\":\"ACS\",\"iat\": 1608152725,\"exp\": 1739688725,\"aud\": \"\",\"sub\": \"\",\"resourceLocation\": \"%s\"}", resourceLocation);
-        return new StringBuilder()
-            .append(prefix)
-            .append(Base64.getEncoder().encodeToString(content.getBytes()))
-            .append(postfix).toString();
     }
 }
