@@ -96,12 +96,12 @@ public class RealtimeNotificationConfigClient {
         // Wait for the asynchronous operation to complete (with a timeout for safety)
         boolean completed = awaitOnLatch(latch);
         if (!completed) {
-            throw new RuntimeException("HTTP request timed out.");
+            throw logger.logThrowableAsError(new RuntimeException("HTTP request timed out."));
         }
 
         // Check for errors and throw an exception if necessary
         if (requestError[0] != null) {
-            throw new RuntimeException("All retry attempts failed.", requestError[0]);
+            throw logger.logThrowableAsError(new RuntimeException("All retry attempts failed.", requestError[0]));
         }
 
         // Return the result

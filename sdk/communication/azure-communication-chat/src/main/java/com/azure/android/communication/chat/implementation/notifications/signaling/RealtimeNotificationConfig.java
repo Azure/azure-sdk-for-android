@@ -4,11 +4,11 @@
 package com.azure.android.communication.chat.implementation.notifications.signaling;
 
 public class RealtimeNotificationConfig {
-    public String trouterServiceUrl;
+    private String trouterServiceUrl;
 
-    public String registrarServiceUrl;
+    private String registrarServiceUrl;
 
-    public String cloudType;
+    private String cloudType;
 
     // Getter for trouterServiceUrl
     public String getTrouterServiceUrl() {
