@@ -10,6 +10,13 @@ public class RealtimeNotificationConfig {
 
     private String cloudType;
 
+    // Constructor to initialize all fields
+    public RealtimeNotificationConfig(String trouterServiceUrl, String registrarServiceUrl, String cloudType) {
+        this.trouterServiceUrl = trouterServiceUrl;
+        this.registrarServiceUrl = registrarServiceUrl;
+        this.cloudType = cloudType;
+    }
+
     // Getter for trouterServiceUrl
     public String getTrouterServiceUrl() {
         return trouterServiceUrl;

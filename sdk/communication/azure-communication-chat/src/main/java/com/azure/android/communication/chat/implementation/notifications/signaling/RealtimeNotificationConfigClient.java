@@ -112,12 +112,10 @@ public class RealtimeNotificationConfigClient {
     private HttpPipeline createHttpPipeline(HttpPipeline httpPipeline) {
         List<HttpPipelinePolicy> customPolicies = getEssentialPolicies(httpPipeline);
         // httpPipeline policies
-        HttpPipeline newPipeline = new HttpPipelineBuilder()
+        return new HttpPipelineBuilder()
             .httpClient(HttpClient.createDefault())
             .policies(customPolicies.toArray(new HttpPipelinePolicy[0]))
             .build();
-
-        return newPipeline;
     }
 
     /**
