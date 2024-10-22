@@ -220,7 +220,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         }
 
         // Get trouterUrl from calling chat gateway
-        RealtimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getTrouterSettings(skypeUserToken, serviceEndpoint, TROUTER_REALTIMECONFIG_API_VERSION);
+        RealtimeNotificationConfig realTimeNotificationConfig = realtimeNotificationConfigClient.getRealtimeConfigs(skypeUserToken, serviceEndpoint, TROUTER_REALTIMECONFIG_API_VERSION);
 
         // Remove the "https://" prefix from the URLs
         String trouterHostname = realTimeNotificationConfig.getTrouterServiceUrl().replace("https://", "");

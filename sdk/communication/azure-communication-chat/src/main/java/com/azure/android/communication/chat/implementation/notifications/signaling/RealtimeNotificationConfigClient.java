@@ -41,7 +41,7 @@ public class RealtimeNotificationConfigClient {
      * @param endpoint          The base endpoint URL.
      * @param configApiVersion  The API version parameter.
      */
-    public RealtimeNotificationConfig getTrouterSettings(String token, String endpoint, String configApiVersion) {
+    public RealtimeNotificationConfig getRealtimeConfigs(String token, String endpoint, String configApiVersion) {
         /// Construct the URL
         String urlString = endpoint + "/chat/config/realTimeNotifications?api-version=" + configApiVersion;
 
@@ -108,7 +108,7 @@ public class RealtimeNotificationConfigClient {
         return configResult[0];
     }
 
-    // Create HttpPipeline based on polices passed from Contonso. We only apply retry policy and user agent policy.
+    // Create HttpPipeline based on polices passed from client. We only apply retry policy and user agent policy.
     private HttpPipeline createHttpPipeline(HttpPipeline httpPipeline) {
         List<HttpPipelinePolicy> customPolicies = getEssentialPolicies(httpPipeline);
         // httpPipeline policies
