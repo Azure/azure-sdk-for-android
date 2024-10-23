@@ -1,0 +1,1 @@
+var packageSearchIndex = [{"l":"com.azure.android.ai.vision.face.ui","url":"com/azure/android/ai/vision/face/ui/package-summary.html"}, {"l":"com.azure.android.ai.vision.face.ui.components","url":"com/azure/android/ai/vision/face/ui/components/package-summary.html"}, {"l":"All packages","url":"index.html"}]

@@ -1,0 +1,6 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+
+com.azure.android.ai.vision.face.ui
+com.azure.android.ai.vision.face.ui.components
+
