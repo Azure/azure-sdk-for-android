@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.azure.android.ai.vision.common"},{"l":"com.azure.android.ai.vision.common.implementation"}]
