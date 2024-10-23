@@ -73,8 +73,6 @@ public final class NotificationUtils {
 
     public static final int MAX_TOKEN_FETCH_RETRY_COUNT = 3;
     public static final int MAX_REGISTRATION_RETRY_COUNT = 3;
-    public static final int MAX_REGISTRATION_RETRY_DELAY_S = 30;
-    public static final int REGISTRATION_RENEW_IN_ADVANCE_S = 30;
 
     private static final String CIPHER_TRANSFORMATION = "AES/CBC/PKCS5Padding";
     private static final int INITIALIZATION_VECTOR_SIZE = 16;
@@ -460,15 +458,6 @@ public final class NotificationUtils {
         try {
             ObjectNode payloadObj = getPayloadObj(jwtToken);
             return payloadObj.get("skypeid").asText();
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
-        }
-    }
-
-    public static String decodeResourceLocationFromJwtToken(String jwtToken) {
-        try {
-            ObjectNode payloadObj = getPayloadObj(jwtToken);
-            return payloadObj.get("resourceLocation").asText();
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("'jwtToken' is not a valid token string", e);
         }

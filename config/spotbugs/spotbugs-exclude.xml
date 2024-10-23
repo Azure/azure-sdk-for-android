@@ -37,6 +37,14 @@
     <Class name="com.azure.android.communication.chat.implementation.notifications.fcm.RegistrationKeyManager" />
     <Bug pattern="REC_CATCH_EXCEPTION" />
   </Match>
+  <Match>
+    <Class name="com.azure.android.communication.chat.implementation.notifications.signaling.RealtimeNotificationConfigClient$1" />
+    <Bug pattern="REC_CATCH_EXCEPTION" />
+  </Match>
+  <Match>
+    <Class name="com.azure.android.communication.chat.implementation.notifications.signaling.RealtimeNotificationConfigClient" />
+    <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE" />
+  </Match>
 
   <!-- This is false positive, the method won't ignore exception parameter -->
   <Match>
