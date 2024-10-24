@@ -10,6 +10,10 @@ public class RealtimeNotificationConfig {
 
     private String cloudType;
 
+    // Default constructor needed for Jackson deserialization
+    public RealtimeNotificationConfig() {
+    }
+
     // Constructor to initialize all fields
     public RealtimeNotificationConfig(String trouterServiceUrl, String registrarServiceUrl, String cloudType) {
         this.trouterServiceUrl = trouterServiceUrl;
