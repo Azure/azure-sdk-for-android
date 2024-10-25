@@ -1,4 +1,8 @@
 # Release History
+## 2.1.0 (2024-10-25)
+### Other Changes
+- Chat SDK would fetch Trouter notification configurations by calling chat gateway service. Instead of using the hard-coded values from the configuration files.
+
 ## 2.0.3 (2024-02-27)
 
 ### Other Changes
