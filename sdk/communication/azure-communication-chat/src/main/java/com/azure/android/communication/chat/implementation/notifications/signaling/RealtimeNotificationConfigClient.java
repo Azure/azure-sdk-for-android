@@ -55,6 +55,7 @@ public class RealtimeNotificationConfigClient {
         CountDownLatch latch = new CountDownLatch(1);
         final Throwable[] requestError = { null };
         final RealtimeNotificationConfig[] configResult = {null};
+
         // Send the request asynchronously using HttpPipeline
         httpPipeline.send(request, RequestContext.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
@@ -119,7 +120,7 @@ public class RealtimeNotificationConfigClient {
     }
 
     /**
-     * Retrieves all policies from the given HttpPipeline instance.
+     * Retrieves essential policies from the given HttpPipeline instance.
      *
      * @param pipeline The HttpPipeline instance.
      * @return A list of HttpPipelinePolicy instances.
