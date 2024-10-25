@@ -15,7 +15,7 @@ Azure Communication Chat contains the APIs used in chat applications for Azure C
 - A deployed Communication Services resource. You can use the [Azure Portal](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource?tabs=windows&pivots=platform-azp) or the [Azure PowerShell](https://docs.microsoft.com/powershell/module/az.communication/new-azcommunicationservice) to set it up.
 
 ### Versions available
-The current version of this library is **2.0.3**.
+The current version of this library is **2.1.0**.
 
 ### Include the package
 To install the Azure Communication Chat libraries for Android, add them as dependencies within your
@@ -31,13 +31,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:2.0.3"
+    implementation "com.azure.android:azure-communication-chat:2.1.0"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:2.0.3")
+    implementation("com.azure.android:azure-communication-chat:2.1.0")
 }
 ```
 
@@ -48,7 +48,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>2.0.3</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
