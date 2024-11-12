@@ -1,10 +1,5 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:com.azure.android.ai.vision.face.ui.components////PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui.components/index.html
-$dokka.location:com.azure.android.ai.vision.face.ui.components//FADE_IN_OUT_DURATION_IN_MILLIS/#/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui.components/-f-a-d-e_-i-n_-o-u-t_-d-u-r-a-t-i-o-n_-i-n_-m-i-l-l-i-s.html
-$dokka.location:com.azure.android.ai.vision.face.ui.components//FinishedProcessSpinnerAndCheckmark/#kotlin.Boolean#kotlin.Boolean/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui.components/-finished-process-spinner-and-checkmark.html
-$dokka.location:com.azure.android.ai.vision.face.ui.components//NINETY_DEGREES/#/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui.components/-n-i-n-e-t-y_-d-e-g-r-e-e-s.html
-$dokka.location:com.azure.android.ai.vision.face.ui.components//THREE_SIXTY_DEGREES/#/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui.components/-t-h-r-e-e_-s-i-x-t-y_-d-e-g-r-e-e-s.html
 $dokka.location:com.azure.android.ai.vision.face.ui////PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui/index.html
 $dokka.location:com.azure.android.ai.vision.face.ui//FaceLivenessDetector/#kotlin.String#kotlin.ByteArray?#kotlin.String?#kotlin.Function1[com.azure.android.ai.vision.face.ui.LivenessDetectionSuccess,kotlin.Unit]#kotlin.Function1[com.azure.android.ai.vision.face.ui.LivenessDetectionError,kotlin.Unit]/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui/-face-liveness-detector.html
 $dokka.location:com.azure.android.ai.vision.face.ui/LivenessDetectionError///PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui/-liveness-detection-error/index.html
@@ -79,5 +74,4 @@ $dokka.location:com.azure.android.ai.vision.face.ui/RecognitionStatus/entries/#/
 $dokka.location:com.azure.android.ai.vision.face.ui/RecognitionStatus/valueOf/#kotlin.String/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui/-recognition-status/value-of.html
 $dokka.location:com.azure.android.ai.vision.face.ui/RecognitionStatus/values/#/PointingToDeclaration/azure-ai-vision-face-ui/com.azure.android.ai.vision.face.ui/-recognition-status/values.html
 com.azure.android.ai.vision.face.ui
-com.azure.android.ai.vision.face.ui.components
 
