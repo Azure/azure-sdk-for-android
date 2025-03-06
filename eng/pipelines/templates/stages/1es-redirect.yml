@@ -44,6 +44,9 @@ extends:
         exclude:
           - repository: azure-sdk-build-tools
         runInSingleJob: true
+      # TODO: migrate analyze spot bugs configuration eng/pipelines/templates/jobs/archetype-sdk-client.yml's task named "Run code quality tools (lint, checkstyle and spotbug)"
+      spotBugs:
+        enabled: false
       eslint:
         enabled: false
         justificationForDisabling: 'ESLint injected task has failures because it uses an old version of mkdirp. We should not fail for tools not controlled by the repo. See: https://dev.azure.com/azure-sdk/internal/_build/results?buildId=3499746'

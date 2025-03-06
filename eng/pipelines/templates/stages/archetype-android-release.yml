@@ -40,8 +40,8 @@ stages:
                   WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
 
           - download: current
+            displayName: 'Download Artifact: ${{parameters.ArtifactName}}'
             artifact: ${{parameters.ArtifactName}}
-            timeoutInMinutes: 5
 
           - template: /tools/java-esrp-signing/java-esrp-signing.yml@azure-sdk-build-tools
             parameters:

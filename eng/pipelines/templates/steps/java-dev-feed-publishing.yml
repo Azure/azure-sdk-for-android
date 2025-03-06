@@ -29,7 +29,7 @@ steps:
 
   - ${{if eq(parameters.Target, 'AndroidDevFeed')}}:
     - task: PowerShell@2
-      displayName: 'Publish to Andriod Public Dev Feed'
+      displayName: 'Publish to Android Public Dev Feed'
       inputs:
         pwsh: true
         workingDirectory: $(Agent.BuildDirectory)
