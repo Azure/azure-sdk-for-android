@@ -72,7 +72,7 @@ stages:
                 ArtifactID: ${{artifact.name}}
                 GroupID: ${{artifact.groupId}}
                 ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
-                OutputDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-esrp-gpg-signed
+                OutputDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-gpg-signed
                 FlattenedESRPDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened
                 # Note: In spite of the fact that the variable is named JavaRepoRoot, the
                 # root needs to be the root of the android repository. This template, like many
