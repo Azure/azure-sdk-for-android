@@ -1,11 +1,15 @@
 # 1es PT credscan step will fail if the suppression file path we use in other stages does not exist here.
 # Checking out the repo via sparse checkout changes the devops path structure so that can't be used instead.
+
+# Testing against the PR https://raw.githubusercontent.com/JimSuplizio/azure-sdk-for-android/refs/heads/1es-redirect_warnings_fix/eng/CredScanSuppression.json
+
+# The one in main: https://raw.githubusercontent.com/Azure/azure-sdk-for-android/main/eng/CredScanSuppression.json
 steps:
   - pwsh: |
       $ErrorActionPreference = 'Stop'
       New-Item -ItemType Directory -Force eng
 
-      $req = Invoke-WebRequest https://raw.githubusercontent.com/Azure/azure-sdk-for-android/main/eng/CredScanSuppression.json
+      $req = Invoke-WebRequest https://raw.githubusercontent.com/JimSuplizio/azure-sdk-for-android/refs/heads/1es-redirect_warnings_fix/eng/CredScanSuppression.json
       $req.RawContent | Out-File eng/CredScanSuppression.json
 
     workingDirectory: $(Build.SourcesDirectory)
