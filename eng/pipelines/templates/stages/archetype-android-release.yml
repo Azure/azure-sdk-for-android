@@ -19,36 +19,72 @@ stages:
   - stage: Signing
     dependsOn: ${{parameters.DependsOn}}
     jobs:
-      - deployment: SignPackage
-        environment: esrp
+      - job: SignPackage
         timeoutInMinutes: 20
         pool:
-          name: azsdk-pool-mms-ubuntu-2004-general
-          image: azsdk-pool-mms-ubuntu-2004-1espt
-          os: linux
+          name: azsdk-pool-mms-win-2022-general
+          image: azsdk-pool-mms-win-2022-1espt
+          os: windows
+        steps:
+          - checkout: self
 
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
+          - checkout: azure-sdk-build-tools
+            path: azure-sdk-build-tools
 
-                - checkout: azure-sdk-build-tools
-                  path: azure-sdk-build-tools
+          - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+            parameters:
+              SkipCheckoutNone: true
+              Repositories:
+                - Name: Azure/azure-sdk-for-android
+                  Commitish: $(Build.SourceVersion)
+                  WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
 
-                - download: current
-                  artifact: ${{parameters.ArtifactName}}
-                  timeoutInMinutes: 5
+          - download: current
+            displayName: 'Download Artifact: ${{parameters.ArtifactName}}'
+            artifact: ${{parameters.ArtifactName}}
 
-                - template: /tools/java-esrp-signing/java-esrp-signing.yml@azure-sdk-build-tools
-                  parameters:
-                    Artifacts: ${{parameters.Artifacts}}
-                    ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
-                
-                - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
-                  parameters:
-                    ArtifactName: ${{parameters.ArtifactName}}-signed
-                    ArtifactPath: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
+          - template: /tools/java-esrp-signing/java-esrp-signing.yml@azure-sdk-build-tools
+            parameters:
+              Artifacts: ${{parameters.Artifacts}}
+              ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
+
+          # Publish the ESRP signed directory. This will still be used by the
+          # Dev feed publish.
+          - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+            parameters:
+              ArtifactPath: $(Pipeline.Workspace)/${{parameters.ArtifactName}}
+              ArtifactName: ${{parameters.ArtifactName}}-signed
+
+          # Downloading the ESRP signed artifacts
+          - download: current
+            displayName: 'Download Signed Artifacts'
+            artifact: ${{parameters.ArtifactName}}-signed
+
+          # Unfortunately, the way single libraries publishing works with ESRP is that only
+          # what's being published can be in the directory. gpg sign and flatten needs to be
+          # done for each artifact and the resulting directory is filtered by the groupId and
+          # artifactId. The flattened directory needs to have the artifact name in it to be
+          # unique since each publish task only publishes a single library.
+          - ${{ each artifact in parameters.Artifacts }}:
+            - template: tools/gpg/gpg.yml@azure-sdk-build-tools
+            - template: /eng/pipelines/templates/steps/gpg-sign-and-flatten.yml
+              parameters:
+                ArtifactID: ${{artifact.name}}
+                GroupID: ${{artifact.groupId}}
+                ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
+                OutputDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-gpg-signed
+                FlattenedESRPDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened
+                # Note: In spite of the fact that the variable is named JavaRepoRoot, the
+                # root needs to be the root of the android repository. This template, like many
+                # of the release steps and scripts, is copied from Java.
+                JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
+
+            # The packages-esrp-gpg-signed will be used for the ESRP publish for Android which
+            # is still a single library publish and doesn't require the flattened directory
+            - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
+              parameters:
+                ArtifactPath: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
+                ArtifactName: '${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
 
   # We generate two interdependent stages for each artifact listed in the ci.yml file, creates the release
   # in GitHub. The Release stage publishes to Maven Central. Both stages require approval since they
@@ -62,10 +98,9 @@ stages:
         dependsOn: Signing
         condition: and(succeeded(), ne(variables['SetDevVersion'], 'true'), ne(variables['Skip.Release'], 'true'), ne(variables['Build.Repository.Name'], 'Azure/azure-sdk-for-android-pr'))
         jobs:
-          - deployment: TagRepository
+          - job: TagRepository
             displayName: "Create release tag"
             condition: ne(variables['Skip.TagRepository'], 'true')
-            environment: maven
             timeoutInMinutes: 5
             dependsOn:
               - ${{ if eq(parameters.VerifyVersions, 'true')}}:
@@ -75,92 +110,67 @@ stages:
               name: azsdk-pool-mms-win-2022-general
               image: azsdk-pool-mms-win-2022-1espt
               os: windows
-
-            strategy:
-              runOnce:
-                deploy:
-                  steps:
-                    - checkout: self
-                    - download: current
-                      displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
-                      artifact: ${{parameters.ArtifactName}}-signed
-                    - template: /eng/common/pipelines/templates/steps/create-tags-and-git-release.yml
-                      parameters:
-                        ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
-                        PackageRepository: Maven
-                        ReleaseSha: $(Build.SourceVersion)
+            steps:
+              - checkout: self
+              - download: current
+                displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
+                artifact: ${{parameters.ArtifactName}}-signed
+              - template: /eng/common/pipelines/templates/steps/create-tags-and-git-release.yml
+                parameters:
+                  ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
+                  PackageRepository: Maven
+                  ReleaseSha: $(Build.SourceVersion)
 
           - ${{if ne(artifact.options.skipPublishPackage, 'true')}}:
-            - deployment: PublishPackage
-              displayName: "Publish to Maven Central"
+            - deployment: PublishESRPPackage
+              displayName: "Publish to Maven Central via ESRP"
               condition: and(succeeded(), ne(variables['Skip.PublishPackage'], 'true'))
               environment: maven
               dependsOn: TagRepository
 
+              templateContext:
+                type: releaseJob
+                isProduction: true
+                inputs:
+                - input: pipelineArtifact
+                  artifactName: '${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
+                  targetPath: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
+
               pool:
                 name: azsdk-pool-mms-win-2022-general
                 image: azsdk-pool-mms-win-2022-1espt
                 os: windows
-
               strategy:
                 runOnce:
                   deploy:
                     steps:
-                      - checkout: self
-                      - checkout: azure-sdk-build-tools
-                        path: azure-sdk-build-tools
-                      - template: tools/gpg/gpg.yml@azure-sdk-build-tools
-                      - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+                      - template: /eng/pipelines/templates/steps/java-esrp-publishing.yml
                         parameters:
-                          SkipCheckoutNone: true
-                          Repositories:
-                            - Name: Azure/azure-sdk-for-android
-                              Commitish: $(Build.SourceVersion)
-                              WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
-
-                      - template: /eng/pipelines/templates/steps/java-publishing.yml
-                        parameters:
-                          ArtifactID: ${{artifact.name}}
-                          GroupID: ${{artifact.groupId}}
-                          ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
-                          OutputDirectory: $(Pipeline.Workspace)/EsrpPackages
-                          Target: EsrpRelease
-                          # Note: In spite of the fact that the variable is named JavaRepoRoot, the
-                          # root needs to be the root of the android repository
-                          JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
-
-                      - template: /eng/common/pipelines/templates/steps/publish-1es-artifact.yml
-                        parameters:
-                          ArtifactName: ${{parameters.ArtifactName}}-${{artifact.name}}-esrp-$(System.JobAttempt)
-                          ArtifactPath: $(Pipeline.Workspace)/EsrpPackages
+                          FlattenedDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened
 
           - ${{if ne(artifact.options.skipPublishDocs, 'true')}}:
-            - deployment: PublishDocs
+            - job: PublishDocs
               displayName: Publish Docs to GitHubIO Blob Storage
               condition: and(succeeded(), ne(variables['Skip.PublishDocs'], 'true'))
-              environment: maven
-              dependsOn: PublishPackage
+              dependsOn: PublishESRPPackage
 
               pool:
                 name: azsdk-pool-mms-win-2022-general
                 image: azsdk-pool-mms-win-2022-1espt
                 os: windows
 
-              strategy:
-                runOnce:
-                  deploy:
-                    steps:
-                      - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
-                      - download: current
-                        displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
-                        artifact: ${{parameters.ArtifactName}}-signed
-                        patterns: ${{artifact.safeName}}/**
-                      - pwsh: |
-                          Get-ChildItem -Recurse $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
-                        workingDirectory: $(Pipeline.Workspace)
-                        displayName: Output Visible Artifacts
-                      - template: /eng/common/pipelines/templates/steps/publish-blobs.yml
-                        parameters:
-                          FolderForUpload: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}'
-                          TargetLanguage: 'android'
-                          ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
+              steps:
+                - template: /eng/common/pipelines/templates/steps/sparse-checkout.yml
+                - download: current
+                  displayName: 'Download Artifact: ${{parameters.ArtifactName}}-signed'
+                  artifact: ${{parameters.ArtifactName}}-signed
+                  patterns: ${{artifact.safeName}}/**
+                - pwsh: |
+                    Get-ChildItem -Recurse $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
+                  workingDirectory: $(Pipeline.Workspace)
+                  displayName: Output Visible Artifacts
+                - template: /eng/common/pipelines/templates/steps/publish-blobs.yml
+                  parameters:
+                    FolderForUpload: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}'
+                    TargetLanguage: 'android'
+                    ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
