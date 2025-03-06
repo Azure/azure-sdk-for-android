@@ -10,7 +10,7 @@
       "en-gb"
     ],
     "ignorePaths": [
-      "eng/common/**",
+      "eng/**",
       ".vscode/cspell.json"
     ],
     "words": [
