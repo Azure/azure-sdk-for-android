@@ -26,8 +26,6 @@ stages:
           image: azsdk-pool-mms-win-2022-1espt
           os: windows
         steps:
-          - checkout: self
-
           - checkout: azure-sdk-build-tools
             path: azure-sdk-build-tools
 
@@ -38,6 +36,8 @@ stages:
                 - Name: Azure/azure-sdk-for-android
                   Commitish: $(Build.SourceVersion)
                   WorkingDirectory: $(Pipeline.Workspace)/azure-sdk-for-android
+
+          - template: /eng/pipelines/templates/steps/download-credscan-suppressions.yml
 
           - download: current
             displayName: 'Download Artifact: ${{parameters.ArtifactName}}'
