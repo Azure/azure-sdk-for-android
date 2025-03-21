@@ -34,7 +34,7 @@ function Get-AllPackageInfoFromRepo ($serviceDirectory)
       $serviceDirectory = Split-Path -Path $pkgPath -Parent
       $serviceDirName = Split-Path -Path $serviceDirectory -Leaf
 
-      $pkgProp = [PackageProps]::new($pkgName, $pkgVersion, $pkgPath, $serviceDirName, $pkgGroup)
+      $pkgProp = [PackageProps]::new($pkgName, $pkgVersion, $pkgPath, $serviceDirName, $pkgGroup, $pkgName)
       $allPackageProps += $pkgProp
     }
 
