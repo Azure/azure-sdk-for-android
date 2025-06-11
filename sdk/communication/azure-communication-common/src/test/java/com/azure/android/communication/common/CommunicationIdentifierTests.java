@@ -226,6 +226,7 @@ public class CommunicationIdentifierTests {
         assertFalse(new PhoneNumberIdentifier("14255550123").isAnonymous());
         assertTrue(new PhoneNumberIdentifier("anonymous").isAnonymous());
         assertTrue(new PhoneNumberIdentifier("14255550123").setRawId("4:anonymous").isAnonymous());
+        assertFalse(new PhoneNumberIdentifier("anonymous").setRawId("14255550123").isAnonymous());
 
         assertNull(new PhoneNumberIdentifier("14255550121").getAssertedId());
         assertNull(new PhoneNumberIdentifier("14255550121.123").getAssertedId());
