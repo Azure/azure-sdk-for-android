@@ -20,7 +20,7 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
     public PhoneNumberIdentifier(String phoneNumber) {
-        this.phoneNumber = StringUtils.validateNotNullOrEmpty(phoneNumber, "phoneNumber");
+        this.phoneNumber = ValidationUtils.validateNotNullOrEmpty(phoneNumber, "phoneNumber");
         this.setRawId(PHONE_NUMBER_PREFIX + phoneNumber);
     }
 

@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.common;
 
-class StringUtils {
+class ValidationUtils {
 
     /**
      * Validate string
@@ -20,4 +20,22 @@ class StringUtils {
         }
         return value;
     }
+
+    /**
+     * Validate string
+     * @param cloudEnvironment a value to be validated
+     * @param paramName Parameter name for exceptionMessage
+     * @return value
+     *
+     * @throws IllegalArgumentException when value is null or Empty.
+     */
+    public static CommunicationCloudEnvironment validateNotNull(CommunicationCloudEnvironment cloudEnvironment,
+                                                                String paramName) {
+        if (cloudEnvironment == null) {
+            String message = "The parameter [" + paramName + "] cannot be null.";
+            throw new IllegalArgumentException(message);
+        }
+        return cloudEnvironment;
+    }
+
 }

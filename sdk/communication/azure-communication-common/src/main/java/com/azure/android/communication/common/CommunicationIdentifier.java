@@ -28,7 +28,7 @@ public abstract class CommunicationIdentifier {
      * @throws IllegalArgumentException raw id is null or empty.
      */
     public static CommunicationIdentifier fromRawId(String rawId) {
-        StringUtils.validateNotNullOrEmpty(rawId, "rawId");
+        ValidationUtils.validateNotNullOrEmpty(rawId, "rawId");
 
         if (rawId.startsWith(PHONE_NUMBER_PREFIX)) {
             return new PhoneNumberIdentifier(rawId.substring(PHONE_NUMBER_PREFIX.length()));

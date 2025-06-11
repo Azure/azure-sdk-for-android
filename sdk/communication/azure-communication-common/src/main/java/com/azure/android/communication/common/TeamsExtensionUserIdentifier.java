@@ -26,9 +26,9 @@ public final class TeamsExtensionUserIdentifier extends CommunicationIdentifier 
      * @throws IllegalArgumentException if any parameter fail the validation.
      */
     public TeamsExtensionUserIdentifier(String userId, String tenantId, String resourceId) {
-        this.userId = StringUtils.validateNotNullOrEmpty(userId, "userId");
-        this.tenantId = StringUtils.validateNotNullOrEmpty(tenantId, "tenantId");
-        this.resourceId = StringUtils.validateNotNullOrEmpty(resourceId, "resourceId");
+        this.userId = ValidationUtils.validateNotNullOrEmpty(userId, "userId");
+        this.tenantId = ValidationUtils.validateNotNullOrEmpty(tenantId, "tenantId");
+        this.resourceId = ValidationUtils.validateNotNullOrEmpty(resourceId, "resourceId");
         this.cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
 
         generateRawId();
@@ -86,9 +86,11 @@ public final class TeamsExtensionUserIdentifier extends CommunicationIdentifier 
      *
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @return this object
+     * @throws IllegalArgumentException if cloudEnvironment .
+     *
      */
     public TeamsExtensionUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
-        this.cloudEnvironment = cloudEnvironment != null ? cloudEnvironment : CommunicationCloudEnvironment.PUBLIC;
+        this.cloudEnvironment = ValidationUtils.validateNotNull(cloudEnvironment, "cloudEnvironment");
         generateRawId();
         return this;
     }
