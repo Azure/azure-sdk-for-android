@@ -1,6 +1,6 @@
 # Release History
 
-## 1.3.1 (2025-06-22)
+## 1.3.0 (2025-03-12)
 
 ### Features Added
 - Added support for a new communication identifier `TeamsExtensionUserIdentifier` which maps rawIds with format `8:acs:{resourceId}_{tenantId}_{userId}`.
@@ -30,29 +30,6 @@
 - Introduction of `MicrosoftTeamsAppIdentifier` is a breaking change. It will impact any code that previously depended on the use of UnknownIdentifier with rawIDs starting with `28:orgid:`, `28:dod:`, or `28:gcch:`.
 - Deprecated constructors that take 2 or more arguments in `CommunicationTokenRefreshOptions`. Users should now use the `CommunicationTokenRefreshOptions(Callable tokenRefresher)` constructor and chain fluent setters.
 - Updated `targetSdkVersion` and `compileSdkVersion` from `30` to `34`.
-
-## 2.0.0-beta.2 (2023-05-16)
-
-### Features Added
-- Added new constructor with required param `tokenRefresher` for `CommunicationTokenRefreshOptions`
-- Deprecated old constructor overloads in `CommunicationTokenRefreshOptions` and replaced by fluent setters
-- Added fluent setters for optional properties:
-    - Added `setRefreshProactively(boolean refreshProactively)` setter that allows setting whether the token should be proactively renewed prior to its expiry or on demand.
-    - Added `setInitialToken(String initialToken)` setter that allows setting the optional serialized JWT token
-- Optimization added: When the proactive refreshing is enabled and the token refresher fails to provide a token that's not about to expire soon, the subsequent refresh attempts will be scheduled for when the token reaches half of its remaining lifetime until a token with long enough validity (>10 minutes) is obtained.
-- The default `CommunicationCloudEnvironment` constructor will create Azure public cloud.
-- Overrode the `equals`, `toString`, `hashCode` methods of `CommunicationCloudEnvironment` to make it consistent with Java API.
-
-### Breaking Changes
-- Introduced non-nullability check for the argument of `CommunicationCloudEnvironment.fromString(String name)`. It will throw `NullPointerException` if the passed argument is null.
-
-## 2.0.0-beta.1 (2023-04-04)
-
-### Features Added
-- Added support for a new communication identifier `MicrosoftBotIdentifier`.
-
-### Breaking Changes
-- Introduction of `MicrosoftBotIdentifier` is a breaking change. It will affect code that relied on using `UnknownIdentifier` with a rawID starting with `28:`
 
 ## 1.1.1 (2023-10-23)
 
