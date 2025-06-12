@@ -34,8 +34,6 @@ public final class TeamsExtensionUserIdentifier extends CommunicationIdentifier 
         generateRawId();
     }
 
-
-
     /**
      * Set full ID of the identifier
      * RawId is the encoded format for identifiers to store in databases or as stable keys in general.
