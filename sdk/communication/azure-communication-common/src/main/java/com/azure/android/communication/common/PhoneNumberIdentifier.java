@@ -6,7 +6,11 @@ package com.azure.android.communication.common;
  * Communication identifier for Communication Services Phone Numbers
  */
 public final class PhoneNumberIdentifier extends CommunicationIdentifier {
+    private static final String ANONYMOUS = "anonymous";
     private final String phoneNumber;
+    private String assertedId;
+
+    private boolean isAnonymous;
 
     /**
      * Creates a PhoneNumberIdentifier object
@@ -16,10 +20,7 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
     public PhoneNumberIdentifier(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.trim().length() == 0) {
-            throw new IllegalArgumentException("The initialization parameter [phoneNumber] cannot be null to empty.");
-        }
-        this.phoneNumber = phoneNumber;
+        this.phoneNumber = ValidationUtils.validateNotNullOrEmpty(phoneNumber, "phoneNumber");
         this.setRawId(PHONE_NUMBER_PREFIX + phoneNumber);
     }
 
@@ -28,6 +29,35 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
      */
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+
+    /**
+     * Checks if the phone number is anonymous, e.g., used to represent a hidden caller ID.
+     *
+     * @return true if the phone number is anonymous, false otherwise.
+     */
+    public boolean isAnonymous() {
+        return isAnonymous;
+    }
+
+    /**
+     * Gets the asserted ID for the phone number, distinguishing it from other connections made through the same number.
+     *
+     * @return the string identifier representing the asserted ID for the phone number.
+     */
+    public String getAssertedId() {
+        if (assertedId != null && !assertedId.trim().isEmpty()) {
+            return assertedId;
+        }
+
+        String[] segments = getRawId().substring(PHONE_NUMBER_PREFIX.length()).split("_");
+        if (segments.length > 1) {
+            assertedId = segments[segments.length - 1];
+            return assertedId;
+        }
+
+        assertedId = "";
+        return null;
     }
 
     /**
@@ -40,6 +70,7 @@ public final class PhoneNumberIdentifier extends CommunicationIdentifier {
     @Override
     public PhoneNumberIdentifier setRawId(String rawId) {
         super.setRawId(rawId);
+        isAnonymous = getRawId().equals(PHONE_NUMBER_PREFIX + ANONYMOUS);
         return this;
     }
 

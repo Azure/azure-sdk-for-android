@@ -4,35 +4,53 @@ package com.azure.android.communication.common;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CommunicationIdentifierTests {
 
-    private final String userId = "user id";
-    private String microsoftTeamsAppId = "45ab2481-1c1c-4005-be24-0ffb879b1130";
-    private final String fullId = "some lengthy id string";
+    private final String microsoftTeamsAppId = "45ab2481-1c1c-4005-be24-0ffb879b1130";
+    private final String userId = "c1a6f4d2-8b39-4e88-bef2-9b2d8d685d3c";
+    private final String tenantId= "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d";
+    private final String resourceId= "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37";
 
     @Test
-    public void defaultCloudIsPublicForMicrosoftTeamsUserIdentifier() {
-        assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftTeamsUserIdentifier(userId, true).setRawId(fullId).getCloudEnvironment());
+    public void exceptionThrownForNullOrEmptyParameters() {
+        assertThrows(IllegalArgumentException.class, () -> new CommunicationUserIdentifier(""));
+        assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsUserIdentifier(""));
+        assertThrows(IllegalArgumentException.class, () -> new PhoneNumberIdentifier(""));
+        assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(""));
+        assertThrows(IllegalArgumentException.class, () -> new TeamsExtensionUserIdentifier("", "", ""));
+
+        assertThrows(IllegalArgumentException.class, () -> new CommunicationUserIdentifier(null));
+        assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsUserIdentifier(null));
+        assertThrows(IllegalArgumentException.class, () -> new PhoneNumberIdentifier(null));
+        assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(null));
+        assertThrows(IllegalArgumentException.class, () -> new TeamsExtensionUserIdentifier(null, "b", "c"));
+        assertThrows(IllegalArgumentException.class, () -> new TeamsExtensionUserIdentifier("a", null, "c"));
+        assertThrows(IllegalArgumentException.class, () -> new TeamsExtensionUserIdentifier("a", "b", null));
     }
 
     @Test
-    public void microsoftTeamsAppIdentifier_throwsMicrosofTeamsAppIdNullOrEmpty() {
+    public void defaultCloudIsPublicForAllIdentifiers() {
+        assertEquals(CommunicationCloudEnvironment.PUBLIC,
+            new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", true).getCloudEnvironment());
+        assertEquals(CommunicationCloudEnvironment.PUBLIC,
+            new MicrosoftTeamsAppIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130").getCloudEnvironment());
+        assertEquals(CommunicationCloudEnvironment.PUBLIC,
+            new TeamsExtensionUserIdentifier("207ffef6-9444-41fb-92ab-20eacaae2768", "45ab2481-1c1c-4005-be24-0ffb879b1130", "bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd").getCloudEnvironment());
+    }
+
+    @Test
+    public void microsoftTeamsAppIdentifier_throwsMicrosoftTeamsAppIdNullOrEmpty() {
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(null));
         assertEquals("The initialization parameter [appId] cannot be null or empty.", illegalArgumentException.getMessage());
 
         illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> new MicrosoftTeamsAppIdentifier(""));
         assertEquals("The initialization parameter [appId] cannot be null or empty.", illegalArgumentException.getMessage());
-    }
-
-    @Test
-    public void microsoftTeamsAppIdentifier_defaultCloudIsPublic() {
-        assertEquals(CommunicationCloudEnvironment.PUBLIC,
-            new MicrosoftTeamsAppIdentifier(userId).getCloudEnvironment());
     }
 
     @Test
@@ -91,6 +109,113 @@ public class CommunicationIdentifierTests {
     }
 
     @Test
+    public void TeamsExtensionIdentifier_rawIdTakesPrecedenceInEqualityCheck() {
+        // Public Cloud
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC),
+            new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
+
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC)
+                .setRawId("Raw Id"),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC)
+                .setRawId("AnotherRaw Id"));
+        String TeamsPhoneIdentifierBase = this.resourceId + "_" + this.tenantId + "_" + this.userId;
+        String rawId = "8:acs:" + TeamsPhoneIdentifierBase;
+        assertEquals( new TeamsExtensionUserIdentifier("override", tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.PUBLIC)
+                .setRawId(rawId),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
+
+        assertEquals( new TeamsExtensionUserIdentifier("override", tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC)
+                .setRawId(rawId),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId));
+
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.PUBLIC),
+            new TeamsExtensionUserIdentifier("override", tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.PUBLIC)
+                .setRawId(rawId));
+
+        // GCCH
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.GCCH),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.GCCH),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.PUBLIC));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.GCCH)
+                .setRawId("Raw Id"),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.GCCH)
+                .setRawId("AnotherRaw Id"));
+
+        rawId = "8:gcch-acs:" + TeamsPhoneIdentifierBase;
+        assertEquals( new TeamsExtensionUserIdentifier("override", tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.GCCH)
+                .setRawId(rawId),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
+
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.GCCH),
+            new TeamsExtensionUserIdentifier("override", tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.GCCH)
+                .setRawId(rawId));
+
+        // DOD
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.DOD),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.DOD));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.DOD),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.PUBLIC));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.DOD),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.GCCH));
+
+        assertNotEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.DOD)
+                .setRawId("Raw Id"),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.DOD)
+                .setRawId("AnotherRaw Id"));
+
+        rawId = "8:dod-acs:" + TeamsPhoneIdentifierBase;
+        assertEquals( new TeamsExtensionUserIdentifier("override", tenantId, resourceId)
+                .setCloudEnvironment( CommunicationCloudEnvironment.DOD)
+                .setRawId(rawId),
+            new TeamsExtensionUserIdentifier(userId, tenantId,
+                resourceId).setCloudEnvironment( CommunicationCloudEnvironment.DOD));
+
+        assertEquals( new TeamsExtensionUserIdentifier(userId, tenantId, resourceId)
+                .setCloudEnvironment(CommunicationCloudEnvironment.DOD),
+            new TeamsExtensionUserIdentifier("override", tenantId,
+                resourceId).setCloudEnvironment(CommunicationCloudEnvironment.DOD)
+                .setRawId(rawId));
+    }
+
+    @Test
     public void phoneNumberIdentifier_rawIdTakesPrecedenceInEqualityCheck() {
         assertEquals(new PhoneNumberIdentifier("+14255550123"), new PhoneNumberIdentifier("+14255550123"));
         assertNotEquals(new PhoneNumberIdentifier("+14255550123").setRawId("Raw Id"),
@@ -103,11 +228,75 @@ public class CommunicationIdentifierTests {
     }
 
     @Test
+    public void phoneNumberIdentifier_getParametersCheck() {
+        assertFalse(new PhoneNumberIdentifier("14255550123").isAnonymous());
+        assertTrue(new PhoneNumberIdentifier("anonymous").isAnonymous());
+        assertTrue(new PhoneNumberIdentifier("14255550123").setRawId("4:anonymous").isAnonymous());
+        assertFalse(new PhoneNumberIdentifier("anonymous").setRawId("14255550123").isAnonymous());
+
+        assertNull(new PhoneNumberIdentifier("14255550121").getAssertedId());
+        assertNull(new PhoneNumberIdentifier("14255550121.123").getAssertedId());
+        assertNull(new PhoneNumberIdentifier("14255550121-123").getAssertedId());
+        assertEquals("123", new PhoneNumberIdentifier("14255550121_123").getAssertedId());
+        assertEquals("456", new PhoneNumberIdentifier("14255550121_123_456").getAssertedId());
+
+        // Ensure getAssertedId() returns the same value on repeated calls
+        PhoneNumberIdentifier staticPhoneNumberIdentifier = new PhoneNumberIdentifier("14255550121_123");
+        assertEquals("123", staticPhoneNumberIdentifier.getAssertedId());
+        assertEquals("123", staticPhoneNumberIdentifier.getAssertedId());
+    }
+
+    @Test
+    public void teamsExtensionUserIdentifier_getParametersCheck()
+    {
+        TeamsExtensionUserIdentifier identifier = new TeamsExtensionUserIdentifier(userId, tenantId, resourceId);
+
+        assertEquals(identifier.getResourceId(), resourceId);
+        assertEquals(identifier.getTenantId(), tenantId);
+        assertEquals(identifier.getUserId(), userId);
+        assertEquals(identifier.getCloudEnvironment(), CommunicationCloudEnvironment.PUBLIC);
+    }
+
+    @Test
+    public void teamsExtensionUserIdentifier_SetCloudEnvironment_NullValue()
+    {
+        TeamsExtensionUserIdentifier identifier = new TeamsExtensionUserIdentifier(userId, tenantId, resourceId);
+        assertThrows(IllegalArgumentException.class, () -> identifier.setCloudEnvironment(null));
+    }
+
+    @Test
+    public void teamsExtensionUserIdentifier_getParametersCheck_DOD()
+    {
+        CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.DOD;
+
+        TeamsExtensionUserIdentifier identifier = new TeamsExtensionUserIdentifier(userId, tenantId, resourceId).setCloudEnvironment(cloudEnvironment);
+
+        assertEquals(identifier.getResourceId(), resourceId);
+        assertEquals(identifier.getTenantId(), tenantId);
+        assertEquals(identifier.getUserId(), userId);
+        assertEquals(identifier.getCloudEnvironment(), cloudEnvironment);
+    }
+
+    @Test
+    public void teamsExtensionUserIdentifier_getParametersCheck_GCCH()
+    {
+        CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.GCCH;
+
+        TeamsExtensionUserIdentifier identifier = new TeamsExtensionUserIdentifier(userId, tenantId, resourceId).setCloudEnvironment(cloudEnvironment);
+
+        assertEquals(identifier.getResourceId(), resourceId);
+        assertEquals(identifier.getTenantId(), tenantId);
+        assertEquals(identifier.getUserId(), userId);
+        assertEquals(identifier.getCloudEnvironment(), cloudEnvironment);
+    }
+
+    @Test
     public void getRawIdOfIdentifier()
     {
         assertRawId(new CommunicationUserIdentifier("8:acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130"), "8:acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new CommunicationUserIdentifier("8:gcch-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130"), "8:gcch-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new CommunicationUserIdentifier("someFutureFormat"), "someFutureFormat");
+
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130"), "8:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130"), "8:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130").setCloudEnvironment(CommunicationCloudEnvironment.DOD), "8:dod:45ab2481-1c1c-4005-be24-0ffb879b1130");
@@ -115,6 +304,14 @@ public class CommunicationIdentifierTests {
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130",  false), "8:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", true), "8:teamsvisitor:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRawId(new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", true).setRawId("8:orgid:legacyFormat"), "8:orgid:legacyFormat");
+
+        assertRawId(new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC),
+            "8:acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRawId(new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.DOD),
+            "8:dod-acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRawId(new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.GCCH),
+            "8:gcch-acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130");
+
         assertRawId(new PhoneNumberIdentifier("+112345556789"), "4:+112345556789");
         assertRawId(new PhoneNumberIdentifier("112345556789"), "4:112345556789");
         assertRawId(new PhoneNumberIdentifier("+112345556789").setRawId("4:otherFormat"), "4:otherFormat");
@@ -134,11 +331,20 @@ public class CommunicationIdentifierTests {
         assertIdentifier("8:dod-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130", new CommunicationUserIdentifier("8:dod-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130"));
         assertIdentifier("8:gcch-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130", new CommunicationUserIdentifier("8:gcch-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130"));
         assertIdentifier("8:acs:something", new CommunicationUserIdentifier("8:acs:something"));
+
         assertIdentifier("8:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", false).setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
         assertIdentifier("8:dod:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", false).setCloudEnvironment(CommunicationCloudEnvironment.DOD));
         assertIdentifier("8:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", false).setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
         assertIdentifier("8:teamsvisitor:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", true).setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
         assertIdentifier("8:orgid:legacyFormat", new MicrosoftTeamsUserIdentifier("legacyFormat", false).setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
+
+        assertIdentifier("8:acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130",
+            new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.PUBLIC));
+        assertIdentifier("8:dod-acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130",
+            new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.DOD));
+        assertIdentifier("8:gcch-acs:3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37_7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d_45ab2481-1c1c-4005-be24-0ffb879b1130",
+            new TeamsExtensionUserIdentifier("45ab2481-1c1c-4005-be24-0ffb879b1130", "7f43a902-8c6f-4b77-91e1-67d3f3f4bb1d", "3e74a9c2-5d0b-4f88-936c-7ea2b21d4b37").setCloudEnvironment(CommunicationCloudEnvironment.GCCH));
+
         assertIdentifier("4:112345556789", new PhoneNumberIdentifier("112345556789"));
         assertIdentifier("4:+112345556789", new PhoneNumberIdentifier("+112345556789"));
         assertIdentifier("4:otherFormat", new PhoneNumberIdentifier("otherFormat"));
@@ -152,7 +358,7 @@ public class CommunicationIdentifierTests {
         assertIdentifier("28:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130", new MicrosoftTeamsAppIdentifier(microsoftTeamsAppId, CommunicationCloudEnvironment.GCCH));
 
         final IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> CommunicationIdentifier.fromRawId(null));
-        assertEquals("The parameter [rawId] cannot be null to empty.", illegalArgumentException.getMessage());
+        assertEquals("The parameter [rawId] cannot be null or empty.", illegalArgumentException.getMessage());
     }
 
     @Test
@@ -186,6 +392,9 @@ public class CommunicationIdentifierTests {
         assertRoundTrip("8:orgid:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRoundTrip("8:dod:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRoundTrip("8:gcch:45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("8:acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130_45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("8:dod-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130_45ab2481-1c1c-4005-be24-0ffb879b1130");
+        assertRoundTrip("8:gcch-acs:bbbcbc1e-9f06-482a-b5d8-20e3f26ef0cd_45ab2481-1c1c-4005-be24-0ffb879b1130_45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRoundTrip("8:teamsvisitor:45ab2481-1c1c-4005-be24-0ffb879b1130");
         assertRoundTrip("8:orgid:legacyFormat");
         assertRoundTrip("4:+112345556789");
