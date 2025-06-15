@@ -36,7 +36,7 @@ The following libraries are currently **generally available**:
 #### Azure Communication Services
 - [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 2.2.1
 - [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-chat): 2.0.0
-- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-common): 1.0.2
+- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/main/sdk/communication/azure-communication-common): 1.3.0
 
 ### Install the libraries
 To install the Azure client libraries for Android, add them as dependencies within your
