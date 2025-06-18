@@ -36,7 +36,7 @@
 ###########
 # Eng Sys
 ###########
-/eng/                                               @benbp @weshaggard @JimSuplizio
+/eng/                                               @benbp @weshaggard
 /eng/common/                                        @Azure/azure-sdk-eng
 /.github/workflows/                                 @Azure/azure-sdk-eng
 /.github/CODEOWNERS                                 @vcolin7 @Azure/azure-sdk-eng
