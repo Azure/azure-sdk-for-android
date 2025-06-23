@@ -7,10 +7,11 @@ jobs:
 
     variables:
       - template: /eng/pipelines/templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/image.yml
 
     pool:
-      name: $(Pool)
-      image: $(OSVmImage)
+      name: $(LINUXPOOL)
+      image: $(LINUXIMAGE)
       os: linux
 
     steps:
@@ -38,8 +39,8 @@ jobs:
       - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
-      name: $(Pool)
-      image: $(OSVmImage)
+      name: $(LINUXPOOL)
+      image: $(LINUXIMAGE)
       os: linux
 
     steps:
@@ -92,8 +93,8 @@ jobs:
       - template: /eng/pipelines/templates/variables/globals.yml
 
     pool:
-      name: $(Pool)
-      image: $(OSVmImage)
+      name: $(LINUXPOOL)
+      image: $(LINUXIMAGE)
       os: linux
 
     steps:
