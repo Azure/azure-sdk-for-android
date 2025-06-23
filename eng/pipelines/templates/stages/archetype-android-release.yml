@@ -17,13 +17,13 @@ stages:
   # in this case we do GPG signing in order to publish to Maven Central. At the moment signing
   # is protected by an approval check but this may be removed in the future.
   - stage: Signing
-    dependsOn: ${{parameters.DependsOn}}
+    dependsOn: ${{parameters.DependsOn}}   
     jobs:
       - job: SignPackage
         timeoutInMinutes: 20
         pool:
           name: $(WINDOWSPOOL)
-          image: $(WINDOWSIMAGE)
+          image: $(WINDOWSVMIMAGE)
           os: windows
         steps:
           - checkout: azure-sdk-build-tools
@@ -108,7 +108,7 @@ stages:
 
             pool:
               name: $(WINDOWSPOOL)
-              image: $(WINDOWSIMAGE)
+              image: $(WINDOWSVMIMAGE)
               os: windows
             steps:
               - checkout: self
@@ -157,7 +157,7 @@ stages:
                 
               pool:
                 name: $(WINDOWSPOOL)
-                image: $(WINDOWSIMAGE)
+                image: $(WINDOWSVMIMAGE)
                 os: windows
 
               steps:
