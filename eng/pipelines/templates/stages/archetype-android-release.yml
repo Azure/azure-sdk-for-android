@@ -22,8 +22,8 @@ stages:
       - job: SignPackage
         timeoutInMinutes: 20
         pool:
-          name: azsdk-pool-mms-win-2022-general
-          image: azsdk-pool-mms-win-2022-1espt
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSIMAGE)
           os: windows
         steps:
           - checkout: azure-sdk-build-tools
@@ -107,8 +107,8 @@ stages:
                 - VerifyReleaseVersion
 
             pool:
-              name: azsdk-pool-mms-win-2022-general
-              image: azsdk-pool-mms-win-2022-1espt
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSIMAGE)
               os: windows
             steps:
               - checkout: self
@@ -137,9 +137,10 @@ stages:
                   targetPath: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
 
               pool:
-                name: azsdk-pool-mms-win-2022-general
-                image: azsdk-pool-mms-win-2022-1espt
+                name: azsdk-pool
+                image: windows-2022
                 os: windows
+
               strategy:
                 runOnce:
                   deploy:
@@ -153,10 +154,10 @@ stages:
               displayName: Publish Docs to GitHubIO Blob Storage
               condition: and(succeeded(), ne(variables['Skip.PublishDocs'], 'true'))
               dependsOn: PublishESRPPackage
-
+                
               pool:
-                name: azsdk-pool-mms-win-2022-general
-                image: azsdk-pool-mms-win-2022-1espt
+                name: $(WINDOWSPOOL)
+                image: $(WINDOWSIMAGE)
                 os: windows
 
               steps:
