@@ -4,14 +4,9 @@ parameters:
 
 jobs:
   - job: 'Build'
-
-    variables:
-      - template: /eng/pipelines/templates/variables/globals.yml
-      - template: /eng/pipelines/templates/variables/image.yml
-
     pool:
       name: $(LINUXPOOL)
-      image: $(LINUXIMAGE)
+      image: $(LINUXVMIMAGE)
       os: linux
 
     steps:
@@ -34,13 +29,9 @@ jobs:
           ArtifactName: 'packages'
 
   - job: 'Analyze'
-
-    variables:
-      - template: /eng/pipelines/templates/variables/globals.yml
-
     pool:
       name: $(LINUXPOOL)
-      image: $(LINUXIMAGE)
+      image: $(LINUXVMIMAGE)
       os: linux
 
     steps:
@@ -88,19 +79,15 @@ jobs:
       - template: /eng/common/pipelines/templates/steps/eng-common-workflow-enforcer.yml
 
   - job: 'UnitTest'
-
-    variables:
-      - template: /eng/pipelines/templates/variables/globals.yml
-
     pool:
       name: $(LINUXPOOL)
-      image: $(LINUXIMAGE)
+      image: $(LINUXVMIMAGE)
       os: linux
 
     steps:
       - template: /eng/common/pipelines/templates/steps/verify-agent-os.yml
         parameters:
-          AgentImage: $(OSVmImage)
+          AgentImage: $(LINUXVMIMAGE)
 
       - task: Gradle@3
         inputs:
