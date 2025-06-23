@@ -6,12 +6,14 @@ parameters:
     type: string
     default: not-specified
 
-
 extends:
   template: /eng/pipelines/templates/stages/1es-redirect.yml
   parameters:
     stages:
       - stage: Build
+        variables:
+          - template: /eng/pipelines/templates/variables/globals.yml
+          - template: /eng/pipelines/templates/variables/image.yml
         jobs:
         - template: ../jobs/archetype-sdk-client.yml
           parameters:

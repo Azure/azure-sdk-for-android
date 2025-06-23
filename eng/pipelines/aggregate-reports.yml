@@ -10,6 +10,7 @@ pr:
 
 variables:
   - template: /eng/pipelines/templates/variables/globals.yml
+  - template: /eng/pipelines/templates/variables/image.yml
 
 stages:
   - stage: AggregateReports
@@ -22,8 +23,8 @@ stages:
           - template: /eng/pipelines/templates/variables/globals.yml
 
         pool:
-          name: $(Pool)
-          vmImage: $(OSVmImage)
+          name: $(LINUXPOOL)
+          demands: ImageOverride -equals $(LINUXIMAGE)
 
         steps:
           - task: Gradle@3

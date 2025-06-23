@@ -17,13 +17,16 @@ stages:
   # in this case we do GPG signing in order to publish to Maven Central. At the moment signing
   # is protected by an approval check but this may be removed in the future.
   - stage: Signing
+    variables:
+      - template: /eng/pipelines/templates/variables/globals.yml
+      - template: /eng/pipelines/templates/variables/image.yml
     dependsOn: ${{parameters.DependsOn}}
     jobs:
       - job: SignPackage
         timeoutInMinutes: 20
         pool:
-          name: azsdk-pool-mms-win-2022-general
-          image: azsdk-pool-mms-win-2022-1espt
+          name: $(WINDOWSPOOL)
+          image: $(WINDOWSVMIMAGE)
           os: windows
         steps:
           - checkout: azure-sdk-build-tools
@@ -94,6 +97,9 @@ stages:
   - ${{if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['System.TeamProject'], 'internal'))}}:
     - ${{ each artifact in parameters.Artifacts }}:
       - stage: Release_${{artifact.safeName}}
+        variables:
+          - template: /eng/pipelines/templates/variables/globals.yml
+          - template: /eng/pipelines/templates/variables/image.yml
         displayName: 'Release: ${{artifact.name}}'
         dependsOn: Signing
         condition: and(succeeded(), ne(variables['SetDevVersion'], 'true'), ne(variables['Skip.Release'], 'true'), ne(variables['Build.Repository.Name'], 'Azure/azure-sdk-for-android-pr'))
@@ -107,8 +113,8 @@ stages:
                 - VerifyReleaseVersion
 
             pool:
-              name: azsdk-pool-mms-win-2022-general
-              image: azsdk-pool-mms-win-2022-1espt
+              name: $(WINDOWSPOOL)
+              image: $(WINDOWSVMIMAGE)
               os: windows
             steps:
               - checkout: self
@@ -137,9 +143,10 @@ stages:
                   targetPath: '$(Pipeline.Workspace)/${{parameters.ArtifactName}}-${{artifact.name}}-esrp-flattened'
 
               pool:
-                name: azsdk-pool-mms-win-2022-general
-                image: azsdk-pool-mms-win-2022-1espt
+                name: azsdk-pool
+                image: windows-2022
                 os: windows
+
               strategy:
                 runOnce:
                   deploy:
@@ -153,10 +160,10 @@ stages:
               displayName: Publish Docs to GitHubIO Blob Storage
               condition: and(succeeded(), ne(variables['Skip.PublishDocs'], 'true'))
               dependsOn: PublishESRPPackage
-
+                
               pool:
-                name: azsdk-pool-mms-win-2022-general
-                image: azsdk-pool-mms-win-2022-1espt
+                name: $(WINDOWSPOOL)
+                image: $(WINDOWSVMIMAGE)
                 os: windows
 
               steps:
