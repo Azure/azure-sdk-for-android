@@ -64,7 +64,6 @@ extends:
       credscan:
         suppressionsFile: $(Build.SourcesDirectory)/eng/CredScanSuppression.json
         scanFolder: $(Build.SourcesDirectory)/credscan.tsv
-        toolVersion: 2.3.12.23
         baselineFiles: $(Build.SourcesDirectory)/eng/android.gdnbaselines
 
     stages: ${{ parameters.stages }}
