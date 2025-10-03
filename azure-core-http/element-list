@@ -1,0 +1,5 @@
+com.azure.android.core.http
+com.azure.android.core.http.exception
+com.azure.android.core.http.implementation
+com.azure.android.core.http.policy
+com.azure.android.core.http.util

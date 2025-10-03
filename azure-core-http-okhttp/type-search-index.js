@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.azure.android.core.http.okhttp","l":"OkHttpAsyncClientProvider"},{"p":"com.azure.android.core.http.okhttp","l":"OkHttpAsyncHttpClientBuilder"}]

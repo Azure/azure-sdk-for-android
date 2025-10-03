@@ -1,0 +1,14 @@
+$dokka.format:javadoc-v1
+$dokka.linkExtension:html
+$dokka.location:com.azure.android.communication.ui.chat.implementation/ChatServiceConfigurationImpl.Companion///PointingToDeclaration/com/azure/android/communication/ui/chat/implementation/ChatServiceConfigurationImpl.Companion.html
+$dokka.location:com.azure.android.communication.ui.chat.presentation.style/ChatCompositeColors.Dark///PointingToDeclaration/com/azure/android/communication/ui/chat/presentation/style/ChatCompositeColors.Dark.html
+$dokka.location:com.azure.android.communication.ui.chat.presentation.style/ChatCompositeColors.Light///PointingToDeclaration/com/azure/android/communication/ui/chat/presentation/style/ChatCompositeColors.Light.html
+$dokka.location:com.azure.android.communication.ui.chat.presentation.style/ChatCompositeTypography.Companion///PointingToDeclaration/com/azure/android/communication/ui/chat/presentation/style/ChatCompositeTypography.Companion.html
+com.azure.android.communication.ui.chat
+com.azure.android.communication.ui.chat.implementation
+com.azure.android.communication.ui.chat.models
+com.azure.android.communication.ui.chat.presentation
+com.azure.android.communication.ui.chat.presentation.style
+com.azure.android.communication.ui.chat.presentation.ui.chat.components
+com.azure.android.communication.ui.chat.utilities
+

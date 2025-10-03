@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"com.azure.android.core.logging","l":"ClientLogger"},{"p":"com.azure.android.core.logging.implementation","l":"DefaultLogger"},{"p":"com.azure.android.core.logging","l":"LogLevel"},{"p":"com.azure.android.core.logging.implementation","l":"LogUtils"}]

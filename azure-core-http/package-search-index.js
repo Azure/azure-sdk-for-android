@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"com.azure.android.core.http"},{"l":"com.azure.android.core.http.exception"},{"l":"com.azure.android.core.http.implementation"},{"l":"com.azure.android.core.http.policy"},{"l":"com.azure.android.core.http.util"}]
