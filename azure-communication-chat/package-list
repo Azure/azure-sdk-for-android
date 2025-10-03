@@ -1,0 +1,8 @@
+com.azure.android.communication.chat
+com.azure.android.communication.chat.implementation
+com.azure.android.communication.chat.implementation.converters
+com.azure.android.communication.chat.implementation.models
+com.azure.android.communication.chat.implementation.notifications
+com.azure.android.communication.chat.implementation.notifications.fcm
+com.azure.android.communication.chat.implementation.notifications.signaling
+com.azure.android.communication.chat.models
