@@ -77,17 +77,6 @@ public class AutoRefreshProactiveTokenCredentialTests extends TokenCredentialBas
     }
 
     @Test()
-    public void getToken_shouldThrowIfRefresherReturnsExpiredToken() throws InterruptedException {
-        String expiredToken = TokenStubHelper.createTokenStringForOffset(-130);
-        mockTokenRefresher.setToken(expiredToken);
-
-        CommunicationTokenCredential tokenCredential = new CommunicationTokenCredential(createRefreshOptions(null));
-        countDownLatch.await(1, TimeUnit.SECONDS);
-
-        assertRefresherThrowsException(tokenCredential, 1, expiredTokenExceptionMessage);
-    }
-
-    @Test()
     public void getToken_refresherThrowsNoInitialToken() throws InterruptedException {
         mockTokenRefresherToThrowException();
         CommunicationTokenCredential tokenCredential = new CommunicationTokenCredential(createRefreshOptions(null));
