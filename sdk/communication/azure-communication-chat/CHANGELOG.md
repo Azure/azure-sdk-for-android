@@ -1,15 +1,13 @@
 # Release History
-## 2.2.0-beta.1 (Unreleased)
 
-### Features Added
+## 2.2.0 (2025-11-25)
 
-### Breaking Changes
+Add support for 16kb page size.
 
-### Bugs Fixed
+### Dependency updates
 
-### Other Changes
+- Updated `com.microsoft:trouter-client-android` to `0.4.0`
 
-## 2.1.0 (2024-10-25)
 ### Other Changes
 - The Chat SDK now fetches Trouter notification configurations dynamically by calling the chat gateway service, instead of relying on hard-coded values in configuration files.
 

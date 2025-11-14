@@ -279,7 +279,7 @@ allprojects {
         slf4jApiVersion = "1.7.32"
         threeTenAbpVersion = "1.3.1"
         threeTenBpVersion = "1.5.1"
-        trouterVersion = "0.1.1"
+        trouterVersion = "0.4.0"
         wireMockVersion = "2.27.2"
         woodstoxVersion = "6.4.0"
     }
