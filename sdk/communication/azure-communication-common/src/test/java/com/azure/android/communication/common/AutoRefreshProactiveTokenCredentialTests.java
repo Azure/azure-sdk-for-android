@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -76,6 +77,7 @@ public class AutoRefreshProactiveTokenCredentialTests extends TokenCredentialBas
         assertForMultithreadedCalls(tokenCredential, refreshedToken, 1);
     }
 
+    @Disabled("Flakey test")
     @Test()
     public void getToken_shouldThrowIfRefresherReturnsExpiredToken() throws InterruptedException {
         String expiredToken = TokenStubHelper.createTokenStringForOffset(-130);

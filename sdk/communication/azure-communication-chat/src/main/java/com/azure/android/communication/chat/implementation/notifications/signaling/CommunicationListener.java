@@ -14,6 +14,7 @@ import com.microsoft.trouterclient.ITrouterConnectionInfo;
 import com.microsoft.trouterclient.ITrouterListener;
 import com.microsoft.trouterclient.ITrouterRequest;
 import com.microsoft.trouterclient.ITrouterResponse;
+import com.microsoft.trouterclient.IAudienceSubscriptionResult;
 
 import java.util.List;
 
@@ -71,6 +72,14 @@ final class CommunicationListener implements ITrouterListener {
     @Override
     public void onTrouterMessageLoss(List<String> flowTags) {
         final String msg = "onTrouterMessageLoss(): flowTags=" + TextUtils.join(",", flowTags);
+        logger.info(msg);
+    }
+
+    @Override
+    public void onTrouterAudienceSubscriptionResponse(int requestId, IAudienceSubscriptionResult result, String correlationVector) {
+        final String msg = "onTrouterAudienceSubscriptionResponse(): requestId=" + requestId
+            + " result=" + result.toString()
+            + " correlationVector=" + correlationVector;
         logger.info(msg);
     }
 }
