@@ -67,7 +67,7 @@ function IsMavenPackageVersionPublished($pkgId, $pkgVersion, $groupId)
       }
 
       Write-Host "Checking published package at $uri"
-      $response = Invoke-WebRequest -Method "GET" -uri $uri -SkipHttpErrorCheck
+      $response = Invoke-WebRequest -Method "GET" -uri $uri -SkipHttpErrorCheck -UserAgent "azure-sdk-for-android" -Headers @{ "Content-signal" = "search=yes,ai-train=no" }
 
       if ($response.BaseResponse.IsSuccessStatusCode)
       {
