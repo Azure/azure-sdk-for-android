@@ -1,6 +1,6 @@
 # Release History
 
-## 2.2.0 (2025-11-25)
+## 2.2.0-beta.1 (2025-11-26)
 
 Add support for 16kb page size.
 
