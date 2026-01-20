@@ -1,1 +1,2 @@
 Azure/acs-identity-sdk is an invalid team. Ensure the team exists and has write permissions.
+Path entry, /eng/common/pipelines/codeowners-linter.yml, is missing owners
