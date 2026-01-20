@@ -41,3 +41,5 @@
 /.github/workflows/                                 @Azure/azure-sdk-eng
 /.github/CODEOWNERS                                 @vcolin7 @Azure/azure-sdk-eng
 
+# Add owners for notifications for specific pipelines
+/eng/common/pipelines/codeowners-linter.yml
