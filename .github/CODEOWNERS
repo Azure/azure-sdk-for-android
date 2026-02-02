@@ -12,9 +12,9 @@
 # /config/
 # /doc/
 
-###########
-# SDK
-###########
+####################
+# Client Libraries
+####################
 
 # Catch all
 /sdk/                                               @mayurid @jonathangiles
