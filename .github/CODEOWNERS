@@ -12,26 +12,23 @@
 # /config/
 # /doc/
 
-###########
-# SDK
-###########
+####################
+# Client Libraries
+####################
 
-# Catch all
-/sdk/                                               @mayurid @jonathangiles
-
-# Service teams
-
-# PRLabel: %Communication
-/sdk/communication/                                 @vcolin7 @Azure/azure-sdk-communication-code-reviewers
-
-# PRLabel: %Communication - Common
-/sdk/communication/azure-communication-common/      @Azure/acs-identity-sdk @AikoBB @maximrytych-ms @mjafferi-msft
+/sdk/                                                              @jonathangiles @mayurid
 
 # PRLabel: %Azure.Core
-/sdk/core/                                          @vcolin7 @anuchandy
+/sdk/core/                                                         @anuchandy @vcolin7
+
+# PRLabel: %Communication
+/sdk/communication/                                                @Azure/azure-sdk-communication-code-reviewers @vcolin7
+
+# PRLabel: %Communication - Common
+/sdk/communication/azure-communication-common/                     @AikoBB @Azure/acs-identity-sdk @maximrytych-ms @mjafferi-msft
 
 # PRLabel: %EngSys
-/sdk/template/                                      @benbp @weshaggard
+/sdk/template/                                                     @benbp @weshaggard
 
 ###########
 # Eng Sys
