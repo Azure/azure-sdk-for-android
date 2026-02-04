@@ -18,14 +18,14 @@
 
 /sdk/                                                              @jonathangiles @mayurid
 
+# PRLabel: %Azure.Core
+/sdk/core/                                                         @anuchandy @vcolin7
+
 # PRLabel: %Communication
 /sdk/communication/                                                @Azure/azure-sdk-communication-code-reviewers @vcolin7
 
 # PRLabel: %Communication - Common
 /sdk/communication/azure-communication-common/                     @AikoBB @Azure/acs-identity-sdk @maximrytych-ms @mjafferi-msft
-
-# PRLabel: %Azure.Core
-/sdk/core/                                                         @anuchandy @vcolin7
 
 # PRLabel: %EngSys
 /sdk/template/                                                     @benbp @weshaggard
