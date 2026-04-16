@@ -7,13 +7,6 @@ trigger:
       - feature/*
       - hotfix/*
       - release/*
-  paths:
-    include:
-      - sdk/core/
-      - eng/
-      - build.gradle
-      - gradle.properties
-      - settings.gradle
 
 pr:
   branches:
@@ -22,13 +15,6 @@ pr:
       - feature/*
       - hotfix/*
       - release/*
-  paths:
-    include:
-      - sdk/core/
-      - eng/
-      - build.gradle
-      - gradle.properties
-      - settings.gradle
 
 extends:
   template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
