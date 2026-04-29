@@ -9,9 +9,9 @@ Thank you for your interest in contributing to Azure SDK for Java.
 
 - To make code changes, or contribute something new, please follow the [GitHub Forks / Pull requests model](https://help.github.com/articles/fork-a-repo/): Fork the repo, make the change and propose it back by submitting a pull request.
 
-- Refer to the [wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Building#testing-for-spotbugs-and-checkstyle-issues) to learn about how Azure SDK for java generates CheckStyle, SpotBugs, Jacoco, and JavaDoc reports.
+- Refer to the [Code Quality guide](https://github.com/Azure/azure-sdk-for-java/blob/main/docs/contributor/code-quality.md) to learn about how Azure SDK for java generates CheckStyle, SpotBugs, Jacoco, and JavaDoc reports.
 
-- There are two Maven projects in the repo. Refer to the [wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Building#pomclientxml-vs-pomdataxml) to learn about project structure for each.
+- There are two Maven projects in the repo. Refer to the [build guide](https://github.com/Azure/azure-sdk-for-java/blob/main/docs/contributor/building.md) to learn about project structure for each.
 
 Pull Requests
 -------------
@@ -56,8 +56,8 @@ Merging Pull Requests (for project contributors with write access)
 
 ### Building and Unit Testing
 
-Refer to the [build wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Building) for learning how to build Java SDKs
-and the [unit testing wiki](https://github.com/Azure/azure-sdk-for-java/wiki/Unit-Testing) for guidelines on unit
+Refer to the [build guide](https://github.com/Azure/azure-sdk-for-java/blob/main/docs/contributor/building.md) for learning how to build Java SDKs
+and the [unit testing guide](https://github.com/Azure/azure-sdk-for-java/blob/main/docs/contributor/unit-testing.md) for guidelines on unit
 testing.
 
 ### Live testing
