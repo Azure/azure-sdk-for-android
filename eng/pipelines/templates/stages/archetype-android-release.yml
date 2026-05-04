@@ -126,6 +126,7 @@ stages:
                   ArtifactLocation: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed/${{artifact.safeName}}
                   PackageRepository: Maven
                   ReleaseSha: $(Build.SourceVersion)
+                  AuthToken: ''
 
           - ${{if ne(artifact.options.skipPublishPackage, 'true')}}:
             - deployment: PublishESRPPackage
